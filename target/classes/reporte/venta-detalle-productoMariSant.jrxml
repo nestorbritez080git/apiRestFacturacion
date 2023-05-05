@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="venta-detalle-producto" pageWidth="362" pageHeight="842" columnWidth="346" leftMargin="8" rightMargin="8" topMargin="0" bottomMargin="0" uuid="2d182dcd-898f-48ed-bcae-077393c78e8b">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="mm"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="descripcion" class="java.lang.String">
+		<fieldDescription><![CDATA[descripcion]]></fieldDescription>
+	</field>
+	<field name="cantidad" class="java.lang.Double">
+		<fieldDescription><![CDATA[cantidad]]></fieldDescription>
+	</field>
+	<field name="precio" class="java.lang.Double">
+		<fieldDescription><![CDATA[precio]]></fieldDescription>
+	</field>
+	<field name="subTotal" class="java.lang.Double">
+		<fieldDescription><![CDATA[subTotal]]></fieldDescription>
+	</field>
+	<field name="iva" class="java.lang.String">
+		<fieldDescription><![CDATA[iva]]></fieldDescription>
+	</field>
+	<field name="codbar" class="java.lang.Object">
+		<fieldDescription><![CDATA[producto.codbar]]></fieldDescription>
+	</field>
+	<field name="montoIva" class="java.lang.Double">
+		<fieldDescription><![CDATA[montoIva]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="12" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.layout"/>
+			<textField>
+				<reportElement x="49" y="0" width="166" height="12" uuid="3e3dbb54-59c5-4604-8d57-d2e39b4d387b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="36a1f47e-ad78-4e12-adcf-158fe38e766b"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="24" y="0" width="16" height="12" uuid="cb523947-0992-4597-bccf-e7952733e719">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5907374a-af43-47ca-b3e2-97603a4ed8ad"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.0").format($F{cantidad})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="217" y="0" width="40" height="12" uuid="913eeeff-baa2-4e81-b30b-f82c04bc93f8">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3445df3c-cac4-418f-a7b9-e8811161dc0e"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.0").format($F{precio})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="259" y="0" width="30" height="12" uuid="d24c1cfa-3785-46cb-842c-2c7765a745df">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2b3b68f5-71e4-49f6-b914-50ab3877e0cf"/>
+					<printWhenExpression><![CDATA[$F{iva}.equals( "Exenta" )]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{subTotal}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="292" y="0" width="30" height="12" uuid="371b4c6b-08ec-4a6f-96e6-aa6e6894bce7">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2b3b68f5-71e4-49f6-b914-50ab3877e0cf"/>
+					<printWhenExpression><![CDATA[$F{iva}.equals( "5 %" )]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{subTotal}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="324" y="0" width="30" height="12" uuid="021b0eb6-4482-4ac1-91ca-5e3debce9baf">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2b3b68f5-71e4-49f6-b914-50ab3877e0cf"/>
+					<printWhenExpression><![CDATA[$F{iva}.equals( "10 %" )]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{subTotal}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

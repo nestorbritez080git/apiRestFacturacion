@@ -1,0 +1,177 @@
+package com.bisontecfacturacion.security.model;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.GenericGenerator;
+
+
+@Entity
+public class DetallePresupuestoProducto {
+		
+		@Id
+		@GeneratedValue(generator = "increment")
+		@GenericGenerator(name = "increment", strategy = "increment")
+		private int id;
+		
+		@ManyToOne
+		private Producto producto;
+		@NotNull
+		private String descripcion;
+		@NotNull
+		private Double cantidad;
+		@NotNull
+		private Double precio;
+		private Double descuento;
+		private String iva;
+		@NotNull
+		private Double subTotal;
+		private Boolean isBalanza;
+		private String tipoPrecio;
+
+		private Double montoIva;
+		@ManyToOne
+		private Presupuesto presupuesto;
+		
+		
+		public DetallePresupuestoProducto() {
+			this.id=0;
+			this.descuento = 0.0;
+			this.presupuesto=new Presupuesto();
+			this.producto=new Producto();
+			this.cantidad=0.00;
+			this.precio=0.00;
+			this.subTotal=0.00;
+			this.iva="";
+			this.isBalanza=false;
+			this.tipoPrecio="";
+			this.montoIva=0.0;
+		}
+
+
+		public Double getMontoIva() {
+			return montoIva;
+		}
+
+
+		public void setMontoIva(Double montoIva) {
+			this.montoIva = montoIva;
+		}
+
+
+		public int getId() {
+			return id;
+		}
+
+
+		public void setId(int id) {
+			this.id = id;
+		}
+
+
+		public Producto getProducto() {
+			return producto;
+		}
+
+
+		public void setProducto(Producto producto) {
+			this.producto = producto;
+		}
+
+
+		public String getDescripcion() {
+			return descripcion;
+		}
+
+
+		public void setDescripcion(String descripcion) {
+			this.descripcion = descripcion;
+		}
+
+
+		public Double getCantidad() {
+			return cantidad;
+		}
+
+
+		public void setCantidad(Double cantidad) {
+			this.cantidad = cantidad;
+		}
+
+
+		public Double getPrecio() {
+			return precio;
+		}
+
+
+		public void setPrecio(Double precio) {
+			this.precio = precio;
+		}
+
+
+		public Double getDescuento() {
+			return descuento;
+		}
+
+
+		public void setDescuento(Double descuento) {
+			this.descuento = descuento;
+		}
+
+
+		public String getIva() {
+			return iva;
+		}
+
+
+		public void setIva(String iva) {
+			this.iva = iva;
+		}
+
+
+		public Double getSubTotal() {
+			return subTotal;
+		}
+
+
+		public void setSubTotal(Double subTotal) {
+			this.subTotal = subTotal;
+		}
+
+
+		public Boolean getIsBalanza() {
+			return isBalanza;
+		}
+
+
+		public void setIsBalanza(Boolean isBalanza) {
+			this.isBalanza = isBalanza;
+		}
+
+
+		public String getTipoPrecio() {
+			return tipoPrecio;
+		}
+
+
+		public void setTipoPrecio(String tipoPrecio) {
+			this.tipoPrecio = tipoPrecio;
+		}
+
+
+		public Presupuesto getPresupuesto() {
+			return presupuesto;
+		}
+
+
+		public void setPresupuesto(Presupuesto presupuesto) {
+			this.presupuesto = presupuesto;
+		}
+
+
+		
+
+}
