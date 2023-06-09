@@ -153,4 +153,6 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 		
 		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd from producto p where p.existencia < 0 order by p.descripcion ASC", nativeQuery = true)
 		List<Object[]> getProductoStockNegativo();
+		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd from producto p where p.is_balanza=true order by p.descripcion ASC", nativeQuery = true)
+		List<Object[]> getProductoProvenienteBalanza();
 }

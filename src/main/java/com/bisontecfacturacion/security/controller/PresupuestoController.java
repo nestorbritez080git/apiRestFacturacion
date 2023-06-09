@@ -369,18 +369,20 @@ public class PresupuestoController {
 			
 			Funcionario fun = funcionarioRepository.getIdFuncionario(pres.getFuncionario().getId());
 			
-			ReporteConfig reportConfig = reporteConfigRepository.getOne(2);
+			
 		
 			
 			pres.getCliente().getPersona().setNombre(cl.getPersona().getNombre()+" "+cl.getPersona().getApellido());
+			pres.getCliente().getPersona().setCedula(cl.getPersona().getCedula());
 			pres.getFuncionario().getPersona().setNombre(fun.getPersona().getNombre()+ " "+fun.getPersona().getApellido());
+			
+			ReporteConfig reportConfig = reporteConfigRepository.getOne(2);
+			Map<String, Object> map = new HashMap<>();	
 			List<Presupuesto> venta = new ArrayList<>();
 			venta.add(pres);
-			Map<String, Object> map = new HashMap<>();	
 			if (t.getImpresora().equals("matricial")) {
 				ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
 				String urlReporte ="\\reporte\\"+reportConfig.getNombreSubReporte1()+".jasper";
-				map.put("urlSubRepor", urlReporte);
 				map.put("urlSubRepor", urlReporte);
 				map.put("tituloReporte", f.getTitulo());
 				map.put("razonSocialReporte", f.getRazonSocial());

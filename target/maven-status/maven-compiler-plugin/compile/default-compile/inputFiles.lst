@@ -1,303 +1,308 @@
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\InformeVentaTotalAuxiliar.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PermisoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\InventarioCabecera.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoOperacion.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LoteBoletaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Producto.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\EntregaProduccion.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AperturaCajaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PersonaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TipoPlazoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\BaseDeDatos.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\MovimientoSalidaEntrada.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\ExcelGenerator.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DevolucionCompraDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\SerialDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Periodo.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaGastoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LoteNotaPedido.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\UsuarioController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PeriodoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\FechaUtil.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DevolucionVentaDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Print.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaAnticipo.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PagosProveedorCompraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AnulacionesCierreCaja.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PagosProveedor.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PlanillaSalarioFuncionarioDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PresupuestoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ReporteConfig.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\OrgRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\SalarioFuncionario.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PlanillaSalarioFuncionarioDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\EntregaProduccionRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Usuario.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\FacturaSistemaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PagosProveedorController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\MonedaRepsitory.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CajaChica.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SalarioFuncionarioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\MarcaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LimitesRegistroLista.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\GastoConsumicionesCabeceraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Pedido.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\service\UsuarioService.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ProductoCardexController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CuentaPagarCabecera.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\OrdenProduccionDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Documento.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\prueba.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CuentaCobrarCabecera.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\OperacionCajaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\service\CustomerErrorType.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\UnidadMedidaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProductoCardexRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PagosProveedorCompra.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CajaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\EntradaSalidaCajaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ClienteController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\ResourceServerConfig.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ResumenEntradaSalidaTipoOperacion.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\EntradaSalidaCajaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InteresCuotaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\InventarioReporteModelAux.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AnulacionesCierreCajaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\MarcaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\OperacionCaja.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\SalarioFuncionarioController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AjusteInventarioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CajaChicaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\service\IUsuarioService.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ModeloRucController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ReporteFormatoDatos.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\MovimientoEntradaSalida.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Persona.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\IUsuarioDao.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ListRouterController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ConfigCopiaSeguridadRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\MovimientoE_SRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Consumiciones.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InventarioCabeceraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\OrdenProduccionController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\FuncionarioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LoteBoleta.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CostoIndirectoFacbricacion.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CompraDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\CuentaProveedor.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ResumenTesoreriaPorConceptoUtilidad.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\AnulacionesController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CompraController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CierreCajaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetalleProducto.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\contabilidad\model\PlanCuentaCodigo.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Funcionario.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetalleCompra.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\OrdenProduccionDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\FacturaSistema.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\SpringSecurityConfig.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaCajaChica.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PermisoUserController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ProductoAuxiliar.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Permiso.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Cliente.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SerialDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\AnulacionesCierreCajaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ControlUsuario.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\GastoConsumicionesDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LoteTicket.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\OrdenProduccionRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PresupuestoDetalleServicioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ReporteFormatoDatosRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\NroDocumento.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\InventarioCabeceraController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AnulacionesVenta.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ConceptoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AddListRouterCampos.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PedidoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\GrupoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ResumenTesoreriaUtilidad.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\LoteDocumentoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PresupuestoDetalleProductoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TesoreriaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CuentaPagarDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\VentaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PagoProveedorRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\service\FechaUtil.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaTesoreriaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\Grafico.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CuentaCobrarDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\DepositoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ControlUsuarioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaPagosProveedorRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CajaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaTesoreria.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\InteresCuota.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\EntregaProduccionController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\SubGrupoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Role.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetallePresupuestoServicio.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\SerialController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AnticipoAuxiliar.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ReporteConfigRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProveedorRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Utilidades.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ConfigCopiaSeguridad.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\OrgController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PedidoDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AperturaCaja.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\AnticipoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\NotaCredito.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PresupuestoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\InventarioDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Serial.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Servicio.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Org.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PlanillaSalarioFuncionario.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\ApiRestApplication.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CompraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UtilidadPrecioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\ServletInitializer.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaPagosProveedor.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\GrupoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CobrosClienteController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LoteTicketRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Presupuesto.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\ImportarExcel.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\SalarioFuncionarioDetalle.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PlanillaSalarioFuncionarioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Impresora.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProduccionManoObra.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PedidoDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AddListRouter.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DetalleServicioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\InteresCuotaMoraController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ProductoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\InteresMora.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Compra.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PersonaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DevolucionVenta.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PermisoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ServicioController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProduccionCostoCabecera.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PrintRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Tesoreria.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\GastoConsumicionesDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ClienteRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Backup.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaAcobrarRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UserRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Venta.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Anticipo.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\FechaSerial.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoMovimiento.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DevolucionVentaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LoteNotaPedidoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UbicacionPermisoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\ConfigImpresora.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaAcobrarDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\UbicacionPermiso.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CierreCajaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\MonedaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\GastoConsumicionesCabecera.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\OrigenFlete.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ProveedorController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\UnidadMedida.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PedidoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\OrdenProduccion.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CuentaPagarCabeceraController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetallePresupuestoProducto.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\reportes\ReporteConsumoBobeda.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaCajaMayorRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ImpresoraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaGastos.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AddListRouterRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CobrosClienteRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Deposito.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AjusteInventario.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProduccionMateriaPrimaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\TerminalConfigImpresora.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Proveedor.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\TesoreriaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\InfoAdicionalToken.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\FacturaSistemaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LoteFactura.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\CuentaCliente.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PermisoUserRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Concepto.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DevolucionVentaDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Grupo.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\JwtConfig.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\MovimientoE_SController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoPlazo.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InventarioDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\User.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PrintController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ModeloRuc.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\SubGrupo.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SerialRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProductoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\HomeController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UnidadMedidaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CierreCaja.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ServicioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaPagarDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\FechaSerialRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\AperturaCajaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoInventario.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AuthorityName.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AnticipoDetalleAuxiliar.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LimitesRegistroListaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProduccionFabricacion.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\DetalleProductoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SalarioFuncionarioDetalleRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\AuthorizationServerConfig.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaCajaMayor.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ConsumicionesRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaPagarCabeceraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaAnticipoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaCajaChicaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SubGrupoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\GraficoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoDevolucion.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\RucFormato.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CuentaCobrarController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CobrosCliente.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DevolucionCompra.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetalleServicios.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TipoOperacionRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CajaMayor.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AnulacionesVentaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProduccionMateriaPrima.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TerminalConfigImpresoraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Reporte.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AddListRouterCamposRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CajaMayorRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Marca.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DepositoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\VentaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\DevoluconVentaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\UtilidadPrecio.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\OperacionCajaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\NotaCreditoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\EntradaSalidaCaja.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ModeloRucRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Caja.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LoteFacturaRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\GastoConsumicionesCabeceraController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PermisoUser.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PeriodoController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ConsumicionesController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Moneda.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\CustomerErrorType.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DetalleProductoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\LimitesRegistroListaController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TipoInventarioRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\FuncionarioController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AnticipoRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InteresMoraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Temporizador.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProduccionCostoCabeceraRepository.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProductoCardex.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ProduccionCostoCabeceraController.java
-C:\Users\Nestor\Documents\Developer\proyecto-bisontec\apiRestFacturacion\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PlanillaSalarioFuncionarioController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PagosProveedor.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaCajaChica.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaPagosProveedorRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AnticipoDetalleAuxiliar.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Caja.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Marca.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AddListRouterCampos.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AnticipoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CobrosClienteController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\InteresCuota.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CierreCaja.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\OrdenProduccionDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\GrupoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\ApiRestApplication.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TerminalConfigImpresoraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\ResourceServerConfig.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Usuario.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\InventarioDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Proveedor.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PedidoDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\BaseDeDatos.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\AnulacionesCierreCajaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaCajaChicaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Grupo.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\InformeVentaTotalAuxiliar.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Moneda.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Concepto.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PlanillaSalarioFuncionarioDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\InteresMora.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TesoreriaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DevolucionCompraDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\NotaCredito.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetalleProducto.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\LimitesRegistroListaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ProductoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\GastoConsumicionesDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TipoPlazoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\SubGrupo.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ModeloRuc.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SubGrupoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CobrosCliente.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CostoIndirectoFacbricacion.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AnulacionesCierreCajaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DevolucionVenta.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CierreCajaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ControlUsuarioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ClienteController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\GraficoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CajaChicaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\GastoConsumicionesCabeceraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\IUsuarioDao.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\AnulacionesController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CompraController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Tesoreria.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PermisoUserController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ConsumicionesController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PagosProveedorCompraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\OrdenProduccionDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaAnticipo.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PagoProveedorRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ResumenTesoreriaPorConceptoUtilidad.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProduccionManoObra.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\LoteDocumentoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AnulacionesVenta.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CuentaPagarCabeceraController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaTesoreriaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaPagarCabeceraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaGastoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\service\FechaUtil.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\CuentaCliente.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\SerialDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\service\CustomerErrorType.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\SalarioFuncionarioController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\NroDocumento.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LoteTicketRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CajaChica.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\InteresCuotaMoraController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ReporteConfig.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\OrdenProduccion.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ModeloRucController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\GastoConsumicionesCabecera.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PedidoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ImpresoraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\GrupoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CuentaCobrarDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\MovimientoE_SController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ResumenTesoreriaUtilidad.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PermisoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PlanillaSalarioFuncionarioController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CajaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DevolucionVentaDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AnticipoAuxiliar.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\MovimientoE_SRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetallePresupuestoProducto.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\ServletInitializer.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LoteFactura.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\GastoConsumicionesCabeceraController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ReporteFormatoDatos.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProductoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\InventarioReporteModelAux.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ProductoCardexController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LiquidacionServicio.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PedidoDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\SalarioFuncionarioDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SalarioFuncionarioDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PermisoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\DetalleProductoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ControlUsuario.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\SpringSecurityConfig.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ConsumicionesRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProveedorRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AddListRouterCamposRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\OperacionCaja.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\VentaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaTesoreria.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\FuncionarioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ListRouterController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\FacturaSistema.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetallePresupuestoServicio.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\MovimientoSalidaEntrada.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\CustomerErrorType.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DetalleProductoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProductoCardexRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TipoOperacionRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\MovimientoEntradaSalida.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InventarioDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LoteTicket.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\RucFormato.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaPagarDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Presupuesto.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\GastoConsumicionesDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ProductoAuxiliar.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetalleCompra.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CuentaPagarCabecera.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LoteBoletaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LoteBoleta.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\OperacionCajaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PresupuestoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaPagosProveedor.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\OrigenFlete.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InteresMoraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\SalarioFuncionario.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InteresCuotaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\MonedaRepsitory.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\reportes\ReporteConsumoBobeda.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\contabilidad\model\PlanCuentaCodigo.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaAcobrarDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\ConfigImpresora.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LoteNotaPedido.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DetalleServicioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Backup.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AuthorityName.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CuentaCobrarController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LoteFacturaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DetalleServicios.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\FacturaSistemaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\AperturaCajaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\EntradaSalidaCajaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\TerminalConfigImpresora.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PresupuestoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\ImportarExcel.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Org.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\SerialController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LiquidacionServicioDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\VentaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\OperacionCajaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoDevolucion.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaAnticipoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\JwtConfig.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\EntradaSalidaCaja.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\InventarioCabecera.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\DevolucionCompra.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\UbicacionPermiso.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaCajaMayorRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ConfigCopiaSeguridad.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LiquidacionServicioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ServicioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\FechaSerial.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\UtilidadPrecio.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CobrosClienteRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\User.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CompraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AddListRouter.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PedidoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Utilidades.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\DevoluconVentaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PermisoUser.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\FacturaSistemaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Anticipo.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DevolucionVentaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProduccionCostoCabeceraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TipoInventarioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PlanillaSalarioFuncionarioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SerialRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AperturaCaja.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\Grafico.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\OrgRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PersonaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Consumiciones.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LimitesRegistroLista.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ClienteRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\EntradaSalidaCajaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProduccionFabricacion.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DepositoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\MarcaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Print.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaCajaMayor.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Cliente.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaAcobrarRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AperturaCajaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AjusteInventarioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Compra.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\DepositoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PagosProveedorCompra.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InventarioCabeceraRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\CierreCajaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PersonaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CompraDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ProveedorController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Venta.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CajaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\AnticipoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CajaMayorRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ProduccionCostoCabeceraController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PeriodoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\EntregaProduccionController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UtilidadPrecioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\MarcaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\CuentaProveedor.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\OrdenProduccionController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AjusteInventario.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Documento.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ReporteConfigRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\UnidadMedidaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Pedido.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Producto.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\ExcelGenerator.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\prueba.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ProduccionMateriaPrimaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\service\UsuarioService.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\TesoreriaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\service\IUsuarioService.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Persona.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Impresora.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ReporteFormatoDatosRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PagosProveedorController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProductoCardex.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\OrdenProduccionRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Deposito.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PrintController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CajaMayor.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Temporizador.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UbicacionPermisoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\PeriodoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Servicio.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AddListRouterRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Funcionario.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Role.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PresupuestoDetalleProductoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PresupuestoDetalleServicioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LiquidacionServicioDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PlanillaSalarioFuncionarioDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\ServicioController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\SubGrupoController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ModeloRucRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProduccionMateriaPrima.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\InfoAdicionalToken.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\LiquidacionServicioController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoInventario.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\UnidadMedida.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\PlanillaSalarioFuncionario.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\ProduccionCostoCabecera.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ConfigCopiaSeguridadRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\FuncionarioController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\OrgController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\ConceptoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Periodo.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AnulacionesVentaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\EntregaProduccion.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaGastos.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LoteNotaPedidoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoPlazo.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\FechaSerialRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\InventarioCabeceraController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SalarioFuncionarioRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\HomeController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PermisoUserRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auth\AuthorizationServerConfig.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\NotaCreditoRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CuentaPagarDetalle.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\EntregaProduccionRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\FechaUtil.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoOperacion.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DevolucionVentaDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Serial.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\CuentaCobrarCabecera.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UserRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TipoMovimiento.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\UsuarioController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Permiso.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AnulacionesCierreCaja.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Reporte.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\MonedaController.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\LimitesRegistroListaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\ResumenEntradaSalidaTipoOperacion.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PrintRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SerialDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UnidadMedidaRepository.java

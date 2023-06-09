@@ -116,6 +116,9 @@ public class ProductoController {
 
 	@Autowired
 	private SubGrupoRepository subGrupoRepository;
+	
+	@Autowired
+	private ImpresoraRepository impresoraRepository;
 
 	
 	@RequestMapping(method=RequestMethod.GET)
@@ -289,15 +292,29 @@ public class ProductoController {
 			nombreEntity.setDescripcion("Elige un tipo de imagen valido...");
 		}
 		
-		
-		// En produccion
-		  Path directorioImagen = Paths.get("webapps//imagen");
-		//desarrollo	
-		  //Path directorioImagen = Paths.get("src//main//resources//static//imagen");
+		Path directorioImagen= null;
+		Impresora imp = impresoraRepository.findById(10).orElse(null);
+		if (imp==null) {
+			System.err.println("SE DEBE AGREGAR REGISTRO EN LA BD impresora ID=10, DESCRIPCION=Produccion, estado=false");
+		}else {
+			if(imp.isEstado()) {
+				  directorioImagen = Paths.get("webapps//imagen");
+				  
+			}else {
+				 //directorioImagen = Paths.get("src//main//resources//static//imagen");
+			}
+		}
+		System.out.println(directorioImagen.getFileName());
+		System.out.println(directorioImagen.getFileSystem());
+		System.out.println(directorioImagen.toString());
+		System.out.println(directorioImagen.toUri());
+		System.out.println(directorioImagen.toFile());
 			String rutaAbsoluta = directorioImagen.toFile().getAbsolutePath();
+			System.out.println(rutaAbsoluta);
 			try {
 				byte[] bytesImg = imagen.getBytes();
-				Path rutaCompleta = Paths.get(rutaAbsoluta + "//" + fileName.toString());
+				Path rutaCompleta = Paths.get(directorioImagen + "//" + fileName.toString());
+				System.out.println(rutaCompleta);
 				Files.write(rutaCompleta, bytesImg);
 				nombreEntity.setId(204);
 				nombreEntity.setDescripcion(fileName.toString());
@@ -1307,6 +1324,39 @@ public class ProductoController {
 			
 			report = new Reporte();
 			report.reportPDFDescarga(lista, map, "ReporteStockNegativo", response);
+			return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/reporteProductoProvenienteBalanza", method=RequestMethod.GET)
+	public ResponseEntity<?>  generarPdfProductoProvenienteBalanza(HttpServletResponse response, OAuth2Authentication authentication) throws IOException {
+		List<ProductoAuxiliar> lista = new ArrayList<>();
+		lista = getLista(entityRepository.getProductoProvenienteBalanza());
+		
+		if(lista.size()<1) {
+			return new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar!!"), HttpStatus.CONFLICT);
+		}
+		double totalCosto=0.0, totalVenta1=0.0, totalVenta2=0.0, totalVenta3=0.0, totalVenta4=0.0;
+		for (ProductoAuxiliar p: lista) {
+//			System.out.println(" costoosto: "+p.getPrecioCosto());
+//			System.out.println(" total costo: "+p.getExistencia());
+		}
+			Usuario usuario = usuarioService.findByUsername(authentication.getName());
+			Org org = orgRepository.findById(1).get();
+			
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+			
+			
+			
+			report = new Reporte();
+			report.reportPDFDescarga(lista, map, "ReporteProductoProvenienteBalanza", response);
 			return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
 	

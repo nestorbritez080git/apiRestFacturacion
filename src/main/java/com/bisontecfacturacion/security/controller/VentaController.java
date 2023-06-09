@@ -1228,6 +1228,7 @@ public class VentaController {
 
 		for (int i = 0; i < 1; i++) {
 			Cliente cli = clienteRepository.getIdCliente(xxx.getCliente().getId());
+			Funcionario FunV = funcionarioRepository.getIdFuncionario(xxx.getFuncionarioV().getId());
 			Venta v = new Venta();
 			v.getCliente().getPersona().setNombre(cli.getPersona().getNombre()+ " "+cli.getPersona().getApellido());
 			v.getCliente().getPersona().setCedula(cli.getPersona().getCedula());
@@ -1235,7 +1236,8 @@ public class VentaController {
 			v.setFechaFactura(xxx.getFechaFactura());
 			v.setFecha(xxx.getFecha());
 			v.setHora(xxx.getHora());
-			v.getFuncionarioV().getPersona().setNombre(xxx.getFuncionarioV().getPersona().getNombre());
+			System.out.println("fun veeveveve : "+FunV.getPersona().getNombre());
+			v.getFuncionarioV().getPersona().setNombre(FunV.getPersona().getNombre()+ " "+FunV.getPersona().getApellido());
 			v.setTotalDescuento(xxx.getTotalDescuento());
 			v.setTotalIvaCinco(xxx.getTotalIvaCinco());
 			v.setTotalIvaDies(xxx.getTotalIvaDies());

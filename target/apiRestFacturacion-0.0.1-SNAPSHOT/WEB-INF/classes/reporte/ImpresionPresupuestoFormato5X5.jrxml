@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Prueba" pageWidth="595" pageHeight="396" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="20" bottomMargin="20" uuid="777e1bb0-9dfd-46f8-a513-6381ef99413c">
-	<property name="com.jaspersoft.studio.unit." value="cm"/>
-	<property name="com.jaspersoft.studio.unit.topMargin" value="cm"/>
-	<property name="com.jaspersoft.studio.unit.bottomMargin" value="cm"/>
-	<property name="com.jaspersoft.studio.unit.leftMargin" value="cm"/>
-	<property name="com.jaspersoft.studio.unit.rightMargin" value="cm"/>
-	<property name="com.jaspersoft.studio.unit.columnWidth" value="cm"/>
-	<property name="com.jaspersoft.studio.unit.columnSpacing" value="cm"/>
+	<property name="com.jaspersoft.studio.unit." value="inch"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="inch"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="inch"/>
 	<parameter name="urlSubRepor" class="java.lang.String"/>
 	<parameter name="tituloReporte" class="java.lang.String"/>
 	<parameter name="razonSocialReporte" class="java.lang.String"/>
@@ -54,13 +50,13 @@
 		<variableExpression><![CDATA[$F{totalIvaCinco}+$F{totalIvaDies}]]></variableExpression>
 	</variable>
 	<title>
-		<band height="93" splitType="Stretch">
+		<band height="87" splitType="Stretch">
 			<textField>
-				<reportElement x="70" y="77" width="170" height="12" uuid="2ad63bba-c684-499d-a9d1-a17f20063ec0">
+				<reportElement x="70" y="74" width="170" height="12" uuid="2ad63bba-c684-499d-a9d1-a17f20063ec0">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10" isBold="false"/>
+					<font fontName="Lucida Console" size="8" isBold="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ruc}]]></textFieldExpression>
 			</textField>
@@ -69,16 +65,16 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10" isBold="false"/>
+					<font fontName="Lucida Console" size="8" isBold="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{nombreCliente}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy">
-				<reportElement x="348" y="58" width="126" height="12" uuid="2416aa88-4002-4fc3-aabd-702f5b957cf3">
+				<reportElement x="334" y="58" width="126" height="12" uuid="2416aa88-4002-4fc3-aabd-702f5b957cf3">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{FechaFactura}]]></textFieldExpression>
 			</textField>
@@ -87,7 +83,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{tituloReporte}]]></textFieldExpression>
 			</textField>
@@ -96,7 +92,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{descripcionMovimiento}]]></textFieldExpression>
 			</textField>
@@ -105,7 +101,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{direccionReporte}]]></textFieldExpression>
 			</textField>
@@ -114,7 +110,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10" isBold="false"/>
+					<font fontName="Lucida Console" size="8" isBold="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{telefonoReporte}]]></textFieldExpression>
 			</textField>
@@ -123,7 +119,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10" isBold="false"/>
+					<font fontName="Lucida Console" size="8" isBold="false"/>
 				</textElement>
 				<text><![CDATA[N. PRESUPUESTO]]></text>
 			</staticText>
@@ -132,57 +128,57 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<text><![CDATA[Cliente:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="3" y="77" width="57" height="12" uuid="b0f2990e-4d33-4653-aac4-a6fb29a0acf3"/>
+				<reportElement x="3" y="74" width="57" height="12" uuid="b0f2990e-4d33-4653-aac4-a6fb29a0acf3"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<text><![CDATA[Ruc.:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="255" y="58" width="76" height="12" uuid="f0940c8c-b4a1-4358-afb6-50f984003ae0">
+				<reportElement x="247" y="58" width="76" height="12" uuid="f0940c8c-b4a1-4358-afb6-50f984003ae0">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<text><![CDATA[Fecha:]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="7" y="12" width="552" height="12" uuid="79c4291a-35ab-4a92-8cfa-e4e5d6fae040"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA["DE: "+$P{razonSocialReporte}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="477" y="77" width="97" height="12" uuid="f2059c07-072c-414e-8e5f-1625ebe69422">
+				<reportElement x="477" y="74" width="97" height="12" uuid="f2059c07-072c-414e-8e5f-1625ebe69422">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Lucida Console"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{NroDocumento}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="256" y="78" width="75" height="12" uuid="c8c1dffe-3f8b-44d9-a5e2-1fbc45e10cde">
+				<reportElement x="248" y="75" width="75" height="12" uuid="c8c1dffe-3f8b-44d9-a5e2-1fbc45e10cde">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<text><![CDATA[Funcionario:]]></text>
 			</staticText>
 			<textField pattern="dd/MM/yyyy">
-				<reportElement x="348" y="78" width="126" height="12" uuid="fc8a0c5c-879c-42db-9e5f-17b669466f76">
+				<reportElement x="334" y="75" width="126" height="12" uuid="fc8a0c5c-879c-42db-9e5f-17b669466f76">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Vendedor}]]></textFieldExpression>
 			</textField>
@@ -202,32 +198,32 @@
 	<pageFooter>
 		<band height="65">
 			<textField>
-				<reportElement x="439" y="27" width="135" height="12" uuid="4eb1b9c7-216f-44dc-a741-8895854b47e0">
+				<reportElement x="439" y="11" width="135" height="12" uuid="4eb1b9c7-216f-44dc-a741-8895854b47e0">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{total})]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="2" y="27" width="58" height="12" uuid="867cc085-e557-4161-96a3-891c7f344fc3"/>
+				<reportElement x="381" y="11" width="58" height="12" uuid="867cc085-e557-4161-96a3-891c7f344fc3"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<text><![CDATA[Total:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="53" width="585" height="12" uuid="4bcc5b07-83dd-4fdf-a711-87bf267419d4">
+				<reportElement x="0" y="11" width="180" height="12" uuid="4bcc5b07-83dd-4fdf-a711-87bf267419d4">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="10"/>
+					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<text><![CDATA[Bisontec Sotfware]]></text>
 			</staticText>
 			<line>
-				<reportElement x="0" y="21" width="574" height="1" uuid="cae7eb4f-b6ae-460e-ba2e-b8feab7f8ee6"/>
+				<reportElement x="0" y="5" width="574" height="1" uuid="cae7eb4f-b6ae-460e-ba2e-b8feab7f8ee6"/>
 			</line>
 		</band>
 	</pageFooter>

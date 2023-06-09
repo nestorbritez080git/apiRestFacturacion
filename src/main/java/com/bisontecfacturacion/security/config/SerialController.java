@@ -149,8 +149,11 @@ public class SerialController {
 	}
 	@RequestMapping(method=RequestMethod.GET , value="/validacionEntrada")
 	public ResponseEntity<?> validacionClaveEntrada() {
-		return new ResponseEntity<>(true, HttpStatus.OK);
-		/*
+		
+		 //System.out.println("E-SERV-ALL");
+		 //return new ResponseEntity<>(true, HttpStatus.OK);
+		
+		
 		if (validacionIdentificador()) {
 			Date diaActual = new Date();
 			String fecha = formater.format(diaActual);
@@ -173,7 +176,9 @@ public class SerialController {
 					if (checkPassword(existingPassword , dbPassword ) == true) {
 						if(validacionFechaRegsitro()==true) {
 							entityRepository.actualizarUltRegistro(String.valueOf(new Date().getTime()), 1);
-							return new ResponseEntity<>(true, HttpStatus.OK);							
+							System.out.println("E-SERV-CTR");
+							return new ResponseEntity<>(true, HttpStatus.OK);
+														
 						}else {
 							
 							Serial serial= entityRepository.findById(1).orElse(null);
@@ -190,7 +195,7 @@ public class SerialController {
 		} else {
 			return new ResponseEntity<>(new CustomerErrorType("EL IDENTIFICADOR NO ES VÁLIDO!!"), HttpStatus.CONFLICT);
 		}
-		*/
+		
 		
 		
 	}

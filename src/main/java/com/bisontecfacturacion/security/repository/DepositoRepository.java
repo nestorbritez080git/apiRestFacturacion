@@ -8,8 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.model.Deposito;
+import com.bisontecfacturacion.security.model.Grupo;
 
 public interface DepositoRepository extends JpaRepository<Deposito, Serializable>{
+	
+	public abstract List<Deposito> findByOrderByIdDesc();
+	
 	@Query("select d from Deposito d where d.descripcion like :descripcion%")
 	List<Deposito> findByTop100DescripcionLike(@Param("descripcion") String descripcion);
 	public abstract Deposito findByDescripcion(String descripcion);

@@ -26,7 +26,7 @@ public class DepositoController {
 
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Deposito> getAll(){
-		return entityRepository.findAll();
+		return entityRepository.findByOrderByIdDesc();
 	}
 
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")
