@@ -231,7 +231,7 @@ public class ProductoController {
 		return producto;
 	}
 
-	public Producto producto(Producto pro) {
+	public Producto cargarProductoModelo(Producto pro) {
 		Producto producto=new Producto();
 		producto.setId(pro.getId());
 		producto.setDescripcion(pro.getDescripcion());
@@ -247,6 +247,7 @@ public class ProductoController {
 		producto.setIsBalanza(pro.getIsBalanza());
 		producto.setPrecioCosto(pro.getPrecioCosto());
 		producto.getMarca().setDescripcion(pro.getMarca().getDescripcion());
+		producto.setNombreImagen(pro.getNombreImagen());
 		return producto;
 	}
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")
@@ -261,7 +262,7 @@ public class ProductoController {
 		if (prod == null) {
 			return new ResponseEntity<>(new CustomerErrorType("El CÓDIGO INTERNO: "+id+" NO EXISTE.!"), HttpStatus.CONFLICT);	
 		}else {
-			return new ResponseEntity<>(producto(prod), HttpStatus.OK);
+			return new ResponseEntity<>(cargarProductoModelo(prod), HttpStatus.OK);
 		}
 	}
 
@@ -270,7 +271,7 @@ public class ProductoController {
 		return entityRepository.findTop1ByOrderByIdDesc();
 	}
 	
-	@RequestMapping(method=RequestMethod.POST, value="subirImagen")
+	@RequestMapping(method=RequestMethod.POST, value="/subirImagen")
 	public Marca guardarImagen(@RequestParam("image") MultipartFile imagen) {
 		
 		Marca nombreEntity = new Marca();
@@ -301,14 +302,10 @@ public class ProductoController {
 				  directorioImagen = Paths.get("webapps//imagen");
 				  
 			}else {
-				 //directorioImagen = Paths.get("src//main//resources//static//imagen");
+				 directorioImagen = Paths.get("src//main//resources//static//imagen");
 			}
 		}
-		System.out.println(directorioImagen.getFileName());
-		System.out.println(directorioImagen.getFileSystem());
-		System.out.println(directorioImagen.toString());
-		System.out.println(directorioImagen.toUri());
-		System.out.println(directorioImagen.toFile());
+		
 			String rutaAbsoluta = directorioImagen.toFile().getAbsolutePath();
 			System.out.println(rutaAbsoluta);
 			try {
@@ -480,14 +477,14 @@ public class ProductoController {
 			}
 			if(producto !=null) {
 				if(producto.getIsBalanza() == true) {
-					return new ResponseEntity<>(producto(producto), HttpStatus.OK);
+					return new ResponseEntity<>(cargarProductoModelo(producto), HttpStatus.OK);
 				}
 			} else {
 				return new ResponseEntity<>(new CustomerErrorType("El código barra: "+codbar+" no existe."), HttpStatus.CONFLICT);	
 			}
 		}
 
-		return new ResponseEntity<>(producto(producto), HttpStatus.OK);
+		return new ResponseEntity<>(cargarProductoModelo(producto), HttpStatus.OK);
 
 	}
 
@@ -499,7 +496,7 @@ public class ProductoController {
 		}	
 		Producto producto=new Producto();
 		producto=entityRepository.findByCodbar(codbar);
-		return new ResponseEntity<>(producto(producto), HttpStatus.OK);
+		return new ResponseEntity<>(cargarProductoModelo(producto), HttpStatus.OK);
 
 	}
 
@@ -1188,6 +1185,7 @@ public class ProductoController {
 			p.setTotalPrecioVenta_4(Double.parseDouble(o[11].toString()));
 			p.setCodbar(o[12].toString());
 			p.setInterno(Integer.parseInt(o[13].toString()));
+			p.setUnidadMedida(o[14].toString());
 			listado.add(p);
 		}
 		return listado;

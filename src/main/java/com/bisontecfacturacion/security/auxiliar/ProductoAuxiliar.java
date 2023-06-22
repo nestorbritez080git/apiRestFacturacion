@@ -19,8 +19,14 @@ public class ProductoAuxiliar {
 	private Double totalPrecioVenta_4;
 	private String codbar;
 	private int interno;
+	private String unidadMedida;
 	
-	
+	public void setUnidadMedida(String unidadMedida) {
+		this.unidadMedida = unidadMedida;
+	}
+	public String getUnidadMedida() {
+		return unidadMedida;
+	}
 	public String getDescripcion() {
 		return descripcion;
 	}
