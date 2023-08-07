@@ -25,6 +25,8 @@ public class CobrosCliente {
 	@ManyToOne
 	private Funcionario funcionario;
 	@ManyToOne
+	private CobrosClienteCabecera cobrosClienteCabecera;
+	@ManyToOne
 	private OperacionCaja operacionCaja;
 	public CobrosCliente() {
 		this.id=0;
@@ -33,6 +35,7 @@ public class CobrosCliente {
 		this.cuentaCobrarCabecera = new CuentaCobrarCabecera();
 		this.funcionario = new Funcionario();
 		this.operacionCaja= new OperacionCaja();
+		this.cobrosClienteCabecera= new CobrosClienteCabecera();
 	}
 
 	public int getId() {
@@ -81,6 +84,14 @@ public class CobrosCliente {
 
 	public void setOperacionCaja(OperacionCaja operacionCaja) {
 		this.operacionCaja = operacionCaja;
+	}
+
+	public CobrosClienteCabecera getCobrosClienteCabecera() {
+		return cobrosClienteCabecera;
+	}
+
+	public void setCobrosClienteCabecera(CobrosClienteCabecera cobrosClienteCabecera) {
+		this.cobrosClienteCabecera = cobrosClienteCabecera;
 	}
 
 

@@ -104,6 +104,34 @@ public class CompraController {
 		return entityRepository.findByTotalCompra(ano, mes, dia);
 	}
 
+	@RequestMapping(method=RequestMethod.GET, value="/rastreoProductoProveedorOrderPrecio/{idProducto}")
+	public List<DetalleCompra> getRastreoProductoProveedorOrderPrecio(@PathVariable int idProducto){
+			return cargarRastreo(this.entityRepository.getRastreoProductoProveedorOrderPrecio(idProducto));
+	}
+	@RequestMapping(method=RequestMethod.GET, value="/rastreoProductoProveedorOrderFecha/{idProducto}")
+	public List<DetalleCompra> getRastreoProductoProveedorOrderFecha(@PathVariable int idProducto){
+			return cargarRastreo(this.entityRepository.getRastreoProductoProveedorOrderPrecio(idProducto));
+	}
+	private List<DetalleCompra> cargarRastreo(List<Object[]> obj) {
+		List<DetalleCompra> listRetorno= new ArrayList<DetalleCompra>();
+		DetalleCompra det= null;
+		for(Object o[]: obj) {
+			det= new DetalleCompra();
+			det.setId(Integer.parseInt(o[0].toString()));
+			det.setDescripcion(o[1].toString());
+			det.setCantidad(Double.parseDouble(o[2].toString()));
+			det.getCompra().getProveedor().getPersona().setNombre(o[3].toString());
+			det.setPrecioCosto(Double.parseDouble(o[4].toString()));
+			det.getCompra().setValorCotizacion(Double.parseDouble(o[5].toString()));
+			if(o[6].toString()==null) {
+				det.getCompra().setFechaFactura(null);
+			}else {
+				det.getCompra().setFechaFactura(FechaUtil.convertirFechaStringADateUtil(o[6].toString()));
+			}
+			listRetorno.add(det);
+		}
+		return listRetorno;
+	}
 
 	@RequestMapping(method=RequestMethod.GET, value="/{fecha}")
 	public List<Compra> getAlls(@PathVariable String fecha){
@@ -204,57 +232,8 @@ public class CompraController {
 									detalleProducto.setMontoIva(0.0);
 								}
 								detalleRepository.save(detalleProducto);
-//								this.actualizarProductoBaseCorregido(detalleProducto.getProducto().getId(), detalleProducto.getCantidad());	
 								this.actualizarProductoBaseAumentarCorregido(detalleProducto.getProducto().getId(), detalleProducto.getCantidad(), detalleProducto.getPrecioCosto(), detalleProducto.getSubTotal(), detalleProducto.getPrecioVenta_1(), detalleProducto.getPrecioVenta_2(), detalleProducto.getPrecioVenta_3(), detalleProducto.getPrecioVenta_4(), entity.getFuncionario().getId(), detalleProducto.getProducto().getMarca().getDescripcion(), entity.getTipo(), idVent, entity.getProveedor().getId());
 
-//								Producto p = productoRepository.getOne(detalleProducto.getProducto().getId());
-//								MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
-//
-//								mov.setDescripcion(detalleProducto.getDescripcion());
-//								mov.setCantidad(detalleProducto.getCantidad());
-//								mov.setFecha(new  Date());
-//								mov.setHora(hora());
-//
-//								mov.setVentaSalida(0.0);
-//
-//								mov.setCostoEntrada(detalleProducto.getPrecioCosto());
-//								mov.setEgreso(detalleProducto.getSubTotal());
-//								mov.setCostoEntradaAnterior(p.getPrecioCosto());
-//
-//								mov.setVenta_1(detalleProducto.getPrecioVenta_1());
-//								mov.setVenta_2(detalleProducto.getPrecioVenta_1());
-//								mov.setVenta_3(detalleProducto.getPrecioVenta_1());
-//								mov.setVenta_4(detalleProducto.getPrecioVenta_1());
-//
-//								mov.setVenta_1_anterior(p.getPrecioVenta_1());
-//								mov.setVenta_2_anterior(p.getPrecioVenta_2());
-//								mov.setVenta_3_anterior(p.getPrecioVenta_3());
-//								mov.setVenta_4_anterior(p.getPrecioVenta_4());
-//								mov.getTipoMovimiento().setId(1);
-//								mov.getProducto().setId(p.getId());
-//								mov.getFuncionario().setId(entity.getFuncionario().getId());
-//								mov.setMarca(detalleProducto.getProducto().getMarca().getDescripcion());
-//								Concepto c= new Concepto();
-//								if(entity.getTipo().equals("CONTADO")){
-//									c= conceptoRepository.findById(3).get();	
-//								}else {
-//									c= conceptoRepository.findById(4).get();
-//								}
-//
-//								mov.setReferencia(c.getDescripcion()+" REF.: "+ idVent);
-//
-//								movEntradaSalidaRepository.save(mov);
-//
-//								p.setPrecioCosto(detalleProducto.getPrecioCosto());
-//								p.setPrecioVenta_1(detalleProducto.getPrecioVenta_1());
-//								p.setPrecioVenta_2(detalleProducto.getPrecioVenta_2());
-//								p.setPrecioVenta_3(detalleProducto.getPrecioVenta_3());
-//								p.setPrecioVenta_4(detalleProducto.getPrecioVenta_4());
-//
-//
-//								productoRepository.updateProveedorId(entity.getProveedor().getId(), p.getId());
-//								productoRepository.save(p);
-								//productoRepository.save(p);
 							}
 
 						}
@@ -415,7 +394,7 @@ public class CompraController {
 	public void actualizarProductoBaseAumentarCorregido(int id , double cantidad, double costo, double subtotal, double preVen1, double preVen2, double preVen3, double preVen4, int idfuncio, String marca, String tipo, int idCompra, int idProvee) {
 		ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
 		if(ca!=null) {
-			
+			System.out.println("producto que viene tiene compuesto");
 			double existenciaBase=0.0;
 			existenciaBase= cantidad * ca.getCantidadAplicacion();
 			System.out.println("CANT. ACT. : "+existenciaBase);
@@ -544,7 +523,7 @@ public class CompraController {
 			System.out.println("entrooo else no tiene compusto el id: "+id);
 			ProductoCardex pBase = compuestoRepository.getProductoPorIdBase(id);
 			if(pBase != null) {
-				System.out.println("Producto relacio0nado con un base");
+				System.out.println("Producto relacio0nado con una base");
 				
 				
 				Producto pp = productoRepository.getOne(id);
@@ -692,17 +671,13 @@ public class CompraController {
 				}
 
 				mov.setReferencia(c.getDescripcion()+" REF.: "+ idCompra);
-
 				movEntradaSalidaRepository.save(mov);
 				
-
 				p.setPrecioCosto(costo);
 				p.setPrecioVenta_1(preVen1);
 				p.setPrecioVenta_2(preVen2);
 				p.setPrecioVenta_3(preVen3);
 				p.setPrecioVenta_4(preVen4); 
-				//p.getProveedor().setId(entity.getProveedor().getId());
-				//productoRepository.updateProveedorId(entity.getProveedor().getId(), p.getId());
 				productoRepository.updateProveedorId(idProvee, p.getId());
 				productoRepository.save(p);
 				productoRepository.findByActualizaA(cantidad, id);

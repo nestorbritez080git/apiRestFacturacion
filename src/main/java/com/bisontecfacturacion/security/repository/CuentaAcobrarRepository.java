@@ -22,7 +22,7 @@ public interface CuentaAcobrarRepository extends JpaRepository<CuentaCobrarCabec
 	public List<CuentaCobrarCabecera> consultarCuentaIdCliente(@Param("idCliente") int idCliente);
 
 	@Query(value = "select c from CuentaCobrarCabecera c where venta_id=:id")
-	CuentaCobrarCabecera getCuentaCabecera(@Param("id") int id);
+	CuentaCobrarCabecera getCuentaCabeceraPorVentaId(@Param("id") int id);
 
 	@Modifying
     @Transactional(readOnly=false)

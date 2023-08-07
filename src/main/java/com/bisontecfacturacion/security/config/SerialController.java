@@ -153,49 +153,49 @@ public class SerialController {
 		 //System.out.println("E-SERV-ALL");
 		 //return new ResponseEntity<>(true, HttpStatus.OK);
 		
-		
-		if (validacionIdentificador()) {
-			Date diaActual = new Date();
-			String fecha = formater.format(diaActual);
-			String[] fec=fecha.split("-");
-			Integer mes=Integer.parseInt(fec[1]);
-			Integer anho=Integer.parseInt(fec[2]);
-			SerialDetalle serie= detalleRepository.getPeriodoAcceso(anho, mes);
-			if (serie == null) {
-				return new ResponseEntity<>(new CustomerErrorType("PERIODO DE VENCIMIENTO CONTRATO, SE DEBE AGREGAR NUEVO CONTRATO CON EL PROVEEDOR DEL SISTEMA " + formater.format(diaActual)), HttpStatus.CONFLICT);
-			} else {
+			if (validacionIdentificador()) {
+				
 
-				if (serie.getClave() == null) {
-					return new ResponseEntity<>(new CustomerErrorType("FACTURA VENCIDA PERIODO "+generarPeriodo(new Date())+", CONSULTAR CON EL PROVEEDOR"), HttpStatus.CONFLICT);
+				Date diaActual = new Date();
+				String fecha = formater.format(diaActual);
+				String[] fec=fecha.split("-");
+				Integer mes=Integer.parseInt(fec[1]);
+				Integer anho=Integer.parseInt(fec[2]);
+				SerialDetalle serie= detalleRepository.getPeriodoAcceso(anho, mes);
+				if (serie == null) {
+					return new ResponseEntity<>(new CustomerErrorType("PERIODO DE VENCIMIENTO CONTRATO, SE DEBE AGREGAR NUEVO CONTRATO CON EL PROVEEDOR DEL SISTEMA " + formater.format(diaActual)), HttpStatus.CONFLICT);
 				} else {
-					String existingPassword = serie.getClave();
-					
-					String dbPassword       =  serie.getClavedb();
-					
-					System.out.println("CLAVE"+existingPassword+" DB: "+dbPassword);
-					if (checkPassword(existingPassword , dbPassword ) == true) {
-						if(validacionFechaRegsitro()==true) {
-							entityRepository.actualizarUltRegistro(String.valueOf(new Date().getTime()), 1);
-							System.out.println("E-SERV-CTR");
-							return new ResponseEntity<>(true, HttpStatus.OK);
-														
-						}else {
-							
-							Serial serial= entityRepository.findById(1).orElse(null);
-							Long fechaUlt= Long.parseLong(serial.getUltRegistro());
-							Date fechas = new Date(fechaUlt);
-							//entityRepository.updateClave(null, generarPeriodo(fechas));
-							return new ResponseEntity<>(new CustomerErrorType("SE MODIFICÓ LA FECHA DEL SISTEMA ,CONSULTE CON EL PROVEEDOR PARA SOLUCIONAR EL INCONVENIENTES "), HttpStatus.CONFLICT);
-						}
+					if (serie.getClave() == null) {
+						return new ResponseEntity<>(new CustomerErrorType("FACTURA VENCIDA PERIODO "+generarPeriodo(new Date())+", CONSULTAR CON EL PROVEEDOR"), HttpStatus.CONFLICT);
 					} else {
-						return new ResponseEntity<>(new CustomerErrorType("LA CLAVE INGRESADA PARA EL PERIODO "+generarPeriodo(new Date())+" ES INCORRECTA"), HttpStatus.CONFLICT);
-					}				
+						String existingPassword = serie.getClave();
+						String dbPassword =  serie.getClavedb();
+						System.out.println("CLAVE"+existingPassword+" DB: "+dbPassword);
+						if (checkPassword(existingPassword , dbPassword ) == true) {
+							if(validacionFechaRegsitro()==true) {
+								entityRepository.actualizarUltRegistro(String.valueOf(new Date().getTime()), 1);
+								System.out.println("E-SERV-CTR");
+								return new ResponseEntity<>(true, HttpStatus.OK);
+															
+							}else {
+								
+								Serial serial= entityRepository.findById(1).orElse(null);
+								Long fechaUlt= Long.parseLong(serial.getUltRegistro());
+								Date fechas = new Date(fechaUlt);
+								//entityRepository.updateClave(null, generarPeriodo(fechas));
+								return new ResponseEntity<>(new CustomerErrorType("SE MODIFICÓ LA FECHA DEL SISTEMA ,CONSULTE CON EL PROVEEDOR PARA SOLUCIONAR EL INCONVENIENTES "), HttpStatus.CONFLICT);
+							}
+						} else {
+							return new ResponseEntity<>(new CustomerErrorType("LA CLAVE INGRESADA PARA EL PERIODO "+generarPeriodo(new Date())+" ES INCORRECTA"), HttpStatus.CONFLICT);
+						}				
+					}
 				}
+			} else {
+				return new ResponseEntity<>(new CustomerErrorType("EL IDENTIFICADOR NO ES VÁLIDO!!"), HttpStatus.CONFLICT);
 			}
-		} else {
-			return new ResponseEntity<>(new CustomerErrorType("EL IDENTIFICADOR NO ES VÁLIDO!!"), HttpStatus.CONFLICT);
-		}
-		
+			
+			
+	
 		
 		
 	}

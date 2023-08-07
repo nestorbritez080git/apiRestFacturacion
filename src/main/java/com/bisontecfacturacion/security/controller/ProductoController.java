@@ -144,7 +144,7 @@ public class ProductoController {
 	@RequestMapping(method=RequestMethod.POST, value = "/producto/descripcion")
 	public List<Producto> getAllProducto(@RequestBody String descripcion){
 		if (descripcion.equals("9999999999")) {
-			List<Producto> objeto=entityRepository.lista();
+			List<Producto> objeto=entityRepository.listasLimites();
 			return product(objeto);
 		} else {
 			List<Producto> objeto=entityRepository.getBuscarPorDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
@@ -224,6 +224,8 @@ public class ProductoController {
 			productos.getUnidadMedida().setId(ob.getUnidadMedida().getId());
 			productos.getGrupo().setId(ob.getGrupo().getId());
 			productos.getGrupo().setDescripcion(ob.getGrupo().getDescripcion());
+			productos.getSubGrupo().setDescripcion(ob.getSubGrupo().getDescripcion());
+			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
 			producto.add(productos);
 		}
 

@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.ReporteConfig;
+import com.bisontecfacturacion.security.model.UtilidadPrecio;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
 import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
 import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
+import com.bisontecfacturacion.security.repository.UtilidadPrecioRepository;
 
 
 @RestController
@@ -28,6 +30,9 @@ public class ConfigImpresora {
 	
 	@Autowired
 	private ImpresoraRepository repository;
+	@Autowired
+	private UtilidadPrecioRepository utilidadPreciorepository;
+	
 	@Autowired
 	private TerminalConfigImpresoraRepository terminalRepository;
 	
@@ -63,7 +68,10 @@ public class ConfigImpresora {
 		}
 		return lista;
 	}
-	
+	@RequestMapping(method=RequestMethod.GET, value="/utilidadPrecio")
+	public UtilidadPrecio getAllUtilidad(){
+		return utilidadPreciorepository.findById(1).get();
+	}
 	@RequestMapping(method=RequestMethod.GET, value="/impresora/{id}")
 	public Impresora getAll(@PathVariable int id){
 		return repository.findById(id).get();

@@ -1,14 +1,21 @@
 package com.bisontecfacturacion.security.controller;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,17 +28,21 @@ import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.CobrosCliente;
+import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
+import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
+import com.bisontecfacturacion.security.repository.CobrosClienteCabeceraRepository;
 import com.bisontecfacturacion.security.repository.CobrosClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.CuentaAcobrarDetalleRepository;
@@ -39,18 +50,28 @@ import com.bisontecfacturacion.security.repository.CuentaAcobrarRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
+import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
 import com.bisontecfacturacion.security.repository.ReporteFormatoDatosRepository;
 import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.FechaUtil;
+import com.bisontecfacturacion.security.service.IUsuarioService;
 
 @Transactional
 @RestController
 @RequestMapping("cobrosCliente")
 public class CobrosClienteController {
+	private Reporte report;
 	@Autowired
 	private CobrosClienteRepository entityRepository;
+	@Autowired
+	private IUsuarioService usuarioService;
+	@Autowired
+	private OrgRepository orgRepository;
+	
+	@Autowired
+	private CobrosClienteCabeceraRepository cobrosClienteCabeceraRepository;
 
 	@Autowired
 	private CuentaAcobrarRepository cuentaCobrarRepository;
@@ -194,13 +215,22 @@ public class CobrosClienteController {
 	@RequestMapping(method = RequestMethod.GET, value = "/idcliente/{idcliente}/{monto}/{idUser}/{idOpe}")
 	public List<Object[][]> operacionCobrosPorCliente(@PathVariable int idcliente, @PathVariable Double monto,
 			@PathVariable int idUser, @PathVariable int idOpe) {
+		Funcionario f = funcionarioRepository.getIdFuncionario(idUser);
+		
+		CobrosClienteCabecera cab= new CobrosClienteCabecera();
+		cab.getCliente().setId(idcliente);
+		cab.getFuncionario().setId(f.getId());
+		cab.setFecha(new Date());
+		cab.setTotal(monto);
+		cobrosClienteCabeceraRepository.save(cab);
+		
 		System.out.println("Entro en cero^^^^^^^^^^^^^^^^^^^^");
 		List<CuentaCobrarCabecera> cuentaCabecera = cuentaCobrarRepository.findByCuentaPorIdACobrars(idcliente);
-		return operacion(cuentaCabecera, monto, idUser, idOpe);
+		return operacion(cuentaCabecera, monto, idUser, idOpe, cobrosClienteCabeceraRepository.getUltimoCobrosClienteCab().getId());
 
 	}
 
-	public List<Object[][]> operacion(List<CuentaCobrarCabecera> cuentas, Double monto, int idUser, int idOpe) {
+	public List<Object[][]> operacion(List<CuentaCobrarCabecera> cuentas, Double monto, int idUser, int idOpe, int idCabCobros) {
 
 		System.out.println("Entro 1*******************");
 		Object[][] obResult = new Object[cuentas.size()][5];
@@ -226,6 +256,7 @@ public class CobrosClienteController {
 				operacionCajaRepository.save(op);
 				OperacionCaja operacioActualziar = operacionCajaRepository.findTop1ByOrderByIdDesc();
 				CobrosCliente cobros = new CobrosCliente();
+				cobros.getCobrosClienteCabecera().setId(idCabCobros);
 				cobros.getCuentaCobrarCabecera().setId(cue.getId());
 				cobros.setTotal(cue.getSaldo());
 				cobradoActual = cobradoActual + cue.getSaldo();
@@ -291,6 +322,7 @@ public class CobrosClienteController {
 					OperacionCaja operacioActualziar = operacionCajaRepository.findTop1ByOrderByIdDesc();
 					System.out.println("OPERACION IDDDD:  "+operacioActualziar.getId());
 					CobrosCliente cobros = new CobrosCliente();
+					cobros.getCobrosClienteCabecera().setId(idCabCobros);
 					cobros.getCuentaCobrarCabecera().setId(cue.getId());
 					cobros.setTotal(saldoPositivoaCobrar);
 					// cobradoActual = cobradoActual + cue.getSaldo();
@@ -572,4 +604,113 @@ public class CobrosClienteController {
 			
 		}
 	}
+	
+
+@RequestMapping(method = RequestMethod.GET, value="/reporteCobrosClienteCabecera/{id}")
+public  ResponseEntity<?> getReporteCobrosClienteAll(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id) throws IOException{
+	List<CobrosClienteCabecera> lis =new ArrayList<>();
+	
+	List<CobrosClienteCabecera> listado= listado(cobrosClienteCabeceraRepository.findByCuentaPorIdCliente(id));
+	String nombreCliente="";
+	if(listado.size()>0) {
+		nombreCliente = listado.get(0).getCliente().getPersona().getNombre()+" "+listado.get(0).getCliente().getPersona().getApellido();
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("org", ""+org.getNombre());
+		map.put("direccion", ""+org.getDireccion());
+		map.put("ruc", ""+org.getRuc());
+		map.put("telefono", ""+org.getTelefono());
+		map.put("ciudad", ""+org.getCiudad());
+		map.put("pais", ""+org.getPais());
+		map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+		map.put("cliente", nombreCliente);
+
+		report = new Reporte();
+		report.reportPDFDescarga(listado, map, "ReporteCobrosClientesCabecera", response);
+
+		return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+	}else {
+		return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+	}
+
+
+
+}
+public Date sumarDia(Date fecha, int hora) {
+	Calendar calendar=Calendar.getInstance();
+	calendar.setTime(fecha);
+	calendar.add(Calendar.HOUR, hora);
+	return calendar.getTime();
+}
+
+@RequestMapping(method = RequestMethod.GET, value="/reporteCobrosClienteCabecera/rango/{id}/{fechaI}/{fechaF}")
+public  ResponseEntity<?> getReporteCobrosClienteRango(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException{
+	List<CobrosClienteCabecera> lis =new ArrayList<>();
+	
+	//List<CobrosClienteCabecera> listado= listado(cobrosClienteCabeceraRepository.findByCuentaPorIdCliente(id));
+	String nombreCliente="";
+	
+		//nombreCliente = listado.get(0).getCliente().getPersona().getNombre()+" "+listado.get(0).getCliente().getPersona().getApellido();
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+
+		Calendar cc= Calendar.getInstance();
+		SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+		Date fecI;
+		System.out.println("fecha que viene: "+fechaI+ ", "+fechaF);
+		try {
+			fecI = formater.parse(fechaI);
+		
+		Date fecF=formater.parse(fechaF);
+		System.out.println(fecF.getDate());
+		fecF.setHours(23);
+		fecI.setHours(1);
+		System.out.println("hora final fechas::: "+fecF+ " hora inicio finbal: "+fecI);
+		List<CobrosClienteCabecera> listado= listado(cobrosClienteCabeceraRepository.findByCobrosClientePorRango(id, fecI, fecF));
+		if(listado.size()>0) {asdfasdf
+		Map<String, Object> map = new HashMap<>();
+		map.put("org", ""+org.getNombre());
+		map.put("direccion", ""+org.getDireccion());
+		map.put("ruc", ""+org.getRuc());
+		map.put("telefono", ""+org.getTelefono());
+		map.put("ciudad", ""+org.getCiudad());
+		map.put("pais", ""+org.getPais());
+		map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+		map.put("cliente", nombreCliente);
+
+		report = new Reporte();
+		report.reportPDFDescarga(listado, map, "ReporteCobrosClientesCabeceraRango", response);
+		}else {
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+
+		} catch (ParseException e) {
+			
+			e.printStackTrace();
+		}
+		return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+	
+
+
+
+}
+
+public List<CobrosClienteCabecera> listado(List<CobrosClienteCabecera> lis){
+	List<CobrosClienteCabecera> listadoRetorno = new ArrayList<>();
+	for(CobrosClienteCabecera cue :lis) {
+		CobrosClienteCabecera cuenta= new CobrosClienteCabecera();
+		cuenta.setId(cue.getId());
+		cuenta.setTotal(cue.getTotal()); 
+		cuenta.getCliente().getPersona().setNombre(cue.getCliente().getPersona().getNombre());
+		cuenta.getCliente().getPersona().setApellido(cue.getCliente().getPersona().getApellido());
+		cuenta.getFuncionario().getPersona().setNombre(cue.getFuncionario().getPersona().getNombre());
+		cuenta.getFuncionario().getPersona().setApellido(cue.getFuncionario().getPersona().getApellido());
+		cuenta.setFecha(cue.getFecha());
+		listadoRetorno.add(cuenta);
+	}
+	return listadoRetorno;
+}
+
 }

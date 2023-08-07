@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.CobrosCliente;
+import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
@@ -37,6 +38,7 @@ import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
+import com.bisontecfacturacion.security.repository.CobrosClienteCabeceraRepository;
 import com.bisontecfacturacion.security.repository.CobrosClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.CuentaAcobrarDetalleRepository;
@@ -57,6 +59,9 @@ public class CuentaCobrarController {
 	private Reporte report;
 	@Autowired
 	private CuentaAcobrarRepository entityRepository;
+	
+	@Autowired
+	private CobrosClienteCabeceraRepository cobrosClienteCabeceraRepository;
 
 	@Autowired
 	private OrgRepository orgRepository;
@@ -150,7 +155,17 @@ public class CuentaCobrarController {
 		operacionCajaRepository.save(operacionCaja);
 
 		OperacionCaja opeAux= operacionCajaRepository.findTop1ByOrderByIdDesc();
+//		CuentaCobrarCabecera cuenta = entityRepository.getOne(idCuenta).getCliente().getId()
+		CobrosClienteCabecera cobCabecera= new CobrosClienteCabecera();
+		cobCabecera.getCliente().setId(entityRepository.getOne(idCuenta).getCliente().getId());
+		cobCabecera.getFuncionario().setId(f.getId());
+		cobCabecera.setTotal(importe);
+		cobCabecera.setFecha(new Date());
+		cobrosClienteCabeceraRepository.save(cobCabecera);
+		
+		
 		CobrosCliente cob = new CobrosCliente();
+		cob.getCobrosClienteCabecera().setId(cobrosClienteCabeceraRepository.getUltimoCobrosClienteCab().getId());
 		cob.getCuentaCobrarCabecera().setId(idCuenta);
 		cob.getOperacionCaja().setId(1);
 		cob.getFuncionario().setId(f.getId());

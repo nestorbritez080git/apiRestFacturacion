@@ -447,7 +447,7 @@ public class DevoluconVentaController {
 				}
 
 
-				CuentaCobrarCabecera cu= cuentaCobrarRepository.getCuentaCabecera(v.getVenta().getId());
+				CuentaCobrarCabecera cu= cuentaCobrarRepository.getCuentaCabeceraPorVentaId(v.getVenta().getId());
 				if(cu!=null) {
 
 

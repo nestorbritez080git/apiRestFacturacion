@@ -797,7 +797,6 @@ public class VentaController {
 				}else {
 					cc= conceptoRepository.findById(2).get();
 				}
-
 				movv.setReferencia(cc.getDescripcion()+" REF.: "+ idVenta);
 				movEntradaSalidaRepository.save(movv);
 			}
@@ -1672,7 +1671,7 @@ public class VentaController {
 
 			}
 			if(v.getTipo().equals("2")) {
-				CuentaCobrarCabecera cu= cuentaCobrarRepository.getCuentaCabecera(v.getId());
+				CuentaCobrarCabecera cu= cuentaCobrarRepository.getCuentaCabeceraPorVentaId(v.getId());
 				if(cu!=null) {
 					cuentaCobrarDetalleRepository.eliminarDetalleCuentaPorCabeceraId(cu.getId());
 					cuentaCobrarRepository.deleteById(cu.getId());

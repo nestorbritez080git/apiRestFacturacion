@@ -52,4 +52,12 @@ public interface CompraRepository extends JpaRepository<Compra,  Serializable>{
     @Query(value = "select pfun.nombre || ' ' || pfun.apellido as funcionario, pprov.nombre || ' ' || pprov.apellido as proveedor, doc.descripcion, c.nro_documento, c.fecha, c.total, c.tipo from compra c inner join proveedor pro on pro.id=c.proveedor_id inner join persona pprov on pprov.id=pro.persona_id inner join funcionario fun on fun.id= c.funcionario_id inner join persona pfun on pfun.id=fun.persona_id inner join documento doc on doc.id=c.documento_id where c.estado='FACTURADO' and ((c.fecha >= :fecha_inicio) AND (c.fecha<= :fecha_fin  ))", nativeQuery = true)
     List<Object []> getResumenCompraFechaDetallado(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);   
 
+    @Query(value = "select det.id as id, det.descripcion as descr, det.cantidad as cant,  per.nombre || ' ' || per.apellido as proveedor, det.precio_costo, c.valor_cotizacion as valor, c.fecha_factura as fec  from detalle_compra det INNER JOIN producto p ON p.id=det.producto_id INNER JOIN compra c ON c.id= det.compra_id INNER JOIN proveedor pro ON pro.id=c.proveedor_id INNER JOIN persona per ON per.id= pro.persona_id where p.id=:idProducto AND  c.estado='FACTURADO' ORDER BY det.precio_costo ASC ", nativeQuery = true)
+    List<Object []> getRastreoProductoProveedorOrderPrecio(@Param("idProducto") int id);
+    @Query(value = "select det.id as id, det.descripcion as descr, det.cantidad as cant,  per.nombre || ' ' || per.apellido as proveedor, det.precio_costo, c.valor_cotizacion as valor, c.fecha_factura as fec  from detalle_compra det INNER JOIN producto p ON p.id=det.producto_id INNER JOIN compra c ON c.id= det.compra_id INNER JOIN proveedor pro ON pro.id=c.proveedor_id INNER JOIN persona per ON per.id= pro.persona_id where p.id=:idProducto AND  c.estado='FACTURADO' ORDER BY c.fecha_factura ASC ", nativeQuery = true)
+    List<Object []> getRastreoProductoProveedorOrderFecha(@Param("idProducto") int id);
+    
+
+    
+    
 }
