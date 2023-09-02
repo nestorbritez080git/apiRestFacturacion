@@ -25,6 +25,12 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
+		<groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		
+		
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
@@ -104,18 +110,12 @@
 		</dependency>
 	
 		
+	<dependency>
+    	<groupId>org.junit.vintage</groupId>
+    	<artifactId>junit-vintage-engine</artifactId>
+    	<version>5.7.0</version>
+	</dependency>
 	
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
         <dependency>
         	<groupId>com.github.ulisesbocchio</groupId>
         	<artifactId>jasypt-spring-boot</artifactId>
@@ -124,7 +124,25 @@
         
         
         
-        
+        <dependency>
+    <groupId>org.jboss.arquillian</groupId>
+    <artifactId>arquillian-bom</artifactId>
+    <version>1.1.13.Final</version>
+    <scope>import</scope>
+    <type>pom</type>
+     </dependency>
+      <dependency>
+    <groupId>org.glassfish.main.extras</groupId>
+    <artifactId>glassfish-embedded-all</artifactId>
+    <version>4.1.2</version>
+    <scope>test</scope>
+    </dependency>
+     <dependency>
+    <groupId>org.jboss.arquillian.container</groupId>
+    <artifactId>arquillian-glassfish-embedded-3.1</artifactId>
+    <version>1.0.0.Final</version>
+    <scope>test</scope>
+   </dependency>
         
         
     

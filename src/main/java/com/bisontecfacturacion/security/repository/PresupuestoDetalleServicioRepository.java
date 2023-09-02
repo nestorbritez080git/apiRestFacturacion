@@ -24,7 +24,7 @@ public interface PresupuestoDetalleServicioRepository  extends JpaRepository<Det
 			+ "fun.id, "
 			+ "pf.nombre, "
 			+ "pf.apellido, "
-			+ "detalle_servcicios.obs  from detalle_presupuesto_servicio as detalle_servicios inner join funcionario fun on detalle_servicios.funcionario_id=fun.id inner join persona pf on pf.id=fun.persona_id  where detalle_servicios.presupuesto_id=:id",nativeQuery=true)
+			+ "detalle_servicios.obs  from detalle_presupuesto_servicio as detalle_servicios inner join funcionario fun on detalle_servicios.funcionario_id=fun.id inner join persona pf on pf.id=fun.persona_id  where detalle_servicios.presupuesto_id=:id",nativeQuery=true)
 	List<Object[]> listarDetallePresupuesto(@Param("id") int id);
 
 }

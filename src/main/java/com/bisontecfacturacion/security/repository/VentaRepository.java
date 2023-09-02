@@ -85,6 +85,15 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 	List<Object []> getReporteVentaRangoPorFuncionariosDetallado(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idF") int id);
 	
 	@Query(value="select sum(dtp.costo)as costoTotal, sum(dtp.sub_total) as ventaTotal, sum(dtp.sub_total - dtp.costo)as utilidad " + 
+			"from detalle_producto dtp  " + 
+			"INNER JOIN venta v ON dtp.venta_id=v.id " + 
+			"INNER JOIN producto p ON p.id=dtp.producto_id " + 
+			"INNER JOIN grupo g ON g.id=p.grupo_id " + 
+			"INNER JOIN sub_grupo sg ON sg.id=p.sub_grupo_id " + 
+			"where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO'",nativeQuery=true)
+Object [][] getReporteVentaRangoGrupoAll(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+
+	@Query(value="select sum(dtp.costo)as costoTotal, sum(dtp.sub_total) as ventaTotal, sum(dtp.sub_total - dtp.costo)as utilidad " + 
 				"from detalle_producto dtp  " + 
 				"INNER JOIN venta v ON dtp.venta_id=v.id " + 
 				"INNER JOIN producto p ON p.id=dtp.producto_id " + 
@@ -93,7 +102,7 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 				"where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO' AND g.id=:idGrupo",nativeQuery=true)
 	Object [][] getReporteVentaRangoGrupo(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idGrupo") int idGrupo);
 	
-	@Query(value="select dtp.descripcion as des, dtp.precio as precio, dtp.cantidad, dtp.sub_total as subtotal,  dtp.costo as costo " + 
+	@Query(value="select dtp.descripcion as des, dtp.precio as precio, dtp.cantidad, dtp.sub_total as subtotal,  dtp.costo as costo, dtp.tipo_precio as tipo " + 
 				"from detalle_producto dtp  " + 
 				"INNER JOIN venta v ON dtp.venta_id=v.id " + 
 				"INNER JOIN producto p ON p.id=dtp.producto_id " + 
@@ -102,4 +111,13 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 				"where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO' AND g.id=:idGrupo",nativeQuery=true)
 	List<Object []> getReporteVentaRangoGrupoDetallado(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idGrupo") int idGrupo);
 	
+	@Query(value="select dtp.descripcion as des, dtp.precio as precio, dtp.cantidad, dtp.sub_total as subtotal,  dtp.costo as costo, dtp.tipo_precio as tipo " + 
+			"from detalle_producto dtp  " + 
+			"INNER JOIN venta v ON dtp.venta_id=v.id " + 
+			"INNER JOIN producto p ON p.id=dtp.producto_id " + 
+			"INNER JOIN grupo g ON g.id=p.grupo_id " + 
+			"INNER JOIN sub_grupo sg ON sg.id=p.sub_grupo_id " + 
+			"where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO'",nativeQuery=true)
+List<Object []> getReporteVentaRangoGrupoDetalladoAll(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+
 }

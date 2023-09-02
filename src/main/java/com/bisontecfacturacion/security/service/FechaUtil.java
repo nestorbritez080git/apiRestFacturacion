@@ -3,7 +3,9 @@ package com.bisontecfacturacion.security.service;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class FechaUtil {
 	public static Date convertirFechaUtilATimeZone(Date date){
@@ -12,19 +14,26 @@ public class FechaUtil {
          return date;
 	}
 	public static Date convertirFechaStringADateUtil(String v) {
-		// TODO Auto-generated method stub
-		System.out.println(v);
-		 SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd");
-		 String strFecha = v;
-		 Date fecha = null;
-		 System.out.println(fecha+ "sadfasfdasfa");
-		 try {
-			 //System.out.println("ffffff"+formatoDelTexto.format(strFecha));
-		     fecha = formatoDelTexto.parse(strFecha);
-		     System.out.println("fecahsss"+fecha);
-		 } catch (ParseException ex) {
-		     ex.printStackTrace();
-		 }
-		 return fecha;
-	}
+		// el que parsea
+		SimpleDateFormat parseador = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		// el que formatea
+		SimpleDateFormat formateador = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date = null;
+		Calendar calendar = Calendar.getInstance(); 
+		try {
+			date = parseador.parse(v);
+			
+			calendar.setTime(date);
+			System.out.println(calendar.getTime());
+			//System.out.println(formateador.);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+		//System.out.println(formato.format(calendar.getTime()));
+		return calendar.getTime();
+		
+		}
 }

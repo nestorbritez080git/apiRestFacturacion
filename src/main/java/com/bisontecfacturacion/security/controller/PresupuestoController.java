@@ -32,6 +32,7 @@ import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
+import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
@@ -365,22 +366,12 @@ public class PresupuestoController {
 		if (t==null) {
 			System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 		}else {
-			Cliente cl = clienteRepository.getIdCliente(pres.getCliente().getId());
-			
-			Funcionario fun = funcionarioRepository.getIdFuncionario(pres.getFuncionario().getId());
-			
-			
-		
-			
-			pres.getCliente().getPersona().setNombre(cl.getPersona().getNombre()+" "+cl.getPersona().getApellido());
-			pres.getCliente().getPersona().setCedula(cl.getPersona().getCedula());
-			pres.getFuncionario().getPersona().setNombre(fun.getPersona().getNombre()+ " "+fun.getPersona().getApellido());
-			
 			ReporteConfig reportConfig = reporteConfigRepository.getOne(2);
-			Map<String, Object> map = new HashMap<>();	
-			List<Presupuesto> venta = new ArrayList<>();
-			venta.add(pres);
-			if (t.getImpresora().equals("matricial")) {
+			List<Presupuesto> venta = getListasss(pres.getId());
+			Map<String, Object> map = new HashMap<>();
+			
+	
+				if (t.getImpresora().equals("matricial")) {
 				ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
 				String urlReporte ="\\reporte\\"+reportConfig.getNombreSubReporte1()+".jasper";
 				map.put("urlSubRepor", urlReporte);
@@ -389,9 +380,8 @@ public class PresupuestoController {
 				map.put("descripcionMovimiento", f.getDescripcion());
 				map.put("direccionReporte", f.getDireccion());
 				map.put("telefonoReporte", f.getTelefono());
-				
 				try {
-					report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
+				report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -399,7 +389,7 @@ public class PresupuestoController {
 		}
 	
 	}
-	public List<DetallePresupuestoServicio> detalleServ(int idVenta) {
+	public List<DetallePresupuestoServicio> getDetalleServ(int idVenta) {
 		List<Object[]> objeto=detalleServicioRepository.listarDetallePresupuesto(idVenta);
 		List<DetallePresupuestoServicio> detalleServicio=new ArrayList<>();
 		for(Object[] ob:objeto){
@@ -410,15 +400,16 @@ public class PresupuestoController {
 			detalleServicios.setCantidad(Double.parseDouble(ob[3].toString()));
 			detalleServicios.setPrecio(Double.parseDouble(ob[4].toString()));
 			detalleServicios.setSubTotal(Double.parseDouble(ob[5].toString()));
-			//detalleServicios.getVenta().setId(Integer.parseInt(ob[6].toString()));
+			detalleServicios.getPresupuesto().setId(Integer.parseInt(ob[6].toString()));
+			detalleServicios.setIva(ob[7].toString());
 			detalleServicios.getFuncionario().setId(Integer.parseInt(ob[8].toString()));
-			detalleServicios.setObs(ob[10].toString());
+			detalleServicios.setObs(ob[11].toString());
 			detalleServicio.add(detalleServicios);
 		}
 		return detalleServicio;
 	}
 
-	public List<DetallePresupuestoProducto> detalleProducto(List<Object[]> objeto) {
+	public List<DetallePresupuestoProducto> getDetalleProducto(List<Object[]> objeto) {
 		List<DetallePresupuestoProducto> detalleProducto=new ArrayList<>();
 		for(Object[] ob:objeto){
 			DetallePresupuestoProducto detalleProductos=new DetallePresupuestoProducto();
@@ -470,18 +461,18 @@ public class PresupuestoController {
 		return pre;
 	}
 
-	public List<Presupuesto> getLista(int idPresupuesto ) {
+	public List<Presupuesto> getListasss(int idPresupuesto ) {
 
-		List<Presupuesto> lista = new ArrayList<>();
 
 		Presupuesto presu = new Presupuesto();
+		List<Presupuesto> lista = new ArrayList<>();
 		List<DetallePresupuestoProducto> detProducto = new ArrayList<>();
 		List<DetallePresupuestoServicio> detServicio = new ArrayList<>();
 
 
 		presu = presupuestosss(idPresupuesto);
-		detProducto = detalleProducto(detalleProductoRepository.lista(idPresupuesto));
-		detServicio = detalleServ(idPresupuesto);
+		detProducto = getDetalleProducto(detalleProductoRepository.lista(idPresupuesto));
+		detServicio = getDetalleServ(idPresupuesto);
 
 
 		for (int i = 0; i < 1; i++) {
@@ -505,19 +496,25 @@ public class PresupuestoController {
 
 			for(DetallePresupuestoServicio det: detServicio) {
 				DetallePresupuestoProducto detalleProducto = new DetallePresupuestoProducto();
-				detalleProducto.setDescripcion(det.getDescripcion());
+				detalleProducto.getProducto().setId(det.getServicio().getId());
+				detalleProducto.setDescripcion("SER - "+det.getDescripcion());
 				detalleProducto.getProducto().setCodbar(det.getServicio().getId()+"");
 				detalleProducto.setCantidad(det.getCantidad());
 				detalleProducto.setPrecio(det.getPrecio());
-				detalleProducto.setIva(det.getId()+"");
+				detalleProducto.setIva(det.getIva()+"");
 				detalleProducto.setSubTotal(det.getSubTotal());
 				detalleProducto.setMontoIva(det.getMontoIva());
+				System.out.println(""+det.getSubTotal());
+				System.out.println(detalleProducto.getSubTotal());
 				v.getDetallePresupuestoProducto().add(detalleProducto);
+				detalleProducto.getSubTotal();
 			}
 			lista.add(v);
 		}
-
+		
 		return lista;
 
 	}
+	
+
 }

@@ -1156,6 +1156,7 @@ public class VentaController {
 			detalleServicios.setPrecio(Double.parseDouble(ob[4].toString()));
 			detalleServicios.setSubTotal(Double.parseDouble(ob[5].toString()));
 			detalleServicios.getVenta().setId(Integer.parseInt(ob[6].toString()));
+			detalleServicios.setIva(ob[7].toString());
 
 			detalleServicio.add(detalleServicios);
 		}
@@ -1260,10 +1261,11 @@ public class VentaController {
 				detalleProducto.getProducto().setCodbar(det.getServicio().getId()+"");
 				detalleProducto.setCantidad(det.getCantidad());
 				detalleProducto.setPrecio(det.getPrecio());
-				detalleProducto.setIva(det.getId()+"");
+				detalleProducto.setIva(det.getIva()+"");
 				detalleProducto.setSubTotal(det.getSubTotal());
 				detalleProducto.setMontoIva(det.getMontoIva());
 				v.getDetalleProducto().add(detalleProducto);
+				
 			}
 			lista.add(v);
 			System.out.println("lista cantidad : "+lista.get(0).getDetalleProducto().size());
@@ -1766,7 +1768,7 @@ public class VentaController {
 	}
 	@RequestMapping(value="/reporteVentaRangoGrupo/{fechaI}/{fechaF}/{idGrupo}/{detallado}", method=RequestMethod.GET)
 	public ResponseEntity<?>  getReporteVentaRangoGrupo(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idGrupo ,  @PathVariable int detallado) throws IOException {
-		System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF);
+		System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF+" ::::" + idGrupo+ " :::: "+detallado);
 		List<Venta> listado = new ArrayList<>();
 		List<DetalleProducto> listadoDetalle = new ArrayList<>();
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
@@ -1775,16 +1777,21 @@ public class VentaController {
 		try {
 			System.out.println("entroo tryy"+detallado);
 			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
-			Date fecI;
-			System.out.println("pasoo1");
-			fecI = formater.parse(fechaI);
-			System.out.println("pasoo2");
-			Date fecF=formater.parse(fechaF);
-			System.out.println("pasoo3");
-			Date fechaFi = sumarDia(fecF, 24);
-			System.out.println("FI: "+fecI+ "  : : : FFIN: "+fechaFi+ " : id Func:  "+idGrupo);
-			Object [][] objeto = entityRepository.getReporteVentaRangoGrupo(fecI, fechaFi, idGrupo);
-			Grupo g= grupoService.getOne(idGrupo);
+			Date fecI, fecF;
+			fecI= FechaUtil.setFechaHoraInicial(fechaI);
+			fecF= FechaUtil.setFechaHoraFinal(fechaF);
+			Object [][] objeto;
+			Grupo g=null;
+			if(idGrupo==0) {
+				objeto = entityRepository.getReporteVentaRangoGrupoAll(fecI, fecF);
+				g= new Grupo();
+				g.setDescripcion("TODOS");
+			}else {
+				objeto = entityRepository.getReporteVentaRangoGrupo(fecI, fecF, idGrupo);
+				g= grupoService.getOne(idGrupo);
+
+			}
+			
 			System.out.println("ejecutoo el metodo de reangoooo");
 			Map<String, Object> map = new HashMap<>();
 			map.put("org", ""+org.getNombre());
@@ -1795,7 +1802,7 @@ public class VentaController {
 			map.put("pais", ""+org.getPais());
 			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
 			map.put("desde", fecI);
-			map.put("hasta", fechaFi);
+			map.put("hasta", fecF);
 			map.put("totalCosto", Double.parseDouble(objeto[0][0].toString()));
 			map.put("totalVenta", Double.parseDouble(objeto[0][1].toString()));
 			map.put("totalUtilidad", Double.parseDouble(objeto[0][2].toString()));
@@ -1819,7 +1826,13 @@ public class VentaController {
 			}
 			if (detallado==2) {
 				System.out.println("ENTROO TRUE");
-				List<Object []> obb= entityRepository.getReporteVentaRangoGrupoDetallado(fecI, fechaFi, idGrupo);
+				List<Object []> obb=null;
+				if(idGrupo==0) {
+					 obb= entityRepository.getReporteVentaRangoGrupoDetalladoAll(fecI, fecF);
+
+				}else {
+					obb= entityRepository.getReporteVentaRangoGrupoDetallado(fecI, fecF, idGrupo);
+				}
 				for(Object[] ob: obb) {
 					DetalleProducto dt = new DetalleProducto();
 					dt.setDescripcion(ob[0].toString());
@@ -1827,6 +1840,7 @@ public class VentaController {
 					dt.setCantidad(Double.parseDouble(ob[2].toString()));
 					dt.setSubTotal(Double.parseDouble(ob[3].toString()));
 					dt.setCosto(Double.parseDouble(ob[4].toString()));
+					dt.setTipoPrecio(ob[5].toString());
 					listadoDetalle.add(dt);
 				}
 				report.reportPDFDescarga(listadoDetalle, map, "ReporteVentaRangoGrupoDetallado", response);

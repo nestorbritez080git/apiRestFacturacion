@@ -93,8 +93,15 @@ public class OperacionCajaController {
 	public OperacionCaja getPorId(@PathVariable int id){
 		OperacionCaja ope=entityRepository.findById(id).get();
 		OperacionCaja operacion=new OperacionCaja();
+		operacion.setId(ope.getId());
 		operacion.setVuelto(ope.getVuelto());
 		operacion.setEfectivo(ope.getEfectivo());
+		operacion.getAperturaCaja().getFuncionario().getPersona().setNombre(ope.getAperturaCaja().getFuncionario().getPersona().getNombre()+" "+ope.getAperturaCaja().getFuncionario().getPersona().getApellido());
+		operacion.getTipoOperacion().setDescripcion(ope.getTipoOperacion().getDescripcion());
+		operacion.getTipoOperacion().setId(ope.getTipoOperacion().getId());
+		operacion.setReferenciaTipoOperacion(ope.getReferenciaTipoOperacion());
+		
+		
 		return operacion;
 	}
 /*

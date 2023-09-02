@@ -164,6 +164,7 @@ public class DetalleProductoController {
 			detalleProductos.getProducto().getMarca().setDescripcion(ob[17].toString());
 			detalleProductos.setMontoIva(Double.parseDouble(ob[18].toString()));
 			detalleProductos.setCosto(Double.parseDouble(ob[19].toString()));
+			detalleProductos.setTipoPrecio(ob[20].toString());
 			detalleProducto.add(detalleProductos);
 		}
 		
@@ -247,8 +248,8 @@ public class DetalleProductoController {
 		try {
 			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
 			Date fecI, fechaFi;
-			fecI = FechaUtil.fechaHoraInicial(fechaInicio);
-			fechaFi = FechaUtil.fechaHoraFinal(fechaFin);
+			fecI = FechaUtil.setFechaHoraInicial(fechaInicio);
+			fechaFi = FechaUtil.setFechaHoraFinal(fechaFin);
 			List<Object []> obb =detalleServicioRepository.getResumenVentaServicioRagoFechaDetallado(fecI, fechaFi);
 			List<DetalleServicios> det=new ArrayList<>();
 
@@ -303,8 +304,8 @@ public class DetalleProductoController {
 		try {
 			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
 			Date fecI, fechaFi;
-			fecI = FechaUtil.fechaHoraInicial(fechaInicio);
-			fechaFi = FechaUtil.fechaHoraFinal(fechaFin);
+			fecI = FechaUtil.setFechaHoraInicial(fechaInicio);
+			fechaFi = FechaUtil.setFechaHoraFinal(fechaFin);
 			List<Object []> obb =detalleServicioRepository.getResumenVentaServicioRagoFechaDetalladoPorFuncionario(fecI, fechaFi, idFunc);
 			List<DetalleServicios> det=new ArrayList<>();
 

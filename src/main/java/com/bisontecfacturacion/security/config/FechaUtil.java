@@ -26,7 +26,7 @@ public class FechaUtil {
 		 }
 		 return fecha;
 	}
-	public static Date fechaHoraInicial(String fecInicial) {
+	public static Date setFechaHoraInicial(String fecInicial) {
 		Date fecI = new Date();
 		try {
 			Calendar cc= Calendar.getInstance();
@@ -45,7 +45,7 @@ public class FechaUtil {
 		
 		return fecI;
 	}
-	public static Date fechaHoraFinal(String fecInicial) {
+	public static Date setFechaHoraFinal(String fecInicial) {
 		Date fecI = new Date();
 		try {
 			Calendar cc= Calendar.getInstance();

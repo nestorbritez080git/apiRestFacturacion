@@ -72,7 +72,7 @@ public class LiquidacionServicioController {
 	
 	@RequestMapping(method=RequestMethod.GET,value = "/detalleServicio/{fechaInicio}/{fechaFin}/{id}")
 	public List<DetalleServicios> getDetalleServicioPorFuncionario(@PathVariable String fechaInicio, @PathVariable String fechaFin, @PathVariable int id){
-		return listarDetalleServicios(entityRepository.getDetalleServicioFacturadoPorIdFuncionario(FechaUtil.fechaHoraInicial(fechaInicio), FechaUtil.fechaHoraFinal(fechaFin), id));
+		return listarDetalleServicios(entityRepository.getDetalleServicioFacturadoPorIdFuncionario(FechaUtil.setFechaHoraInicial(fechaInicio), FechaUtil.setFechaHoraFinal(fechaFin), id));
 	}
 	@Transactional
 	@RequestMapping(method=RequestMethod.POST)

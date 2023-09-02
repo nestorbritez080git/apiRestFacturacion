@@ -18,6 +18,8 @@ public interface CobrosClienteCabeceraRepository extends JpaRepository<CobrosCli
 	
 	@Query("select  c from CobrosClienteCabecera c where cliente_id=:id order by id desc")
 	public List<CobrosClienteCabecera> findByCuentaPorIdCliente(@Param("id") int id);
-	@Query("select  c from CobrosClienteCabecera c where cliente_id=:id and (fecha >=:fecha_inicio and fecha<=:fecha_fin)order by id desc")
-	public List<CobrosClienteCabecera> findByCobrosClientePorRango(@Param("id") int id,@Param("fecha_inicio") Date fecInicio, @Param("fecha_fin") Date fecFin );
+	@Query("select  c from CobrosClienteCabecera c where cliente_id=:id and ((fecha >=:fecha_inicio) and (fecha<=:fecha_fin)) order by id desc")
+	public List<CobrosClienteCabecera> findByCobrosClientePorRango(@Param("id") int id, @Param("fecha_inicio") Date fecInicio, @Param("fecha_fin") Date fecFin );
+	
+	
 }
