@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
+import com.bisontecfacturacion.security.hoteleria.repository.ReservacionCabeceraRepository;
 import com.bisontecfacturacion.security.model.CobrosCliente;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.OperacionCaja;
@@ -38,6 +40,8 @@ public class OperacionCajaController {
 	private OperacionCajaRepository entityRepository;
 	@Autowired
 	private VentaRepository ventaRepositoty;
+	@Autowired
+	private ReservacionCabeceraRepository reservacionRepositoty;
 	@Autowired
 	private AperturaCajaRepository aperturaRepository;
 	@Autowired
@@ -249,7 +253,65 @@ public class OperacionCajaController {
 		return listadoRetorno;
 	}
 
-
+	@RequestMapping(method=RequestMethod.POST, value="/reservacion/{idReservacion}")
+	public ResponseEntity<?>  guardarOperacionReservacion(@RequestBody OperacionCaja entity, @PathVariable int idReservacion){
+		if(idReservacion==0) {
+			ReservacionCabecera v = new ReservacionCabecera();
+			v=reservacionRepositoty.getUltimaReservacion();
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+			entity.setMotivo(c.getDescripcion()+" REF.: "+v.getId());
+			entity.setTipo("ENTRADA");
+			if (entity.getTipoOperacion().getId() == 1) {
+				aperturaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 2) {
+				aperturaRepository.findByActualizarAperturaSaldoCheque(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 3) {
+				aperturaRepository.findByActualizarAperturaSaldoTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			
+			entityRepository.save(entity);
+			OperacionCaja op=  entityRepository.findTop1ByOrderByIdDesc();
+			reservacionRepositoty.findByActualizarReservacionOperacionEntrega(v.getId(),op.getId());
+			
+			
+		}else {
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+			entity.setTipo("ENTRADA");
+			if (entity.getTipoOperacion().getId() == 1) {
+				aperturaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 2) {
+				aperturaRepository.findByActualizarAperturaSaldoCheque(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 3) {
+				aperturaRepository.findByActualizarAperturaSaldoTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			entityRepository.save(entity);
+			OperacionCaja op= new OperacionCaja();
+			op=  entityRepository.findTop1ByOrderByIdDesc();
+			System.out.println("id operacion si es igual a dos : "+ op.getId());
+			ReservacionCabecera vv = new ReservacionCabecera();
+			vv=reservacionRepositoty.getOne(idReservacion);
+			System.out.println("vneta id: "+vv.getId());
+			op.setMotivo(c.getDescripcion()+" REF.: "+vv.getId());
+			entityRepository.save(op);
+			reservacionRepositoty.findByActualizarReservacionOperacion(vv.getId(),op.getId());
+			
+		}
+		
+		return  new  ResponseEntity<String>(HttpStatus.CREATED);
+	}
+	
 	@RequestMapping(method=RequestMethod.POST, value="/cobrosClientess")
 	public ResponseEntity<?>  guardarOperacionCobros(@RequestBody OperacionCaja entity){
 		

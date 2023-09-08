@@ -139,7 +139,7 @@ public class DetalleProductoController {
 	
 	@RequestMapping(method=RequestMethod.GET, value="/{id}")
 	public List<DetalleProducto> getAllId(@PathVariable int id){
-		List<Object[]> objeto=entityRepository.lista(id);
+		List<Object[]> objeto=entityRepository.lista(id);	
 		List<DetalleProducto> detalleProducto=new ArrayList<>();
 		for(Object[] ob:objeto){
 			DetalleProducto detalleProductos=new DetalleProducto();

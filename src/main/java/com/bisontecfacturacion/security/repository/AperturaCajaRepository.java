@@ -21,11 +21,15 @@ public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Seri
 
 	@Query("select a from AperturaCaja a where funcionario_id=:idFuncionario order by id desc")
 	public List<AperturaCaja> getAperturaCajaPorFuncionario(@Param("idFuncionario")int idFuncionario);
+	
 	public abstract List<AperturaCaja>findTop100ByOrderByIdDesc();
+	
 	@Query(value = "select * from apertura_caja v inner join caja c on c.id= v.caja_id inner join funcionario fp on fp.id= v.funcionario_id inner join persona pf on pf.id = fp.persona_id where extract(year from cast(v.fecha as Date))=:anho AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia  order by v.id desc", nativeQuery = true)
 	List<AperturaCaja>getAperturaPorFecha(@Param("anho") int ano, @Param("mes") int mes, @Param("dia") int dia); 
+	
 	@Query(value="select id, funcionario_id, saldo_inicial, saldo_actual, caja_id, saldo_inicial_cheque, saldo_actual_cheque, saldo_inicial_tarjeta, saldo_actual_tarjeta from apertura_caja where caja_id =:id and estado=true ",nativeQuery=true )
 	public List<Object[]> getAperturaActivo(@Param("id") int id);
+	
 	@Query(value = "select  ac.id, pf.nombre,pf.apellido, c.descripcion from apertura_caja  ac inner join caja c on c.id= ac.caja_id inner join funcionario f on f.id=ac.funcionario_id inner join persona pf on pf.id= f.persona_id where ac.estado=true", nativeQuery = true)
 	List<Object[]>getFuncionarioCajaActivo(); 
 
