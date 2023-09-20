@@ -126,6 +126,17 @@ public class HabitacionesController {
 		List<Object[]> objeto=comboRepository.getAllDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
 		return listHabitacionCombo(objeto);
 	}
+	
+	@RequestMapping(method=RequestMethod.GET, value="/updateEstado/{id}/{estDispo}/{estReser}")
+	public ResponseEntity<?> udapteEstadoHabitacion(@PathVariable int id,@PathVariable Boolean estDispo, @PathVariable Boolean estReser){
+		try {
+			entityRepository.findByActualizaEstadoDisponilidadReservacion(id, estDispo, estReser);
+			
+		} catch (Exception e) {
+			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL ACTUALIZAR ESTADO HABITACIÓN"), HttpStatus.CONFLICT);
+		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 	public List<HabitacionesCategoriaCombo> listHabitacionCombo(List<Object[]> objeto) {
 		List<HabitacionesCategoriaCombo> servi=new ArrayList<>();
 		for(Object[] ob:objeto){
@@ -145,4 +156,6 @@ public class HabitacionesController {
 
 		return servi;
 	}
+	
+	
 }

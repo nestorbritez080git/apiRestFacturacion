@@ -1,14 +1,20 @@
 package com.bisontecfacturacion.security.hoteleria.controller;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.config.FechaUtil;
+import com.bisontecfacturacion.security.config.Reporte;
+import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.hoteleria.model.Habitaciones;
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
@@ -23,29 +32,44 @@ import com.bisontecfacturacion.security.hoteleria.model.ReservacionDetalle;
 import com.bisontecfacturacion.security.hoteleria.repository.HabitacionesRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionCabeceraRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionDetalleRepository;
+import com.bisontecfacturacion.security.model.Cliente;
+import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.DetalleProducto;
+import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
+import com.bisontecfacturacion.security.model.ReporteConfig;
+import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
+import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
+import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.DetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
+import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.ProductoCardexRepository;
 import com.bisontecfacturacion.security.repository.ProductoRepository;
+import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
+import com.bisontecfacturacion.security.repository.ReporteFormatoDatosRepository;
+import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
+import com.bisontecfacturacion.security.service.IUsuarioService;
+import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 
 @RestController
 @RequestMapping("reservacion")
 public class ReservacionController {
 	@Autowired
 	private ReservacionCabeceraRepository entityRepository;
+	
 	
 	@Autowired
 	private AperturaCajaRepository aperturaCajaRepository;
@@ -59,8 +83,25 @@ public class ReservacionController {
 	private FuncionarioRepository funcionarioRepository;
 	
 	
-
+	@Autowired
+	private ClienteRepository clienteRepository;
 	
+	@Autowired
+	private ReporteConfigRepository reporteConfigRepository;
+	
+	@Autowired
+	private ReporteFormatoDatosRepository reporteFormatoDatosRepository;
+	
+	@Autowired
+	private OrgRepository orgRepository;
+	@Autowired
+	private IUsuarioService usuarioService;
+	
+	private Reporte report;
+	
+	
+	@Autowired
+	private TerminalConfigImpresoraRepository terminalRepository;
 	
 	@Autowired
 	private ProductoCardexRepository compuestoRepository;
@@ -79,13 +120,43 @@ public class ReservacionController {
 	
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{fecha}")
-	public List<ReservacionCabecera> getAll(@PathVariable String fecha){
+	public List<ReservacionCabecera> getAll(@PathVariable String fecha ){
 		String[] fec=fecha.split("-");
 		Integer dia=Integer.parseInt(fec[0]);
 		Integer mes=Integer.parseInt(fec[1]);
 		Integer ano=Integer.parseInt(fec[2]);		
 		return listar(entityRepository.getReservacionesAll(ano, mes, dia));
 	}
+	@RequestMapping(method = RequestMethod.GET, value = "/prereservacion/{fecha}")
+	public List<ReservacionCabecera> getAllPreReservado(@PathVariable String fecha ){
+		String[] fec=fecha.split("-");
+		Integer dia=Integer.parseInt(fec[0]);
+		Integer mes=Integer.parseInt(fec[1]);
+		Integer ano=Integer.parseInt(fec[2]);		
+		return listar(entityRepository.getReservacionesAllPreReservado(ano, mes, dia));
+	}
+
+	@RequestMapping(method=RequestMethod.POST, value="/detalleReservaciones")
+	public ResponseEntity<?> eliminarProducto(@RequestBody List<ReservacionDetalle> detalles){
+		try {
+			if(detalles.size()!=-1) {
+				System.out.println("con listado lista");
+				for (ReservacionDetalle de : detalles) {				
+					detalleRepository.deleteById(de.getId());
+				}
+				System.out.println("sin lista");
+				return  new  ResponseEntity<String>(HttpStatus.CREATED);
+
+			}else {
+				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/detalleReservaciones/{id}")
 	public List<ReservacionDetalle> getDetalleReservacionPorIdCabecera(@PathVariable int id){
 		return listarDetalle(detalleRepository.getDetallePorIdCabecera(id));
@@ -174,6 +245,15 @@ public class ReservacionController {
 		}
 		return res;
 	}
+	
+	@Transactional
+	@RequestMapping(method = RequestMethod.GET, value = "/finalizar/{idReservacion}/{numeroTerminal}/{idAper}")
+	public ResponseEntity<?> Finalizar(@PathVariable int idReservacion, @PathVariable int numeroTerminal,  @PathVariable int idAper){
+		ReservacionCabecera r= entityRepository.getOne(idReservacion);
+		entityRepository.findByActualizaEstado(idReservacion, "FINALIZADO");
+		actualizarHabitacionDisponilidadReservacion(r.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
+		return new ResponseEntity<String>("OK", HttpStatus.CREATED);
+	}
 	@Transactional
 	@RequestMapping(method = RequestMethod.POST, value = "/{numeroTerminal}/{idAper}")
 	public ResponseEntity<?> guardar(@RequestBody ReservacionCabecera entity, @PathVariable int numeroTerminal,  @PathVariable int idAper){
@@ -210,12 +290,16 @@ public class ReservacionController {
 					entity.setHora(hora());
 					if(entity.getEstado().equals("FINALIZADO")) {
 						entity.setFechaFactura(new Date());
+						entity.setHoraFinalizacion(hora());
 						//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId()));
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 					}else if(entity.getEstado().equals("RESERVADO")) {
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), true, true);
 						entity.setFechaFactura(null);
-					}else if(entity.getEstado().equals("CANCELADO")) {
+					}else if(entity.getEstado().equals("PRE-RESERVADO")) {
+						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, true);
+						entity.setFechaFactura(null);
+					} else if(entity.getEstado().equals("CANCELADO")) {
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 						entity.setFechaFactura(null);
 					}
@@ -224,7 +308,6 @@ public class ReservacionController {
 					double total10=0, total5=0, totalDescuento=0;
 					if(entity.getReservacionDetalles().size()>0){
 						if(entity.getEstado().equals("FINALIZADO")) {
-							
 							for(ReservacionDetalle detalleProducto: entity.getReservacionDetalles()) {
 								totalDescuento = totalDescuento + detalleProducto.getDescuento();
 								detalleProducto.getReservacionCabecera().setId(idVent);
@@ -255,7 +338,7 @@ public class ReservacionController {
 								detalleRepository.save(detalleProducto);
 							}
 							
-						}else if(entity.getEstado().equals("RESERVADO")) {
+						}else if(entity.getEstado().equals("PRE-RESERVADO")) {
 							for(ReservacionDetalle detalleProducto: entity.getReservacionDetalles()) {
 								detalleProducto.getReservacionCabecera().setId(idVent);
 								detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
@@ -264,14 +347,37 @@ public class ReservacionController {
 						}
 					}
 						
-					if(entity.getEntrega()>0) {
-						
-					}		
+					if(entity.getEntrega()>0 && entity.getOperacionCajaEntrega()==0) {
+						OperacionCaja op= new OperacionCaja();
+						op.getAperturaCaja().setId(idAper);
+						op.getConcepto().setId(13);
+						if(entity.getDocumento().getDescripcion().equals("EFECTIVO")) {
+							op.getTipoOperacion().setId(1);op.setEfectivo(entity.getEntrega());
+							this.aperturaCajaRepository.findByActualizarAperturaSaldo(idAper, entity.getEntrega());
+
+						}
+						if(entity.getDocumento().getDescripcion().equals("CHEQUE")) {
+							op.getTipoOperacion().setId(2);
+							this.aperturaCajaRepository.findByActualizarAperturaSaldoCheque(idAper, entity.getEntrega());							
+						}
+						if(entity.getDocumento().getDescripcion().equals("TARJETA")) {
+							op.getTipoOperacion().setId(3);
+							this.aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(idAper, entity.getEntrega());							
+						}
+						op.setTipo("ENTRADA");
+						op.setMonto(entity.getEntrega());
+						op.setMotivo("ALOJAMIENTO REF.: "+entity.getId());
+						operacionRepository.save(op);
+						OperacionCaja opNuevo= operacionRepository.findTop1ByOrderByIdDesc();
+						entity.setOperacionCajaEntrega(opNuevo.getId());
+					}
+					
 					entity.setTotalIvaDies(Utilidades.calcularIvaDies(entity.getTotalHabitacion())+total10);
 					entity.setTotalIvaCinco(total5);
 					entity.setTotalDescuento(totalDescuento);
 					
-					
+					entityRepository.save(entity);
+
 				
 					
 				}else {
@@ -279,12 +385,16 @@ public class ReservacionController {
 					entity.setHora(hora());
 					if(entity.getEstado().equals("FINALIZADO")) {
 						entity.setFechaFactura(new Date());
+						entity.setHoraFinalizacion(hora());
 						//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId()));
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 					}else if(entity.getEstado().equals("RESERVADO")) {
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), true, true);
 						entity.setFechaFactura(null);
-					}else if(entity.getEstado().equals("CANCELADO")) {
+					}else if(entity.getEstado().equals("PRE-RESERVADO")) {
+						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, true);
+						entity.setFechaFactura(null);
+					} else if(entity.getEstado().equals("CANCELADO")) {
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 						entity.setFechaFactura(null);
 					}
@@ -328,12 +438,37 @@ public class ReservacionController {
 								detalleRepository.save(detalleProducto);
 							}
 							
-						}else if(entity.getEstado().equals("RESERVADO")) {
+						}else if(entity.getEstado().equals("PRE-RESERVADO")) {
 							for(ReservacionDetalle detalleProducto: entity.getReservacionDetalles()) {
 								detalleProducto.getReservacionCabecera().setId(idVent);
 								detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
 								detalleRepository.save(detalleProducto);
 							}
+						}
+						
+						if(entity.getEntrega()>0 && entity.getOperacionCajaEntrega()==0) {
+							OperacionCaja op= new OperacionCaja();
+							op.getAperturaCaja().setId(idAper);
+							op.getConcepto().setId(13);
+							if(entity.getDocumento().getDescripcion().equals("EFECTIVO")) {
+								op.getTipoOperacion().setId(1);op.setEfectivo(entity.getEntrega());
+								this.aperturaCajaRepository.findByActualizarAperturaSaldo(idAper, entity.getEntrega());
+
+							}
+							if(entity.getDocumento().getDescripcion().equals("CHEQUE")) {
+								op.getTipoOperacion().setId(2);
+								this.aperturaCajaRepository.findByActualizarAperturaSaldoCheque(idAper, entity.getEntrega());							
+							}
+							if(entity.getDocumento().getDescripcion().equals("TARJETA")) {
+								op.getTipoOperacion().setId(3);
+								this.aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(idAper, entity.getEntrega());							
+							}
+							op.setTipo("ENTRADA");
+							op.setMonto(entity.getEntrega());
+							op.setMotivo("ALOJAMIENTO REF.: "+entity.getId());
+							operacionRepository.save(op);
+							OperacionCaja opNuevo= operacionRepository.findTop1ByOrderByIdDesc();
+							entity.setOperacionCajaEntrega(opNuevo.getId());
 						}
 					}
 					entity.setTotalIvaDies(Utilidades.calcularIvaDies(entity.getTotalHabitacion())+total10);
@@ -342,7 +477,7 @@ public class ReservacionController {
 					System.out.println(id.getFechaFactura());
 					id.setFechaFactura(id.getFechaFactura());
 					entityRepository.save(entity);
-					System.out.println("entro udpate nuevo");
+					System.out.println("entro  nuevo");
 					
 				}
 			}
@@ -597,7 +732,193 @@ public class ReservacionController {
 
 		}
 	}
+	public ReservacionCabecera reservacionessss(int idVenta) {
+		ReservacionCabecera cv = null;
 
-	                                       
+		cv=entityRepository.findById(idVenta).orElse(null);
+		//		System.out.println(""+cv.getCliente().getPersona().);
+		/*
+		List<Venta> v= new ArrayList<Venta>();
+		v.add(cv);
+		for(int i = 0; i < 1; i++) {
+			cv = new Venta();
+			cv = v.get(i);
+			System.out.println(cv.getCliente().getPersona().getNombre()+"asdfadsfasdfadsads");
+
+		}*/
+
+		return cv;
+	}
+	public List<ReservacionCabecera> getLista(int idVenta ) {
+
+		List<ReservacionCabecera> lista = new ArrayList<>();
+
+		ReservacionCabecera xxx = new ReservacionCabecera();
+		List<ReservacionDetalle> detProducto = new ArrayList<>();
+
+
+		xxx = reservacionessss(idVenta);
+		detProducto = listarDetalle(detalleRepository.getDetallePorIdCabecera(idVenta));
+		
+
+
+		for (int i = 0; i < 1; i++) {
+			Cliente cli = clienteRepository.getIdCliente(xxx.getCliente().getId());
+			Funcionario FunV = funcionarioRepository.getIdFuncionario(xxx.getFuncionarioFinalizacion().getId());
+			ReservacionCabecera v = new ReservacionCabecera();
+			v.getCliente().getPersona().setNombre(cli.getPersona().getNombre()+ " "+cli.getPersona().getApellido());
+			v.getCliente().getPersona().setCedula(cli.getPersona().getCedula());
+			v.getCliente().getPersona().setDireccion(cli.getPersona().getDireccion());
+			v.setFechaFactura(xxx.getFechaFactura());
+			v.setFechaRegistro(xxx.getFechaRegistro());
+			v.setHora(xxx.getHora());
+			System.out.println("fun veeveveve : "+FunV.getPersona().getNombre());
+			v.getFuncionarioFinalizacion().getPersona().setNombre(FunV.getPersona().getNombre()+ " "+FunV.getPersona().getApellido());
+			v.setTotalDescuento(xxx.getTotalDescuento());
+			v.setTotalIvaCinco(xxx.getTotalIvaCinco());
+			v.setTotalIvaDies(xxx.getTotalIvaDies());
+			v.setTotalHabitacion(xxx.getTotalHabitacion());
+			v.setPrecio(xxx.getPrecio());
+			v.setTotalProducto(xxx.getTotalProducto());
+			v.setTotalLetra(xxx.getTotalLetra());
+			v.setTipo(xxx.getTipo());
+			v.getDocumento().setDescripcion(xxx.getDocumento().getDescripcion());
+			v.setEntrega(xxx.getEntrega());
+			v.setReservacionDetalles(detProducto);
+			lista.add(v);
+			System.out.println("lista cantidad : "+lista.get(0).getReservacionDetalles().size());
+		}
+
+		return lista;
+
+	}
+	@RequestMapping(value="/reImprimirMatricial/{id}/{numeroTerminal}/{fecha}", method=RequestMethod.GET)
+	public void reImprimirMatricial(@PathVariable int id, @PathVariable int numeroTerminal, @PathVariable String fecha){
+		List<ReservacionCabecera> venta = getLista(id);
+		venta.get(0).setFechaFactura(FechaUtil.convertirFechaStringADateUtil(fecha));
+		Reporte report = new Reporte();
+		TerminalConfigImpresora t = new TerminalConfigImpresora();
+		t= terminalRepository.consultarTerminal(numeroTerminal);
+		if (t==null) {
+			System.out.println("Se debe cargar numero terminal dentro de la base de datos");
+		}else {
+		
+			ReporteConfig reportConfig = reporteConfigRepository.getOne(1);
+			Map<String, Object> map = new HashMap<>();
+			report=new Reporte();
+			if (t.getImpresora().equals("matricial")) {
+				ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(3);
+				String urlReporte ="\\reporte\\"+reportConfig.getNombreSubReporte1()+".jasper";
+				System.out.println("url SUBREPORT:  "+urlReporte+ " report name : "+reportConfig.getNombreReporte());
+				map.put("urlSubRepor", urlReporte);
+				map.put("tituloReporte", f.getTitulo());
+				map.put("razonSocialReporte", f.getRazonSocial());
+				map.put("descripcionMovimiento", f.getDescripcion());
+				map.put("direccionReporte", f.getDireccion());
+				map.put("telefonoReporte", f.getTelefono());
+				map.put("entregaInicial", "");
+				try {
+					report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+	}      
+	@RequestMapping(value="/resumenRecepcionRangoFecha/{fechaInicio}/{fechaFin}", method=RequestMethod.GET)
+	public ResponseEntity<?>  resumenServicioRangoFecha(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaInicio, @PathVariable String fechaFin) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			Date fecI, fechaFi;
+			fecI = FechaUtil.setFechaHoraInicial(fechaInicio);
+			fechaFi = FechaUtil.setFechaHoraFinal(fechaFin);
+			List<Object []> obb =entityRepository.getResumenRecepcionesRagoFecha(fecI, fechaFi);
+			List<ReservacionCabecera> det=new ArrayList<>();
+
+			for(Object[] ob: obb) {
+				ReservacionCabecera d = new  ReservacionCabecera();
+				d.setDescripcionCombo(ob[0].toString());
+				d.getFuncionarioFinalizacion().getPersona().setNombre(ob[1].toString());
+				d.getCliente().getPersona().setNombre(ob[2].toString());
+				d.setEntrega(Double.parseDouble(ob[3].toString()));
+				d.setPrecio(Double.parseDouble(ob[4].toString()));
+				d.setTotalProducto(Double.parseDouble(ob[5].toString()));
+				d.setTotalHabitacion(Double.parseDouble(ob[6].toString()));
+				d.setFechaRegistro(FechaUtil.convertirFechaStringADateUtil(ob[7].toString()));
+				d.setHora(ob[8].toString());
+				d.setFechaFactura(FechaUtil.convertirFechaStringADateUtil(ob[9].toString()));
+				d.setHoraFinalizacion(ob[10].toString());
+				det.add(d);
+			}
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+			map.put("desde", fecI);
+			map.put("hasta", fechaFi);
+			report = new Reporte();
+			report.reportPDFDescarga(det, map, "ReporteRecepcionHabitaciones", response);
+			//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+	
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
+	@RequestMapping(value="/resumenRecepcionRangoFechaFuncionario/{fechaInicio}/{fechaFin}/{idFun}", method=RequestMethod.GET)
+	public ResponseEntity<?>  resumenServicioRangoFechaFuncionario(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaInicio, @PathVariable String fechaFin, @PathVariable int idFun) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			Date fecI, fechaFi;
+			fecI = FechaUtil.setFechaHoraInicial(fechaInicio);
+			fechaFi = FechaUtil.setFechaHoraFinal(fechaFin);
+			List<Object []> obb =entityRepository.getResumenRecepcionesRagoFechaFuncionario(fecI, fechaFi, idFun);
+			List<ReservacionCabecera> det=new ArrayList<>();
+			Funcionario f = funcionarioRepository.getIdFuncionario(idFun);
+			for(Object[] ob: obb) {
+				ReservacionCabecera d = new  ReservacionCabecera();
+				d.setDescripcionCombo(ob[0].toString());
+				d.getFuncionarioFinalizacion().getPersona().setNombre(ob[1].toString());
+				d.getCliente().getPersona().setNombre(ob[2].toString());
+				d.setEntrega(Double.parseDouble(ob[3].toString()));
+				d.setPrecio(Double.parseDouble(ob[4].toString()));
+				d.setTotalProducto(Double.parseDouble(ob[5].toString()));
+				d.setTotalHabitacion(Double.parseDouble(ob[6].toString()));
+				d.setFechaRegistro(FechaUtil.convertirFechaStringADateUtil(ob[7].toString()));
+				d.setHora(ob[8].toString());
+				d.setFechaFactura(FechaUtil.convertirFechaStringADateUtil(ob[9].toString()));
+				d.setHoraFinalizacion(ob[10].toString());
+				det.add(d);
+			}
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+			map.put("desde", fecI);
+			map.put("hasta", fechaFi);
+			map.put("funcionarioRegistro", ""+f.getPersona().getNombre()+" "+f.getPersona().getApellido());
+
+			report = new Reporte();
+			report.reportPDFDescarga(det, map, "ReporteRecepcionHabitacionesFuncionario", response);
+			//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+	
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
 	
 }

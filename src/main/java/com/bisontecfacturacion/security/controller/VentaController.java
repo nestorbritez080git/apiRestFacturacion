@@ -173,7 +173,8 @@ public class VentaController {
 	private TesoreriaRepository tesoreriaRepository;
 
 	@Autowired
-	private ClienteRepository clienteRepository;
+	private ClienteRepository clienteRepository; 
+	
 	private List<Object[]> lis;
 
 	@RequestMapping(method=RequestMethod.GET, value="/ventas")

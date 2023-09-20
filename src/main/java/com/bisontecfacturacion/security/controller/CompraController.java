@@ -148,6 +148,34 @@ public class CompraController {
 			ventas.getProveedor().getPersona().setNombre(ob.getProveedor().getPersona().getNombre()+" "+ ob.getProveedor().getPersona().getApellido());
 			ventas.setTotal(ob.getTotal());
 			ventas.setFecha(ob.getFecha());
+			ventas.setFechaFactura(ob.getFechaFactura());
+			ventas.setNroDocumento(ob.getNroDocumento());
+			ventas.setEstado(ob.getEstado());
+			ventas.setTipo(ob.getTipo());
+			ventas.setHora(ob.getHora());
+			//ventas.getDocumento().setId(ob.getDocumento().getId());
+			venta.add(ventas);
+			System.out.println(ventas.getProveedor().getPersona().getNombre());
+		}
+		return venta;
+	}
+	@RequestMapping(method=RequestMethod.GET, value="/fechaFactura/{fecha}")
+	public List<Compra> getAllsFechaFactura(@PathVariable String fecha){
+		String[] fec=fecha.split("-");
+		Integer dia=Integer.parseInt(fec[0]);
+		Integer mes=Integer.parseInt(fec[1]);
+		Integer ano=Integer.parseInt(fec[2]);
+		List<Compra> objeto=entityRepository.getCompraFechaFactura(ano, mes, dia);
+		List<Compra> venta=new ArrayList<>();
+		for(Compra ob:objeto){
+			Compra ventas=new Compra();
+			ventas.setId(ob.getId());
+			ventas.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre()+" "+ob.getFuncionario().getPersona().getApellido());
+			ventas.getProveedor().getPersona().setNombre(ob.getProveedor().getPersona().getNombre()+" "+ ob.getProveedor().getPersona().getApellido());
+			ventas.setTotal(ob.getTotal());
+			ventas.setFecha(ob.getFecha());
+			ventas.setFechaFactura(ob.getFechaFactura());
+			ventas.setNroDocumento(ob.getNroDocumento());
 			ventas.setEstado(ob.getEstado());
 			ventas.setTipo(ob.getTipo());
 			ventas.setHora(ob.getHora());
@@ -216,6 +244,7 @@ public class CompraController {
 					//entity.setHora(hora());
 					entityRepository.save(entity);
 					int idVent=entity.getId();
+					double total10=0, total5=0, totalDescuento=0;
 					if(entity.getDetalleCompra().size()>0){
 						if (entity.getEstado().equals("FACTURADO")) {
 							for(DetalleCompra detalleProducto: entity.getDetalleCompra()) {
@@ -223,9 +252,11 @@ public class CompraController {
 								//detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecioCosto()));
 								System.out.println("ivaaa "+detalleProducto.getIva());
 								if(detalleProducto.getIva().equals("10 %")) {
+									total10 = total10 + Utilidades.calcularIvaDies(detalleProducto.getSubTotal()); 
 									detalleProducto.setMontoIva(Utilidades.calcularIvaDies(detalleProducto.getSubTotal()));
 								}
 								if(detalleProducto.getIva().equals("5 %")) {
+									total5 = total5 + Utilidades.calcularIvaCinco(detalleProducto.getSubTotal());
 									detalleProducto.setMontoIva(Utilidades.calcularIvaCinco(detalleProducto.getSubTotal()));
 								}
 								if(detalleProducto.getIva().equals("Exenta")) {
@@ -247,13 +278,16 @@ public class CompraController {
 						}
 
 					}
+					entity.setTotalIvaDies(total10);
+					entity.setTotalIvaCinco(total5);
+					entityRepository.save(entity);
 
 				}else {
 					entityRepository.save(entity);
 					Compra id = entityRepository.findTop1ByOrderByIdDesc();
 					int idVent=0;
 					if(id == null){idVent=1;}else{idVent=id.getId();}
-					//eliminarDetallePorCabecera(entity.getId());
+					double total10=0, total5=0, totalDescuento=0;
 					if(entity.getDetalleCompra().size()>0){
 						if (entity.getEstado().equals("FACTURADO")) {
 							for(DetalleCompra detalleProducto: entity.getDetalleCompra()) {
@@ -261,9 +295,11 @@ public class CompraController {
 								//detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
 								System.out.println("ivaaa "+detalleProducto.getIva());
 								if(detalleProducto.getIva().equals("10 %")) {
+									total10 = total10 + Utilidades.calcularIvaDies(detalleProducto.getSubTotal()); 
 									detalleProducto.setMontoIva(Utilidades.calcularIvaDies(detalleProducto.getSubTotal()));
 								}
 								if(detalleProducto.getIva().equals("5 %")) {
+									total5 = total5 + Utilidades.calcularIvaCinco(detalleProducto.getSubTotal());
 									detalleProducto.setMontoIva(Utilidades.calcularIvaCinco(detalleProducto.getSubTotal()));
 								}
 								if(detalleProducto.getIva().equals("Exenta")) {
@@ -272,54 +308,7 @@ public class CompraController {
 								detalleRepository.save(detalleProducto);
 								//this.actualizarProductoBaseCorregido(detalleProducto.getProducto().getId(), detalleProducto.getCantidad());
 								this.actualizarProductoBaseAumentarCorregido(detalleProducto.getProducto().getId(), detalleProducto.getCantidad(), detalleProducto.getPrecioCosto(), detalleProducto.getSubTotal(), detalleProducto.getPrecioVenta_1(), detalleProducto.getPrecioVenta_2(), detalleProducto.getPrecioVenta_3(), detalleProducto.getPrecioVenta_4(), entity.getFuncionario().getId(), detalleProducto.getProducto().getMarca().getDescripcion(), entity.getTipo(), idVent, entity.getProveedor().getId());
-//costo, subtotal,preVen1,preVen2,preVen3,preVen4, idfuncio, marca, tipo
-//								Producto p = productoRepository.getOne(detalleProducto.getProducto().getId());
-//								MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
-//
-//								mov.setDescripcion(p.getDescripcion());
-//								mov.setCantidad(detalleProducto.getCantidad());
-//								mov.setFecha(new  Date());
-//								mov.setHora(hora());
-//								mov.setVentaSalida(0.0);
-//
-//								mov.setCostoEntrada(detalleProducto.getPrecioCosto());
-//								mov.setEgreso(detalleProducto.getSubTotal());
-//								mov.setCostoEntradaAnterior(p.getPrecioCosto());
-//
-//								mov.setVenta_1(detalleProducto.getPrecioVenta_1());
-//								mov.setVenta_2(detalleProducto.getPrecioVenta_1());
-//								mov.setVenta_3(detalleProducto.getPrecioVenta_1());
-//								mov.setVenta_4(detalleProducto.getPrecioVenta_1());
-//
-//								mov.setVenta_1_anterior(p.getPrecioVenta_1());
-//								mov.setVenta_2_anterior(p.getPrecioVenta_2());
-//								mov.setVenta_3_anterior(p.getPrecioVenta_3());
-//								mov.setVenta_4_anterior(p.getPrecioVenta_4());
-//								mov.getTipoMovimiento().setId(1);
-//								mov.getProducto().setId(p.getId());
-//								mov.getFuncionario().setId(entity.getFuncionario().getId());
-//								mov.setMarca(detalleProducto.getProducto().getMarca().getDescripcion());
-//								Concepto c= new Concepto();
-//								if(entity.getTipo().equals("CONTADO")){
-//									c= conceptoRepository.findById(3).get();	
-//								}else {
-//									c= conceptoRepository.findById(4).get();
-//								}
-//
-//								mov.setReferencia(c.getDescripcion()+" REF.: "+ idVent);
-//
-//								movEntradaSalidaRepository.save(mov);
-//
-//								p.setPrecioCosto(detalleProducto.getPrecioCosto());
-//								p.setPrecioVenta_1(detalleProducto.getPrecioVenta_1());
-//								p.setPrecioVenta_2(detalleProducto.getPrecioVenta_2());
-//								p.setPrecioVenta_3(detalleProducto.getPrecioVenta_3());
-//								p.setPrecioVenta_4(detalleProducto.getPrecioVenta_4()); 
-//								//p.getProveedor().setId(entity.getProveedor().getId());
-//								//productoRepository.updateProveedorId(entity.getProveedor().getId(), p.getId());
-//								productoRepository.updateProveedorId(entity.getProveedor().getId(), p.getId());
-//								productoRepository.save(p);
-//								// productoRepository.save(p);
+
 
 							}
 						}
@@ -331,6 +320,11 @@ public class CompraController {
 							}
 						}
 					}
+					
+					
+					entity.setTotalIvaDies(total10);
+					entity.setTotalIvaCinco(total5);
+					entityRepository.save(entity);
 				}
 			}
 

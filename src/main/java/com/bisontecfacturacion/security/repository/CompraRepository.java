@@ -30,6 +30,10 @@ public interface CompraRepository extends JpaRepository<Compra,  Serializable>{
     @Query(value="select * from compra v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id where extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia order by v.id desc",nativeQuery=true)
 	List<Compra> getCompra(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
     
+    @Query(value="select * from compra v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id where extract(year from cast(v.fecha_factura as Date))=:ano AND extract(month from cast(v.fecha_factura as Date))=:mes AND extract(day from cast(v.fecha_factura as Date))=:dia order by v.id desc",nativeQuery=true)
+   	List<Compra> getCompraFechaFactura(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
+       
+    
     @Transactional(readOnly = true)
     public Page<Compra> findByOrderByIdDesc(Pageable pageable);		
    

@@ -55,6 +55,7 @@ public class ReservacionCabecera {
 	private Double precio;
 	private String descripcionCombo;
 	private String hora;
+	private String horaFinalizacion;
 	private String obs;
 	@OneToMany(mappedBy="reservacionCabecera")
 	private List<ReservacionDetalle> reservacionDetalles; 
@@ -82,10 +83,19 @@ public class ReservacionCabecera {
 		this.precioNormal=0.0;
 		this.descripcionCombo="";
 		this.hora="";
+		this.horaFinalizacion="";
 		this.obs="";
 		this.precio=0.0;
 	}
 	
+	public String getHoraFinalizacion() {
+		return horaFinalizacion;
+	}
+
+	public void setHoraFinalizacion(String horaFinalizacion) {
+		this.horaFinalizacion = horaFinalizacion;
+	}
+
 	public int getOperacionCajaEntrega() {
 		return operacionCajaEntrega;
 	}
