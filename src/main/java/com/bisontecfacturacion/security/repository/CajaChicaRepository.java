@@ -17,6 +17,10 @@ public interface CajaChicaRepository extends JpaRepository<CajaChica, Serializab
 	@Query(value="select fe.id as id, pe.nombre as nombre, pe.apellido as apell, c.id as idCaja from caja_chica c inner join funcionario fe on fe.id=c.funcionarioe_id inner join persona pe on pe.id=fe.persona_id", nativeQuery = true)
 	List<Object[]> listarFuncionarioCajaChicaActivoGasto();
 	
+	@Query(value="select * from caja_chica c inner join funcionario fe on fe.id=c.funcionarioe_id inner join persona pe on pe.id=fe.persona_id where fe.id=:idF", nativeQuery = true)
+	CajaChica listarFuncionarioCajaChicaActivoPorIdFuncionario(@Param("idF") int idF);
+	
+	
 	@Query(value="select fe.id as id, pe.nombre as nombre, pe.apellido as apell, c.id as idCaja from caja_chica c inner join funcionario fe on fe.id=c.funcionarioe_id inner join persona pe on pe.id=fe.persona_id", nativeQuery = true)
 	List<Object[]> listarFuncionarioCajaChicaActivo();
 	

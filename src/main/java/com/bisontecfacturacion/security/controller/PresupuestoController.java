@@ -26,8 +26,12 @@ import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
 import com.bisontecfacturacion.security.model.DetallePresupuestoServicio;
+import com.bisontecfacturacion.security.model.DetalleProducto;
+import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.Impresora;
+import com.bisontecfacturacion.security.model.Pedido;
+import com.bisontecfacturacion.security.model.PedidoDetalle;
 import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ReporteConfig;
@@ -81,29 +85,66 @@ public class PresupuestoController {
 	
 
 
-	
-	@RequestMapping(method=RequestMethod.GET, value="/{fecha}")
-	public List<Presupuesto> getAlls(@PathVariable String fecha){
-		String[] fec=fecha.split("-");
-		Integer dia=Integer.parseInt(fec[0]);
-		Integer mes=Integer.parseInt(fec[1]);
-		Integer ano=Integer.parseInt(fec[2]);
-		List<Presupuesto> objeto=entityRepository.getPresupuesto(ano, mes, dia);
-		List<Presupuesto> presupuesto=new ArrayList<>();
-		for(Presupuesto ob:objeto){
+	private List<Presupuesto>listar(List<Presupuesto> obj){
+		List<Presupuesto> res=new ArrayList<>();
+		for(Presupuesto p:obj){
 			Presupuesto pre=new Presupuesto();
-			pre.setId(ob.getId());
-			pre.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre()+", "+ob.getFuncionario().getPersona().getApellido());
-			pre.getCliente().getPersona().setNombre(ob.getCliente().getPersona().getNombre()+", "+ ob.getCliente().getPersona().getApellido());
-			pre.setTotal(ob.getTotal());
-			pre.setFecha(ob.getFecha());
-			pre.setHora(ob.getHora());
-			pre.setEstado(ob.getEstado());
-			presupuesto.add(pre);
+			pre.setId(p.getId());
+			pre.getFuncionario().getPersona().setNombre(p.getFuncionario().getPersona().getNombre()+", "+p.getFuncionario().getPersona().getApellido());
+			pre.getCliente().getPersona().setNombre(p.getCliente().getPersona().getNombre()+", "+ p.getCliente().getPersona().getApellido());
+			pre.setTotal(p.getTotal());
+			pre.setFecha(p.getFecha());
+			pre.setHora(p.getHora());
+			pre.setEstado(p.getEstado());
+			res.add(pre);
 		}
-		return presupuesto;
+		return res;
+	}
+	@RequestMapping(method=RequestMethod.GET, value="/activo/{filtro}")
+	public List<Presupuesto> getAlls(@PathVariable int filtro){
+		List<Presupuesto> lisRetorno= new ArrayList<Presupuesto>();
+		if(filtro==1) { lisRetorno= listar(entityRepository.getPresupuestoAll());}
+		if(filtro==2) { lisRetorno= listar(entityRepository.getPresupuestoActivo());}
+		if(filtro==3) { lisRetorno= listar(entityRepository.getPresupuestoCerrado());}
+
+		return lisRetorno;
+		
 	}
 	
+	@RequestMapping(method=RequestMethod.POST, value="/eliminarDetalleProducto")
+	public ResponseEntity<?> eliminarDetalleProducto(@RequestBody List<DetallePresupuestoProducto> detalle){
+		try {
+			if(detalle.size()!=-1) {
+				System.out.println("con listado lista");
+				for (DetallePresupuestoProducto de : detalle) {				
+					detalleProductoRepository.deleteById(de.getId());
+				}
+				System.out.println("sin lista");
+				return  new  ResponseEntity<String>(HttpStatus.CREATED);
+
+			}else {
+				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+	@RequestMapping(method=RequestMethod.POST, value="/eliminarDetalleServicio")
+	public ResponseEntity<?> eliminarDetalleServicio(@RequestBody List<DetallePresupuestoServicio> detalle){
+		System.out.println("entroo eliminar servicio presu");
+		try {
+			System.out.println("entroo eliminar servicio try presu");
+			for (DetallePresupuestoServicio de : detalle) {		
+				System.out.println("entroo eliminar servicio for presu");
+				detalleServicioRepository.deleteById(de.getId());
+			}
+			return  new  ResponseEntity<String>(HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
 	@RequestMapping(method=RequestMethod.GET, value="/nroDocumento")
 	public Map<String, String> getPresupuestoNro(){
 		Presupuesto v=entityRepository.findTop1ByOrderByIdDesc();

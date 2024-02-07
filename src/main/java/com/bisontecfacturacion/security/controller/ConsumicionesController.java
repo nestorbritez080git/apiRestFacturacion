@@ -29,6 +29,8 @@ public class ConsumicionesController {
 		entity.setDescripcion(Utilidades.eliminaCaracterIzqDer(entity.getDescripcion().toUpperCase()));
 		if (siExiste(entity)) {
 			return new ResponseEntity<>(new CustomerErrorType("La descripción "+entity.getDescripcion()+" ya existe."), HttpStatus.CONFLICT);
+		}else if(entity.getCategoriaConsumiciones().getId()==0) {
+			return new ResponseEntity<>(new CustomerErrorType("SE DEBE SELECCIONAR UNA CATEGORIA DE CONSUMICION PARA PODER GUARDAR"), HttpStatus.CONFLICT);
 		}
 		entityRepository.save(entity);
 		return  new  ResponseEntity<String>(HttpStatus.CREATED);
@@ -39,6 +41,7 @@ public class ConsumicionesController {
 	@RequestMapping(method=RequestMethod.PUT)
 	public Consumiciones editar(@RequestBody Consumiciones entity){
 		entity.setDescripcion(Utilidades.eliminaCaracterIzqDer(entity.getDescripcion().toUpperCase()));
+		
 		return entityRepository.save(entity);
 	}
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")

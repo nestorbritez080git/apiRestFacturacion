@@ -13,8 +13,18 @@ import com.bisontecfacturacion.security.model.Presupuesto;
 public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serializable>{
 	public abstract Presupuesto findTop1ByOrderByIdDesc();
 	
-	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia order by v.id desc",nativeQuery=true)
-	List<Presupuesto> getPresupuesto(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoAll();
+	
+	
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where v.estado='ABIERTO' order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoActivo();
+	
+	
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where v.estado='CERRADO' order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoCerrado();
+	
+	
 	
 	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.presupuesto_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca from detalle_presupuesto_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.presupuesto_id=:id",nativeQuery=true)
 	List<Object[]> listaDetallePresupuestoProducto(@Param("id") int id);

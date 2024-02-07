@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.10.0.final using JasperReports Library version 6.10.0-unknown  -->
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="venta-detalle-producto" pageWidth="595" pageHeight="842" columnWidth="579" leftMargin="8" rightMargin="8" topMargin="0" bottomMargin="0" uuid="2d182dcd-898f-48ed-bcae-077393c78e8b">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<queryString>
@@ -38,7 +38,7 @@
 				</graphicElement>
 			</rectangle>
 			<staticText>
-				<reportElement x="73" y="1" width="37" height="12" forecolor="#000000" uuid="c10a27b9-d781-4d7b-8309-f035cc800d80">
+				<reportElement x="73" y="1" width="44" height="12" forecolor="#000000" uuid="c10a27b9-d781-4d7b-8309-f035cc800d80">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left">
@@ -102,7 +102,7 @@
 				</graphicElement>
 			</line>
 			<line>
-				<reportElement x="111" y="0" width="1" height="16" uuid="34677c5b-fc8f-4dfb-b488-82a89f274ffc">
+				<reportElement x="117" y="0" width="1" height="16" uuid="34677c5b-fc8f-4dfb-b488-82a89f274ffc">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 				</reportElement>
@@ -137,17 +137,6 @@
 					<pen lineWidth="0.5"/>
 				</graphicElement>
 			</line>
-			<textField>
-				<reportElement x="348" y="13" width="90" height="12" uuid="913eeeff-baa2-4e81-b30b-f82c04bc93f8">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3445df3c-cac4-418f-a7b9-e8811161dc0e"/>
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-					<property name="com.jaspersoft.studio.unit.y" value="px"/>
-				</reportElement>
-				<textElement textAlignment="Right">
-					<font fontName="Arial" size="8" isBold="false" isItalic="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{precio})]]></textFieldExpression>
-			</textField>
 		</band>
 	</columnHeader>
 	<detail>
@@ -155,7 +144,7 @@
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<property name="com.jaspersoft.studio.layout"/>
 			<textField>
-				<reportElement x="113" y="0" width="231" height="12" uuid="3e3dbb54-59c5-4604-8d57-d2e39b4d387b">
+				<reportElement x="120" y="0" width="224" height="12" uuid="3e3dbb54-59c5-4604-8d57-d2e39b4d387b">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="36a1f47e-ad78-4e12-adcf-158fe38e766b"/>
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 				</reportElement>
@@ -215,7 +204,7 @@
 				</graphicElement>
 			</line>
 			<line>
-				<reportElement x="111" y="0" width="1" height="12" uuid="52e70c8e-975d-4ece-80f7-0dc03f890e71">
+				<reportElement x="117" y="0" width="1" height="12" uuid="52e70c8e-975d-4ece-80f7-0dc03f890e71">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -250,6 +239,17 @@
 					<pen lineWidth="0.5"/>
 				</graphicElement>
 			</line>
+			<textField>
+				<reportElement x="350" y="-1" width="90" height="12" uuid="913eeeff-baa2-4e81-b30b-f82c04bc93f8">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3445df3c-cac4-418f-a7b9-e8811161dc0e"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{precio})]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 </jasperReport>

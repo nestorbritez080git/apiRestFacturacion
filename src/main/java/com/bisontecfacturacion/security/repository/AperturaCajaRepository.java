@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.AperturaCaja;
+import com.bisontecfacturacion.security.model.CajaChica;
 import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
 @Transactional
 @Repository
@@ -43,6 +44,14 @@ public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Seri
 			+ "inner join persona on funcionario.persona_id= persona.id "
 			+ "where funcionario_id =:id and apertura_caja.estado=true and apertura_caja.estado_anulacion=false",nativeQuery=true )
 	public List<Object[]> getAperturaActivoCaja(@Param("id") int id);
+	
+	@Query(value=" SELECT * "
+			+ "from apertura_caja inner "
+			+ "join caja on caja.id= apertura_caja.caja_id "
+			+ "inner join funcionario on apertura_caja.funcionario_id=funcionario.id "
+			+ "inner join persona on funcionario.persona_id= persona.id "
+			+ "where funcionario_id =:id and apertura_caja.estado=true and apertura_caja.estado_anulacion=false",nativeQuery=true )
+	AperturaCaja getAperturaActivoCajaIdFuncionario(@Param("id") int id);
 	
 	@Query(value="select apertura_caja.id as aperid, caja_id, caja.descripcion, persona.nombre || ', ' ||  persona.apellido as nombre "
 			+ "from apertura_caja inner "
@@ -108,6 +117,10 @@ public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Seri
     @Transactional(readOnly=false)
     @Query("update AperturaCaja set estado=true where id=:id")
     public void findByReactivarAperturaCaja(@Param("id") int id );
+	
+	
+	@Query("select c from AperturaCaja c where id=:id")
+	AperturaCaja getAperturaCajaPorIdCaja(@Param("id") int id);
 	
 	
 }

@@ -138,6 +138,11 @@ public class CajaController {
 		System.out.println("lista:  "+lisRetorno.size());
 		return lisRetorno;
 	}
+	
+	@RequestMapping(method=RequestMethod.GET, value="/cajaChica/activo/gasto/{idF}")
+	public CajaChica getFuncionarioCajaChicaActivoPorIdFuncionario(@PathVariable int idF){
+		return cajaChicaRepository.listarFuncionarioCajaChicaActivoPorIdFuncionario(idF);
+	}
 	@RequestMapping(method=RequestMethod.GET, value="/cajaChica/activo")
 	public List<Funcionario> getFuncionarioCajaChicaActivo(){
 		List<Funcionario> lisRetorno = new ArrayList<>();

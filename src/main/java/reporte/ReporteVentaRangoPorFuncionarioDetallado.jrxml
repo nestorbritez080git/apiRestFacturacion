@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.10.0.final using JasperReports Library version 6.10.0-unknown  -->
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Prueba" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="20" bottomMargin="20" uuid="777e1bb0-9dfd-46f8-a513-6381ef99413c">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<parameter name="org" class="java.lang.String"/>
@@ -35,6 +35,12 @@
 	</field>
 	<field name="total" class="java.lang.Double">
 		<fieldDescription><![CDATA[total]]></fieldDescription>
+	</field>
+	<field name="hora" class="java.lang.String">
+		<fieldDescription><![CDATA[hora]]></fieldDescription>
+	</field>
+	<field name="id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
 	</field>
 	<title>
 		<band height="105" splitType="Stretch">
@@ -255,7 +261,7 @@
 				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement x="420" y="3" width="55" height="9" uuid="f1e7241b-7d44-4442-a381-f2d2e69f2e9e">
+				<reportElement x="375" y="3" width="55" height="9" uuid="f1e7241b-7d44-4442-a381-f2d2e69f2e9e">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -265,7 +271,7 @@
 				<text><![CDATA[Fecha]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="3" width="150" height="9" uuid="0d34f00d-73c7-4f8d-bf41-d537a9dd42f2">
+				<reportElement x="40" y="3" width="110" height="9" uuid="0d34f00d-73c7-4f8d-bf41-d537a9dd42f2">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -275,7 +281,7 @@
 				<text><![CDATA[Cliente]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="289" y="2" width="61" height="9" uuid="059735bb-8f73-4aea-8673-25128e4cf4ed">
+				<reportElement x="262" y="2" width="51" height="9" uuid="059735bb-8f73-4aea-8673-25128e4cf4ed">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -285,7 +291,7 @@
 				<text><![CDATA[Documento]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="350" y="3" width="70" height="9" uuid="d1458dc1-325a-41f2-9dc7-53e577cfcdb0">
+				<reportElement x="314" y="3" width="60" height="9" uuid="d1458dc1-325a-41f2-9dc7-53e577cfcdb0">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -295,7 +301,7 @@
 				<text><![CDATA[Nª Documento]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="151" y="3" width="138" height="9" uuid="a0a84909-5624-4182-8615-83bcde330321">
+				<reportElement x="151" y="3" width="109" height="9" uuid="a0a84909-5624-4182-8615-83bcde330321">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -304,14 +310,34 @@
 				</textElement>
 				<text><![CDATA[Vendedor]]></text>
 			</staticText>
+			<staticText>
+				<reportElement x="1" y="2" width="40" height="9" uuid="581ef30b-c2dd-4689-9308-e53a605a0c46">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[#]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="428" y="3" width="46" height="9" uuid="36671047-a2e1-4525-88d0-de9658ba75ff">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Hora]]></text>
+			</staticText>
 		</band>
 	</pageHeader>
 	<detail>
-		<band height="11" splitType="Stretch">
+		<band height="15" splitType="Stretch">
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<textField>
-				<reportElement x="1" y="1" width="150" height="9" uuid="b7929b72-c48d-451c-8799-ea19fcfb0ac7">
+				<reportElement x="41" y="1" width="110" height="9" uuid="b7929b72-c48d-451c-8799-ea19fcfb0ac7">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left">
@@ -329,7 +355,7 @@
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{total})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="289" y="0" width="61" height="9" uuid="72467585-2a5d-4efa-9453-a734dcad036f">
+				<reportElement x="262" y="0" width="51" height="9" uuid="72467585-2a5d-4efa-9453-a734dcad036f">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center">
@@ -338,7 +364,7 @@
 				<textFieldExpression><![CDATA[$F{documento}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="151" y="0" width="138" height="9" uuid="290d9423-7939-4a2c-bbfb-5dfe71b9b41c">
+				<reportElement x="151" y="0" width="109" height="9" uuid="290d9423-7939-4a2c-bbfb-5dfe71b9b41c">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement>
@@ -347,7 +373,7 @@
 				<textFieldExpression><![CDATA[$F{vendedor}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="350" y="0" width="70" height="9" uuid="e9c3ff9a-46ad-44b1-b209-97006b5028ed">
+				<reportElement x="314" y="0" width="60" height="9" uuid="e9c3ff9a-46ad-44b1-b209-97006b5028ed">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center">
@@ -356,13 +382,31 @@
 				<textFieldExpression><![CDATA[$F{numeroDocumento}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy">
-				<reportElement x="420" y="1" width="55" height="9" uuid="56922df1-8e76-497c-9000-659f7dc8361b">
+				<reportElement x="375" y="1" width="55" height="9" uuid="56922df1-8e76-497c-9000-659f7dc8361b">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center">
 					<font size="7"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{fechaFactura}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="1" width="40" height="9" uuid="51bf325b-24e0-4ce3-b456-8a1cd5610256">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="431" y="1" width="44" height="9" uuid="f063f934-f70f-4b51-b268-bb9c8c5b6878">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{hora}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

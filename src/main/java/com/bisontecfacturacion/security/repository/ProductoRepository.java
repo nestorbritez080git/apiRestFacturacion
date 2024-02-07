@@ -1,6 +1,8 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -127,7 +129,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 		List<Object[]> getInventarioAll();
 		
 		
-		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4,( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd from producto p where p.estado_compuesto=true order by p.descripcion ASC", nativeQuery = true)
+		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4,( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd, ud.descripcion as udDescr from producto p inner join unidad_medida ud on ud.id=p.unidad_medida_id where p.estado_compuesto=true order by p.descripcion ASC", nativeQuery = true)
 		List<Object[]> getProductoAll();
 		
 		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd, ud.descripcion as udDescr from producto p inner join unidad_medida ud on ud.id=p.unidad_medida_id where p.estado_compuesto=true and p.marca_id =:id order by p.descripcion ASC", nativeQuery = true)
@@ -147,17 +149,15 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd from producto p where p.estado_compuesto=true and  p.grupo_id = :id1 AND p.sub_grupo_id = :id2 order by p.descripcion ASC", nativeQuery = true)
 		List<Object[]> getProductoGrupoSubGrupo(@Param("id1") int idGrupo, @Param("id2") int idSubGrupo);
 		
-		@Query(value="select p.descripcion, p.existencia, p.precio_costo, "
-				+ "p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, "
-				+ "p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, "
-				+ "( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, "
-				+ "codbar, p.id as idd,  from producto p where p.estado_compuesto=true and  p.marca_id = :id1 AND p.grupo_id = :id2 AND p.sub_grupo_id = :id3 order by p.descripcion ASC", nativeQuery = true)
+		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd from producto p where p.estado_compuesto=true and  p.marca_id = :id1 AND p.grupo_id = :id2 AND p.sub_grupo_id = :id3 order by p.descripcion ASC", nativeQuery = true)
 		List<Object[]> getProductoMarcaGrupoSubGrupo(@Param("id1") int idMarca, @Param("id2") int idGrupo, @Param("id3") int idSubGrupo);
 		
-		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, codbar from producto p where p.estado_compuesto=true and p.marca_id = :id1 AND p.sub_grupo_id = :id2 order by p.descripcion ASC", nativeQuery = true)
+		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd from producto p where p.estado_compuesto=true and p.marca_id = :id1 AND p.sub_grupo_id = :id2 order by p.descripcion ASC", nativeQuery = true)
 		List<Object[]> getProductoMarcaSubGrupo(@Param("id1") int idMarca, @Param("id2") int idSubGrupo);
 		
-		
+		 @Query(value = "select mov.descripcion as des, tp.descripcion as descTipo, mov.fecha as fecha, pf.nombre || ' ' || pf.apellido as nomPersona,  mov.cantidad as cant, mov.referencia as ref, tp.id as idTipo from movimiento_entrada_salida mov inner join tipo_movimiento tp ON tp.id= mov.tipo_movimiento_id inner join funcionario f ON f.id=mov.funcionario_id inner join persona pf on pf.id=f.persona_id where mov.producto_id=:idProd AND  ((mov.fecha >= :fecha_inicio) AND (mov.fecha<= :fecha_fin)) ", nativeQuery = true)
+		 List<Object []> getReporteMoviminetoOProducto(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idProd") int idFun);
+		    
 		
 		
 		

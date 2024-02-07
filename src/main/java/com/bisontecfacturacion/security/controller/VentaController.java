@@ -44,6 +44,7 @@ import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DetalleServicios;
+import com.bisontecfacturacion.security.model.Documento;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.Grupo;
 import com.bisontecfacturacion.security.model.Impresora;
@@ -100,7 +101,6 @@ public class VentaController {
 
 	@Autowired
 	private AnulacionesVentaRepository anulacionVentaRepository;
-
 
 	@Autowired
 	private VentaRepository entityRepository;
@@ -597,6 +597,7 @@ public class VentaController {
 						if (entity.getEstado().equals("FACTURADO")) {
 
 							for(DetalleProducto detalleProducto: entity.getDetalleProducto()) {
+								detalleProducto.setId(0);
 								totalDescuento = totalDescuento + detalleProducto.getDescuento();
 								detalleProducto.getVenta().setId(idVent);
 								detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
@@ -624,6 +625,7 @@ public class VentaController {
 						}
 						if (entity.getEstado().equals("FACTURAR")) {
 							for (DetalleProducto detalleProducto : entity.getDetalleProducto()) {
+								detalleProducto.setId(0);
 								detalleProducto.getVenta().setId(idVent);
 								detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
 								detalleProductoRepository.save(detalleProducto);
@@ -635,6 +637,7 @@ public class VentaController {
 						if (entity.getEstado().equals("FACTURADO")) {
 							for(DetalleServicios detalleServicio: entity.getDetalleServicio()) {
 								detalleServicio.getVenta().setId(idVent);
+								detalleServicio.setId(0);
 								if(detalleServicio.getObs()!=null) {detalleServicio.setObs(detalleServicio.getObs().toUpperCase());}else {detalleServicio.setObs("");}
 								if(detalleServicio.getIva().equals("10 %")) {
 
@@ -653,6 +656,7 @@ public class VentaController {
 						}
 						if (entity.getEstado().equals("FACTURAR")) {
 							for(DetalleServicios detalleServicio: entity.getDetalleServicio()) {
+								detalleServicio.setId(0);
 								detalleServicio.getVenta().setId(idVent);
 								if(detalleServicio.getObs()!=null) {detalleServicio.setObs(detalleServicio.getObs().toUpperCase());}else {detalleServicio.setObs("");}
 								//detalleServicio.setTipoPrecio(validarPrecio(detalleServicio.getProducto().getId(), detalleServicio.getPrecio()));
@@ -665,7 +669,7 @@ public class VentaController {
 					entity.setTotalIvaCinco(total5);
 					entity.setTotalDescuento(totalDescuento);
 					System.out.println(id.getFechaFactura());
-					id.setFechaFactura(id.getFecha());
+					
 					entityRepository.save(entity);
 					System.out.println("entro udpate nuevo");
 					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion());
@@ -1188,7 +1192,7 @@ public class VentaController {
 			detalleProductos.getProducto().setCodbar(ob[16].toString());
 			detalleProductos.getProducto().getMarca().setDescripcion(ob[17].toString());
 			detalleProductos.setMontoIva(Double.parseDouble(ob[18].toString()));
-
+			System.out.println("IVA DETALLE: "+detalleProductos.getIva());
 			detalleProducto.add(detalleProductos);
 		}
 
@@ -1266,6 +1270,7 @@ public class VentaController {
 				detalleProducto.setSubTotal(det.getSubTotal());
 				detalleProducto.setMontoIva(det.getMontoIva());
 				v.getDetalleProducto().add(detalleProducto);
+				System.out.println(det.getIva()+" *8*8*8*8*");
 				
 			}
 			lista.add(v);
@@ -1648,6 +1653,8 @@ public class VentaController {
 					venta.setNroDocumento(ob[3].toString());
 					venta.setFechaFactura(FechaUtil.convertirFechaStringADateUtil(ob[4].toString()));
 					venta.setTotal(Double.parseDouble(ob[5].toString()));	
+					venta.setHora(ob[6].toString());
+					venta.setId(Integer.parseInt(ob[7].toString()));
 					listadoDetallado.add(venta);
 				}
 				report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoPorFuncionarioDetallado", response);
@@ -1660,6 +1667,260 @@ public class VentaController {
 		}
 
 		return  new  ResponseEntity<String>(HttpStatus.OK);
+
+	}
+	
+	
+	@RequestMapping(value="/reporteVentaRangoFechaPorCliente/{fechaI}/{fechaF}/{idCliente}/{detallado}", method=RequestMethod.GET)
+	public ResponseEntity<?>  getReporteVentaRangoFechaCliente(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idCliente ,  @PathVariable int detallado) throws IOException {
+		System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF);
+		List<Venta> listado = new ArrayList<>();
+		List<Venta> listadoDetallado = new ArrayList<>();
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Cliente cl= clienteRepository.getIdCliente(idCliente);
+		Org org = orgRepository.findById(1).get();
+		List<Object[]> listUltimaVentas= new ArrayList<Object[]>();
+		List<DetalleProducto> listRetornoProducto=new ArrayList<>();
+		List<DetalleServicios> listRetornoServicio=new ArrayList<>();
+		ReporteConfig reportConfig = reporteConfigRepository.getOne(4);
+		
+		Double  obProducto = 0.0;
+		Double obServicio= 0.0;
+		
+		
+		try {
+			System.out.println("entroo tryy"+detallado);
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI;
+			System.out.println("pasoo1");
+			fecI = formater.parse(fechaI);
+			System.out.println("pasoo2");
+			Date fecF=formater.parse(fechaF);
+			System.out.println("pasoo3");
+			//Date fechaFi = sumarDia(fecF, 24);
+			fecF.setHours(23);
+			fecI.setHours(1);
+			System.out.println("FI: "+fecI+ "  : : : FFIN: "+fecF+ " : id Func:  "+idCliente);
+			obProducto = entityRepository.getReporteVentaRangoPorClienteProductoDetalle(fecI, fecF, idCliente);
+			System.out.println("ejecutoo el metodo de reangoooo");
+			obServicio = entityRepository.getReporteVentaRangoPorClienteServicioDetalle(fecI, fecF, idCliente);
+			Map<String, Object> map = new HashMap<>();
+			
+			String urlReporte ="\\reporte\\"+reportConfig.getNombreSubReporte1()+".jasper";
+			System.out.println("url SUBREPORT:  "+urlReporte+ " report name : "+reportConfig.getNombreReporte());
+			map.put("urlSubRepor", urlReporte);
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+			map.put("desde", fecI);
+			map.put("hasta", fecF);
+			if(obProducto!=0) {
+				map.put("totalProducto", obProducto);
+			}else {map.put("totalProducto", 0.0);}
+			
+			
+			if(obServicio !=0) {
+				map.put("totalServicio",obServicio);
+			}else {map.put("totalServicio", 0.0);
+			}
+			listUltimaVentas= entityRepository.getReporteVentaRangoPorClienteultimaVenta(idCliente);
+			map.put("ultimaVenta", listUltimaVentas.get(0)[1].toString());
+
+			map.put("cliente", cl.getPersona().getNombre()+ " "+ cl.getPersona().getApellido());
+			map.put("totalVenta", (obProducto+obServicio));
+
+			System.out.println("Tipo detallado:   "+detallado);
+			report = new Reporte();
+
+			if (detallado==1) {
+				Venta ven = new  Venta();
+				System.out.println("ENTROO FALSE");
+				ven.getCliente().getPersona().setNombre("");
+				ven.getFuncionarioV().getPersona().setNombre("");
+				ven.getDocumento().setDescripcion("");
+				ven.setNroDocumento("");
+				ven.setFechaFactura(FechaUtil.convertirFechaStringADateUtil("2020-11-11"));
+				ven.setTotal(1200.0);
+				listado.add(ven);
+				report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorCliente", response);
+
+			}
+			
+			if (detallado==2) {
+				List<Object[]> dpProducto=detalleProductoRepository.listaDetalleProductoAllPorCliente(fecI, fecF, idCliente);
+				for(Object[] ob:dpProducto){
+					DetalleProducto dp=new DetalleProducto();
+					dp.getVenta().setId(Integer.parseInt(ob[0].toString()));
+					dp.setDescripcion("PROD: "+ob[1].toString());
+					dp.getProducto().setCodbar(ob[2].toString()+"/"+ob[1].toString());
+					dp.getProducto().getMarca().setDescripcion(ob[3].toString());
+					dp.setCantidad(Double.parseDouble(ob[4].toString()));
+					dp.setPrecio(Double.parseDouble(ob[5].toString()));
+					dp.setDescuento(Double.parseDouble(ob[6].toString()));
+					dp.setSubTotal(Double.parseDouble(ob[7].toString()));
+					dp.setIva(ob[8].toString());
+					listRetornoProducto.add(dp);
+				}
+				
+				List<Object[]> dpServicio=detalleProductoRepository.listaDetalleServicioAllPorCliente(fecI, fecF, idCliente);
+				for(Object[] ob:dpServicio){
+					DetalleServicios dp=new DetalleServicios();
+					dp.getServicio().setId(Integer.parseInt(ob[0].toString()));
+					dp.setDescripcion(ob[1].toString());
+					dp.setCantidad(Double.parseDouble(ob[2].toString()));
+					dp.setPrecio(Double.parseDouble(ob[3].toString()));
+					dp.setSubTotal(Double.parseDouble(ob[4].toString()));
+					listRetornoServicio.add(dp);
+				}
+				Venta ven = new  Venta();
+				System.out.println("ENTROO FALSE");
+				ven.getCliente().getPersona().setNombre("");
+				ven.getFuncionarioV().getPersona().setNombre("");
+				ven.getDocumento().setDescripcion("");
+				ven.setNroDocumento("");
+				ven.setFechaFactura(FechaUtil.convertirFechaStringADateUtil("2020-11-11"));
+				ven.setTotal(1200.0);
+				ven.setDetalleProducto(listRetornoProducto);
+				
+				for(DetalleServicios det: listRetornoServicio) {
+					DetalleProducto detalleProducto = new DetalleProducto();
+					detalleProducto.setDescripcion("SER: "+det.getDescripcion());
+					detalleProducto.getProducto().setCodbar(det.getServicio().getId()+"");
+					detalleProducto.setCantidad(det.getCantidad());
+					detalleProducto.setPrecio(det.getPrecio());
+					detalleProducto.setIva(det.getIva()+"");
+					detalleProducto.setSubTotal(det.getSubTotal());
+					detalleProducto.setMontoIva(det.getMontoIva());
+					ven.getDetalleProducto().add(detalleProducto);
+					
+				}
+				
+				listado.add(ven);
+				report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorClienteDetallado", response);
+				
+			}
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+
+	}
+	@RequestMapping(value="/reporteVentaRangoFechaExtractoCliente/{fechaI}/{fechaF}/{idCliente}", method=RequestMethod.GET)
+	public List<DetalleProducto>  getReporteExtractoCliente(@PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idCliente) throws IOException {
+		System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF);
+		List<DetalleProducto> listado = new ArrayList<>();
+		List<Venta> listadoDetallado = new ArrayList<>();
+		List<Object[]> listUltimaVentas= new ArrayList<Object[]>();
+		List<DetalleProducto> listRetornoProducto=new ArrayList<>();
+		List<DetalleServicios> listRetornoServicio=new ArrayList<>();
+		ReporteConfig reportConfig = reporteConfigRepository.getOne(4);
+		
+		Double  obProducto = 0.0;
+		Double obServicio= 0.0;
+		
+		
+		try {
+			
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI;
+			System.out.println("pasoo1");
+			fecI = formater.parse(fechaI);
+			System.out.println("pasoo2");
+			Date fecF=formater.parse(fechaF);
+			System.out.println("pasoo3");
+			//Date fechaFi = sumarDia(fecF, 24);
+			fecF.setHours(23);
+			fecI.setHours(1);
+			System.out.println("FI: "+fecI+ "  : : : FFIN: "+fecF+ " : id Func:  "+idCliente);
+			obProducto = entityRepository.getReporteVentaRangoPorClienteProductoDetalle(fecI, fecF, idCliente);
+			System.out.println("ejecutoo el metodo de reangoooo");
+			obServicio = entityRepository.getReporteVentaRangoPorClienteServicioDetalle(fecI, fecF, idCliente);
+			
+			if(obProducto!=0) {
+				//map.put("totalProducto", obProducto);
+			}else {//map.put("totalProducto", 0.0);}
+			}
+			
+			if(obServicio !=0) {
+				//map.put("totalServicio",obServicio);
+			}else {//map.put("totalServicio", 0.0);
+			}
+			listUltimaVentas= entityRepository.getReporteVentaRangoPorClienteultimaVenta(idCliente);
+			//map.put("ultimaVenta", listUltimaVentas.get(0)[1].toString());
+
+			//map.put("cliente", cl.getPersona().getNombre()+ " "+ cl.getPersona().getApellido());
+			//map.put("totalVenta", (obProducto+obServicio));
+
+		
+			report = new Reporte();
+
+			
+				List<Object[]> dpProducto=detalleProductoRepository.listaDetalleProductoAllPorCliente(fecI, fecF, idCliente);
+				for(Object[] ob:dpProducto){
+					DetalleProducto dp=new DetalleProducto();
+					dp.getVenta().setId(Integer.parseInt(ob[0].toString()));
+					dp.setDescripcion("PROD: "+ob[1].toString());
+					dp.getProducto().setCodbar(ob[2].toString()+"/"+ob[0].toString());
+					dp.getProducto().getMarca().setDescripcion(ob[3].toString());
+					dp.setCantidad(Double.parseDouble(ob[4].toString()));
+					dp.setPrecio(Double.parseDouble(ob[5].toString()));
+					dp.setDescuento(Double.parseDouble(ob[6].toString()));
+					dp.setSubTotal(Double.parseDouble(ob[7].toString()));
+					dp.setIva(ob[8].toString());
+					listRetornoProducto.add(dp);
+				}
+				
+				List<Object[]> dpServicio=detalleProductoRepository.listaDetalleServicioAllPorCliente(fecI, fecF, idCliente);
+				for(Object[] ob:dpServicio){
+					DetalleServicios dp=new DetalleServicios();
+					dp.getServicio().setId(Integer.parseInt(ob[0].toString()));
+					dp.setDescripcion(ob[1].toString());
+					dp.setCantidad(Double.parseDouble(ob[2].toString()));
+					dp.setPrecio(Double.parseDouble(ob[3].toString()));
+					dp.setSubTotal(Double.parseDouble(ob[4].toString()));
+					listRetornoServicio.add(dp);
+				}
+				Venta ven = new  Venta();
+				System.out.println("ENTROO FALSE");
+				ven.getCliente().getPersona().setNombre("");
+				ven.getFuncionarioV().getPersona().setNombre("");
+				ven.getDocumento().setDescripcion("");
+				ven.setNroDocumento("");
+				ven.setFechaFactura(FechaUtil.convertirFechaStringADateUtil("2020-11-11"));
+				ven.setTotal(1200.0);
+				ven.setDetalleProducto(listRetornoProducto);
+				
+				for(DetalleServicios det: listRetornoServicio) {
+					DetalleProducto detalleProducto = new DetalleProducto();
+					detalleProducto.setDescripcion("SER: "+det.getDescripcion());
+					detalleProducto.getProducto().setCodbar(det.getServicio().getId()+"");
+					detalleProducto.setCantidad(det.getCantidad());
+					detalleProducto.setPrecio(det.getPrecio());
+					detalleProducto.setIva(det.getIva()+"");
+					detalleProducto.setSubTotal(det.getSubTotal());
+					detalleProducto.setMontoIva(det.getMontoIva());
+					ven.getDetalleProducto().add(detalleProducto);
+					
+				}
+				
+				listado=ven.getDetalleProducto();
+				
+			
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		System.out.println("size: "+listado.size());
+
+		return  listado;
 
 	}
 

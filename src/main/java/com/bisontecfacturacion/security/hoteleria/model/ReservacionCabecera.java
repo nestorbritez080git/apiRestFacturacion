@@ -1,5 +1,7 @@
 package com.bisontecfacturacion.security.hoteleria.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -24,10 +27,10 @@ public class ReservacionCabecera {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
-	private Date fechaFactura;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
-	private Date fechaRegistro;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
+	private LocalDateTime fechaFactura;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
+	private LocalDateTime fechaRegistro;
 	@ManyToOne
 	private Funcionario funcionarioRegistro;
 	@ManyToOne
@@ -42,6 +45,7 @@ public class ReservacionCabecera {
 	@NotNull
 	private Double totalHabitacion;
 	private Double totalProducto;
+	private Double total;
 	private String totalLetra;
 	private Double totalDescuento;
     private Double totalIvaCinco;
@@ -57,6 +61,7 @@ public class ReservacionCabecera {
 	private String hora;
 	private String horaFinalizacion;
 	private String obs;
+	private int estadia;
 	@OneToMany(mappedBy="reservacionCabecera")
 	private List<ReservacionDetalle> reservacionDetalles; 
 	
@@ -66,11 +71,11 @@ public class ReservacionCabecera {
 		this.funcionarioFinalizacion= new Funcionario();
 		this.cliente= new Cliente();
 		this.documento= new Documento();
-		this.fechaRegistro= new Date();
-		this.fechaFactura= new Date();
+		
 		this.entrega=0.0;
 		this.totalHabitacion=0.0;
 		this.totalProducto=0.0;
+		this.total=0.0;
 		this.totalLetra="";
 		this.totalDescuento=0.0;
 		this.totalIvaCinco=0.0;
@@ -86,8 +91,26 @@ public class ReservacionCabecera {
 		this.horaFinalizacion="";
 		this.obs="";
 		this.precio=0.0;
+		this.estadia=0;
 	}
 	
+	
+	public Double getTotal() {
+		return total;
+	}
+
+	public void setTotal(Double total) {
+		this.total = total;
+	}
+
+	public int getEstadia() {
+		return estadia;
+	}
+	public void setEstadia(int estadia) {
+		this.estadia = estadia;
+	}
+
+
 	public String getHoraFinalizacion() {
 		return horaFinalizacion;
 	}
@@ -239,16 +262,16 @@ public class ReservacionCabecera {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public Date getFechaFactura() {
+	public LocalDateTime getFechaFactura() {
 		return fechaFactura;
 	}
-	public void setFechaFactura(Date fechaFactura) {
+	public void setFechaFactura(LocalDateTime fechaFactura) {
 		this.fechaFactura = fechaFactura;
 	}
-	public Date getFechaRegistro() {
+	public LocalDateTime getFechaRegistro() {
 		return fechaRegistro;
 	}
-	public void setFechaRegistro(Date fechaRegistro) {
+	public void setFechaRegistro(LocalDateTime fechaRegistro) {
 		this.fechaRegistro = fechaRegistro;
 	}
 	public Funcionario getFuncionarioRegistro() {

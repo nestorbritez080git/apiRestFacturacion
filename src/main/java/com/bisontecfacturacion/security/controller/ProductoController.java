@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,8 +38,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bisontecfacturacion.security.auth.InventarioReporteModelAux;
 import com.bisontecfacturacion.security.auxiliar.ProductoAuxiliar;
+import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.Utilidades;
+import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
 import com.bisontecfacturacion.security.model.AjusteInventario;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.Funcionario;
@@ -66,7 +69,6 @@ import com.bisontecfacturacion.security.repository.ProveedorRepository;
 import com.bisontecfacturacion.security.repository.SubGrupoRepository;
 import com.bisontecfacturacion.security.repository.UtilidadPrecioRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
-import com.bisontecfacturacion.security.service.FechaUtil;
 import com.bisontecfacturacion.security.service.IUsuarioService;
 
 import net.sf.jasperreports.engine.JRException;
@@ -1359,6 +1361,66 @@ public class ProductoController {
 			report.reportPDFDescarga(lista, map, "ReporteProductoProvenienteBalanza", response);
 			return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
+	
+	@RequestMapping(value="/reporteMovimientoEntradaSalida/{fechaInicio}/{fechaFin}/{idProd}", method=RequestMethod.GET)
+	public ResponseEntity<?>  getReporteMovEntradaSalidaProducto(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaInicio, @PathVariable String fechaFin, @PathVariable int idProd) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI, fechaFi;
+			fecI = FechaUtil.setFechaHoraInicial(fechaInicio);
+			fechaFi = FechaUtil.setFechaHoraFinal(fechaFin);
+			System.out.println(""+ fecI+ " + "+ fechaFi+ " - "+ idProd );
+			List<Object []> obbRertorno =entityRepository.getReporteMoviminetoOProducto(fecI, fechaFi, idProd);
+			List<MovimientoEntradaSalida> det=new ArrayList<>();
+			Producto f = entityRepository.getOne(idProd);
+			Double totalEntrada=0.0, totalSalida=0.0;
+			System.out.println("lista size: "+obbRertorno.size());
+			for(Object[] ob: obbRertorno) {
+				MovimientoEntradaSalida d = new  MovimientoEntradaSalida();
+				d.setDescripcion(ob[0].toString());
+				d.getTipoMovimiento().setDescripcion(ob[1].toString());
+				d.setFecha(com.bisontecfacturacion.security.config.FechaUtil.convertirFechaStringADateUtil(ob[2].toString()));
+				d.getFuncionario().getPersona().setNombre(ob[3].toString());
+				d.setCantidad(Double.parseDouble(ob[4].toString()));
+				d.setReferencia(ob[5].toString());
+				d.getTipoMovimiento().setId(Integer.parseInt(ob[6].toString()));
+				if(d.getTipoMovimiento().getId()==1) {
+					totalEntrada= totalEntrada + d.getCantidad();
+				}
+				if(d.getTipoMovimiento().getId()==2) {
+					totalSalida= totalEntrada+ d.getCantidad();
+				}
+					
+				det.add(d);
+			}
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+			map.put("desde", fecI);
+			map.put("hasta", fechaFi);
+			map.put("productoMovimiento", ""+f.getDescripcion());
+			map.put("totalEntrada", totalEntrada);
+			map.put("totalSalida", totalSalida);
+			map.put("existenciaActual", f.getExistencia());
+
+			report = new Reporte();
+			report.reportPDFDescarga(det, map, "ReporteMovimientoEntradaSalida", response);
+			//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+	
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
+	
 	
 	private void verificarProductoCompuesto(List<Producto> listado) {
 		List<ProductoCardex> litCompuesto = compuestoRepository.findAll();

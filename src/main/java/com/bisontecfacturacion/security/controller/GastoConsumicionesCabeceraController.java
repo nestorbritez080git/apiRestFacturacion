@@ -16,14 +16,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CajaChica;
+import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
 import com.bisontecfacturacion.security.model.GastoConsumicionesDetalle;
+import com.bisontecfacturacion.security.model.GastoConsumicionesReferenciaCajaChica;
+import com.bisontecfacturacion.security.model.GastoConsumicionesReferenciaOperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.TransferenciaGastos;
+import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CajaChicaRepository;
 import com.bisontecfacturacion.security.repository.CajaMayorRepository;
+import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.GastoConsumicionesCabeceraRepository;
 import com.bisontecfacturacion.security.repository.GastoConsumicionesDetalleRepository;
+import com.bisontecfacturacion.security.repository.GastoConsumicionesReferenciaAperturaCajaRepository;
+import com.bisontecfacturacion.security.repository.GastoConsumicionesReferenciaCajaChicaRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaGastoRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 
@@ -40,10 +50,25 @@ public class GastoConsumicionesCabeceraController {
 	@Autowired
 	private CajaChicaRepository cajaChicaRepository;
 	@Autowired
+	private AperturaCajaRepository aperturaCajaRepository;
+	
+	@Autowired
 	private CajaMayorRepository cajaMayorRepository;
 	
 	@Autowired
+	private OperacionCajaRepository operacionCajaRepository;
+	@Autowired
 	private TransferenciaGastoRepository transferenciaGastoRepository; 
+	
+	@Autowired
+	private GastoConsumicionesReferenciaCajaChicaRepository gastoReferenciaCajaChicaRepository;
+	
+	
+	@Autowired
+	private ConceptoRepository conceptoRepository;
+	
+	@Autowired
+	private GastoConsumicionesReferenciaAperturaCajaRepository gastoReferenciaAperturaCajaRepository; 
 
 	@RequestMapping(method=RequestMethod.GET, value="/actualizarTotal/{monto}/{id}")
 	public void actualizarTotal(@PathVariable double monto, @PathVariable int id){
@@ -92,8 +117,6 @@ public class GastoConsumicionesCabeceraController {
 				return new ResponseEntity<>(new CustomerErrorType("DEBES CARGAR POR LO MENO UN DETALLE!"), HttpStatus.CONFLICT);
 			}else if(entity.getTipoOperacion().getId()==0){
 				return new ResponseEntity<>(new CustomerErrorType("DEBES SELECCIONAR TIPO OPERACION A EFECTUAR!"), HttpStatus.CONFLICT);
-			}else if (entity.getCajaChica().getId()==0) {
-				return new ResponseEntity<>(new CustomerErrorType("DEBES SELECCIONAR UNA CAJA CHICA PARA EFECTUAR GASTO"), HttpStatus.CONFLICT);
 			}else if (entity.getConcepto().getId()==0){
 				return new ResponseEntity<>(new CustomerErrorType("DEBES SELECCIONAR UN CONCEPTO PARA EFECTUAR GASTO"), HttpStatus.CONFLICT);
 			}else{
@@ -121,46 +144,112 @@ public class GastoConsumicionesCabeceraController {
 					if(entity.getEstado().equals("SIN CONFIRMAR")) {
 						System.out.println("eNTROO SNI CONFI");
 					}else if(entity.getEstado().equals("CONFIRMADO")) {
-						System.out.println("ENTROO PARA CFIRMAR");
-						CajaChica cC = new CajaChica();
-						cC=cajaChicaRepository.getCajaChicaPorIdCaja(entity.getCajaChica().getId());
-						if(cC==null) {
-							System.out.println("entrooo null caja chiac");
-							return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO POSEE CAJA CHICA A SU NOMBRE!"), HttpStatus.CONFLICT);
-						}else {
-							if(cC.getMonto() < entity.getTotal() && entity.getTipoOperacion().getId()==1) {
-								System.out.println("entrooo monto superaod efe");
-								return new ResponseEntity<>(new CustomerErrorType("EL EFECTIVO DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-							}else if(cC.getMonto()< entity.getTotal()&& entity.getTipoOperacion().getId()==2){
-								System.out.println("entrooo monto superaod che");
+						if(Boolean.parseBoolean(entity.getConcepto().getDescripcion())==true) {
+							System.out.println("GASTOS POR CAJA CHICA "+entity.getConcepto().getId());
 
-								return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-							}else if(cC.getMonto()< entity.getTotal() && entity.getTipoOperacion().getId()==3){
-								System.out.println("entrooo monto superaod tarj");
-
-								return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-							}else{
-								TransferenciaGastos tgasto= new TransferenciaGastos();
-								tgasto.getCajaChica().setId(cC.getId());
-								tgasto.getFuncionario().setId(entity.getFuncionarioRegistro().getId());
-								tgasto.getGastoConsumicionesCabecera().setId(entity.getId());
-								tgasto.setReferencia(entity.getTipoOperacion().getDescripcion());
-								tgasto.setFecha(new Date());
-								if (entity.getTipoOperacion().getId()==1) {
-									tgasto.setMonto(entity.getTotal());
+							System.out.println("ENTROO PARA CONFIRMAR");
+							CajaChica cC = new CajaChica();
+							cC=cajaChicaRepository.getCajaChicaPorIdCaja(entity.getConcepto().getId());
+							if(cC==null) {
+								System.out.println("entrooo null caja chiac");
+								return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO POSEE CAJA CHICA A SU NOMBRE!"), HttpStatus.CONFLICT);
+							}else {
+								System.out.println("entrooo ACTUVO CAJA CHICA");
+								System.out.println(cC.getMonto()+ "-"+entity.getTotal());
+								if(cC.getMonto() < entity.getTotal() && entity.getTipoOperacion().getId()==1) {
+									System.out.println("entrooo monto superaod efe");
+									return new ResponseEntity<>(new CustomerErrorType("EL EFECTIVO DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+								}else if(cC.getMonto()< entity.getTotal()&& entity.getTipoOperacion().getId()==2){
+									System.out.println("entrooo monto superaod che");
+									return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+								}else if(cC.getMonto()< entity.getTotal() && entity.getTipoOperacion().getId()==3){
+									System.out.println("entrooo monto superaod tarj");
+									return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+								}else{
+									TransferenciaGastos tgasto= new TransferenciaGastos();
+									tgasto.getCajaChica().setId(cC.getId());
+									tgasto.getFuncionario().setId(entity.getFuncionarioRegistro().getId());
+									tgasto.getGastoConsumicionesCabecera().setId(entity.getId());
+									tgasto.setReferencia(entity.getTipoOperacion().getDescripcion());
+									tgasto.setFecha(new Date());
+									if (entity.getTipoOperacion().getId()==1) {
+										tgasto.setMonto(entity.getTotal());
+										
+									}	
+									if (entity.getTipoOperacion().getId()==2) {
+										tgasto.setMontoCheque(entity.getTotal());
+									}	
+									if (entity.getTipoOperacion().getId()==3) {
+										tgasto.setMontoTarjeta(entity.getTotal());
+									}
+									cajaMayorRepository.findByActualizaTransferenciaCajaChicaNegativo(cC.getId(), tgasto.getMonto(), tgasto.getMontoCheque(), tgasto.getMontoTarjeta());
+									transferenciaGastoRepository.save(tgasto);
+									GastoConsumicionesReferenciaCajaChica rfe= new GastoConsumicionesReferenciaCajaChica();
+									rfe.getCajaChica().setId(cC.getId());
+									rfe.getGastoConsumicionesCabecera().setId(entity.getId());
+									gastoReferenciaCajaChicaRepository.save(rfe);
 									
-								}	
-								if (entity.getTipoOperacion().getId()==2) {
-									tgasto.setMontoCheque(entity.getTotal());
-								}	
-								if (entity.getTipoOperacion().getId()==3) {
-									tgasto.setMontoTarjeta(entity.getTotal());
+									
+									
+									
 								}
-								cajaMayorRepository.findByActualizaTransferenciaCajaChicaNegativo(cC.getId(), tgasto.getMonto(), tgasto.getMontoCheque(), tgasto.getMontoTarjeta());
-								transferenciaGastoRepository.save(tgasto);
 							}
 						}
+						if(Boolean.parseBoolean(entity.getConcepto().getDescripcion())==false) {
+							System.out.println("GASTOS POR APERTURA DE CAJA "+ +entity.getConcepto().getId());
+							AperturaCaja cC = new AperturaCaja();
+							cC=aperturaCajaRepository.getAperturaCajaPorIdCaja(entity.getConcepto().getId());
+							if(cC==null) {
+								System.out.println("entrooo null caja chiac");
+								return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO POSEE UNA APERTURA CAJA A SU NOMBRE!"), HttpStatus.CONFLICT);
+							}else {
+								if((cC.getSaldoActual()+cC.getSaldoInicial()) < entity.getTotal() && entity.getTipoOperacion().getId()==1) {
+									System.out.println("entrooo monto superaod efe");
+									return new ResponseEntity<>(new CustomerErrorType("EL EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+								}else if((cC.getSaldoActualCheque() + cC.getSaldoInicialCheque()) < entity.getTotal()&& entity.getTipoOperacion().getId()==2){
+									System.out.println("entrooo monto superaod che");
+									return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+								}else if((cC.getSaldoActualTarjeta()+ cC.getSaldoInicialTarjeta())< entity.getTotal() && entity.getTipoOperacion().getId()==3){
+									System.out.println("entrooo monto superaod tarj");
+									return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+								}else{
+									
+									OperacionCaja op= new OperacionCaja();
+									op.getAperturaCaja().setId(cC.getId());
+									op.getConcepto().setId(9);
+									op.getTipoOperacion().setId(entity.getTipoOperacion().getId());
+									op.setTipo("SALIDA");
+									op.setEfectivo(0.0);
+									op.setVuelto(0.0);
+									op.setMonto(entity.getTotal());
+									
+									Concepto c = new Concepto();
+									c = conceptoRepository.findById(9).get();
+									op.setMotivo(c.getDescripcion() + " REF.: " + entity.getId());
+									operacionCajaRepository.save(op);
+									if (op.getTipoOperacion().getId() == 1) {
+										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(op.getAperturaCaja().getId(), entity.getTotal());
+									}
+									if (op.getTipoOperacion().getId() == 2) {
+										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(op.getAperturaCaja().getId(), entity.getTotal());
+									}
+									if (op.getTipoOperacion().getId() == 3) {
+										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(op.getAperturaCaja().getId(), entity.getTotal());
+
+									}
+									OperacionCaja opA= new  OperacionCaja();
+									opA= operacionCajaRepository.findTop1ByOrderByIdDesc();
+									GastoConsumicionesReferenciaOperacionCaja rfe= new GastoConsumicionesReferenciaOperacionCaja();
+									rfe.getOperacionCaja().setId(opA.getId());
+									rfe.getGastoConsumicionesCabecera().setId(entity.getId());
+									gastoReferenciaAperturaCajaRepository.save(rfe);
+									
+								}
+							}
+						
+						}
 					}
+					entity.getConcepto().setId(9);
 					entityRepository.save(entity);
 				}else {
 					
@@ -179,6 +268,7 @@ public class GastoConsumicionesCabeceraController {
 							}
 						}
 					}else if(entity.getEstado().equals("CONFIRMADO")) {
+						/*
 						CajaChica cC = new CajaChica();
 						cC=cajaChicaRepository.getCajaChicaPorIdCaja(entity.getCajaChica().getId());
 						if(cC==null) {
@@ -225,6 +315,7 @@ public class GastoConsumicionesCabeceraController {
 								
 							}
 						}
+						*/
 					}
 					
 				}	
@@ -252,7 +343,7 @@ public class GastoConsumicionesCabeceraController {
 		venta.getFuncionarioCargo().setId(v.getFuncionarioCargo().getId());
 		venta.getFuncionarioCargo().getPersona().setNombre(v.getFuncionarioCargo().getPersona().getNombre());
 		venta.getFuncionarioCargo().getPersona().setApellido(v.getFuncionarioCargo().getPersona().getApellido());
-		venta.getCajaChica().setId(v.getCajaChica().getId());
+		//venta.getCajaChica().setId(v.getCajaChica().getId());
 		venta.getConcepto().setId(v.getConcepto().getId());
 		venta.getTipoOperacion().setId(v.getTipoOperacion().getId());
 		venta.setFecha(v.getFecha());
@@ -275,7 +366,7 @@ public class GastoConsumicionesCabeceraController {
 		venta.setFecha(v.getFecha());
 		venta.setHora(v.getHora());
 		venta.getConcepto().setId(v.getConcepto().getId());
-		venta.getCajaChica().setId(v.getCajaChica().getId());
+		//venta.getCajaChica().setId(v.getCajaChica().getId());
 		venta.setGastoConsumicionesDetalles(this.detalleGasto(id));
 		System.out.println("listaod:   :::  : "+venta.getGastoConsumicionesDetalles().size());
 		return venta;

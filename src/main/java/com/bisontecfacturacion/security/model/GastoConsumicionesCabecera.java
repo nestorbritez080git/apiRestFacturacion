@@ -36,8 +36,7 @@ public class GastoConsumicionesCabecera {
 	@ManyToOne
 	private TipoOperacion tipoOperacion;
 	
-	@ManyToOne
-	private CajaChica  cajaChica;
+
 	
 	@ManyToOne
 	private Concepto concepto;
@@ -54,15 +53,9 @@ public class GastoConsumicionesCabecera {
 		this.estado="";
 		this.gastoConsumicionesDetalles= new ArrayList<GastoConsumicionesDetalle>();
 		this.tipoOperacion= new TipoOperacion();
-		this.cajaChica = new CajaChica();
 		this.concepto = new Concepto();
 	}
-	public CajaChica getCajaChica() {
-		return cajaChica;
-	}
-	public void setCajaChica(CajaChica cajaChica) {
-		this.cajaChica = cajaChica;
-	}
+	
 	public TipoOperacion getTipoOperacion() {
 		return tipoOperacion;
 	}

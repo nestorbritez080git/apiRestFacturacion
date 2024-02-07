@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="venta-detalle-producto" pageWidth="595" pageHeight="842" columnWidth="579" leftMargin="8" rightMargin="8" topMargin="0" bottomMargin="0" uuid="2d182dcd-898f-48ed-bcae-077393c78e8b">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="descripcion" class="java.lang.String">
+		<fieldDescription><![CDATA[descripcion]]></fieldDescription>
+	</field>
+	<field name="cantidad" class="java.lang.Double">
+		<fieldDescription><![CDATA[cantidad]]></fieldDescription>
+	</field>
+	<field name="precio" class="java.lang.Double">
+		<fieldDescription><![CDATA[precio]]></fieldDescription>
+	</field>
+	<field name="subTotal" class="java.lang.Double">
+		<fieldDescription><![CDATA[subTotal]]></fieldDescription>
+	</field>
+	<field name="iva" class="java.lang.String">
+		<fieldDescription><![CDATA[iva]]></fieldDescription>
+	</field>
+	<field name="codbar" class="java.lang.Object">
+		<fieldDescription><![CDATA[producto.codbar]]></fieldDescription>
+	</field>
+	<field name="id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[producto.id]]></fieldDescription>
+	</field>
+	<background>
+		<band height="7" splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="5" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="9" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.layout"/>
+			<textField>
+				<reportElement x="103" y="0" width="184" height="8" uuid="3e3dbb54-59c5-4604-8d57-d2e39b4d387b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="36a1f47e-ad78-4e12-adcf-158fe38e766b"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToBandHeight" x="401" y="0" width="44" height="8" uuid="4fe500bc-4164-4ff0-9fd5-d2530e01d783">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="af0eff79-02bf-41e6-8293-c94bac319ea5"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$F{iva}.equals("5 %")]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{subTotal})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="291" y="0" width="56" height="8" uuid="e7deee2c-10c1-4cfe-8ce9-5009e0a4f76f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{precio})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="0" width="45" height="8" uuid="cb523947-0992-4597-bccf-e7952733e719">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5907374a-af43-47ca-b3e2-97603a4ed8ad"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{cantidad})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="0" width="39" height="8" uuid="d5799d19-8a33-45ec-bdfc-748cc5b51a07">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5907374a-af43-47ca-b3e2-97603a4ed8ad"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToBandHeight" x="444" y="0" width="74" height="8" uuid="54ccba0d-50d6-436f-8805-f2187710cc44">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="af0eff79-02bf-41e6-8293-c94bac319ea5"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$F{iva}.equals("10 %")]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{subTotal})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToBandHeight" x="350" y="0" width="46" height="8" uuid="2a6d49aa-bc7c-4c6f-ac34-f416a2b44a62">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="af0eff79-02bf-41e6-8293-c94bac319ea5"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$F{iva}.equals("Exenta")]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{subTotal})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -73,6 +73,27 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 			"where (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO')",nativeQuery=true)
 	List<Object[]> listaDetalleProductoAll(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
 	
+	@Query(value="select p.id as idP, dp.descripcion as descripcion, p.codbar as codigobarra, m.descripcion as marca, dp.cantidad as cantidad, dp.precio as precio, dp.descuento as descuento, dp.sub_total as subtotal, p.iva as iva  \n" + 
+			"from detalle_producto dp " + 
+			"inner join producto p on dp.producto_id=p.id " + 
+			"inner join venta  v on v.id=dp.venta_id " +
+			"inner join cliente cl ON cl.id= v.cliente_id " + 
+			"inner join unidad_medida on p.unidad_medida_id=unidad_medida.id " + 
+			"inner join marca m on p.marca_id=m.id " + 
+			"where cl.id=:idC AND (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO')",nativeQuery=true)
+	List<Object[]> listaDetalleProductoAllPorCliente(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idC") int id);
+	
+	
+	@Query(value="SELECT ser.id as idS, dp.descripcion as des, dp.cantidad as cant, dp.precio as precio, dp.sub_total as subtotal from detalle_servicios dp " + 
+			"inner join venta  v on v.id=dp.venta_id " + 
+			"inner join servicio ser ON ser.id= dp.servicio_id " +
+			"inner join cliente cl ON cl.id= v.cliente_id " +
+			"where cl.id=:idC AND (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO')",nativeQuery=true)
+	List<Object[]> listaDetalleServicioAllPorCliente(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idC") int id);
+	
+	
+	
+	
 	@Query(value="select dp.venta_id nroventa, dp.descripcion as descripcion, p.codbar as codigobarra, m.descripcion as marca, dp.cantidad as cantidad, dp.precio as precio, dp.descuento as descuento, dp.sub_total as subtotal  from detalle_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id inner join venta  v on v.id=dp.venta_id where (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO') AND dp.descripcion ilike :desc order by dp.venta_id desc",nativeQuery=true)
 	List<Object[]> listaDetalleProductoDesc(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("desc") String desc);
 	

@@ -191,7 +191,9 @@ public class DetalleProductoController {
 			detalleServicios.setMontoIva(Double.parseDouble(ob[11].toString()));
 			detalleServicios.setObs(ob[12].toString());
 			detalleServicio.add(detalleServicios);
+			
 		}
+		System.out.println("lista detalle Servicio: "+detalleServicio.size());
 		return detalleServicio;
 	}
 

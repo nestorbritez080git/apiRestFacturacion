@@ -38,66 +38,6 @@
 	<background>
 		<band splitType="Stretch"/>
 	</background>
-	<pageHeader>
-		<band height="21">
-			<staticText>
-				<reportElement x="0" y="3" width="40" height="12" uuid="38d1c935-70a5-4b4f-97e0-22414fbc1224"/>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="8" isBold="false"/>
-				</textElement>
-				<text><![CDATA[Cod.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="40" y="3" width="69" height="12" uuid="9d1d0c10-d88c-4a5d-98a2-990273079e07"/>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="8" isBold="false"/>
-				</textElement>
-				<text><![CDATA[Cant.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="111" y="3" width="205" height="12" uuid="6d48c6ca-ac5b-4575-91f1-469078ea8ab1"/>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="8" isBold="false"/>
-				</textElement>
-				<text><![CDATA[Descripción]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="316" y="3" width="70" height="12" uuid="01ef3e55-1c7e-423e-81a8-2a4f0ed6d381">
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-				</reportElement>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="8" isBold="false"/>
-				</textElement>
-				<text><![CDATA[Precio]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="385" y="3" width="40" height="12" uuid="a3a2607e-4122-4f6f-8000-665fe41d6027"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="8" isBold="false"/>
-				</textElement>
-				<text><![CDATA[Excenta]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="424" y="3" width="61" height="12" uuid="d2af9e7c-996b-44ab-8e7b-06799bcf4158"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="8" isBold="false"/>
-				</textElement>
-				<text><![CDATA[Iva 5%]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="485" y="3" width="84" height="12" uuid="d1933a63-af68-441a-9ea6-6f18a970feba"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="8" isBold="false"/>
-				</textElement>
-				<text><![CDATA[Iva 10%]]></text>
-			</staticText>
-			<line>
-				<reportElement x="-2" y="18" width="571" height="1" uuid="4e30b72d-4996-479a-8d08-c3b371a0c4e0">
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-				</reportElement>
-			</line>
-		</band>
-	</pageHeader>
 	<detail>
 		<band height="16" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>

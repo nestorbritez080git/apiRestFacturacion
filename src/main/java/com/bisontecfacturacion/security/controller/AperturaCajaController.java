@@ -163,6 +163,10 @@ public class AperturaCajaController {
 	public AperturaCaja getPorId(@PathVariable int id){
 		return entityRepository.findById(id).get();
 	}
+	@RequestMapping(method=RequestMethod.GET,value="/buscarcaja/idFuncionario/id/{id}")
+	public AperturaCaja getApèrturaCajaPorIdFuncionario(@PathVariable int id){
+		return entityRepository.getAperturaActivoCajaIdFuncionario(id);
+	}
 /*
 	 private TransactionStatus getTransactionStatus() {
 	        DefaultTransactionDefinition dtd = new DefaultTransactionDefinition();

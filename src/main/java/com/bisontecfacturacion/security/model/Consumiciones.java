@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -14,11 +15,14 @@ public class Consumiciones {
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
 	private String descripcion;
-
+	
+	@OneToOne
+	private CategoriaConsumiciones categoriaConsumiciones;
 	
 	public Consumiciones() {
 		this.id=0;
 		this.descripcion="";
+		this.categoriaConsumiciones= new CategoriaConsumiciones();
 		
 	}
 	public int getId() {
@@ -33,6 +37,13 @@ public class Consumiciones {
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
+	public CategoriaConsumiciones getCategoriaConsumiciones() {
+		return categoriaConsumiciones;
+	}
+	public void setCategoriaConsumiciones(CategoriaConsumiciones categoriaConsumiciones) {
+		this.categoriaConsumiciones = categoriaConsumiciones;
+	}
+	
 	
 	
 	

@@ -30,6 +30,7 @@ import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.DetalleCompra;
+import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.Org;
@@ -291,6 +292,7 @@ public class CompraController {
 					if(entity.getDetalleCompra().size()>0){
 						if (entity.getEstado().equals("FACTURADO")) {
 							for(DetalleCompra detalleProducto: entity.getDetalleCompra()) {
+								detalleProducto.setId(0);
 								detalleProducto.getCompra().setId(idVent);
 								//detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
 								System.out.println("ivaaa "+detalleProducto.getIva());
@@ -341,9 +343,14 @@ public class CompraController {
 
 
 	@RequestMapping(method=RequestMethod.POST, value="/producto")
-	public ResponseEntity<?> eliminarProducto(@RequestBody DetalleCompra detalle){
+	public ResponseEntity<?> eliminarProducto(@RequestBody List<DetalleCompra> detalle){
+		System.out.println("entroo eliminar compra");
 		try {
-			detalleRepository.deleteById(detalle.getId());
+			System.out.println("entroo eliminar compra try ");
+			for (DetalleCompra de : detalle) {		
+				System.out.println("entroo eliminar compra for");
+				detalleRepository.deleteById(de.getId());
+			}
 			return  new  ResponseEntity<String>(HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

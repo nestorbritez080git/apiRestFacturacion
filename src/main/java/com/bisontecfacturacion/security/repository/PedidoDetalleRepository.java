@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.PedidoDetalle;
 
-@Transactional(readOnly=true)
-@Repository
 public interface PedidoDetalleRepository extends  JpaRepository <PedidoDetalle, Serializable>{
     @Query("select c from PedidoDetalle c where pedido_id=:id")
     List<PedidoDetalle> getDetalleXId(@Param("id") int id);
