@@ -117,7 +117,17 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"where cab.estado='FINALIZADO' AND  ((cab.fecha_registro >= :fecha_inicio) AND (cab.fecha_registro <= :fecha_fin )) AND funFin.id= :idFun", nativeQuery = true)
     List<Object []> getResumenRecepcionesRagoFechaFuncionario( @Param("fecha_inicio") LocalDateTime fecha_inicio, @Param("fecha_fin") LocalDateTime fecha_fin, @Param("idFun") int idFun);
     
-	
+    @Query(value = "SELECT ape.saldo_inicial, ape.saldo_actual, (ape.saldo_inicial+ape.saldo_actual) as suma_saldo, cc.monto, cc.imputacion_egreso, cc.imputacion_ingreso, ape.saldo_inicial_cheque, ape.saldo_actual_cheque, (ape.saldo_inicial_cheque+ape.saldo_actual_cheque) as suma_saldo_cheque, cc.monto_cheque, cc.imputacion_egreso_cheque, cc.imputacion_ingreso_cheque, ape.saldo_inicial_tarjeta, ape.saldo_actual_tarjeta, (ape.saldo_inicial_tarjeta+ape.saldo_actual_tarjeta) as suma_saldo_tarjeta, cc.monto_tarjeta, cc.imputacion_egreso_tarjeta, cc.imputacion_ingreso_tarjeta, ape.fecha as fecApe, ape.hora as horaApe, cc.fecha as fecCierre, cc.hora as horaCiere, pfun.nombre ||' '|| pfun.nombre as nombreper FROM cierre_caja cc inner join apertura_caja ape on ape.id=cc.apertura_caja_id inner join funcionario fun on fun.id= cc.funcionario_id inner join persona pfun on pfun.id=fun.persona_id  where ((cc.fecha >= :fecha_inicio) AND (cc.fecha <=  :fecha_fin)) AND cc.estado_anulacion=false", nativeQuery = true)
+    List<Object []> getResumenBalance( @Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+    
+    @Query(value = "SELECT sum(op.monto), c.descripcion, op.tipo  FROM operacion_caja op inner join concepto c on c.id=op.concepto_id  where ((op.fecha >= :fecha_inicio) AND (op.fecha <=  :fecha_fin)) group by c.id, op.tipo ", nativeQuery = true)
+    List<Object []> getResumenConcepto( @Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+    
+    @Query(value = "SELECT det.id, det.descripcion as desDet ,con.descripcion as desCon, cat.descripcion as desCate, det.monto, det.comprobante, cab.fecha, pf.nombre || ' ' || pf.apellido as funci from gasto_consumiciones_detalle det inner join gasto_consumiciones_cabecera cab on det.gasto_consumiciones_cabecera_id=cab.id inner join funcionario f on f.id=cab.funcionario_registro_id inner join persona pf on pf.id=f.persona_id inner join consumiciones con on con.id=det.consumiciones_id inner join categoria_consumiciones cat on cat.id= con.categoria_consumiciones_id  where ((cab.fecha >= :fecha_inicio) AND (cab.fecha <=  :fecha_fin)) AND  cab.estado='CONFIRMADO' ", nativeQuery = true)
+    List<Object []> getResumenGastos( @Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+    
+    
+    
 	@Query(value="select * from reservacion_cabecera v order by v.id desc limit 1", nativeQuery = true)
 	 ReservacionCabecera getUltimaReservacion();
 	

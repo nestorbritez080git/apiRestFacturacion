@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="movimientoCajaAuxiliar" pageWidth="579" pageHeight="842" columnWidth="579" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="2d182dcd-898f-48ed-bcae-077393c78e8b">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="saldoInicial" class="java.lang.Double">
+		<fieldDescription><![CDATA[saldoInicial]]></fieldDescription>
+	</field>
+	<field name="saldoInicialCheque" class="java.lang.Double">
+		<fieldDescription><![CDATA[saldoInicialCheque]]></fieldDescription>
+	</field>
+	<field name="saldoInicialTarjeta" class="java.lang.Double">
+		<fieldDescription><![CDATA[saldoInicialTarjeta]]></fieldDescription>
+	</field>
+	<field name="saldoActual" class="java.lang.Double">
+		<fieldDescription><![CDATA[saldoActual]]></fieldDescription>
+	</field>
+	<field name="saldoActualCheque" class="java.lang.Double">
+		<fieldDescription><![CDATA[saldoActualCheque]]></fieldDescription>
+	</field>
+	<field name="saldoActualTarjeta" class="java.lang.Double">
+		<fieldDescription><![CDATA[saldoActualTarjeta]]></fieldDescription>
+	</field>
+	<field name="sumaSaldo" class="java.lang.Double">
+		<fieldDescription><![CDATA[sumaSaldo]]></fieldDescription>
+	</field>
+	<field name="sumaSaldoCheque" class="java.lang.Double">
+		<fieldDescription><![CDATA[sumaSaldoCheque]]></fieldDescription>
+	</field>
+	<field name="sumaSaldoTarjeta" class="java.lang.Double">
+		<fieldDescription><![CDATA[sumaSaldoTarjeta]]></fieldDescription>
+	</field>
+	<field name="monto" class="java.lang.Double">
+		<fieldDescription><![CDATA[monto]]></fieldDescription>
+	</field>
+	<field name="montoCheque" class="java.lang.Double">
+		<fieldDescription><![CDATA[montoCheque]]></fieldDescription>
+	</field>
+	<field name="montoTarjeta" class="java.lang.Double">
+		<fieldDescription><![CDATA[montoTarjeta]]></fieldDescription>
+	</field>
+	<field name="impIngreso" class="java.lang.Double">
+		<fieldDescription><![CDATA[impIngreso]]></fieldDescription>
+	</field>
+	<field name="impIngresoCheque" class="java.lang.Double">
+		<fieldDescription><![CDATA[impIngresoCheque]]></fieldDescription>
+	</field>
+	<field name="impIngresoTarjeta" class="java.lang.Double">
+		<fieldDescription><![CDATA[impIngresoTarjeta]]></fieldDescription>
+	</field>
+	<field name="impEgreso" class="java.lang.Double">
+		<fieldDescription><![CDATA[impEgreso]]></fieldDescription>
+	</field>
+	<field name="impEgresoCheque" class="java.lang.Double">
+		<fieldDescription><![CDATA[impEgresoCheque]]></fieldDescription>
+	</field>
+	<field name="impEgresoTarjeta" class="java.lang.Double">
+		<fieldDescription><![CDATA[impEgresoTarjeta]]></fieldDescription>
+	</field>
+	<field name="fechaApertura" class="java.util.Date">
+		<fieldDescription><![CDATA[fechaApertura]]></fieldDescription>
+	</field>
+	<field name="fechaCierre" class="java.util.Date">
+		<fieldDescription><![CDATA[fechaCierre]]></fieldDescription>
+	</field>
+	<field name="horaApertura" class="java.lang.String">
+		<fieldDescription><![CDATA[horaApertura]]></fieldDescription>
+	</field>
+	<field name="horaCierre" class="java.lang.String">
+		<fieldDescription><![CDATA[horaCierre]]></fieldDescription>
+	</field>
+	<field name="funcionario" class="java.lang.String">
+		<fieldDescription><![CDATA[funcionario]]></fieldDescription>
+	</field>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.layout"/>
+			<textField>
+				<reportElement x="0" y="4" width="40" height="8" uuid="8603ce19-9c77-43bc-9b11-f4b4df6a23a6"/>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{saldoInicial})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="41" y="4" width="40" height="8" uuid="36e94f4a-820f-46f9-9fa0-8b2cb6b5df93">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{saldoActual})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="82" y="4" width="40" height="8" uuid="827befc0-e431-48f7-a6a6-9643c9469fe7">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{sumaSaldo})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="123" y="4" width="40" height="8" uuid="8cf65fbd-4a2b-4761-982a-bc71e1986817">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{monto})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="164" y="4" width="40" height="8" uuid="c836dba5-ca07-49d3-b7e0-888908726edc">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{impIngreso})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="205" y="4" width="40" height="8" uuid="a8d7bfe8-07f4-4cb0-9435-74939b056b36">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{impEgreso})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="39" y="1" width="1" height="14" uuid="7e7e31c2-c00e-4a41-8a6e-994e0489a30d">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="81" y="1" width="1" height="14" uuid="9abe24e0-39a5-4a74-a535-d6768709b6f1">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="122" y="1" width="1" height="14" uuid="24de04d0-ef60-4a35-ab4d-3ae57b851f52">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="163" y="1" width="1" height="14" uuid="2cb5c827-8ae0-4a38-8299-5f02a59cb160">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="204" y="1" width="1" height="14" uuid="9e377c8f-b74b-4317-a5ca-c505c4965f1b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<textField>
+				<reportElement x="252" y="4" width="40" height="8" uuid="5bea8750-5291-4934-a6d2-75ed57ec7261">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{saldoActualCheque})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="295" y="1" width="1" height="14" uuid="2ebe88d0-46bf-4ef4-8c5d-eb3bef2bc1e0">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="336" y="1" width="1" height="14" uuid="eaf5f3ee-2889-470d-b9ec-560129195f1c">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<textField>
+				<reportElement x="296" y="4" width="40" height="8" uuid="ba4530a0-0340-4889-a56a-ec6a07122a57">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{montoCheque})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="376" y="1" width="1" height="14" uuid="d683c734-e905-4c81-b3fc-76958c409ac3">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<textField>
+				<reportElement x="337" y="4" width="40" height="8" uuid="e89944d9-23f5-4270-b6b9-f29da943147a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{impIngresoCheque})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="378" y="4" width="40" height="8" uuid="3d5efdee-2575-4ed7-8674-15b693b20e0c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{impEgresoCheque})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="427" y="4" width="40" height="8" uuid="36f2f1f9-4640-4250-822f-93a9ccc9aafe">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{saldoActualTarjeta})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="466" y="1" width="1" height="14" uuid="64d56bdc-8de8-41e2-8206-fa28405a6681">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<textField>
+				<reportElement x="467" y="4" width="40" height="8" uuid="548b3611-e234-404a-9060-ae2eba796bd5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{montoTarjeta})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="506" y="1" width="1" height="14" uuid="8cb766b1-4675-4bae-b6b0-6d86abdaca66">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<textField>
+				<reportElement x="507" y="4" width="34" height="8" uuid="b35e59c2-8be9-4f9b-8b81-0bac5d7b387d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{impIngresoTarjeta})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="543" y="1" width="1" height="14" uuid="923a21e1-08c6-4f68-89f6-719256f68dd4">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<textField>
+				<reportElement x="544" y="4" width="34" height="8" uuid="7d4fe00d-1806-43dc-8826-9494450c94eb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{impEgresoTarjeta})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="1" width="579" height="1" uuid="ba40358b-bf42-48de-9fbe-4c1676916272">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="0" y="15" width="579" height="1" uuid="a58b75d0-b517-475e-a126-ff9d6e0eac59">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+			</line>
+			<textField>
+				<reportElement x="1" y="17" width="80" height="8" uuid="6a430b22-d3f5-4425-8c38-3728091973de">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ENCARGADO: "+$F{funcionario}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MM/dd/yyyy">
+				<reportElement x="115" y="17" width="32" height="8" uuid="74f02316-9cca-488f-9379-52182c28b66d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fechaApertura}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="148" y="17" width="42" height="8" uuid="0eec1123-08af-43f2-bb8f-050ef24e51b3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{horaApertura}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MM/dd/yyyy">
+				<reportElement x="199" y="17" width="30" height="8" uuid="4c0aace8-4398-40a6-b08c-bae331df7d95">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fechaCierre}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="231" y="17" width="34" height="8" uuid="b05e180d-34c7-42e9-be19-411801ff06c1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{horaCierre}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

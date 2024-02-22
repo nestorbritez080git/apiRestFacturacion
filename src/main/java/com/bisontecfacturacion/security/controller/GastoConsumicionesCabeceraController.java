@@ -203,13 +203,13 @@ public class GastoConsumicionesCabeceraController {
 								System.out.println("entrooo null caja chiac");
 								return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO POSEE UNA APERTURA CAJA A SU NOMBRE!"), HttpStatus.CONFLICT);
 							}else {
-								if((cC.getSaldoActual()+cC.getSaldoInicial()) < entity.getTotal() && entity.getTipoOperacion().getId()==1) {
+								if((cC.getSaldoActual()) < entity.getTotal() && entity.getTipoOperacion().getId()==1) {
 									System.out.println("entrooo monto superaod efe");
 									return new ResponseEntity<>(new CustomerErrorType("EL EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-								}else if((cC.getSaldoActualCheque() + cC.getSaldoInicialCheque()) < entity.getTotal()&& entity.getTipoOperacion().getId()==2){
+								}else if((cC.getSaldoActualCheque()) < entity.getTotal()&& entity.getTipoOperacion().getId()==2){
 									System.out.println("entrooo monto superaod che");
 									return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-								}else if((cC.getSaldoActualTarjeta()+ cC.getSaldoInicialTarjeta())< entity.getTotal() && entity.getTipoOperacion().getId()==3){
+								}else if((cC.getSaldoActualTarjeta())< entity.getTotal() && entity.getTipoOperacion().getId()==3){
 									System.out.println("entrooo monto superaod tarj");
 									return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
 								}else{

@@ -1,12 +1,20 @@
 package com.bisontecfacturacion.security.controller;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,19 +22,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxiliar;
+import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
+import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionCabeceraRepository;
 import com.bisontecfacturacion.security.model.CobrosCliente;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.Org;
+import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CobrosClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.CuentaAcobrarRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
+import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.VentaRepository;
+import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.FechaUtil;
+import com.bisontecfacturacion.security.service.IUsuarioService;
 
 
 @EnableAsync
@@ -48,6 +64,16 @@ public class OperacionCajaController {
 	private ConceptoRepository conceptoRepository;
 	@Autowired
 	private CobrosClienteRepository cobrosRepository;
+	@Autowired
+	private OrgRepository orgRepository;
+	@Autowired
+	private IUsuarioService usuarioService;
+
+	private Reporte report;
+	
+	
+	
+	
 	@RequestMapping(method=RequestMethod.GET, value="/detalleOperacion/{idApertura}")
 	public List<OperacionCaja> getOperacionVentaContadoPorIdApertura(@PathVariable int idApertura){
 		List<Object[]> objeto=entityRepository.getOperacionProIdApertura(idApertura);
@@ -93,6 +119,21 @@ public class OperacionCajaController {
 	public List<OperacionCaja> getAll(){
 		return entityRepository.findTop100ByOrderByIdDesc();
 	}
+	
+	@RequestMapping(method=RequestMethod.DELETE, value = "/eliminarOperacion/{id}/{idC}")
+	public ResponseEntity<?> eliminarOperacionPorAperturaPorConcepto(@PathVariable int id, @PathVariable int idC){
+		try {
+			entityRepository.borraDatosSalidaCapital(id, idC);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new CustomerErrorType("ERROR AL INTENTAR BORRAR OPERACIÓN: "+e.getMessage()), HttpStatus.CONFLICT);
+			
+		}
+		
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")
 	public OperacionCaja getPorId(@PathVariable int id){
 		OperacionCaja ope=entityRepository.findById(id).get();
@@ -104,6 +145,7 @@ public class OperacionCajaController {
 		operacion.getTipoOperacion().setDescripcion(ope.getTipoOperacion().getDescripcion());
 		operacion.getTipoOperacion().setId(ope.getTipoOperacion().getId());
 		operacion.setReferenciaTipoOperacion(ope.getReferenciaTipoOperacion());
+		operacion.setMotivo(ope.getMotivo());
 		
 		
 		return operacion;
@@ -464,4 +506,7 @@ public class OperacionCajaController {
 		
 	}
 	*/
+	
+	
+
 }

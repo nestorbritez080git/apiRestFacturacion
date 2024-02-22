@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.controller;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.record.ObjRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxiliar;
+import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
 import com.bisontecfacturacion.security.config.FechaUtil;
+import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 // import com.bisontecfacturacion.security.JwtTokenUtil;
 // import com.bisontecfacturacion.security.JwtUser;
@@ -27,12 +33,16 @@ import com.bisontecfacturacion.security.model.CierreCaja;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
+import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Tesoreria;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CajaRepository;
 import com.bisontecfacturacion.security.repository.CierreCajaRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
+import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.TesoreriaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
@@ -47,6 +57,8 @@ public class CierreCajaController {
 	@Autowired
 	private AperturaCajaRepository aperturaCajaRepository;
 	@Autowired
+	private OperacionCajaRepository operacionCajaRepository;
+	@Autowired
 	private FuncionarioRepository funcionarioRepository;
 	@Autowired
 	private CajaRepository cajaRepository;
@@ -54,6 +66,13 @@ public class CierreCajaController {
 	private TesoreriaRepository tesoreriaRepository;
 	@Autowired
 	private IUsuarioService usuarioService;
+	@Autowired
+	private OrgRepository orgRepository;
+	@Autowired
+	private OperacionCajaRepository opreacionCajaRepository;
+
+	private Reporte report;
+	
 	
 	
 	@RequestMapping(method=RequestMethod.GET, value="/idCierre")
@@ -89,30 +108,27 @@ public class CierreCajaController {
 		double imp_ingresoTarjeta=0.00, imp_egresoTarjeta=0.00, saldoCajaIniTarjeta=0.00,saldoCajaActTarjeta=0.00, montoCierreTarjeta=0.00;
 		idape= entity.getAperturaCaja().getId();
 		idFun=entity.getAperturaCaja().getFuncionario().getId();
-		saldoCajaIni= entity.getAperturaCaja().getSaldoInicial();
 		saldoCajaAct= entity.getAperturaCaja().getSaldoActual();
-		saldoCajaIniCheque= entity.getAperturaCaja().getSaldoInicialCheque();
 		saldoCajaActCheque= entity.getAperturaCaja().getSaldoActualCheque();
-		saldoCajaIniTarjeta= entity.getAperturaCaja().getSaldoInicialTarjeta();
 		saldoCajaActTarjeta= entity.getAperturaCaja().getSaldoActualTarjeta();
 		
-		if(entity.getMonto()>(saldoCajaAct+saldoCajaIni)){
-			imp_ingreso=entity.getMonto()-(saldoCajaAct+saldoCajaIni);
+		if(entity.getMonto()>(saldoCajaAct)){
+			imp_ingreso=entity.getMonto()-(saldoCajaAct);
 		}
-		if(entity.getMonto()<(saldoCajaAct+saldoCajaIni)){
-			imp_egreso= (saldoCajaAct+saldoCajaIni)-entity.getMonto();
+		if(entity.getMonto()<(saldoCajaAct)){
+			imp_egreso= (saldoCajaAct)-entity.getMonto();
 		}
-		if(entity.getMontoCheque()>(saldoCajaActCheque+saldoCajaIniCheque)){
-			imp_ingresoCheque=entity.getMontoCheque()-(saldoCajaActCheque+saldoCajaIniCheque);
+		if(entity.getMontoCheque()>(saldoCajaActCheque)){
+			imp_ingresoCheque=entity.getMontoCheque()-(saldoCajaActCheque);
 		}
-		if(entity.getMontoCheque()<(saldoCajaActCheque+saldoCajaIniCheque)){
-			imp_egresoCheqe= (saldoCajaActCheque+saldoCajaIniCheque)-entity.getMontoCheque();
+		if(entity.getMontoCheque()<(saldoCajaActCheque)){
+			imp_egresoCheqe= (saldoCajaActCheque)-entity.getMontoCheque();
 		}
-		if(entity.getMontoTarjeta()>(saldoCajaActTarjeta+saldoCajaIniTarjeta)){
-			imp_ingresoTarjeta=entity.getMontoTarjeta()-(saldoCajaActTarjeta+saldoCajaIniTarjeta);
+		if(entity.getMontoTarjeta()>(saldoCajaActTarjeta)){
+			imp_ingresoTarjeta=entity.getMontoTarjeta()-(saldoCajaActTarjeta);
 		}
-		if(entity.getMontoTarjeta()<(saldoCajaActTarjeta+saldoCajaIniTarjeta)){
-			imp_egresoTarjeta= (saldoCajaActTarjeta+saldoCajaIniTarjeta)-entity.getMontoTarjeta();
+		if(entity.getMontoTarjeta()<(saldoCajaActTarjeta)){
+			imp_egresoTarjeta= (saldoCajaActTarjeta)-entity.getMontoTarjeta();
 		}
 		entity.setImputacionEgreso(imp_egreso);
 		entity.setImputacionIngreso(imp_ingreso);
@@ -127,6 +143,43 @@ public class CierreCajaController {
 		entity.setFecha(new Date());
 		entity.setHora(hora());
 		entityRepository.save(entity);
+		if (entity.getMonto()>0) {
+			 OperacionCaja op= new OperacionCaja();
+			  op.getAperturaCaja().setId(entity.getAperturaCaja().getId());
+			  op.getConcepto().setId(16);
+			  op.getTipoOperacion().setId(1);
+			  op.setEfectivo(0.0);
+			  op.setFecha(new Date());
+			  op.setMonto(entity.getMonto());
+			  op.setTipo("SALIDA");
+			  op.setMotivo("CIERRE CAJA REF.:"+entityRepository.getUltimoCierreCaja());
+			  operacionCajaRepository.save(op);
+		}
+		 if (entity.getMontoCheque()>0) {
+			 OperacionCaja op= new OperacionCaja();
+			  op.getAperturaCaja().setId(entity.getAperturaCaja().getId());
+			  op.getConcepto().setId(16);
+			  op.getTipoOperacion().setId(2);
+			  op.setEfectivo(0.0);
+			  op.setFecha(new Date());
+			  op.setMonto(entity.getMontoCheque());
+			  op.setTipo("SALIDA");
+			  op.setMotivo("CIERRE CAJA REF.:"+entityRepository.getUltimoCierreCaja());
+			  operacionCajaRepository.save(op);
+		}
+		 
+		 if (entity.getMontoTarjeta()>0) {
+			 OperacionCaja op= new OperacionCaja();
+			  op.getAperturaCaja().setId(entity.getAperturaCaja().getId());
+			  op.getConcepto().setId(16);
+			  op.getTipoOperacion().setId(3);
+			  op.setEfectivo(0.0);
+			  op.setFecha(new Date());
+			  op.setMonto(entity.getMontoTarjeta());
+			  op.setTipo("SALIDA");
+			  op.setMotivo("CIERRE CAJA REF.:"+entityRepository.getUltimoCierreCaja());
+			  operacionCajaRepository.save(op);
+		}
 		
 		Tesoreria tesoreria= new Tesoreria();
 		tesoreria.getCierreCaja().setId(entityRepository.findTop1ByOrderByIdDesc().getId());
@@ -152,19 +205,16 @@ public class CierreCajaController {
 		List<Object[]> apertura =this.aperturaCajaRepository.getAperturaActivo(entity.getAperturaCaja().getCaja().getId()); 	
 		int idape=0;
 		int idFun=0;
-		double imp_ingreso=0.00, imp_egreso=0.00, saldoCajaIni=0.00,saldoCajaAct=0.00, montoCierre=0.00;
-		double imp_ingresoCheque=0.00, imp_egresoCheqe=0.00, saldoCajaIniCheque=0.00,saldoCajaActCheque=0.00, montoCierreCheque=0.00;
-		double imp_ingresoTarjeta=0.00, imp_egresoTarjeta=0.00, saldoCajaIniTarjeta=0.00,saldoCajaActTarjeta=0.00, montoCierreTarjeta=0.00;
+		double imp_ingreso=0.00, imp_egreso=0.00,saldoCajaAct=0.00;
+		double imp_ingresoCheque=0.00, imp_egresoCheqe=0.00,saldoCajaActCheque=0.00;
+		double imp_ingresoTarjeta=0.00, imp_egresoTarjeta=0.00, saldoCajaActTarjeta=0.00;
 		
 		
 		for(Object[] ob:apertura){
 			idape= Integer.parseInt(ob[0].toString());
 			idFun= Integer.parseInt(ob[1].toString());
-			saldoCajaIni= Double.parseDouble(ob[2].toString());
 			saldoCajaAct= Double.parseDouble(ob[3].toString());
-			saldoCajaIniCheque= Double.parseDouble(ob[5].toString());
 			saldoCajaActCheque= Double.parseDouble(ob[6].toString());
-			saldoCajaIniTarjeta= Double.parseDouble(ob[7].toString());
 			saldoCajaActTarjeta= Double.parseDouble(ob[8	].toString());
 			
 		}
@@ -178,25 +228,26 @@ public class CierreCajaController {
 		
 		if (funcionarioId==idFun) {
 			entity.getFuncionario().setId(idFun);
-			if(entity.getMonto()>(saldoCajaAct+saldoCajaIni)){
-				imp_ingreso=entity.getMonto()-(saldoCajaAct+saldoCajaIni);
+			if(entity.getMonto()>(saldoCajaAct)){
+				imp_ingreso=entity.getMonto()-(saldoCajaAct);
 			}
-			if(entity.getMonto()<(saldoCajaAct+saldoCajaIni)){
-				imp_egreso= (saldoCajaAct+saldoCajaIni)-entity.getMonto();
+			if(entity.getMonto()<(saldoCajaAct)){
+				imp_egreso= (saldoCajaAct)-entity.getMonto();
 			}
-			if(entity.getMontoCheque()>(saldoCajaActCheque+saldoCajaIniCheque)){
-				imp_ingresoCheque=entity.getMontoCheque()-(saldoCajaActCheque+saldoCajaIniCheque);
+			if(entity.getMontoCheque()>(saldoCajaActCheque)){
+				imp_ingresoCheque=entity.getMontoCheque()-(saldoCajaActCheque);
 			}
-			if(entity.getMontoCheque()<(saldoCajaActCheque+saldoCajaIniCheque)){
-				imp_egresoCheqe= (saldoCajaActCheque+saldoCajaIniCheque)-entity.getMontoCheque();
+			if(entity.getMontoCheque()<(saldoCajaActCheque)){
+				imp_egresoCheqe= (saldoCajaActCheque)-entity.getMontoCheque();
 			}
-			if(entity.getMontoTarjeta()>(saldoCajaActTarjeta+saldoCajaIniTarjeta)){
-				imp_ingresoTarjeta=entity.getMontoTarjeta()-(saldoCajaActTarjeta+saldoCajaIniTarjeta);
+			if(entity.getMontoTarjeta()>(saldoCajaActTarjeta)){
+				imp_ingresoTarjeta=entity.getMontoTarjeta()-(saldoCajaActTarjeta);
 			}
-			if(entity.getMontoTarjeta()<(saldoCajaActTarjeta+saldoCajaIniTarjeta)){
-				imp_egresoTarjeta= (saldoCajaActTarjeta+saldoCajaIniTarjeta)-entity.getMontoTarjeta();
+			if(entity.getMontoTarjeta()<(saldoCajaActTarjeta)){
+				imp_egresoTarjeta= (saldoCajaActTarjeta)-entity.getMontoTarjeta();
 			}
 			
+			 
 			
 			entity.setImputacionEgreso(imp_egreso);
 			entity.setImputacionIngreso(imp_ingreso);
@@ -210,7 +261,47 @@ public class CierreCajaController {
 			
 			entity.setFecha(new Date());
 			entity.setHora(hora());
+			
+			
 			entityRepository.save(entity);
+			if (entity.getMonto()>0) {
+				 OperacionCaja op= new OperacionCaja();
+				  op.getAperturaCaja().setId(entity.getAperturaCaja().getId());
+				  op.getConcepto().setId(16);
+				  op.getTipoOperacion().setId(1);
+				  op.setEfectivo(0.0);
+				  op.setFecha(new Date());
+				  op.setMonto(entity.getMonto());
+				  op.setTipo("SALIDA");
+				  op.setMotivo("CIERRE CAJA REF.:"+entityRepository.getUltimoCierreCaja());
+				  operacionCajaRepository.save(op);
+			}
+			 if (entity.getMontoCheque()>0) {
+				 OperacionCaja op= new OperacionCaja();
+				  op.getAperturaCaja().setId(entity.getAperturaCaja().getId());
+				  op.getConcepto().setId(16);
+				  op.getTipoOperacion().setId(2);
+				  op.setEfectivo(0.0);
+				  op.setFecha(new Date());
+				  op.setMonto(entity.getMontoCheque());
+				  op.setTipo("SALIDA");
+				  op.setMotivo("CIERRE CAJA REF.:"+entityRepository.getUltimoCierreCaja());
+				  operacionCajaRepository.save(op);
+			}
+			 
+			 if (entity.getMontoTarjeta()>0) {
+				 OperacionCaja op= new OperacionCaja();
+				  op.getAperturaCaja().setId(entity.getAperturaCaja().getId());
+				  op.getConcepto().setId(16);
+				  op.getTipoOperacion().setId(3);
+				  op.setEfectivo(0.0);
+				  op.setFecha(new Date());
+				  op.setMonto(entity.getMontoTarjeta());
+				  op.setTipo("SALIDA");
+				  op.setMotivo("CIERRE CAJA REF.:"+entityRepository.getUltimoCierreCaja());
+				  operacionCajaRepository.save(op);
+			}
+			
 			
 			Tesoreria tesoreria= new Tesoreria();
 			tesoreria.getCierreCaja().setId(entityRepository.findTop1ByOrderByIdDesc().getId());
@@ -225,7 +316,7 @@ public class CierreCajaController {
 			aperturaCajaRepository.findByActualizarFuncionario(idape, false);
 			cajaRepository.findByActualizaEstado(entity.getAperturaCaja().getCaja().getId(), false);
 		}else {
-			return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO QUE ESTA TRATANDO DE CERRAR LA PAERTURA DE LA CAJA NO CONICIDE CON EL FUNCIONARIO QUE DIO ApERTURA A LA CAJA SELECCIONADA"), HttpStatus.CONFLICT);
+			return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO QUE ESTA TRATANDO DE CERRAR LA PAERTURA DE LA CAJA NO CONICIDE CON EL FUNCIONARIO QUE DIO APERTURA A LA CAJA SELECCIONADA"), HttpStatus.CONFLICT);
 		}
 		}
 	
@@ -371,6 +462,64 @@ public class CierreCajaController {
 		retorno=entityRepository.getDetalleProductoPorAperturaTotal(idApertura);
 		//if(res[0][0]==null) {retorno=0.0;}else {retorno=Double.parseDouble(res[0][0].toString());}
 		return retorno;
+	}
+
+	
+	
+	@RequestMapping(value="/reporteCierreCajaConceptos/{id}", method=RequestMethod.GET)
+	public ResponseEntity<?>  resumenConcepto(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			List<MovimientoPorConceptosAuxiliar> listadoMovCajaAuxiliar= new ArrayList<>();
+			List<Object []> obMoviminetoPorConceptos =operacionCajaRepository.getResumenConceptoPorApertura(id);
+			Double suIngreso=0.0, sumEgreso=0.0;
+			for(Object[] obMovCaja: obMoviminetoPorConceptos) {
+				MovimientoPorConceptosAuxiliar f = new MovimientoPorConceptosAuxiliar();
+				f.setMonto(Double.parseDouble(obMovCaja[0].toString()));
+				f.setDescripcion(obMovCaja[1].toString());
+				if(obMovCaja[2].toString().equals("ENTRADA")) {
+					f.setTipo(1);
+					suIngreso= suIngreso + Double.parseDouble(obMovCaja[0].toString());
+
+				}
+				if(obMovCaja[2].toString().equals("SALIDA")) {
+					f.setTipo(2);
+					sumEgreso= sumEgreso + Double.parseDouble(obMovCaja[0].toString());
+
+				}
+				listadoMovCajaAuxiliar.add(f);
+			}
+			InformeBalanceReservacionAuxiliar inf= new InformeBalanceReservacionAuxiliar();
+			inf.setMovimientoPorConceptosAuxiliar(listadoMovCajaAuxiliar);
+			List<InformeBalanceReservacionAuxiliar> det=new ArrayList<>();
+			det.add(inf);
+			if(inf.getMovimientoPorConceptosAuxiliar().size()>0) {
+				Map<String, Object> map = new HashMap<>();
+				String urlReporte ="\\reporte\\movimientoCajaConcepto.jasper";
+				map.put("urlSubRepor", urlReporte);
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+				map.put("totalIngreso", suIngreso);
+				map.put("totalEgreso", sumEgreso);
+				map.put("apertura", id+"");
+
+				report = new Reporte();
+				report.reportPDFDescarga(det, map, "ReporteCierreCajaConcepto", response);
+				//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+			}else{
+				return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
 	
 	

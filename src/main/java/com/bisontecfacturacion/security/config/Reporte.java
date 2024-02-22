@@ -75,7 +75,6 @@ public class Reporte {
 //	}
 //	
 	public void reportPDFDescarga(List<?> lista, Map<String, Object> map, String nombreReporte, HttpServletResponse response) throws IOException{
-		System.out.println("exooooortttadooo");
 		try {
 			InputStream jasperStream = this.getClass().getResourceAsStream("/reporte/"+nombreReporte + ".jrxml");
 			JasperDesign design = JRXmlLoader.load(jasperStream);

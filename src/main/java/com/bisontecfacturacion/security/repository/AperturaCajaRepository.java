@@ -11,8 +11,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.AperturaCaja;
-import com.bisontecfacturacion.security.model.CajaChica;
-import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
 @Transactional
 @Repository
 public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Serializable>{
@@ -119,8 +117,13 @@ public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Seri
     public void findByReactivarAperturaCaja(@Param("id") int id );
 	
 	
+   
 	@Query("select c from AperturaCaja c where id=:id")
 	AperturaCaja getAperturaCajaPorIdCaja(@Param("id") int id);
+	
+	
+	@Query(value="select v.id from apertura_caja v order by v.id desc limit 1", nativeQuery = true)
+	int getUltimaAperturaCaja();
 	
 	
 }

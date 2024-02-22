@@ -23,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxiliar;
+import com.bisontecfacturacion.security.auxiliar.MovimientoCajaAuxiliar;
+import com.bisontecfacturacion.security.auxiliar.MovimientoGastosAuxiliar;
+import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
@@ -537,7 +541,7 @@ public class ReservacionController {
 					entity.setTotalDescuento(totalDescuento);
 					entityRepository.save(entity);
 					System.out.println("entro  nuevo");
-					
+
 					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 
 				}
@@ -1021,6 +1025,7 @@ public class ReservacionController {
 		}
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
+
 	@RequestMapping(value="/resumenRecepcionRangoFechaFuncionario/{fechaInicio}/{fechaFin}/{idFun}", method=RequestMethod.GET)
 	public ResponseEntity<?>  resumenServicioRangoFechaFuncionario(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaInicio, @PathVariable String fechaFin, @PathVariable int idFun) throws IOException {
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
@@ -1071,5 +1076,215 @@ public class ReservacionController {
 		}
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
+
+
+	@RequestMapping(value="/resumenInformeBalanceRecervaciones/{fechaI}/{fechaF}", method=RequestMethod.GET)
+	public ResponseEntity<?>  resumenBalance(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI, fecF;
+			fecI= FechaUtil.setFechaHoraInicial(fechaI);
+			fecF= FechaUtil.setFechaHoraFinal(fechaF);
+			List<MovimientoCajaAuxiliar> listadoMovCajaAuxiliar= new ArrayList<>();
+			List<Object []> obMoviminetoCaja =entityRepository.getResumenBalance(fecI, fecF);
+			List<Object []> obMoviminetoGastos=entityRepository.getResumenBalance(fecI, fecF);
+			List<Object []> obMoviminetoPorConceptos =entityRepository.getResumenBalance(fecI, fecF);
+			for(Object[] obMovCaja: obMoviminetoCaja) {
+				MovimientoCajaAuxiliar f = new MovimientoCajaAuxiliar();
+				f.setSaldoInicial(Double.parseDouble(obMovCaja[0].toString()));
+				f.setSaldoActual(Double.parseDouble(obMovCaja[1].toString()));
+				f.setSumaSaldo(Double.parseDouble(obMovCaja[2].toString()));
+				f.setMonto(Double.parseDouble(obMovCaja[3].toString()));
+				f.setImpEgreso(Double.parseDouble(obMovCaja[4].toString()));
+				f.setImpIngreso(Double.parseDouble(obMovCaja[5].toString()));
+
+				f.setSaldoInicialCheque(Double.parseDouble(obMovCaja[6].toString()));
+				f.setSaldoActualCheque(Double.parseDouble(obMovCaja[7].toString()));
+				f.setSumaSaldoCheque(Double.parseDouble(obMovCaja[8].toString()));
+				f.setMontoCheque(Double.parseDouble(obMovCaja[9].toString()));
+				f.setImpEgresoCheque(Double.parseDouble(obMovCaja[10].toString()));
+				f.setImpIngresoCheque(Double.parseDouble(obMovCaja[11].toString()));
+
+				f.setSaldoInicialTarjeta(Double.parseDouble(obMovCaja[12].toString()));
+				f.setSaldoActualTarjeta(Double.parseDouble(obMovCaja[13].toString()));
+				f.setSumaSaldoTarjeta(Double.parseDouble(obMovCaja[14].toString()));
+				f.setMontoTarjeta(Double.parseDouble(obMovCaja[15].toString()));
+				f.setImpEgresoTarjeta(Double.parseDouble(obMovCaja[16].toString()));
+				f.setImpIngresoTarjeta(Double.parseDouble(obMovCaja[17].toString()));
+
+				f.setFechaApertura(FechaUtil.convertirFechaStringADateUtil(obMovCaja[18].toString()));
+				f.setHoraApertura(obMovCaja[19].toString());
+				f.setFechaCierre(FechaUtil.convertirFechaStringADateUtil(obMovCaja[20].toString()));
+				f.setHoraCierre(obMovCaja[21].toString());
+				f.setFuncionario(obMovCaja[22].toString());
+				listadoMovCajaAuxiliar.add(f);
+			}
+			InformeBalanceReservacionAuxiliar inf= new InformeBalanceReservacionAuxiliar();
+			inf.setMovimientoCajaAuxiliar(listadoMovCajaAuxiliar);
+			List<InformeBalanceReservacionAuxiliar> det=new ArrayList<>();
+			det.add(inf);
+
+
+			if(inf.getMovimientoCajaAuxiliar().size()>0) {
+
+
+				Map<String, Object> map = new HashMap<>();
+				String urlReporte ="\\reporte\\movimientoCajaAuxiliar.jasper";
+				map.put("urlSubRepor", urlReporte);
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+				map.put("desde", fecI);
+				map.put("hasta", fecF);
+
+				report = new Reporte();
+				report.reportPDFDescarga(det, map, "ImpresionBalanceRecepcion", response);
+				//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+			}else {
+				return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
+
+	@RequestMapping(value="/resumenInformeConcepto/{fechaI}/{fechaF}", method=RequestMethod.GET)
+	public ResponseEntity<?>  resumenConcepto(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI, fecF;
+			fecI= FechaUtil.setFechaHoraInicial(fechaI);
+			fecF= FechaUtil.setFechaHoraFinal(fechaF);
+			List<MovimientoPorConceptosAuxiliar> listadoMovCajaAuxiliar= new ArrayList<>();
+			//List<Object []> obMoviminetoCaja =entityRepository.getResumenBalance(fecI, fecF);
+			//List<Object []> obMoviminetoGastos=entityRepository.getResumenBalance(fecI, fecF);
+			List<Object []> obMoviminetoPorConceptos =entityRepository.getResumenConcepto(fecI, fecF);
+			Double suIngreso=0.0, sumEgreso=0.0;
+			for(Object[] obMovCaja: obMoviminetoPorConceptos) {
+				MovimientoPorConceptosAuxiliar f = new MovimientoPorConceptosAuxiliar();
+				f.setMonto(Double.parseDouble(obMovCaja[0].toString()));
+				f.setDescripcion(obMovCaja[1].toString());
+				if(obMovCaja[2].toString().equals("ENTRADA")) {
+					f.setTipo(1);
+					suIngreso= suIngreso + Double.parseDouble(obMovCaja[0].toString());
+
+				}
+				if(obMovCaja[2].toString().equals("SALIDA")) {
+					f.setTipo(2);
+					sumEgreso= sumEgreso + Double.parseDouble(obMovCaja[0].toString());
+
+				}
+				listadoMovCajaAuxiliar.add(f);
+			}
+			InformeBalanceReservacionAuxiliar inf= new InformeBalanceReservacionAuxiliar();
+			inf.setMovimientoPorConceptosAuxiliar(listadoMovCajaAuxiliar);
+			List<InformeBalanceReservacionAuxiliar> det=new ArrayList<>();
+			det.add(inf);
+			if(inf.getMovimientoPorConceptosAuxiliar().size()>0) {
+				Map<String, Object> map = new HashMap<>();
+				String urlReporte ="\\reporte\\movimientoCajaConcepto.jasper";
+				map.put("urlSubRepor", urlReporte);
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+				map.put("desde", fecI);
+				map.put("hasta", fecF);
+				map.put("totalIngreso", suIngreso);
+				map.put("totalEgreso", sumEgreso);
+
+				report = new Reporte();
+				report.reportPDFDescarga(det, map, "ImpresionBalanceConcepto", response);
+				//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+			}else{
+				return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
+
+
+	@RequestMapping(value="/resumenInformeGastos/{fechaI}/{fechaF}", method=RequestMethod.GET)
+	public ResponseEntity<?>  resumenGastos(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI, fecF;
+			fecI= FechaUtil.setFechaHoraInicial(fechaI);
+			fecF= FechaUtil.setFechaHoraFinal(fechaF);
+			List<MovimientoGastosAuxiliar> listadoMovCajaAuxiliar= new ArrayList<>();
+			//List<Object []> obMoviminetoCaja =entityRepository.getResumenBalance(fecI, fecF);
+			//List<Object []> obMoviminetoGastos=entityRepository.getResumenBalance(fecI, fecF);
+			List<Object []> obMoviminetoPorConceptos =entityRepository.getResumenGastos(fecI, fecF);
+			Double totalGastos=0.0;
+			for(Object[] obMovCaja: obMoviminetoPorConceptos) {
+				MovimientoGastosAuxiliar f = new MovimientoGastosAuxiliar();
+				f.setId(Integer.parseInt(obMovCaja[0].toString()));
+				f.setGastosDetalle(obMovCaja[1].toString());
+				f.setGastosConsumicion(obMovCaja[2].toString());
+				f.setGastosCategoria(obMovCaja[3].toString());
+				f.setMonto(Double.parseDouble(obMovCaja[4].toString()));
+				f.setComprobante(obMovCaja[5].toString());
+				f.setFecha(FechaUtil.convertirFechaStringADateUtil(obMovCaja[6].toString()));
+				f.setFuncionario(obMovCaja[7].toString());
+				totalGastos = totalGastos + Double.parseDouble(obMovCaja[4].toString());
+				listadoMovCajaAuxiliar.add(f);
+			}
+			System.out.println(listadoMovCajaAuxiliar.size());
+			InformeBalanceReservacionAuxiliar inf= new InformeBalanceReservacionAuxiliar();
+			inf.setMovimientoGastosAuxiliar(listadoMovCajaAuxiliar);
+			List<InformeBalanceReservacionAuxiliar> det=new ArrayList<>();
+			det.add(inf);
+
+
+			if(inf.getMovimientoGastosAuxiliar().size()>0) {
+
+
+				Map<String, Object> map = new HashMap<>();
+				String urlReporte ="\\reporte\\movimientoCajaGastos.jasper";
+				map.put("urlSubRepor", urlReporte);
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+				map.put("desde", fecI);
+				map.put("hasta", fecF);
+				map.put("totalGastos", totalGastos);
+
+
+				report = new Reporte();
+				report.reportPDFDescarga(det, map, "ImpresionBalanceGastos", response);
+				//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+			}else {
+				return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
+
 
 }

@@ -152,6 +152,7 @@ public class CajaController {
 			c.setId(Integer.parseInt(ob[0].toString()));
 			c.getPersona().setNombre(ob[1].toString());
 			c.getPersona().setApellido(ob[2].toString());
+			c.getPersona().setId(Integer.parseInt(ob[3].toString()));
 			lisRetorno.add(c);
 		}
 		System.out.println("lista retttt:  "+lisRetorno.size());

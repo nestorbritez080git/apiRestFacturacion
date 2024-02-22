@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.CierreCaja;
 
+
 public interface CierreCajaRepository extends JpaRepository<CierreCaja, Serializable>{
 	
 //	List<Caja> findByTop100DescripcionLike(@Param("descripcion") String descripcion);
@@ -63,6 +64,7 @@ public interface CierreCajaRepository extends JpaRepository<CierreCaja, Serializ
 	int IdCierreCaja(@Param("id") int id);
 	
 	
+	
 	@Query(value="select dt.id as id, dt.descripcion as des, dt.cantidad as cant, dt.precio as precio, dt.sub_total as subTotal, pf.nombre as nom, pf.apellido as ape from  detalle_servicios dt " + 
 			" inner join funcionario fun on fun.id=dt.funcionario_id " + 
 			" inner join persona pf on pf.id=fun.persona_id " + 
@@ -94,6 +96,14 @@ public interface CierreCajaRepository extends JpaRepository<CierreCaja, Serializ
 			" inner join apertura_caja ap on ap.id=op.apertura_caja_id " + 
 			" where ap.id = :id",nativeQuery=true)
 	Double getDetalleProductoPorAperturaTotal(@Param("id") int id);
+	
+	
+	@Query(value="select v.id from cierre_caja v order by v.id desc limit 1", nativeQuery = true)
+	int getUltimoCierreCaja();
+	
+	
+	
+	
 	
 }
 

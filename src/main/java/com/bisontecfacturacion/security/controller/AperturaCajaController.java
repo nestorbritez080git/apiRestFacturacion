@@ -20,11 +20,18 @@ import org.springframework.web.bind.annotation.RestController;
 // import com.bisontecfacturacion.security.JwtTokenUtil;
 // import com.bisontecfacturacion.security.JwtUser;
 import com.bisontecfacturacion.security.model.AperturaCaja;
+import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.Funcionario;
+import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.TransferenciaAperturaCaja;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
+import com.bisontecfacturacion.security.repository.CajaMayorRepository;
 import com.bisontecfacturacion.security.repository.CajaRepository;
+import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
+import com.bisontecfacturacion.security.repository.TransferenciaAperturaCajaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
 import com.sun.javafx.beans.IDProperty;
@@ -44,10 +51,22 @@ public class AperturaCajaController {
 	private CajaRepository cajaRepository;
 	
 	@Autowired
+	private CajaMayorRepository cajaMayorRepository;
+	
+	@Autowired
 	private FuncionarioRepository funcionarioRepository;
 	
 	@Autowired
 	private IUsuarioService usuarioService;
+	
+	@Autowired
+	private ConceptoRepository conceptoRepository;
+	
+	@Autowired
+	private OperacionCajaRepository operacionCajaRepository;
+	
+	@Autowired
+	private TransferenciaAperturaCajaRepository transferenciaAperturaCajaRepository;
 	
 
 	@RequestMapping(method=RequestMethod.GET)
@@ -208,11 +227,49 @@ public class AperturaCajaController {
 //					si tiene que guardar apertura
 					  entity.getFuncionario().setId(funcionario.getId());
 					  entity.setFecha(new Date());
+					  entity.setSaldoActual(entity.getSaldoInicial());
+					  entity.setSaldoActualCheque(entity.getSaldoInicialCheque());
+					  entity.setSaldoActualTarjeta(entity.getSaldoInicialTarjeta());
 					  entity.setHora(hora());
 					  entityRepository.save(entity);
 					  cajaRepository.findByActualizaEstado(entity.getCaja().getId(), true);
 					  funcionarioRepository.findByActualizarFuncionario(entity.getFuncionario().getId(),true);
-					
+					  if(entity.getSaldoInicial()>0) {
+						  OperacionCaja op= new OperacionCaja();
+						  op.getAperturaCaja().setId(entityRepository.getUltimaAperturaCaja());
+						  op.getConcepto().setId(15);
+						  op.getTipoOperacion().setId(1);//Efectivo
+						  op.setEfectivo(0.0);
+						  op.setFecha(new Date());
+						  op.setMonto(entity.getSaldoInicial());
+						  op.setTipo("ENTRADA");
+						  op.setMotivo("APERTURA CAJA REF.: "+entityRepository.getUltimaAperturaCaja());
+						  operacionCajaRepository.save(op);
+					  }
+					  if(entity.getSaldoInicialCheque()>0) {
+						  OperacionCaja op= new OperacionCaja();
+						  op.getAperturaCaja().setId(entityRepository.getUltimaAperturaCaja());
+						  op.getConcepto().setId(15);
+						  op.getTipoOperacion().setId(2);//Cheque
+						  op.setEfectivo(0.0);
+						  op.setFecha(new Date());
+						  op.setMonto(entity.getSaldoInicialCheque());
+						  op.setTipo("ENTRADA");
+						  op.setMotivo("APERTURA CAJA REF.: "+entityRepository.getUltimaAperturaCaja());
+						  operacionCajaRepository.save(op);
+					  }
+					  if(entity.getSaldoInicialTarjeta()>0) {
+						  OperacionCaja op= new OperacionCaja();
+						  op.getAperturaCaja().setId(entityRepository.getUltimaAperturaCaja());
+						  op.getConcepto().setId(15);
+						  op.getTipoOperacion().setId(3);
+						  op.setEfectivo(0.0);
+						  op.setFecha(new Date());
+						  op.setMonto(entity.getSaldoInicialTarjeta());
+						  op.setTipo("ENTRADA");
+						  op.setMotivo("APERTURA CAJA REF.: "+entityRepository.getUltimaAperturaCaja());
+						  operacionCajaRepository.save(op);
+					  }
 					  return new  ResponseEntity<String>(HttpStatus.CREATED);
 				}
 			
@@ -224,6 +281,57 @@ public class AperturaCajaController {
 			
 		}
 		
+		
+	}
+	
+	
+	@RequestMapping(method=RequestMethod.POST, value = "/guardarTransferencia")
+	public ResponseEntity<?>  guardarTrasnferenciaAperturaCaja(@RequestBody TransferenciaAperturaCaja entity) throws Exception {
+		try {
+			AperturaCaja ape= entityRepository.getAperturaCajaPorIdCaja(entity.getAperturaCaja().getId());
+			if((ape.getSaldoActual()< entity.getMonto())|| (+ape.getSaldoActualCheque()<entity.getMontoCheque()) || (ape.getSaldoActualTarjeta()<entity.getMontoTarjeta())) {
+				return new ResponseEntity<>(new CustomerErrorType("NO SE PUEDE TRANSFERIR, MONTO SOBREPASADO EN CAJA!"), HttpStatus.CONFLICT);
+			}
+			
+			transferenciaAperturaCajaRepository.save(entity);
+			
+			OperacionCaja o = new OperacionCaja();
+			o.getAperturaCaja().setId(entity.getAperturaCaja().getId());
+			o.getConcepto().setId(14);//transderencia caja chica;
+			if(entity.getMonto()>0) {
+				o.getTipoOperacion().setId(1);	
+				o.setMonto(entity.getMonto());
+				entityRepository.findByActualizarAperturaSaldoActualAnulacionVenta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			if(entity.getMontoCheque()>0){
+				o.getTipoOperacion().setId(2);
+				o.setMonto(entity.getMontoCheque());
+				entityRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(entity.getAperturaCaja().getId(), entity.getMontoCheque());
+			}
+			if(entity.getMontoTarjeta()>0){
+				o.getTipoOperacion().setId(3);
+				o.setMonto(entity.getMontoTarjeta());
+				entityRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(entity.getAperturaCaja().getId(),entity.getMontoTarjeta());
+			}
+			o.setReferenciaTipoOperacion(entity.getCajaChica().getDescripcion());//se unsa este enlace para recibir referncia operacion
+			o.setTipo("SALIDA");
+			Concepto c= new Concepto();
+			c = conceptoRepository.getOne(14);
+			o.setMotivo(c.getDescripcion()+" REF.: "+transferenciaAperturaCajaRepository.getUltimaTransferenciaAperturaCaja());
+			
+			operacionCajaRepository.save(o);
+			cajaMayorRepository.findByActualizaTransferenciaCajaChicaPositivo(entity.getCajaChica().getId(), entity.getMonto(), entity.getMontoCheque(), entity.getMontoTarjeta());
+
+			
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.CONFLICT);
+			
+			
+		}
+		return new ResponseEntity<>(HttpStatus.OK);	
 		
 	}
 	@RequestMapping(method=RequestMethod.DELETE, value="/{id}")

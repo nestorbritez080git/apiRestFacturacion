@@ -30,6 +30,7 @@ import com.bisontecfacturacion.security.model.CierreCaja;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.Tesoreria;
 import com.bisontecfacturacion.security.model.TransferenciaAnticipo;
+import com.bisontecfacturacion.security.model.TransferenciaAperturaCaja;
 import com.bisontecfacturacion.security.model.TransferenciaCajaChica;
 import com.bisontecfacturacion.security.model.TransferenciaCajaMayor;
 import com.bisontecfacturacion.security.model.TransferenciaGastos;
@@ -40,8 +41,10 @@ import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CajaMayorRepository;
 import com.bisontecfacturacion.security.repository.CierreCajaRepository;
 import com.bisontecfacturacion.security.repository.DetalleProductoRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.TesoreriaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaAnticipoRepository;
+import com.bisontecfacturacion.security.repository.TransferenciaAperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaCajaChicaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaCajaMayorRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaGastoRepository;
@@ -71,6 +74,10 @@ public class TesoreriaController {
 
 	@Autowired
 	private TransferenciaGastoRepository transferenciaGastoRepository;
+	
+	@Autowired
+	private TransferenciaAperturaCajaRepository transferenciaAperturaCajaRepository;
+	
 
 	@Autowired
 	private TransferenciaPagosProveedorRepository transferenciaPagosProveedorRepository;
@@ -84,8 +91,12 @@ public class TesoreriaController {
 
 	@Autowired
 	private CierreCajaRepository cierreCajaRepository;
+	
 	@Autowired
 	private AperturaCajaRepository aperturaCajaRepository;
+	
+	@Autowired
+	private OperacionCajaRepository operacionCajaRepository;
 
 	@Autowired
 	private IUsuarioService usuarioService;
@@ -127,9 +138,10 @@ public class TesoreriaController {
 	public void reactivarAperturaCaja(@PathVariable int id){
 		System.out.println("entrooo anular cierreeeeeee");
 		aperturaCajaRepository.findByReactivarAperturaCaja(id);
+		//operacionCajaRepository.borraDatosSalidaCapital(id, 16);//16 es el concepto
 		aperturaCajaRepository.findByActualizarEstadoAnulacionApertura(id, true);
-
 	}
+	
 
 
 
@@ -515,6 +527,27 @@ public class TesoreriaController {
 
 		return listRetorno;
 	}
+	@RequestMapping(method=RequestMethod.GET, value = "/transferenciaAperturaCaja/{id}")
+	public List<TransferenciaAperturaCaja> consultarTransferenciaAperturaCajaPorIdCajaChica(@PathVariable int id) {
+		List<Object []> lisObj= transferenciaAperturaCajaRepository.consultarTranferenciaAperturaCajaPorIdCajaChica(id);
+		List<TransferenciaAperturaCaja> listRetorno= new ArrayList<TransferenciaAperturaCaja>();
+		for(Object [] ob :lisObj) {
+			TransferenciaAperturaCaja tf= new TransferenciaAperturaCaja();
+			tf.setId(Integer.parseInt(ob[0].toString()));
+			tf.setFecha(FechaUtil.convertirFechaStringADateUtil(ob[1].toString()));
+			tf.getFuncionario().getPersona().setNombre(ob[2].toString());
+			tf.getAperturaCaja().setId(Integer.parseInt(ob[3].toString()));
+			tf.getCajaChica().getFuncionarioE().getPersona().setNombre(ob[4].toString());
+			
+			tf.setMonto(Double.parseDouble(ob[5].toString()));
+			tf.setMontoCheque(Double.parseDouble(ob[6].toString()));
+			tf.setMontoTarjeta(Double.parseDouble(ob[7].toString()));
+			listRetorno.add(tf);
+		}
+
+		return listRetorno;
+	}
+	
 
 	@RequestMapping(method=RequestMethod.GET, value="/pruebaaa/{fechaI}/{fechaF}")
 	public List<ResumenEntradaSalidaTipoOperacion> getResumenEntradaSalidaTipoOperacion(@PathVariable String fechaI, @PathVariable String fechaF){
