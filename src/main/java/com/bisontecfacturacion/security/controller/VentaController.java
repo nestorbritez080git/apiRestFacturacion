@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,6 +38,8 @@ import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.model.AnulacionesVenta;
 import com.bisontecfacturacion.security.model.AperturaCaja;
+import com.bisontecfacturacion.security.model.AutoImpresor;
+import com.bisontecfacturacion.security.model.AutoImpresorDetalleVenta;
 import com.bisontecfacturacion.security.model.CierreCaja;
 import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.Concepto;
@@ -62,6 +65,8 @@ import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AnulacionesVentaRepository;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
+import com.bisontecfacturacion.security.repository.AutoImpresorDetalleVentaRepository;
+import com.bisontecfacturacion.security.repository.AutoImpresorRepository;
 import com.bisontecfacturacion.security.repository.CierreCajaRepository;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
@@ -171,6 +176,13 @@ public class VentaController {
 
 	@Autowired
 	private TesoreriaRepository tesoreriaRepository;
+	
+	@Autowired
+	private AutoImpresorRepository autoImpresorRepository;
+	@Autowired
+	
+	private AutoImpresorDetalleVentaRepository autoImpresorDetalleVentaRepository;
+	
 
 	@Autowired
 	private ClienteRepository clienteRepository; 
@@ -316,6 +328,7 @@ public class VentaController {
 		venta.setTotalDescuento(v.getTotalDescuento());
 		venta.setTotalIvaDies(v.getTotalIvaDies());
 		venta.setTotalIvaCinco(v.getTotalIvaCinco());
+		venta.setTotalIva(v.getTotalIva());
 		venta.setTotalExcenta(v.getTotalExcenta());
 		venta.setTotalLetra(v.getTotalLetra());
 		venta.setEntrega(v.getEntrega());
@@ -338,16 +351,24 @@ public class VentaController {
 		ft.format("%0"+size+"d", numero);
 		return ft.toString();
 	}
+	private static String padFAutoFactura(int numer, int size) {
+		ft = new Formatter();
+		numer = numer ;
+		ft.format("%0"+size+"d", numer);
+		return ft.toString();
+	}
 
 	public List<NroDocumento> getNroLoteDocumento(){
 		List<NroDocumento> lista = new ArrayList<>();
 		int tipo0 = 0;
 		int tipo1 = 1;
 		int tipo2 = 2;
+		int tipo3 = 3;
 
 		LoteBoleta loteBoleta = loteBoletaRepository.findTop1ByOrderByIdAsc();
 		LoteTicket loteTicket = loteTicketRepository.findTop1ByOrderByIdAsc();
 		LoteFactura loteFactura = loteFacturaRepository.findTop1ByOrderByIdAsc();
+		
 
 		for (int i = 0; i < 3; i++) {
 			NroDocumento n = new NroDocumento();
@@ -375,12 +396,38 @@ public class VentaController {
 	}
 
 
+	private void actualizarNumeracionAutoImpresor(int numeroTerminal, int idVenta) {
+		
+		
+		
+		/*
+		NroDocumento n = new NroDocumento();
+		if (i == tipo0) {
+			n.setDescripcion("1");
 
-	private void actualizarLoteDocumentos(int idDocumento){
+			String [] part= loteFactura.getSerieActual().split("-");
+			String cod= part[2];
+			String codActual=part[0]+"-"+part[1]+"-" + padF(Integer.parseInt(cod),7);
+			n.setNro(codActual);
+		}
+		
+		*/
+	}
+	private void actualizarLoteDocumentos(int idDocumento, int numeroterminal, int idVenta){
 		String idDoc = idDocumento+"";
 		for(NroDocumento nro: getNroLoteDocumento()) {
 			if (idDoc.equals(nro.getDescripcion()) && idDoc.equals("1")) {
-				loteFacturaRepository.actualizarSeriaActual(nro.getNro(), 1);
+				TerminalConfigImpresora c = terminalRepository.consultarTerminal(numeroterminal);
+				if(c.getImpresora().equals("ticket") & c.getEstadoAutoImpresor()==true) {
+					AutoImpresor aact = new AutoImpresor();
+					aact = autoImpresorRepository.consultarAutoImpresorTerminal(numeroterminal);
+					aact.setNumeroActual(aact.getNumeroActual()+1);
+					autoImpresorRepository.save(aact);
+				}else {
+					loteFacturaRepository.actualizarSeriaActual(nro.getNro(), 1);
+				}
+			
+				
 			}
 
 			if (idDoc.equals(nro.getDescripcion()) && idDoc.equals("2")) {
@@ -390,23 +437,50 @@ public class VentaController {
 			if (idDoc.equals(nro.getDescripcion()) && idDoc.equals("3")) {
 				loteTicketRepository.actualizarNumeroActual(nro.getNro(), 1);
 			}
+			
 		}
 	}
 
-	private String getNroDocumento(int idDocumento){
+	private String getNroDocumento(int idDocumento, int numeroterminal, int idVenta){
 		String idDoc = idDocumento+"";
 		String nro = "";
+		System.out.println("NUMERO DE TERMINAL = "+numeroterminal+ " ID VENTA= "+idVenta);
 		for(NroDocumento nro1: getNroLoteDocumento()) {
 			if (idDoc.equals(nro1.getDescripcion()) && idDoc.equals("1")) {
-				nro = nro1.getNro();
+				System.out.println("NUMERO TERMINAL: "+numeroterminal);
+				TerminalConfigImpresora c = terminalRepository.consultarTerminal(numeroterminal);
+				if(c.getImpresora().equals("ticket") & c.getEstadoAutoImpresor()==true) {
+					AutoImpresor aact = new AutoImpresor();
+					aact= autoImpresorRepository.consultarAutoImpresorTerminal(numeroterminal);
+					if(aact==null) {System.out.println("si es null");}else {System.out.println("no es null");}
+					System.out.println(aact.getId()+" id autoimpresor");
+					AutoImpresorDetalleVenta detAutoImpresro= new AutoImpresorDetalleVenta();
+					detAutoImpresro.getAutoImpresor().setId(aact.getId());
+					detAutoImpresro.getVenta().setId(idVenta);
+					detAutoImpresro.setFecha(LocalDateTime.now());
+					String codigoEstablecimiento= aact.getCodigoEstablecimiento();
+					String puntoExpedicion= aact.getPuntoExpedicion();
+					String codActual=codigoEstablecimiento+"-"+puntoExpedicion+"-" + padFAutoFactura(aact.getNumeroActual()+1,7);
+					detAutoImpresro.setNumeroFactura(codActual);
+					autoImpresorDetalleVentaRepository.save(detAutoImpresro);
+					aact.setNumeroActual(aact.getNumeroActual()+1);
+					autoImpresorRepository.save(aact);
+					nro = codActual;
+				}else {
+					nro = nro1.getNro();	
+				}
+
 			}
 
 			if (idDoc.equals(nro1.getDescripcion()) && idDoc.equals("2")) {
 				nro = nro1.getNro();
+				loteBoletaRepository.actualizarNumeroActual(nro1.getNro(), 1);
 			}
 
 			if (idDoc.equals(nro1.getDescripcion()) && idDoc.equals("3")) {
 				nro = nro1.getNro();
+				loteTicketRepository.actualizarNumeroActual(nro1.getNro(), 1);
+
 			}
 		}
 		return nro;
@@ -439,7 +513,14 @@ public class VentaController {
 	@Transactional
 	@RequestMapping(method=RequestMethod.POST, value = "/{numeroTerminal}")
 	public ResponseEntity<?>  guardar(@RequestBody Venta entity, @PathVariable int numeroTerminal ){
-		System.out.println(entity.getFechaFactura());
+		String numeroFacturaRetorno="";
+		
+		AutoImpresor autoImpresor = new AutoImpresor();
+		autoImpresor = autoImpresorRepository.consultarAutoImpresorTerminal(numeroTerminal);
+		TerminalConfigImpresora terminal = terminalRepository.consultarTerminal(numeroTerminal);
+		System.out.println(terminal.getImpresora().equals("ticket"));
+		System.out.println(terminal.getEstadoAutoImpresor());
+		System.out.println(entity.getDocumento().getId());
 		try {
 			if(entity.getFuncionario().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
@@ -458,7 +539,13 @@ public class VentaController {
 			} else if(estadoClienteBloqueo(entity.getCliente().getId(), entity.getTotal())==true && entity.getTipo().equals("2")) {
 				return new ResponseEntity<>(new CustomerErrorType("NO SE PUEDE FACTURAR VENTAS, CLIENTE BLOQUEADO POR EXCEDER LINEA DE CREDITO!!"), HttpStatus.CONFLICT);
 			}  
-			else
+			else if(terminal.getImpresora().equals("ticket") & terminal.getEstadoAutoImpresor()==true & entity.getDocumento().getId()==1){
+				if(autoImpresor.getNumeroActual()>=autoImpresor.getRangoFin()) {
+					autoImpresor= null;
+					return new ResponseEntity<>(new CustomerErrorType("CANTIDAD DE EXPEDICIÓN SOBREPASADA DEL AUTO IMPRESOR PARA ESTA TERMINAL.!"), HttpStatus.CONFLICT);
+					
+				}
+			}
 			{
 				for(int ind=0; ind < entity.getDetalleProducto().size(); ind++) {
 					DetalleProducto pro = entity.getDetalleProducto().get(ind);
@@ -489,8 +576,9 @@ public class VentaController {
 					entity.setHora(hora());
 					if(entity.getEstado().equals("FACTURADO")) {
 						entity.setFechaFactura(new Date());
-						entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId()));
-						actualizarLoteDocumentos(entity.getDocumento().getId());
+						entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId(), numeroTerminal, entity.getId()));
+						actualizarLoteDocumentos(entity.getDocumento().getId(), numeroTerminal, entity.getId());
+						
 					}else if(entity.getEstado().equals("FACTURAR")) {
 						entity.setNroDocumento("");
 						entity.setFechaFactura(null);
@@ -568,6 +656,7 @@ public class VentaController {
 					}
 					entity.setTotalIvaDies(total10);
 					entity.setTotalIvaCinco(total5);
+					entity.setTotalIva(total10+total5);
 					entity.setTotalDescuento(totalDescuento);
 
 					entityRepository.save(entity);
@@ -579,8 +668,8 @@ public class VentaController {
 					entity.setHora(hora());
 					if(entity.getEstado().equals("FACTURADO")) {
 						entity.setFechaFactura(new Date());
-						entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId()));
-						actualizarLoteDocumentos(entity.getDocumento().getId());
+						//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId(), numeroTerminal, idv));
+						//actualizarLoteDocumentos(entity.getDocumento().getId());
 					}else if(entity.getEstado().equals("FACTURAR")) {
 						entity.setNroDocumento("");
 						entity.setFechaFactura(null);
@@ -588,6 +677,13 @@ public class VentaController {
 					}
 					entityRepository.save(entity);
 					Venta id = entityRepository.getUltimaVenta();
+					if(entity.getEstado().equals("FACTURADO")) {
+						entity.setFechaFactura(new Date());
+						System.out.println("ejecuto id=0");
+						entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId(), numeroTerminal, id.getId()));
+						numeroFacturaRetorno = entity.getNroDocumento();
+						//actualizarLoteDocumentos(entity.getDocumento().getId(), numeroTerminal, id.getId());
+					}
 					System.out.println(id.getFecha());
 					System.out.println(id.getFechaFactura()+"  ******");
 					int idVent=0;
@@ -667,6 +763,7 @@ public class VentaController {
 					}
 					entity.setTotalIvaDies(total10);
 					entity.setTotalIvaCinco(total5);
+					entity.setTotalIva(total10+total5);
 					entity.setTotalDescuento(totalDescuento);
 					System.out.println(id.getFechaFactura());
 					
@@ -681,10 +778,18 @@ public class VentaController {
 			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		System.out.println(entity.getTotalIvaDies() + " "+ entity.getTotalIvaCinco());
 		Map<String, String> map = new HashMap<>();
-		map.put("nroDocumento", getNroDocumento(entity.getDocumento().getId()));
-		return new ResponseEntity<Map<String, String>>(map,HttpStatus.OK);
+		map.put("nroDocumento", numeroFacturaRetorno);
+		if(autoImpresor !=null) {
+			map.put("timbrado", autoImpresor.getTimbrado());
+		}
+		map.put("fechaFactura", entity.getFechaFactura()+"");
+		map.put("totalIvaCinco", entity.getTotalIvaCinco()+"");
+		map.put("totalIvaDies", entity.getTotalIvaDies()+"");
+		map.put("totalIva", entity.getTotalIva()+"");
 
+		return new ResponseEntity<Map<String, String>>(map,HttpStatus.OK);
 
 	}
 

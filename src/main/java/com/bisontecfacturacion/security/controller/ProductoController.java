@@ -228,6 +228,7 @@ public class ProductoController {
 			productos.getGrupo().setDescripcion(ob.getGrupo().getDescripcion());
 			productos.getSubGrupo().setDescripcion(ob.getSubGrupo().getDescripcion());
 			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
+			
 			producto.add(productos);
 		}
 
@@ -252,6 +253,7 @@ public class ProductoController {
 		producto.setPrecioCosto(pro.getPrecioCosto());
 		producto.getMarca().setDescripcion(pro.getMarca().getDescripcion());
 		producto.setNombreImagen(pro.getNombreImagen());
+		producto.setFechaVencimiento(pro.getFechaVencimiento());
 		return producto;
 	}
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")

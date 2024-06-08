@@ -45,6 +45,7 @@ public class Presupuesto {
 
 	private Double totalIvaCinco;
 	private Double totalIvaDies;
+	private Double totalIva;
 	private String totalLetra;
 	private Double totalExcenta;
 	
@@ -60,9 +61,20 @@ public class Presupuesto {
 		this.nroDocumento="";
 		this.totalIvaCinco=0.0;
 		this.totalIvaDies=0.0;
+		this.totalIva=0.0;
 		this.totalLetra="";
 		this.totalExcenta=0.0;
 		this.estado="";
+	}
+
+
+	public Double getTotalIva() {
+		return totalIva;
+	}
+
+
+	public void setTotalIva(Double totalIva) {
+		this.totalIva = totalIva;
 	}
 
 

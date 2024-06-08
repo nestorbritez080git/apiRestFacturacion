@@ -67,6 +67,7 @@ public class Venta {
 	private Double totalIvaDies;
 	private String totalLetra;
 	private Double totalExcenta;
+	private Double totalIva;
 
 	
 	public Venta() {
@@ -88,10 +89,21 @@ public class Venta {
 		this.totalIvaCinco=0.0;
 		this.totalIvaDies=0.0;
 		this.totalExcenta=0.0;
+		this.totalIva=0.0;
 		this.totalLetra="";
 		this.entrega=0.0;
 	}
 	
+
+	public Double getTotalIva() {
+		return totalIva;
+	}
+
+
+	public void setTotalIva(Double totalIva) {
+		this.totalIva = totalIva;
+	}
+
 
 	public Double getEntrega() {
 		return entrega;

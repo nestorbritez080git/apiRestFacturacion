@@ -20,6 +20,9 @@ public class TerminalConfigImpresora {
 	private String impresora;
 	@NotNull
 	private String nombreImpresora;
+
+	private Boolean estadoAutoImpresor;
+		
 	
 	public TerminalConfigImpresora() {
 		// TODO Auto-generated constructor stub
@@ -27,8 +30,17 @@ public class TerminalConfigImpresora {
 		this.numeroTerminal=0;
 		this.impresora="";
 		this.nombreImpresora="";
+		this.estadoAutoImpresor=false;
 	}
 	
+	public Boolean getEstadoAutoImpresor() {
+		return estadoAutoImpresor;
+	}
+
+	public void setEstadoAutoImpresor(Boolean estadoAutoImpresor) {
+		this.estadoAutoImpresor = estadoAutoImpresor;
+	}
+
 	public String getNombreImpresora() {
 		return nombreImpresora;
 	}

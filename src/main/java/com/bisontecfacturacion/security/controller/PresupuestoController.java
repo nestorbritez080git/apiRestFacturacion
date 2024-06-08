@@ -167,6 +167,11 @@ public class PresupuestoController {
 		pre.getCliente().getPersona().setApellido(v.getCliente().getPersona().getApellido());
 		pre.getFuncionario().getPersona().setNombre(v.getFuncionario().getPersona().getNombre() +", "+ v.getFuncionario().getPersona().getApellido());
 		pre.setEstado(v.getEstado());
+		pre.setTotalIvaCinco(v.getTotalIvaCinco());
+		pre.setTotalIvaDies(v.getTotalIvaDies());
+		pre.setTotalIva(v.getTotalIva());
+		pre.setTotalExcenta(v.getTotalExcenta());
+		pre.setTotalLetra(v.getTotalLetra());
 		return pre;
 	}
 
@@ -296,12 +301,25 @@ public class PresupuestoController {
 
 				if(entity.getId() !=0) {
 					entity.setHora(hora());
-					entityRepository.save(entity);
+					//entityRepository.save(entity);
 					int idVent=entity.getId();
+					double total10=0, total5=0, totalDescuento=0;
 					if(entity.getDetallePresupuestoProducto().size()>0){
 
 						for(DetallePresupuestoProducto detalleProducto: entity.getDetallePresupuestoProducto()) {
 							detalleProducto.getPresupuesto().setId(idVent);
+							if(detalleProducto.getIva().equals("10 %")) {
+
+								total10 = total10 + Utilidades.calcularIvaDies(detalleProducto.getSubTotal()); 
+								detalleProducto.setMontoIva(Utilidades.calcularIvaDies(detalleProducto.getSubTotal()));
+							}
+							if(detalleProducto.getIva().equals("5 %")) {
+								total5 = total5 + Utilidades.calcularIvaCinco(detalleProducto.getSubTotal());
+								detalleProducto.setMontoIva(Utilidades.calcularIvaCinco(detalleProducto.getSubTotal()));
+							}
+							if(detalleProducto.getIva().equals("Exenta")) {
+								detalleProducto.setMontoIva(0.0);
+							}
 							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
 							detalleProductoRepository.save(detalleProducto);	
 						}
@@ -311,13 +329,27 @@ public class PresupuestoController {
 					if(entity.getDetallePresupuestoServicio().size()>0){
 						for(DetallePresupuestoServicio detalleServicio: entity.getDetallePresupuestoServicio()) {
 							detalleServicio.getPresupuesto().setId(idVent);
+							if(detalleServicio.getIva().equals("10 %")) {
+
+								total10 = total10 + Utilidades.calcularIvaDies(detalleServicio.getSubTotal()); 
+								detalleServicio.setMontoIva(Utilidades.calcularIvaDies(detalleServicio.getSubTotal()));
+							}
+							if(detalleServicio.getIva().equals("5 %")) {
+								total5 = total5 + Utilidades.calcularIvaCinco(detalleServicio.getSubTotal());
+								detalleServicio.setMontoIva(Utilidades.calcularIvaCinco(detalleServicio.getSubTotal()));
+							}
+							if(detalleServicio.getIva().equals("Exenta")) {
+								detalleServicio.setMontoIva(0.0);
+							}
 							if(detalleServicio.getObs()!=null) {detalleServicio.setObs(detalleServicio.getObs().toUpperCase());}else {detalleServicio.setObs("");}
 							detalleServicioRepository.save(detalleServicio);
 						}
 					}
-					///////////////////////////////////////
-					//pdfPrintPresupuesto(entity.getId());
-
+					entity.setTotalIvaDies(total10);
+					entity.setTotalIvaCinco(total5);
+					entity.setTotalIva(total10+total5);
+					
+					entityRepository.save(entity);
 				}else {
 					entity.setHora(hora());
 					entity.setNroDocumento(generarCodigo());
@@ -326,15 +358,18 @@ public class PresupuestoController {
 					int idVent=0;
 					if(id == null){idVent=1;}else{idVent=id.getId();}
 					//eliminarDetallePorCabecera(entity.getId());
+					double total10=0, total5=0, totalDescuento=0;
 					if(entity.getDetallePresupuestoProducto().size()>0){
 						//	actualizarLoteDocumento(entity.getDocumento().getId(), entity.getNroDocumento());
 						for(DetallePresupuestoProducto detalleProducto: entity.getDetallePresupuestoProducto()) {
 							detalleProducto.getPresupuesto().setId(idVent);
 							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
 							if(detalleProducto.getIva().equals("10 %")) {
+								total10 = total10 + Utilidades.calcularIvaDies(detalleProducto.getSubTotal()); 
 								detalleProducto.setMontoIva(Utilidades.calcularIvaDies(detalleProducto.getSubTotal()));
 							}
 							if(detalleProducto.getIva().equals("5 %")) {
+								total5 = total5 + Utilidades.calcularIvaCinco(detalleProducto.getSubTotal());
 								detalleProducto.setMontoIva(Utilidades.calcularIvaCinco(detalleProducto.getSubTotal()));
 							}
 							if(detalleProducto.getIva().equals("Exenta")) {
@@ -350,9 +385,11 @@ public class PresupuestoController {
 						for(DetallePresupuestoServicio detalleServicio: entity.getDetallePresupuestoServicio()) {
 							detalleServicio.getPresupuesto().setId(idVent);
 							if(detalleServicio.getIva().equals("10 %")) {
+								total10 = total10 + Utilidades.calcularIvaDies(detalleServicio.getSubTotal()); 
 								detalleServicio.setMontoIva(Utilidades.calcularIvaDies(detalleServicio.getSubTotal()));
 							}
 							if(detalleServicio.getIva().equals("5 %")) {
+								total5 = total5 + Utilidades.calcularIvaCinco(detalleServicio.getSubTotal());
 								detalleServicio.setMontoIva(Utilidades.calcularIvaCinco(detalleServicio.getSubTotal()));
 							}
 							if(detalleServicio.getIva().equals("Exenta")) {
@@ -363,6 +400,11 @@ public class PresupuestoController {
 
 					}
 					
+					entity.setTotalIvaDies(total10);
+					entity.setTotalIvaCinco(total5);
+					entity.setTotalIva(total10+total5);
+					entityRepository.save(entity);
+					System.out.println("entro udpate nuevo");	
 				//pdfPrintPresupuesto(idVent);
 				}
 			}

@@ -198,7 +198,7 @@
 	<pageFooter>
 		<band height="65">
 			<textField>
-				<reportElement x="439" y="11" width="135" height="12" uuid="4eb1b9c7-216f-44dc-a741-8895854b47e0">
+				<reportElement x="429" y="11" width="135" height="12" uuid="4eb1b9c7-216f-44dc-a741-8895854b47e0">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -207,14 +207,14 @@
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{total})]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="381" y="11" width="58" height="12" uuid="867cc085-e557-4161-96a3-891c7f344fc3"/>
+				<reportElement x="371" y="11" width="58" height="12" uuid="867cc085-e557-4161-96a3-891c7f344fc3"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="8"/>
 				</textElement>
 				<text><![CDATA[Total:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="11" width="180" height="12" uuid="4bcc5b07-83dd-4fdf-a711-87bf267419d4">
+				<reportElement x="0" y="29" width="180" height="12" uuid="4bcc5b07-83dd-4fdf-a711-87bf267419d4">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">

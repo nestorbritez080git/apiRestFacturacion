@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.model;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -42,6 +43,8 @@ public class Producto {
 	private String nombreImagen;
 	
 	private Boolean estadoCompuesto;
+	
+	private Date fechaVencimiento;
 	
 	@ManyToOne
 	private UnidadMedida unidadMedida;
@@ -309,6 +312,14 @@ public class Producto {
 
 	public void setNombreImagen(String nombreImagen) {
 		this.nombreImagen = nombreImagen;
+	}
+
+	public Date getFechaVencimiento() {
+		return fechaVencimiento;
+	}
+
+	public void setFechaVencimiento(Date fechaVencimiento) {
+		this.fechaVencimiento = fechaVencimiento;
 	}
 
 

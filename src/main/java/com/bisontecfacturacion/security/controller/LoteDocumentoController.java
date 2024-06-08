@@ -11,22 +11,28 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.NroDocumento;
+import com.bisontecfacturacion.security.model.AutoImpresor;
 import com.bisontecfacturacion.security.model.LoteBoleta;
 import com.bisontecfacturacion.security.model.LoteFactura;
 import com.bisontecfacturacion.security.model.LoteNotaPedido;
 import com.bisontecfacturacion.security.model.LoteTicket;
+import com.bisontecfacturacion.security.model.Usuario;
+import com.bisontecfacturacion.security.repository.AutoImpresorRepository;
 import com.bisontecfacturacion.security.repository.LoteBoletaRepository;
 import com.bisontecfacturacion.security.repository.LoteFacturaRepository;
 import com.bisontecfacturacion.security.repository.LoteNotaPedidoRepository;
 import com.bisontecfacturacion.security.repository.LoteTicketRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.FechaUtil;
+import com.bisontecfacturacion.security.service.IUsuarioService;
 
 
 @RestController
@@ -36,16 +42,34 @@ public class LoteDocumentoController {
 	@Autowired
 	private LoteFacturaRepository loteFacturaRepository;
 	@Autowired
+	private AutoImpresorRepository autoImpresorRepository;
+	@Autowired
 	private LoteBoletaRepository loteBoletaRepository;
 	@Autowired
 	private LoteTicketRepository loteTicketRepository;
 	@Autowired
 	private LoteNotaPedidoRepository loteNotaPedidoRepository;
+	@Autowired
+	private IUsuarioService usuarioService;
+	
 	private static Formatter ft;
 	
 	@RequestMapping(method=RequestMethod.GET, value="/loteFactura")
 	public List<LoteFactura> getAllLoteFactura(){
 		return loteFacturaRepository.findByOrderByIdDesc();
+	}
+	@RequestMapping(method=RequestMethod.GET, value="/autoImpresor")
+	public List<AutoImpresor> getAllLoteAutoImpresor(){
+		return autoImpresorRepository.findByOrderByIdDesc();
+	}
+	
+	@RequestMapping(method=RequestMethod.GET, value="/autoImpresor/buscarId/{id}")
+	public AutoImpresor getAllLoteAutoImpresor(@PathVariable int id){
+		return autoImpresorRepository.findById(id).orElse(null);
+	}
+	@RequestMapping(method=RequestMethod.DELETE, value="/autoImpresor/eliminarId/{id}")
+	public void eliminarAutoImpresorPorId(@PathVariable int id){
+		 autoImpresorRepository.deleteById(id);
 	}
 	
 	@RequestMapping(method=RequestMethod.GET, value="/loteFacturaEstado")
@@ -113,6 +137,14 @@ public class LoteDocumentoController {
 	@RequestMapping(method=RequestMethod.POST, value="/loteFactura/actualizarSerieActual")
 	public void actualizarSerieActual(@RequestBody LoteFactura entity){
 		loteFacturaRepository.actualizarSeriaActual(entity.getSerieActual(), entity.getId());
+	}
+	
+	@RequestMapping(method=RequestMethod.POST, value="/loteAutoImpresor")
+	public ResponseEntity<?> saveLoteAutoImpresor(@RequestBody AutoImpresor entity, OAuth2Authentication authentication){
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		entity.getFuncionario().setId(usuario.getFuncionario().getId());
+		
+		return new ResponseEntity<>(autoImpresorRepository.save(entity), HttpStatus.OK);	
 	}
 	
 //	@RequestMapping(method=RequestMethod.POST, value="/loteTicket/actualizarNroTicket")
