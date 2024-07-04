@@ -255,6 +255,7 @@ public class PagosProveedorController {
 			ccc.setMonto(Double.parseDouble(ovv[4].toString()));
 			ccc.setMontoCheque(Double.parseDouble(ovv[5].toString()));
 			ccc.setMontoTarjeta(Double.parseDouble(ovv[6].toString()));
+			ccc.setId(Integer.parseInt(ovv[7].toString()));
 			listaRetorno.add(ccc);
 		}
 		return  listaRetorno;	

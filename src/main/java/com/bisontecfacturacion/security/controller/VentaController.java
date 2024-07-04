@@ -316,6 +316,7 @@ public class VentaController {
 		venta.getCliente().setId(v.getCliente().getId());
 		venta.getCliente().getPersona().setNombre(v.getCliente().getPersona().getNombre());
 		venta.getCliente().getPersona().setApellido(v.getCliente().getPersona().getApellido());
+		venta.getCliente().getPersona().setCedula(v.getCliente().getPersona().getCedula());
 		venta.getDocumento().setId(v.getDocumento().getId());
 		venta.getDocumento().setDescripcion(v.getDocumento().getDescripcion());
 		venta.getFuncionarioV().setId(v.getFuncionarioV().getId());
@@ -578,6 +579,8 @@ public class VentaController {
 						entity.setFechaFactura(new Date());
 						entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId(), numeroTerminal, entity.getId()));
 						actualizarLoteDocumentos(entity.getDocumento().getId(), numeroTerminal, entity.getId());
+						numeroFacturaRetorno = entity.getNroDocumento();
+
 						
 					}else if(entity.getEstado().equals("FACTURAR")) {
 						entity.setNroDocumento("");
