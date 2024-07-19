@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -7,6 +8,8 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
 @Entity
@@ -34,6 +37,7 @@ public class DetalleProducto {
 	private Double montoIva;
 
 	@ManyToOne
+	@JsonIgnoreProperties("venta")
 	private Venta venta;
 	
 	private Double costo;

@@ -52,7 +52,14 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 	@Query("select v from Venta v where v.id= :operacionCaja")
 	public Venta getVentaPorOperacionId(@Param("operacionCaja") int operacionCaja);
 
+	@Query("select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and v.estado ='FACTURADO'")
+	public List<Venta> getVentaPorRangoFechaHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+	
 
+	@Query(value="SELECT  * FROM venta v where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO' AND v.cliente_id=:idCli", nativeQuery = true)
+	public List<Venta> getVentaPorRangoFechaClienteHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idCli") int idCli);
+	
+	
 	@Query(value = "select sum(total) as total from venta v where extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia",nativeQuery = true)
 	Object[] findByTotalVenta(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
 
@@ -72,16 +79,12 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 	@Query(value="select v.nro_documento as nroDocu, v.fecha_factura as fecha, pc.nombre || ' ' || pc.apellido as apeCli, pc.cedula as ruc, v.timbrado as timbrado, v.timbrado_fin vtoTimbrado, v.total as total, v.total_iva_cinco as iva5, v.total_iva_dies as ivaDies, v.total_excenta as totalExcenta from venta  v inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where  ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) and doc.id = 1 and v.estado ='FACTURADO' order by v.fecha_factura asc",nativeQuery=true)
 	List<Object []> getLibroVenta(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
 	
-	@Query(value="select sum(det.costo)as costoTotal, sum(det.sub_total) as ventaTotal, sum(det.sub_total - det.costo)as utilidad  from detalle_producto det inner join venta v on v.id=det.venta_id inner join funcionario f on  f.id=v.funcionariov_id inner join persona pf on pf.id=f.persona_id inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))  and v.estado ='FACTURADO' ",nativeQuery=true)
-	Object [][] getReporteVentaRango(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
 	
 	@Query(value="select pc.nombre || ' ' || pc.apellido as cliente, pf.nombre || ' ' || pf.apellido as vendedor, doc.descripcion as doc, v.nro_documento, v.fecha_factura ,v.total as total  from detalle_producto det inner join venta v on v.id=det.venta_id inner join funcionario f on  f.id=v.funcionariov_id inner join persona pf on pf.id=f.persona_id inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))  and v.estado ='FACTURADO' group by  pc.nombre || ' ' || pc.apellido, pf.nombre || ' ' || pf.apellido , doc.descripcion , v.nro_documento, v.fecha_factura ,v.total",nativeQuery=true)
 	List<Object []> getReporteVentaRangoDetallado(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
 	
 	
-	@Query(value="select sum(det.costo)as costoTotal, sum(det.sub_total) as ventaTotal, sum(det.sub_total - det.costo)as utilidad  from detalle_producto det inner join venta v on v.id=det.venta_id inner join funcionario f on  f.id=v.funcionariov_id inner join persona pf on pf.id=f.persona_id inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))  and v.estado ='FACTURADO'  and f.id=:idF ",nativeQuery=true)
-	Object [][] getReporteVentaRangoPorFuncionarios(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idF") int id);
-	
+
 	@Query(value="select sum(det.sub_total) as ventaTotal from detalle_producto det inner join venta v on v.id=det.venta_id  inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))  and v.estado ='FACTURADO'  and cli.id=:idC",nativeQuery=true)
 	Double getReporteVentaRangoPorClienteProductoDetalle(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idC") int id);
 	
@@ -92,11 +95,6 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 	List<Object[]> getReporteVentaRangoPorClienteultimaVenta(@Param("idC") int id);
 	
 	
-	
-	
-	@Query(value="select pc.nombre || ' ' || pc.apellido as cliente, pf.nombre || ' ' || pf.apellido as vendedor, doc.descripcion as doc, v.nro_documento, v.fecha_factura ,v.total as total, v.hora as hora, v.id as id  from detalle_producto det inner join venta v on v.id=det.venta_id inner join funcionario f on  f.id=v.funcionariov_id inner join persona pf on pf.id=f.persona_id inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))  and v.estado ='FACTURADO'  and f.id=:idF group by pc.nombre || ' ' || pc.apellido , pf.nombre || ' ' || pf.apellido , doc.descripcion , v.nro_documento, v.fecha_factura ,v.total, v.hora, v.id ORDER BY v.id ASC  ",nativeQuery=true)
-	List<Object []> getReporteVentaRangoPorFuncionariosDetallado(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idF") int id);
-	
 	@Query(value="select sum(dtp.costo)as costoTotal, sum(dtp.sub_total) as ventaTotal, sum(dtp.sub_total - dtp.costo)as utilidad " + 
 			"from detalle_producto dtp  " + 
 			"INNER JOIN venta v ON dtp.venta_id=v.id " + 
@@ -104,16 +102,17 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 			"INNER JOIN grupo g ON g.id=p.grupo_id " + 
 			"INNER JOIN sub_grupo sg ON sg.id=p.sub_grupo_id " + 
 			"where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO'",nativeQuery=true)
-Object [][] getReporteVentaRangoGrupoAll(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+	Object [][] getReporteVentaRangoGrupoAll(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+	
 
-	@Query(value="select sum(dtp.costo)as costoTotal, sum(dtp.sub_total) as ventaTotal, sum(dtp.sub_total - dtp.costo)as utilidad " + 
-				"from detalle_producto dtp  " + 
-				"INNER JOIN venta v ON dtp.venta_id=v.id " + 
-				"INNER JOIN producto p ON p.id=dtp.producto_id " + 
-				"INNER JOIN grupo g ON g.id=p.grupo_id " + 
-				"INNER JOIN sub_grupo sg ON sg.id=p.sub_grupo_id " + 
-				"where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO' AND g.id=:idGrupo",nativeQuery=true)
-	Object [][] getReporteVentaRangoGrupo(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idGrupo") int idGrupo);
+//	@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin,
+//	((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))
+	@Query(value="SELECT  * FROM venta v where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO' AND v.funcionariov_id=:idFuncionario", nativeQuery = true)
+	public List<Venta> getReporteVentaRangoPorFuncionarios(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFuncionario") int idFuncionario);
+	
+	@Query(value="select sum(det.costo)as costoTotal, sum(det.sub_total) as ventaTotal, sum(det.sub_total - det.costo)as utilidad  from detalle_producto det inner join venta v on v.id=det.venta_id inner join funcionario f on  f.id=v.funcionariov_id inner join persona pf on pf.id=f.persona_id inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))  and v.estado ='FACTURADO' and f.id=:idFuncionario",nativeQuery=true)
+	Object [][] getReporteVentaRangoFuncionarioCabecera(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFuncionario") int idFuncionario);
+	
 	
 	@Query(value="select dtp.descripcion as des, dtp.precio as precio, dtp.cantidad, dtp.sub_total as subtotal,  dtp.costo as costo, dtp.tipo_precio as tipo " + 
 				"from detalle_producto dtp  " + 

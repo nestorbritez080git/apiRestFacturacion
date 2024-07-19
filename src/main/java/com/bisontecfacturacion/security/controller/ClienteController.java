@@ -37,6 +37,7 @@ public class ClienteController {
 			clientes.setId(c.getId());
 			clientes.getPersona().setNombre(c.getPersona().getNombre());
 			clientes.getPersona().setApellido(c.getPersona().getApellido());
+			clientes.setEstadoBloqueo(c.isEstadoBloqueo());
 			cliente.add(clientes);
 		}
 		return entityRepository.findTop100ByOrderByIdDesc();
@@ -80,6 +81,7 @@ public class ClienteController {
 			} else {
 				clientes.getPersona().setCedula(ob[8].toString());
 			}
+			clientes.setEstadoBloqueo(Boolean.parseBoolean(ob[9].toString()));
 		}
 			
 		return new ResponseEntity<Cliente>(clientes, HttpStatus.OK);
@@ -139,6 +141,7 @@ public class ClienteController {
 			clientes.setLimiteCredito(Double.parseDouble(ob[3].toString()));
 			clientes.getPersona().setCedula(ob[4].toString());
 			clientes.getPersona().setTelefono(ob[5].toString());
+			clientes.setEstadoBloqueo(Boolean.parseBoolean(ob[6].toString()));
 			cliente.add(clientes);
 		}
 		return cliente;

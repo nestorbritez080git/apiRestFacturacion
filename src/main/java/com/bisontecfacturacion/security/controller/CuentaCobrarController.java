@@ -378,27 +378,43 @@ public List<CuentaCobrarCabecera> cuentaListado(List<Object[]> object) {
 @RequestMapping(method = RequestMethod.GET, value="/validacionBloqueo/{id}/{montoFactura}")
 public ResponseEntity<?> validacionBloqueCliente(@PathVariable int id,  @PathVariable double montoFactura){
 	List<Object[]> lis= entityRepository.getCLienteCuentaACobrarPorIdCliente(id);
-
-	if (lis == null) {
+	String msg="";
+	if (lis != null) {
+		System.out.println("TIENE CUENTA");
 		for(Object[] ob: lis) {
 			if (ob != null) {
-				if(Double.parseDouble(ob[0].toString()) < Double.parseDouble(ob[1].toString()) ){
-					return  new ResponseEntity<>(new CustomerErrorType("EL MONTO DE LA FACTURA YA HA SUPERADO LINEA DE CREDITO DEL CLIENTE, MONTO: "+ Double.parseDouble(ob[1].toString()) +" DIF.: " + ((Double.parseDouble(ob[0].toString()) + montoFactura) - Double.parseDouble(ob[0].toString())) + " ''"), HttpStatus.OK);
-				}else {
-					if((Double.parseDouble(ob[0].toString()) + montoFactura) >= Double.parseDouble(ob[1].toString())){
-						return new ResponseEntity<>(new CustomerErrorType("EL MONTO DE LA FACTURA YA HA SUPERADO LINEA DE CREDITO DEL CLIENTE ''LINEA CREDITO: "+ Double.parseDouble(ob[1].toString()) +" DIF.: " + ((Double.parseDouble(ob[0].toString()) + montoFactura) - Double.parseDouble(ob[0].toString()))+ " ''"), HttpStatus.CONFLICT);
+				if(Boolean.parseBoolean(ob[2].toString())==true) {
+					if((Double.parseDouble(ob[0].toString())+ montoFactura) > Double.parseDouble(ob[1].toString())){
+					return  new ResponseEntity<>(new CustomerErrorType("EL MONTO DE LAS FACTURAS ACUMULADAS, MAS EL MONTO ACTUAL DE LA FACTURA SUPERA LINEA DE CREDITO DEL CLIENTE"), HttpStatus.CONFLICT);
+					}else if((Double.parseDouble(ob[0].toString())+ montoFactura) <= Double.parseDouble(ob[1].toString())){
+					return  new ResponseEntity<>(new CustomerErrorType(" "), HttpStatus.OK);
 					}
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType(" "), HttpStatus.OK);
 				}
+				
+			}else {
+				return  new ResponseEntity<>(new CustomerErrorType(" "), HttpStatus.OK);
 			}
 		}			
 	} else {
 		Cliente cliente = clienteRepository.findById(id).get();
 		if (cliente !=null) {
-			if (montoFactura > cliente.getLimiteCredito()) {
-				return new ResponseEntity<>(new CustomerErrorType("EL MONTO DE LA FACTURA YA HA SUPERADO LINEA DE CREDITO DEL CLIENTE ''LINEA CREDITO: "+ cliente.getLimiteCredito() +" DIF.: " + (montoFactura - cliente.getLimiteCredito())+ " ''"), HttpStatus.CONFLICT);
+			if(cliente.isEstadoBloqueo()==true) {
+				if (montoFactura > cliente.getLimiteCredito()) {
+					return new ResponseEntity<>(new CustomerErrorType("EL MONTO DE LA FACTURA ACTUAL HA SUPERADO LINEA DE CREDITO DEL CLIENTE"), HttpStatus.CONFLICT);
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+				}
+			}else {
+				return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
 			}
+			
+		}else {
+			return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
 		}
 	}
+	System.out.println(msg);
 
 	return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
 

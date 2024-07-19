@@ -14,6 +14,8 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.venta_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, dp.monto_iva as monIva, dp.costo, dp.tipo_precio as tpPrecio from detalle_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.venta_id=:id",nativeQuery=true)
 	List<Object[]> lista(@Param("id") int id);
 	
+	
+	
 	@Query(value = "DELETE FROM DetalleProducto where venta_id =:idVenta")
 	public void eliminarDetallePorVentaId(@Param("idVenta") int idVenta );
 
@@ -82,6 +84,7 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 			"inner join marca m on p.marca_id=m.id " + 
 			"where cl.id=:idC AND (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO')",nativeQuery=true)
 	List<Object[]> listaDetalleProductoAllPorCliente(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idC") int id);
+	
 	
 	
 	@Query(value="SELECT ser.id as idS, dp.descripcion as des, dp.cantidad as cant, dp.precio as precio, dp.sub_total as subtotal from detalle_servicios dp " + 

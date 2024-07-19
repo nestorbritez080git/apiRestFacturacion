@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class Venta {
@@ -40,7 +42,7 @@ public class Venta {
 	
 	private String hora;
 	
-	
+	@JsonIgnoreProperties("venta")
 	@OneToMany(mappedBy="venta")
 	private List<DetalleProducto> detalleProducto; 
 	
