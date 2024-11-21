@@ -27,23 +27,46 @@ public class EntradaSalidaCaja {
 	private Funcionario funcionario;
 	@NotNull
 	private Double monto;
-	@NotNull
-	private int operacionCaja;
+	private String hora;
+	@ManyToOne
+	private OperacionCaja operacionCaja;
+	
+	
 	private String motivo;
 	private String referencia;
 	public EntradaSalidaCaja() {
 		this.funcionario= new Funcionario();
 		this.tipoMovimiento= new TipoMovimiento();
 		this.tipoOperacion= new TipoOperacion();
+		this.operacionCaja= new OperacionCaja();
 		this.monto=0.0;
 		this.motivo="";
 		this.fecha= new Date();
 		this.id=0;
-		this.operacionCaja=0;
 		this.referencia="";
+		this.hora="";
 	}
-	
-	
+
+	public OperacionCaja getOperacionCaja() {
+		return operacionCaja;
+	}
+
+
+	public void setOperacionCaja(OperacionCaja operacionCaja) {
+		this.operacionCaja = operacionCaja;
+	}
+
+
+	public String getHora() {
+		return hora;
+	}
+
+
+	public void setHora(String hora) {
+		this.hora = hora;
+	}
+
+
 	public String getReferencia() {
 		return referencia;
 	}
@@ -54,13 +77,7 @@ public class EntradaSalidaCaja {
 	}
 
 
-	public int getOperacionCaja() {
-		return operacionCaja;
-	}
 
-	public void setOperacionCaja(int operacionCaja) {
-		this.operacionCaja = operacionCaja;
-	}
 
 	public int getId() {
 		return id;

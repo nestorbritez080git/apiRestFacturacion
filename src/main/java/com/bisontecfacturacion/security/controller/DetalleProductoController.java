@@ -139,6 +139,7 @@ public class DetalleProductoController {
 	
 	@RequestMapping(method=RequestMethod.GET, value="/{id}")
 	public List<DetalleProducto> getAllId(@PathVariable int id){
+		
 		List<Object[]> objeto=entityRepository.lista(id);	
 		List<DetalleProducto> detalleProducto=new ArrayList<>();
 		for(Object[] ob:objeto){
@@ -167,6 +168,7 @@ public class DetalleProductoController {
 			detalleProductos.setTipoPrecio(ob[20].toString());
 			detalleProducto.add(detalleProductos);
 		}
+		System.out.println("Retorno Lista Detalle Producto "+detalleProducto.size());
 		
 		return detalleProducto;
 	}

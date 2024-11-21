@@ -45,6 +45,8 @@ import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
+import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
+import com.bisontecfacturacion.security.model.DetallePresupuestoServicio;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Documento;
@@ -57,6 +59,7 @@ import com.bisontecfacturacion.security.model.LoteTicket;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Org;
+import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
 import com.bisontecfacturacion.security.model.ReporteConfig;
@@ -228,6 +231,7 @@ public class VentaController {
 			ventas.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
 			ventas.setNroDocumento(ob.getNroDocumento());
 			ventas.setEstado(ob.getEstado());
+			ventas.setObs(ob.getObs());
 			venta.add(ventas);
 		}
 		return venta;
@@ -254,6 +258,7 @@ public class VentaController {
 			ventas.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
 			ventas.setNroDocumento(ob.getNroDocumento());
 			ventas.setEstado(ob.getEstado());
+			ventas.setObs(ob.getObs());
 			venta.add(ventas);
 		}
 		return venta;
@@ -301,6 +306,45 @@ public class VentaController {
 		Integer ano=Integer.parseInt(fechas[0]);
 		return entityRepository.findByTotalVentaXmes(ano);
 	}
+	@RequestMapping(method=RequestMethod.GET, value="/ventaIdFacturado/{id}")
+	public Venta getVentaIdFacturado(@PathVariable int id){
+
+		Venta v=entityRepository.getVentaIdFacturado(id);
+		Venta venta=null;
+		if(v != null) {
+		    venta=new Venta();
+			venta.setEstado(v.getEstado());
+			venta.setId(v.getId());
+			venta.setTipo(v.getTipo()); 
+			venta.setNroDocumento(v.getNroDocumento());
+			venta.setTotal(v.getTotal());
+			venta.getFuncionario().setId(v.getFuncionario().getId());
+			venta.getCliente().setId(v.getCliente().getId());
+			venta.getCliente().getPersona().setNombre(v.getCliente().getPersona().getNombre()+ " " +v.getCliente().getPersona().getApellido());
+			venta.getCliente().getPersona().setCedula(v.getCliente().getPersona().getCedula());
+			venta.getDocumento().setId(v.getDocumento().getId());
+			venta.getDocumento().setDescripcion(v.getDocumento().getDescripcion());
+			venta.getFuncionarioV().setId(v.getFuncionarioV().getId());
+			venta.getFuncionario().getPersona().setNombre(v.getFuncionario().getPersona().getNombre() +" "+ v.getFuncionario().getPersona().getApellido());
+			venta.setOperacionCaja(v.getOperacionCaja());
+			venta.setFechaFactura(v.getFechaFactura());
+			System.out.println("vvvvv: "+v.getFecha()+ "  +  :"+v.getFechaFactura());
+			venta.setFecha(v.getFecha());
+			venta.setHora(v.getHora());
+			venta.setTotalDescuento(v.getTotalDescuento());
+			venta.setTotalIvaDies(v.getTotalIvaDies());
+			venta.setTotalIvaCinco(v.getTotalIvaCinco());
+			venta.setTotalIva(v.getTotalIva());
+			venta.setTotalExcenta(v.getTotalExcenta());
+			venta.setTotalLetra(v.getTotalLetra());
+			venta.setEntrega(v.getEntrega());
+			venta.setObs(v.getObs());
+		}else {
+			venta = null;
+		}
+		
+		return venta;
+	}
 	@RequestMapping(method=RequestMethod.GET, value="/ventaId/{id}")
 	public Venta getVentaId(@PathVariable int id){
 
@@ -314,8 +358,7 @@ public class VentaController {
 		venta.setTotal(v.getTotal());
 		venta.getFuncionario().setId(v.getFuncionario().getId());
 		venta.getCliente().setId(v.getCliente().getId());
-		venta.getCliente().getPersona().setNombre(v.getCliente().getPersona().getNombre());
-		venta.getCliente().getPersona().setApellido(v.getCliente().getPersona().getApellido());
+		venta.getCliente().getPersona().setNombre(v.getCliente().getPersona().getNombre()+ " " +v.getCliente().getPersona().getApellido());
 		venta.getCliente().getPersona().setCedula(v.getCliente().getPersona().getCedula());
 		venta.getDocumento().setId(v.getDocumento().getId());
 		venta.getDocumento().setDescripcion(v.getDocumento().getDescripcion());
@@ -333,18 +376,11 @@ public class VentaController {
 		venta.setTotalExcenta(v.getTotalExcenta());
 		venta.setTotalLetra(v.getTotalLetra());
 		venta.setEntrega(v.getEntrega());
+		venta.setObs(v.getObs());
 		return venta;
 	}
 
-	//	@RequestMapping(method=RequestMethod.POST, value="/facturado")
-	//	public void facturarVentas(@RequestBody int id){
-	//		entityRepository.findByActualizarFacturas(id);
-	//	}
-	//	@RequestMapping(method=RequestMethod.POST, value="/facturar")
-	//	public void facturarVentas(@RequestBody Venta entity){
-	//		if (entity.getTipo().equals("2")) {
-	//		}
-	//	}
+
 
 	private static String padF(int numero, int size) {
 		ft = new Formatter();
@@ -546,7 +582,10 @@ public class VentaController {
 					return new ResponseEntity<>(new CustomerErrorType("CANTIDAD DE EXPEDICIÓN SOBREPASADA DEL AUTO IMPRESOR PARA ESTA TERMINAL.!"), HttpStatus.CONFLICT);
 
 				}
+			} else if(entity.getObs() != null){
+				entity.setObs(entity.getObs().toUpperCase());
 			}
+			
 			{
 				for(int ind=0; ind < entity.getDetalleProducto().size(); ind++) {
 					DetalleProducto pro = entity.getDetalleProducto().get(ind);
@@ -1345,10 +1384,13 @@ public class VentaController {
 			Venta v = new Venta();
 			v.getCliente().getPersona().setNombre(cli.getPersona().getNombre()+ " "+cli.getPersona().getApellido());
 			v.getCliente().getPersona().setCedula(cli.getPersona().getCedula());
+			v.getCliente().getPersona().setTelefono(cli.getPersona().getTelefono());
 			v.getCliente().getPersona().setDireccion(cli.getPersona().getDireccion());
 			v.setFechaFactura(xxx.getFechaFactura());
 			v.setFecha(xxx.getFecha());
 			v.setHora(xxx.getHora());
+			v.setObs(xxx.getObs());
+			v.setId(xxx.getId());
 			System.out.println("fun veeveveve : "+FunV.getPersona().getNombre());
 			v.getFuncionarioV().getPersona().setNombre(FunV.getPersona().getNombre()+ " "+FunV.getPersona().getApellido());
 			v.setTotalDescuento(xxx.getTotalDescuento());
@@ -1440,14 +1482,13 @@ public class VentaController {
 		if (t==null) {
 			System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 		}else {
-
 			ReporteConfig reportConfig = reporteConfigRepository.getOne(1);
 			Map<String, Object> map = new HashMap<>();
 			report=new Reporte();
 			if (t.getImpresora().equals("matricial")) {
 				ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
 				String urlReporte ="\\reporte\\"+reportConfig.getNombreSubReporte1()+".jasper";
-				System.out.println("url SUBREPORT:  "+urlReporte+ " report name : "+reportConfig.getNombreReporte());
+				System.out.println("SUBREPORT:  "+urlReporte+ " REPORT NOMBRE : "+reportConfig.getNombreReporte());
 				map.put("urlSubRepor", urlReporte);
 				map.put("tituloReporte", f.getTitulo());
 				map.put("razonSocialReporte", f.getRazonSocial());
@@ -2254,4 +2295,58 @@ public class VentaController {
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 
 	}
+	
+	@RequestMapping(value="/descargarPdf/{id}", method=RequestMethod.GET)
+	public ResponseEntity<?>  resumenConcepto(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		Venta pre= new Venta(); 
+		pre=entityRepository.getOne(id);
+		if(pre.getTipo().equals("1")) {pre.setTipo("CONTADO");}
+		if(pre.getTipo().equals("2")) {pre.setTipo("CREDITO");}
+		List<Venta> listado= new ArrayList<Venta>();
+		listado.add(pre);
+		List<Presupuesto> listadoRetorno= new ArrayList<Presupuesto>();
+
+		for (int i = 0; i < listado.size(); i++) {
+			
+			for (int j = 0; j < listado.get(i).getDetalleServicio().size(); j++) {
+				DetalleServicios detAux = listado.get(i).getDetalleServicio().get(j);
+				DetalleProducto detAgregar =new DetalleProducto();
+
+				
+				detAgregar.setDescripcion("SER - "+detAux.getDescripcion());
+				detAgregar.getProducto().setCodbar(detAux.getServicio().getId()+"");
+				detAgregar.setCantidad(detAux.getCantidad());
+				detAgregar.setPrecio(detAux.getPrecio());
+				detAgregar.getProducto().getUnidadMedida().setDescripcion("UN");;
+				detAgregar.setIva(detAux.getIva()+"");
+				detAgregar.setSubTotal(detAux.getSubTotal());
+				detAgregar.setMontoIva(detAux.getMontoIva());
+				listado.get(i).getDetalleProducto().add(detAgregar);
+			}
+		}
+		try {
+		
+				Map<String, Object> map = new HashMap<>();
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+		
+				report = new Reporte();
+				report.reportPDFDescarga(listado, map, "ReporteVentaPdf", response);
+				//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
+	
+
 }

@@ -22,6 +22,7 @@ import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
+import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DevolucionVenta;
 import com.bisontecfacturacion.security.model.DevolucionVentaDetalle;
 import com.bisontecfacturacion.security.model.Funcionario;
@@ -144,11 +145,9 @@ public class DevoluconVentaController {
 	@RequestMapping(method=RequestMethod.GET, value="/{tipo}/{fecha}")
 	public List<DevolucionVenta> getDevolucion(@PathVariable int tipo, @PathVariable String fecha){
 		List<DevolucionVenta> listado = new ArrayList<DevolucionVenta>();
-
 		if (tipo == 1) {
 			listado = cargarLista();
 		}
-
 		if (tipo == 2) {
 			String[] fec=fecha.split("-");
 			Integer dia=Integer.parseInt(fec[0]);
@@ -170,6 +169,9 @@ public class DevoluconVentaController {
 		dev.getVenta().setId(objeto.getVenta().getId());
 		dev.getVenta().getCliente().getPersona().setNombre(objeto.getVenta().getCliente().getPersona().getNombre() + " "+objeto.getVenta().getCliente().getPersona().getApellido());
 		dev.getVenta().setTotal(objeto.getVenta().getTotal());
+		dev.getVenta().setTipo(objeto.getVenta().getTipo());
+		dev.getVenta().setFecha(objeto.getVenta().getFecha());
+		dev.getVenta().setFechaFactura(objeto.getVenta().getFechaFactura());
 		dev.setId(objeto.getId());
 		dev.setFecha(objeto.getFecha());
 		dev.setTotal(objeto.getTotal());
@@ -198,23 +200,25 @@ public class DevoluconVentaController {
 		}
 		return lista;
 	}
-
 	public List<DevolucionVenta> cargarLista() {
 		List<DevolucionVenta> lista = new ArrayList<DevolucionVenta>();
 		List<DevolucionVenta> l = entityRepository.findTop50ByOrderByIdDesc();
 
 		for(DevolucionVenta d: l) {
-			DevolucionVenta de = new DevolucionVenta();
-			de.setId(d.getId());
-			de.getFuncionario().getPersona().setNombre(d.getFuncionario().getPersona().getNombre() + " " + d.getFuncionario().getPersona().getApellido());
-			de.getVenta().getCliente().getPersona().setNombre(d.getVenta().getCliente().getPersona().getNombre() + " " + d.getVenta().getCliente().getPersona().getApellido());
-			de.getVenta().getCliente().getPersona().setCedula(d.getVenta().getCliente().getPersona().getCedula());
-			de.setTotal(d.getTotal());
-			de.getTipoDevolucion().setDescripcion(d.getTipoDevolucion().getDescripcion());
-			de.setHora(formater.format(d.getFecha()) + " " + d.getHora());
-			de.setEstado(d.getEstado());
-			de.getTipoDevolucion().setId(d.getTipoDevolucion().getId());
-			lista.add(de);
+			DevolucionVenta devol = new DevolucionVenta();
+			devol.setId(d.getId());
+			devol.getFuncionario().getPersona().setNombre(d.getFuncionario().getPersona().getNombre() + " " + d.getFuncionario().getPersona().getApellido());
+			devol.getVenta().getCliente().getPersona().setNombre(d.getVenta().getCliente().getPersona().getNombre() + " " + d.getVenta().getCliente().getPersona().getApellido());
+			devol.getVenta().getCliente().getPersona().setCedula(d.getVenta().getCliente().getPersona().getCedula());
+			devol.getVenta().setTotal(d.getVenta().getTotal());
+			devol.setTotal(d.getTotal());
+			devol.getVenta().setId(d.getVenta().getId());
+			devol.setFecha(d.getFecha());
+			devol.getVenta().setFechaFactura(d.getVenta().getFechaFactura());
+			devol.getTipoDevolucion().setDescripcion(d.getTipoDevolucion().getDescripcion());
+			devol.getTipoDevolucion().setId(d.getTipoDevolucion().getId());
+			devol.setEstado(d.getEstado());
+			lista.add(devol);
 		}
 
 		return lista;
@@ -257,6 +261,7 @@ public class DevoluconVentaController {
 			operacionAnterior = operacionCajaRepository.getOne(v.getNumeroOperacion());
 
 		}else {
+			
 		}
 		NotaCredito notaCredtio = new NotaCredito();
 		notaCredtio.setFecha(new Date());
@@ -272,9 +277,10 @@ public class DevoluconVentaController {
 
 
 		if(v.getVenta().getTipo().equals("1")) {
+			System.out.println("DEVOLUCION TIPO VENTA CONTADO");
 			if(idTipoOperacion==1) {
+				System.out.println("CON REENVOLSO");
 				if(operacionAnterior!=null) {					
-					System.out.println("CON REENVOLSO");
 					OperacionCaja ope= new OperacionCaja();
 					ope.setEfectivo(0.0);
 					ope.setFecha(new Date());
@@ -400,9 +406,12 @@ public class DevoluconVentaController {
 			}
 
 		}else if (v.getVenta().getTipo().equals("2")) {
+			System.out.println("DEVOLUCION TIPO VENTA CREDITO");
 			if(idTipoOperacion==1) {
 				return new ResponseEntity<>(new CustomerErrorType("DEVOLUCIÓN TIPO CREDITO CON REENVOLSO NO ES SE APLICA  !"), HttpStatus.CONFLICT);
 			}else if (idTipoOperacion==2){
+				System.out.println("SIN REENVOLSO");
+
 				List<DevolucionVentaDetalle> lista= listarDetalleDevol(detalleRepository.getDetalleDevolucionPorIdCabecera(v.getId()));
 				for (DevolucionVentaDetalle list : lista) {
 					System.out.println("entrooo for para aumentar venta tipo credito: ");
@@ -449,77 +458,43 @@ public class DevoluconVentaController {
 
 				CuentaCobrarCabecera cu= cuentaCobrarRepository.getCuentaCabeceraPorVentaId(v.getVenta().getId());
 				if(cu!=null) {
+					System.out.println("ENTRO TIENE CUENTA CONSULTADO POR ID VENTA");
+					double totaMontoCeunta = cu.getTotal();
+					double totalDevolucion= v.getTotal();
+					double totalDevolucionGuardarCabeceraCuenta= v.getTotal();
+					System.out.println("TOTAL CUENTA: "+totaMontoCeunta);
+					System.out.println("TOTAL devolucion: "+totalDevolucion);		
+					for (int  index = 0; index < cu.getCuentaCobrarDetalle().size()  & totalDevolucion > 0; index++) {
+						CuentaCobrarDetalle cuentaDetalleGuardar= cu.getCuentaCobrarDetalle().get(index);
+						double MONTOCUOTA = cu.getCuentaCobrarDetalle().get(index).getMonto();
+						double MONTOIMPORTE = cu.getCuentaCobrarDetalle().get(index).getImporte();
+						int cuota=cu.getCuentaCobrarDetalle().get(index).getNumeroCuota();
+						
+						if (totalDevolucion > (MONTOCUOTA - MONTOIMPORTE)) {
+							totalDevolucion =  totalDevolucion - (MONTOCUOTA - MONTOIMPORTE);
+							System.out.println("NUMERO CUOTA: "+cuota);
+							System.out.println("DESCUENTO APLICADO : " + (MONTOCUOTA - MONTOIMPORTE));
+							System.out.println("IMPORTE ANTERIOR : " + MONTOIMPORTE);
+							System.out.println("IMPORTE ACTUAL : " + (MONTOIMPORTE + (MONTOCUOTA - MONTOIMPORTE)));
+							System.out.println("RESTO TOTAL DEVOLUCION: "+totalDevolucion);
+							cuentaDetalleGuardar.setImporte((MONTOIMPORTE + (MONTOCUOTA - MONTOIMPORTE)));
 
-
-					InteresCuota tasa = interesCuotaRepository.getOne(cu.getInteresCuota().getId());
-					TipoPlazo plazo = tipoPlazoRepository.getOne(cu.getTipoPlazo().getId());
-					//					    this.detalle = [];
-					double totaMontoCeunta = 0.0;
-
-					double diferencia = cu.getTotal() - v.getTotal();
-
-					double montoCuota = diferencia / plazo.getValor() ;
-					double resIntere =  (montoCuota * tasa.getTasa())/ 100;
-					List<CuentaCobrarDetalle> listaGuardarDetalle = new ArrayList<>();
-					for (int  index = 0; index < plazo.getValor(); index++) {
-						if (index == 0) {
-							Date d = new Date();
-							totaMontoCeunta += (montoCuota + resIntere);
-							CuentaCobrarDetalle det = new  CuentaCobrarDetalle();
-							det.setNumeroCuota(index+1);
-							det.setMonto(montoCuota+ resIntere);
-							det.setFechaVencimiento(getFechaPlazo(new Date(), plazo.getValor()));
-							det.setEstado(false);
-							listaGuardarDetalle.add(det);
-							//this.detalle.push({numeroCuota: index + 1, monto: (montoCuota + resIntere), fechaVencimiento: this.fecha,  estado: false});
-						} else {
-							// this.fecha = this.test(this.f
-							totaMontoCeunta += (montoCuota + resIntere);
-							Date d = new Date();
-							totaMontoCeunta += (montoCuota + resIntere);
-							CuentaCobrarDetalle det = new  CuentaCobrarDetalle();
-							det.setNumeroCuota(index+1);
-							det.setMonto(montoCuota+ resIntere);
-							det.setFechaVencimiento(getFechaPlazo(new Date(), plazo.getValor()));
-							det.setEstado(false);
-							listaGuardarDetalle.add(det);
-						}
-					}
-					CuentaCobrarCabecera cuentaGuardar = new CuentaCobrarCabecera();
-					cuentaGuardar.getCliente().setId(cu.getCliente().getId());
-					cuentaGuardar.getInteresCuota().setId(cu.getInteresCuota().getId());
-					cuentaGuardar.getInteresMora().setId(cu.getInteresMora().getId());
-					cuentaGuardar.getTipoPlazo().setId(cu.getTipoPlazo().getId());
-					cuentaGuardar.setEntrega(0.0);
-					cuentaGuardar.setEstado(false);
-					cuentaGuardar.setFecha(cu.getFecha());
-					cuentaGuardar.setFraccionCuota(cu.getFraccionCuota());
-					cuentaGuardar.getFuncionario().setId(cu.getFuncionario().getId());
-					cuentaGuardar.setPagado(0.0);
-					cuentaGuardar.setSaldo(montoCuota);
-					cuentaGuardar.setTotal(montoCuota);
-					cuentaGuardar.getVenta().setId(cu.getVenta().getId());
-					cuentaGuardar.setCuentaCobrarDetalle(listaGuardarDetalle);
-
-					cuentaCobrarRepository.save(cuentaGuardar);
-
-					CuentaCobrarCabecera cueRe= cuentaCobrarRepository.findTop1ByOrderByIdDesc();
-					for(CuentaCobrarDetalle ob: listaGuardarDetalle){
-						if(ob.getId() != 0){
-							ob.setFechaPago(new Date());
-							cuentaCobrarDetalleRepository.save(ob);
 						}else {
-							ob.setSubTotal(ob.getMonto());
-							ob.getCuentaCobrarCabecera().setId(cueRe.getId());
-							cuentaCobrarDetalleRepository.save(ob);
+							System.out.println("NUMERO CUOTA: "+cuota);
+							System.out.println("DESCUENTO APLICADO : " + (totalDevolucion));
+							System.out.println("IMPORTE ANTERIOR : " + MONTOIMPORTE);
+							System.out.println("IMPORTE ACTUAL : " + (MONTOIMPORTE + (totalDevolucion)));
+							System.out.println("RESTO TOTAL DEVOLUCION: "+(totalDevolucion-totalDevolucion));
+							cuentaDetalleGuardar.setImporte((MONTOIMPORTE + (totalDevolucion)));
+							totalDevolucion =0;
+							
 						}
-
+						cuentaCobrarDetalleRepository.save(cuentaDetalleGuardar);
 					}
-
-
-					cuentaCobrarDetalleRepository.eliminarDetalleCuentaPorCabeceraId(cu.getId());
-					cuentaCobrarRepository.deleteById(cu.getId());
-					System.out.println("cuenta eliminada generada de vuelta:");
+					cu.setPagado(cu.getPagado()+totalDevolucionGuardarCabeceraCuenta);
+					cu.setSaldo(cu.getSaldo()-totalDevolucionGuardarCabeceraCuenta);
+					cuentaCobrarRepository.save(cu);
+					
 				}else {
 					return new ResponseEntity<>(new CustomerErrorType("NO SE ENCONTRO NINGUA CUENTA A ESTA DEVOLUCIÓN TIPO VENTA CREDITO!"), HttpStatus.CONFLICT);
 				}
@@ -672,6 +647,26 @@ public class DevoluconVentaController {
 	}
 
 
+	@RequestMapping(method=RequestMethod.POST, value="/producto")
+	public ResponseEntity<?> eliminarProducto(@RequestBody List<DevolucionVentaDetalle> detalles){
+		try {
+			if(detalles.size()!=-1) {
+				System.out.println("con listado lista "+detalles.size());
+				for (DevolucionVentaDetalle de : detalles) {
+					System.out.println("ID ELIMINADO : "+de.getId());
+					detalleRepository.deleteById(de.getId());
+				}
+				
+				return  new  ResponseEntity<String>(HttpStatus.CREATED);
 
+			}else {
+				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
 
 }

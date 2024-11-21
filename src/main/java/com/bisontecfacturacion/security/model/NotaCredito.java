@@ -36,6 +36,7 @@ public class NotaCredito {
 	
 	@ManyToOne
 	private DevolucionVenta devolucionVenta;
+	
 	public NotaCredito() {
 		this.id=0;
 		this.fecha=new  Date();

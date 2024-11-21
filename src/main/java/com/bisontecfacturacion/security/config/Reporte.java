@@ -107,6 +107,7 @@ public class Reporte {
 	}
 	public void reportPDFImprimir(List<?> lista, Map<String, Object> map, String nombreReporte, String tipo) throws JRException {
 		try {
+			
 			InputStream jasperStream = this.getClass().getResourceAsStream("/reporte/"+nombreReporte + ".jrxml");
 			JasperDesign design = JRXmlLoader.load(jasperStream);
 			JasperReport report = JasperCompileManager.compileReport(design);

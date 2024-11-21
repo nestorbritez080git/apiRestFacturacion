@@ -37,17 +37,25 @@
 	<parameter name="pais" class="java.lang.String"/>
 	<parameter name="desde" class="java.util.Date"/>
 	<parameter name="hasta" class="java.util.Date"/>
+	<parameter name="totalCostoProducto" class="java.lang.Double"/>
+	<parameter name="totalProducto" class="java.lang.Double"/>
+	<parameter name="totalUtilidadProducto" class="java.lang.Double"/>
+	<parameter name="totalServicio" class="java.lang.Double"/>
 	<parameter name="totalVenta" class="java.lang.Double"/>
-	<parameter name="totalCosto" class="java.lang.Double"/>
-	<parameter name="totalUtilidad" class="java.lang.Double"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
-	<field name="cliente" class="java.lang.String">
+	<field name="clienteNombre" class="java.lang.String">
 		<fieldDescription><![CDATA[cliente.persona.nombre]]></fieldDescription>
 	</field>
-	<field name="vendedor" class="java.lang.String">
+	<field name="clienteApellido" class="java.lang.String">
+		<fieldDescription><![CDATA[cliente.persona.apellido]]></fieldDescription>
+	</field>
+	<field name="vendedorNombre" class="java.lang.String">
 		<fieldDescription><![CDATA[funcionarioV.persona.nombre]]></fieldDescription>
+	</field>
+	<field name="vendedorApellido" class="java.lang.String">
+		<fieldDescription><![CDATA[funcionarioV.persona.apellido]]></fieldDescription>
 	</field>
 	<field name="documento" class="java.lang.String">
 		<fieldDescription><![CDATA[documento.descripcion]]></fieldDescription>
@@ -68,7 +76,7 @@
 		<variableExpression><![CDATA[$F{total}]]></variableExpression>
 	</variable>
 	<variable name="totalItem" class="java.lang.Integer" calculation="Count">
-		<variableExpression><![CDATA[$F{cliente}]]></variableExpression>
+		<variableExpression><![CDATA[$F{clienteNombre}]]></variableExpression>
 	</variable>
 	<title>
 		<band height="106" splitType="Stretch">
@@ -334,7 +342,7 @@
 				<textElement textAlignment="Left">
 					<font size="7"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{clienteNombre}+" "+$F{clienteApellido}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="475" y="0" width="99" height="9" uuid="a27a4603-541f-4e55-a811-205c546b6124">
@@ -361,7 +369,7 @@
 				<textElement>
 					<font size="7"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{vendedor}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{vendedorNombre}+" "+$F{vendedorApellido}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="350" y="0" width="70" height="9" uuid="e9c3ff9a-46ad-44b1-b209-97006b5028ed">
@@ -395,7 +403,7 @@
 				</graphicElement>
 			</line>
 			<line>
-				<reportElement x="1" y="37" width="576" height="1" uuid="982d0d90-b57e-4e15-b605-a2d910d18fdd">
+				<reportElement x="1" y="91" width="576" height="1" uuid="982d0d90-b57e-4e15-b605-a2d910d18fdd">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
@@ -403,8 +411,15 @@
 					<pen lineWidth="0.5"/>
 				</graphicElement>
 			</line>
+			<textField>
+				<reportElement x="0" y="60" width="184" height="11" uuid="3201a163-c376-46c3-9ff9-76375e77098d"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalUtilidadProducto})]]></textFieldExpression>
+			</textField>
 			<staticText>
-				<reportElement x="1" y="10" width="183" height="9" uuid="7fbafbdb-314d-4987-b959-9d77e4ebb51e">
+				<reportElement x="1" y="51" width="183" height="9" uuid="87a30d6e-ba9a-4afb-970b-acd7a26b6d37">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -414,24 +429,77 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font size="6" isBold="true"/>
 				</textElement>
-				<text><![CDATA[TOTAL VENTAS:]]></text>
+				<text><![CDATA[TOTAL UTILIDAD PRODUCTO]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="185" y="19" width="184" height="11" uuid="fb7c508b-5dda-4314-9f55-418fc77acea7"/>
+				<reportElement x="0" y="40" width="184" height="11" uuid="1f2b8541-5ced-4a14-a418-740501c94062"/>
 				<textElement>
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalCosto})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalCostoProducto})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="31" width="183" height="9" uuid="5c4d4f89-66ff-4e88-b1fd-69892e38ba57">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL COSTO PRODUCTO:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="19" width="184" height="11" uuid="402e639e-c2d8-42b7-8f4c-7d90af0cd915"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalProducto})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="10" width="183" height="9" uuid="d67e3c7c-a116-4e6c-b7f3-ef5839595498">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL PRODUCTO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="186" y="10" width="183" height="9" uuid="23630af4-c138-4cd3-8179-aa5582d2ace6">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL SERVICIOS:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="185" y="19" width="184" height="11" uuid="c1cc0388-65f2-4449-82f5-15aea9183e1c"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalServicio})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="0" y="19" width="184" height="11" uuid="91a03e98-fdc8-4c1e-a4f0-9699c05eb3bb"/>
+				<reportElement x="370" y="19" width="200" height="11" uuid="08c8b95b-d8d5-446b-9e47-2dadbed0d69d"/>
 				<textElement>
 					<font size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalVenta})]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="186" y="10" width="183" height="9" uuid="37c2b0ba-9bec-4ad2-ad1d-01cbe48233ba">
+				<reportElement x="371" y="10" width="200" height="9" uuid="3e13a02c-fbc3-4b6e-afb8-396e5f1fe0fa">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -441,27 +509,7 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font size="6" isBold="true"/>
 				</textElement>
-				<text><![CDATA[TOTAL COSTO:]]></text>
-			</staticText>
-			<textField>
-				<reportElement x="370" y="19" width="200" height="11" uuid="b29f846b-fab4-4b7a-bd43-e725c4e87311"/>
-				<textElement>
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalUtilidad})]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement x="371" y="10" width="200" height="9" uuid="faa2199a-3189-40e0-a672-27c6586b3052">
-					<property name="com.jaspersoft.studio.unit.y" value="px"/>
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-				</reportElement>
-				<box>
-					<pen lineWidth="1.0" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font size="6" isBold="true"/>
-				</textElement>
-				<text><![CDATA[TOTAL GANANCIA BRUTA:]]></text>
+				<text><![CDATA[TOTAL VENTA]]></text>
 			</staticText>
 		</band>
 	</summary>

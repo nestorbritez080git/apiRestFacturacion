@@ -162,12 +162,14 @@ public class CompraController {
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/fechaFactura/{fecha}")
 	public List<Compra> getAllsFechaFactura(@PathVariable String fecha){
+		System.out.println("filtro por fecha compra");
 		String[] fec=fecha.split("-");
 		Integer dia=Integer.parseInt(fec[0]);
 		Integer mes=Integer.parseInt(fec[1]);
 		Integer ano=Integer.parseInt(fec[2]);
 		List<Compra> objeto=entityRepository.getCompraFechaFactura(ano, mes, dia);
-		List<Compra> venta=new ArrayList<>();
+		System.out.println("lista size: "+objeto.size());
+		List<Compra> listaRetorno=new ArrayList<>();
 		for(Compra ob:objeto){
 			Compra ventas=new Compra();
 			ventas.setId(ob.getId());
@@ -181,13 +183,15 @@ public class CompraController {
 			ventas.setTipo(ob.getTipo());
 			ventas.setHora(ob.getHora());
 			//ventas.getDocumento().setId(ob.getDocumento().getId());
-			venta.add(ventas);
+			listaRetorno.add(ventas);
 			System.out.println(ventas.getProveedor().getPersona().getNombre());
 		}
-		return venta;
+		return listaRetorno;
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/compraId/{id}")
-	public Compra getVentaId(@PathVariable int id){
+	public Compra getCompraId(@PathVariable int id){
+		
+		
 		return entityRepository.findById(id).get();
 		/*
 		Compra v=entityRepository.findOne(id);
@@ -226,7 +230,9 @@ public class CompraController {
 				return new ResponseEntity<>(new CustomerErrorType("EL DOCUMENTO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getProveedor().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL PROVEEDOR NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			} else {
+			} else if(entity.getEstado().equals("FACTURADO") && entity.getFechaFactura() == null){
+				return new ResponseEntity<>(new CustomerErrorType("LA FECHA DE LA FACTURA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+			}{
 				for(int ind=0; ind < entity.getDetalleCompra().size(); ind++) {
 					DetalleCompra pro = entity.getDetalleCompra().get(ind);
 					if(pro.getCantidad() <= 0) {
@@ -248,6 +254,8 @@ public class CompraController {
 					double total10=0, total5=0, totalDescuento=0;
 					if(entity.getDetalleCompra().size()>0){
 						if (entity.getEstado().equals("FACTURADO")) {
+							entity.setFecha(new Date());
+							entity.setFechaFactura(new Date(entity.getFechaFactura().getTime()));
 							for(DetalleCompra detalleProducto: entity.getDetalleCompra()) {
 								detalleProducto.getCompra().setId(idVent);
 								//detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecioCosto()));
@@ -291,6 +299,8 @@ public class CompraController {
 					double total10=0, total5=0, totalDescuento=0;
 					if(entity.getDetalleCompra().size()>0){
 						if (entity.getEstado().equals("FACTURADO")) {
+							entity.setFecha(new Date());
+							entity.setFechaFactura(new Date(entity.getFechaFactura().getTime()));
 							for(DetalleCompra detalleProducto: entity.getDetalleCompra()) {
 								detalleProducto.setId(0);
 								detalleProducto.getCompra().setId(idVent);

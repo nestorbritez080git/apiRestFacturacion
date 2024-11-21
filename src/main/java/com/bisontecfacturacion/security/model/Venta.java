@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class Venta {
 	
 	private String hora;
 	
+	private String obs;
 	@JsonIgnoreProperties("venta")
 	@OneToMany(mappedBy="venta")
 	private List<DetalleProducto> detalleProducto; 
@@ -80,7 +82,9 @@ public class Venta {
 		this.hora = "";
 		this.timbrado = ""; 
 		this.fecha=new Date();
-		
+		this.detalleServicio = new ArrayList<DetalleServicios>();
+		this.detalleProducto = new ArrayList<DetalleProducto>();
+
 		this.funcionarioV=new Funcionario();
 		this.documento=new Documento();
 		this.funcionario= new Funcionario();
@@ -94,8 +98,19 @@ public class Venta {
 		this.totalIva=0.0;
 		this.totalLetra="";
 		this.entrega=0.0;
+		this.obs="";
 	}
 	
+
+	public String getObs() {
+		return obs;
+	}
+
+
+	public void setObs(String obs) {
+		this.obs = obs;
+	}
+
 
 	public Double getTotalIva() {
 		return totalIva;

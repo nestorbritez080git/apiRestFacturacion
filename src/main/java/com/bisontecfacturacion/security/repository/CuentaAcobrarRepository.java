@@ -1,7 +1,7 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
-
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -51,8 +51,19 @@ public interface CuentaAcobrarRepository extends JpaRepository<CuentaCobrarCabec
 	List<Object[]> getCLienteCuentaPorIdCliente(@Param("id") int id);
 	public abstract List<CuentaCobrarCabecera> findTop100ByOrderByIdDesc();
 
-
-    @Query("select  c from CuentaCobrarCabecera c where cliente_id=:id order by id desc")
+	//SERVICES: RPT CUENTA CLIENTE POR RANGO DE FECHAS Y CON UN CLIENTE SELECCIONADO Y POR TIPO TODOS, A COBRAR Y COBRADO
+	@Query("select  c from CuentaCobrarCabecera c where cliente_id=:id and (fecha >=:fecIni AND fecha <=:fecFin)  order by id desc")
+	public List<CuentaCobrarCabecera> findByCuentaPorIdTodoRango(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin") Date fecFin);
+	@Query("select  c from CuentaCobrarCabecera c where saldo > 0 and cliente_id=:id and (fecha >=:fecIni AND fecha <=:fecFin) order by id desc")
+	public List<CuentaCobrarCabecera> findByCuentaPorIdACobrarRango(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin")Date fecFin);
+	@Query("select  c from CuentaCobrarCabecera c where saldo = 0 and cliente_id=:id and (fecha >=:fecIni AND fecha <=:fecFin) order by id desc")
+	public List<CuentaCobrarCabecera> findByCuentaPorIdCobradoRango(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin")Date fecFin);
+	
+	
+	
+	
+	
+    @Query("select  c from CuentaCobrarCabecera c where cliente_id=:id  order by id desc")
 	public List<CuentaCobrarCabecera> findByCuentaPorIdTodo(@Param("id") int id);
 
 	@Query("select  c from CuentaCobrarCabecera c where saldo > 0 and cliente_id=:id order by id desc")

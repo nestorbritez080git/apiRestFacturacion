@@ -1,6 +1,7 @@
 package com.bisontecfacturacion.security.controller;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -162,6 +163,8 @@ public class CuentaPagarCabeceraController {
 			cue.setCantidad(Double.parseDouble(ob[2].toString()));
 			cue.setSubTotal(Double.parseDouble(ob[3].toString()));
 			cue.getProducto().getUnidadMedida().setDescripcion(ob[4].toString());
+			cue.setId(Integer.parseInt(ob[5].toString()));
+			cue.getProducto().setId(Integer.parseInt(ob[6].toString()));
 			lista.add(cue);
 		}
 
@@ -304,9 +307,12 @@ public class CuentaPagarCabeceraController {
 		return listadoRetorno;
 	}
 	public List<CuentaPagarCabecera> listadoCuentaProveedor(List<CuentaPagarCabecera> lis){
-		List<CuentaPagarCabecera> listadoRetorno = new ArrayList<>();
-		for(CuentaPagarCabecera cue :lis) {
-			CuentaPagarCabecera cuenta= new CuentaPagarCabecera();
+		/*
+	List<CuentaPagarCabecera> listadoRetorno = new ArrayList<>();
+		System.out.println(lis.size()+"pppspspspspspps");
+		for(int i=0; i < lis.size(); i++) {
+			CuentaPagarCabecera cuenta =new CuentaPagarCabecera();
+			CuentaPagarCabecera cue = lis.get(i);
 			cuenta.setId(cue.getId());
 			cuenta.setTotal(cue.getTotal()); 
 			cuenta.setPagado(cue.getPagado());
@@ -315,13 +321,16 @@ public class CuentaPagarCabeceraController {
 			cuenta.getProveedor().getPersona().setApellido(cue.getProveedor().getPersona().getApellido());
 			cuenta.getFuncionario().getPersona().setNombre(cue.getFuncionario().getPersona().getNombre());
 			cuenta.getFuncionario().getPersona().setApellido(cue.getFuncionario().getPersona().getApellido());
-			cuenta.getCompra().setFechaFactura(cue.getFecha());
-
+			
+			cuenta.getCompra().setNroDocumento(cue.getCompra().getNroDocumento());
+			cuenta.getCompra().setFecha(cue.getCompra().getFecha());
+			cuenta.getCompra().setFechaFactura(cue.getCompra().getFechaFactura());
+			cuenta.getCompra().setDetalleCompra(cue.getCompra().getDetalleCompra());
 			//cuenta.getVenta().setFecha(sumarDia(cue.getFecha(), (24 * cue.getTipoPlazo().getValor())));
 			//cuenta.getTipoPlazo().setValor(validarDiaAtraso(cuenta.getVenta().getFecha()));
 			listadoRetorno.add(cuenta);
-		}
-		return listadoRetorno;
+		}*/
+		return lis;
 	}
 
 	public List<CuentaPagarCabecera> listadoDetalleCuenta(List<CuentaPagarCabecera> lis){
@@ -337,8 +346,11 @@ public class CuentaPagarCabeceraController {
 			cuenta.getFuncionario().getPersona().setNombre(cue.getFuncionario().getPersona().getNombre());
 			cuenta.getFuncionario().getPersona().setApellido(cue.getFuncionario().getPersona().getApellido());
 			cuenta.setFecha(cue.getFecha());
+			cuenta.getCompra().setNroDocumento(cue.getCompra().getNroDocumento());
+			cuenta.getCompra().setFecha(cue.getCompra().getFecha());
+			cuenta.getCompra().setFechaFactura(cue.getCompra().getFechaFactura());
 
-			cuenta.getCompra().setFecha(sumarDia(cue.getFecha(), (24 * cue.getTipoPlazo().getValor())));
+//			cuenta.getCompra().setFecha(sumarDia(cue.getFecha(), (24 * cue.getTipoPlazo().getValor())));
 			cuenta.getTipoPlazo().setValor(validarDiaAtraso(cuenta.getCompra().getFecha()));
 			System.out.println("Cuneta dia atraso:  "+cuenta.getTipoPlazo().getValor());
 			listadoRetorno.add(cuenta);
@@ -541,9 +553,64 @@ public class CuentaPagarCabeceraController {
 	}else {
 		return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 	}
-	
 		
+}
+	@RequestMapping(method = RequestMethod.GET, value="/reporteCuentaProveedorCabecera/rango/{id}/{tipo}/{detallado}/{fechaI}/{fechaF}")
+	public  ResponseEntity<?> getReporteCuentaPagarProveedorRango(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id, @PathVariable int tipo, @PathVariable int detallado, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException, ParseException{
+		List<CuentaPagarCabecera> lis =new ArrayList<>();
 		
+		Calendar cc= Calendar.getInstance();
+		SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+		Date fecI;
+		System.out.println("fecha que viene: "+fechaI+ ", "+fechaF);
+		fecI = formater.parse(fechaI);
+		Date fecF=formater.parse(fechaF);
+		System.out.println(fecF.getDate());
+		fecF.setHours(24);
+		fecI.setHours(0);
+		System.out.println("hora final fechas::: "+fecF+ " hora inicio finbal: "+fecI);
+
+		if(tipo == 1){
+			lis= entityRepository.findByCuentaPorIdProveedorRangoFechaTodos(id,fecI, fecF);
+		}
+		if(tipo == 2){
+			lis= entityRepository.findByCuentaPorIdProveedorRangoFechaAPagar(id,fecI, fecF);
+		}
+		if(tipo == 3){
+			lis= entityRepository.findByCuentaPorIdProveedorRangoFechaPagado(id,fecI, fecF);
+
+		}
+		List<CuentaPagarCabecera> listado= listadoCuentaProveedor(lis);
+		System.out.println(listado.size()+ "   *+*+*+*");
+		String nombreCliente="";
+		if(listado.size()>0) {
+			nombreCliente =listado.get(0).getProveedor().getPersona().getNombre()+"";
+			Usuario usuario = usuarioService.findByUsername(authentication.getName());
+			Org org = orgRepository.findById(1).get();
+
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+			map.put("proveedor", nombreCliente);
+			map.put("desde", fechaI);
+			map.put("hasta", fechaF);
+
+			report = new Reporte();
+			if(detallado==1) {
+				report.reportPDFDescarga(listado, map, "ReporteCuentaProveedor", response);
+			}else {
+				report.reportPDFDescarga(listado, map, "ReporteCuentaProveedorDetallado", response);
+			}
+
+			return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+		}else {
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
 	}
 	
 	

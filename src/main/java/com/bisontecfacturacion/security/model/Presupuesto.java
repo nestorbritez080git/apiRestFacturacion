@@ -38,6 +38,8 @@ public class Presupuesto {
 	
 	@ManyToOne
 	private Funcionario funcionario;
+	private String obs;
+
 	
 	
 	@ManyToOne
@@ -65,6 +67,17 @@ public class Presupuesto {
 		this.totalLetra="";
 		this.totalExcenta=0.0;
 		this.estado="";
+		this.obs="";
+	}
+
+
+	public String getObs() {
+		return obs;
+	}
+
+
+	public void setObs(String obs) {
+		this.obs = obs;
 	}
 
 

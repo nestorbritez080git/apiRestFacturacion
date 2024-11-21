@@ -24,7 +24,7 @@ public interface CuentaAcobrarDetalleRepository extends JpaRepository<CuentaCobr
 	@Query("update CuentaCobrarDetalle set importe=subTotal, fechaPago=:fecha, estado=:est where cuenta_cobrar_cabecera_id=:id")
 	public void liquidarDetalle(@Param("id") int id, @Param("fecha") Date fecha, @Param("est") Boolean est);
 	
-	@Query(value ="select dv.descripcion as des, dv.precio as precio, dv.cantidad as cantidad, dv.sub_total as subtotal, um.descripcion from cuenta_cobrar_cabecera ccc inner join venta v on ccc.venta_id=v.id inner join detalle_producto dv on dv.venta_id=v.id inner join producto p on dv.producto_id=p.id inner join unidad_medida um on p.unidad_medida_id=um.id where ccc.id=:idCabecera", nativeQuery = true)
+	@Query(value ="select dv.descripcion as des, dv.precio as precio, dv.cantidad as cantidad, dv.sub_total as subtotal, um.descripcion, dv.id as idDetalle, p.id as idProd from cuenta_cobrar_cabecera ccc inner join venta v on ccc.venta_id=v.id inner join detalle_producto dv on dv.venta_id=v.id inner join producto p on dv.producto_id=p.id inner join unidad_medida um on p.unidad_medida_id=um.id where ccc.id=:idCabecera", nativeQuery = true)
 	List<Object[]> getDetalleProductoVentaCuenta(@Param("idCabecera") int idCabecera);
 	
 	@Query(value ="select ds.descripcion as des, ds.precio as precio, ds.cantidad as cantidad, ds.sub_total as subtotal from cuenta_cobrar_cabecera ccc inner join venta v on ccc.venta_id=v.id inner join detalle_servicios ds on ds.venta_id=v.id where ccc.id=:idCabecera", nativeQuery = true)

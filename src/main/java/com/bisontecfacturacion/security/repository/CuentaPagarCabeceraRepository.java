@@ -1,6 +1,7 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -91,13 +92,21 @@ public interface CuentaPagarCabeceraRepository extends JpaRepository<CuentaPagar
 	
 	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, proveedor.id, persona.cedula from proveedor inner join cuenta_pagar_cabecera c on c.proveedor_id = proveedor.id inner join persona on persona.id=proveedor.persona_id where (c.pagado = c.total and persona.cedula like :desc and c.despacho_entrada_credito_id !=0) or (c.pagado = c.total and persona.apellido like :desc and c.despacho_entrada_credito_id !=0) or (c.pagado = c.total and persona.nombre like :desc and c.despacho_entrada_credito_id !=0) group by persona.nombre, persona.apellido, proveedor.id, persona.cedula limit 50",nativeQuery = true)
 	List<Object[]> getDespSalidaCreditoFiltroPagado(@Param("desc") String des);
+
 	
+	//SERVICIO REPORTE CUENTA PROVEEDOR POR RANGI DE FECHA POR TIPO TODOS, PAGADO, A PAGAR
+	@Query("SELECT cpc FROM CuentaPagarCabecera cpc  INNER JOIN cpc.compra com INNER JOIN cpc.proveedor pro INNER JOIN cpc.funcionario fun WHERE pro.id = :id AND (com.fechaFactura >=:fecIni AND com.fechaFactura <=:fecFin) order by cpc.id desc")
+	public List<CuentaPagarCabecera> findByCuentaPorIdProveedorRangoFechaTodos(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin") Date fecFin);
+	@Query("SELECT cpc FROM CuentaPagarCabecera cpc  INNER JOIN cpc.compra com INNER JOIN cpc.proveedor pro INNER JOIN cpc.funcionario fun where cpc.saldo > 0 and pro.id = :id AND (com.fechaFactura >=:fecIni AND com.fechaFactura <=:fecFin) order by cpc.id desc")
+	public List<CuentaPagarCabecera> findByCuentaPorIdProveedorRangoFechaAPagar(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin") Date fecFin);
+	@Query("SELECT cpc FROM CuentaPagarCabecera cpc  INNER JOIN cpc.compra com INNER JOIN cpc.proveedor pro INNER JOIN cpc.funcionario fun where cpc.saldo = 0 and pro.id = :id AND (com.fechaFactura >=:fecIni AND com.fechaFactura <=:fecFin) order by cpc.id desc")
+	public List<CuentaPagarCabecera> findByCuentaPorIdProveedorRangoFechaPagado(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin") Date fecFin);
 	
-	@Query("select  c from CuentaPagarCabecera c where proveedor_id=:id order by id desc")
+	@Query("SELECT cpc FROM CuentaPagarCabecera cpc  INNER JOIN cpc.compra com INNER JOIN cpc.proveedor pro INNER JOIN cpc.funcionario fun WHERE pro.id = :id order by cpc.id desc")
 	public List<CuentaPagarCabecera> findByCuentaPorIdTodo(@Param("id") int id);
-	@Query("select  c from CuentaPagarCabecera c where saldo > 0 and proveedor_id=:id order by id desc")
+	@Query("SELECT cpc FROM CuentaPagarCabecera cpc  INNER JOIN cpc.compra com INNER JOIN cpc.proveedor pro INNER JOIN cpc.funcionario fun where cpc.saldo > 0 and pro.id = :id order by cpc.id desc")
 	public List<CuentaPagarCabecera> findByCuentaPorIdAPagarListas(@Param("id") int id);
-	@Query("select  c from CuentaPagarCabecera c where saldo = 0 and cliente_id=:id order by id desc")
+	@Query("SELECT cpc FROM CuentaPagarCabecera cpc  INNER JOIN cpc.compra com INNER JOIN cpc.proveedor pro INNER JOIN cpc.funcionario fun where cpc.saldo = 0 and pro.id = :id order by cpc.id desc")
 	public List<CuentaPagarCabecera> findByCuentaPorIdPagado(@Param("id") int id);
 	
 	

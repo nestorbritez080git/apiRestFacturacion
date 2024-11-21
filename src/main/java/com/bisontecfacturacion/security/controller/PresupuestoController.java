@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.controller;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,9 +10,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxiliar;
+import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
@@ -30,16 +36,19 @@ import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.Impresora;
+import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Pedido;
 import com.bisontecfacturacion.security.model.PedidoDetalle;
 import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
+import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
+import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoDetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoDetalleServicioRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoRepository;
@@ -48,6 +57,7 @@ import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
 import com.bisontecfacturacion.security.repository.ReporteFormatoDatosRepository;
 import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
+import com.bisontecfacturacion.security.service.IUsuarioService;
 
 @Transactional
 @RestController
@@ -78,10 +88,11 @@ public class PresupuestoController {
 	private ReporteFormatoDatosRepository reporteFormatoDatosRepository;
 	
 	@Autowired
-	private ClienteRepository clienteRepository;
-	
+	private IUsuarioService usuarioService;
 	@Autowired
-	private FuncionarioRepository funcionarioRepository;
+	private OrgRepository orgRepository;
+	
+	private Reporte report;
 	
 
 
@@ -172,6 +183,7 @@ public class PresupuestoController {
 		pre.setTotalIva(v.getTotalIva());
 		pre.setTotalExcenta(v.getTotalExcenta());
 		pre.setTotalLetra(v.getTotalLetra());
+		pre.setObs(v.getObs());
 		return pre;
 	}
 
@@ -275,7 +287,9 @@ public class PresupuestoController {
 				return new ResponseEntity<>(new CustomerErrorType("EL CLIENTE NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getDetallePresupuestoProducto().size() == 0 && entity.getDetallePresupuestoServicio().size() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("LA GRILLA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			} else 
+			} else if(entity.getObs() != null){
+				entity.setObs(entity.getObs().toUpperCase());
+			}
 			{
 				for(int ind=0; ind < entity.getDetallePresupuestoProducto().size(); ind++) {
 					DetallePresupuestoProducto pro = entity.getDetallePresupuestoProducto().get(ind);
@@ -405,7 +419,7 @@ public class PresupuestoController {
 					entity.setTotalIva(total10+total5);
 					entityRepository.save(entity);
 					System.out.println("entro udpate nuevo");	
-				//pdfPrintPresupuesto(idVent);
+				//  pdfPrintPresupuesto(idVent);
 				}
 			}
 			/*
@@ -452,11 +466,11 @@ public class PresupuestoController {
 			ReporteConfig reportConfig = reporteConfigRepository.getOne(2);
 			List<Presupuesto> venta = getListasss(pres.getId());
 			Map<String, Object> map = new HashMap<>();
-			
-	
 				if (t.getImpresora().equals("matricial")) {
 				ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
 				String urlReporte ="\\reporte\\"+reportConfig.getNombreSubReporte1()+".jasper";
+				System.out.println("NOMBRE REPORTE: "+reportConfig.getNombreReporte());
+				System.out.println("NOMBRE SUBREPORTE: "+urlReporte);
 				map.put("urlSubRepor", urlReporte);
 				map.put("tituloReporte", f.getTitulo());
 				map.put("razonSocialReporte", f.getRazonSocial());
@@ -523,6 +537,22 @@ public class PresupuestoController {
 		return detalleProducto;
 	}
 	public Presupuesto presupuestosss(int idPresupuesto) {
+		Presupuesto cv = null;
+
+		cv=entityRepository.findById(idPresupuesto).orElse(null);
+		//		System.out.println(""+cv.getCliente().getPersona().);
+		/*
+		List<Venta> v= new ArrayList<Venta>();
+		v.add(cv);
+		for(int i = 0; i < 1; i++) {
+			cv = new Venta();
+			cv = v.get(i);
+			System.out.println(cv.getCliente().getPersona().getNombre()+"asdfadsfasdfadsads");
+
+		}*/
+
+		return cv;
+		/*
 		Presupuesto pre = null;
 		List<Object[]> v=entityRepository.getPresupuestoId(idPresupuesto);
 		for(Object[] ob: v) {
@@ -541,7 +571,7 @@ public class PresupuestoController {
 			pre.setNroDocumento(ob[10].toString());
 			//pre.getDocumento().setDescripcion(ob[12].toString());
 		}
-		return pre;
+		return pre;*/
 	}
 
 	public List<Presupuesto> getListasss(int idPresupuesto ) {
@@ -560,12 +590,13 @@ public class PresupuestoController {
 
 		for (int i = 0; i < 1; i++) {
 			Presupuesto v = new Presupuesto();
-			v.getCliente().getPersona().setNombre(presu.getCliente().getPersona().getNombre());
+			v.getCliente().getPersona().setNombre(presu.getCliente().getPersona().getNombre()+" "+presu.getCliente().getPersona().getApellido());
 			v.getCliente().getPersona().setCedula(presu.getCliente().getPersona().getCedula());
 			v.getCliente().getPersona().setDireccion(presu.getCliente().getPersona().getDireccion());
+			v.getCliente().getPersona().setTelefono(presu.getCliente().getPersona().getTelefono());
 			v.setFecha(presu.getFecha());
 			v.setHora(presu.getHora());
-			v.getFuncionario().getPersona().setNombre(presu.getFuncionario().getPersona().getNombre());
+			v.getFuncionario().getPersona().setNombre(presu.getFuncionario().getPersona().getNombre()+" "+presu.getFuncionario().getPersona().getApellido());
 			v.setTotalIvaCinco(presu.getTotalIvaCinco());
 			v.setTotalIvaDies(presu.getTotalIvaDies());
 			v.setTotal(presu.getTotal());
@@ -573,7 +604,9 @@ public class PresupuestoController {
 			v.setNroDocumento(presu.getNroDocumento());
 			//v.getDocumento().setDescripcion(venta.getDocumento().getDescripcion());
 
-
+			v.setId(presu.getId());
+			v.setEstado(presu.getEstado());
+			v.setObs(presu.getObs());
 			v.setDetallePresupuestoProducto(detProducto);
 
 
@@ -597,6 +630,56 @@ public class PresupuestoController {
 		
 		return lista;
 
+	}
+	
+	@RequestMapping(value="/descargarPdf/{id}", method=RequestMethod.GET)
+	public ResponseEntity<?>  resumenConcepto(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		Presupuesto pre= new Presupuesto(); 
+		pre=entityRepository.getOne(id);
+		List<Presupuesto> listado= new ArrayList<Presupuesto>();
+		listado.add(pre);
+		List<Presupuesto> listadoRetorno= new ArrayList<Presupuesto>();
+
+		for (int i = 0; i < listado.size(); i++) {
+			
+			for (int j = 0; j < listado.get(i).getDetallePresupuestoServicio().size(); j++) {
+				DetallePresupuestoServicio detAux = listado.get(i).getDetallePresupuestoServicio().get(j);
+				DetallePresupuestoProducto detAgregar =new DetallePresupuestoProducto();
+
+				
+				detAgregar.setDescripcion("SER - "+detAux.getDescripcion());
+				detAgregar.getProducto().setCodbar(detAux.getServicio().getId()+"");
+				detAgregar.setCantidad(detAux.getCantidad());
+				detAgregar.setPrecio(detAux.getPrecio());
+				detAgregar.getProducto().getUnidadMedida().setDescripcion("UN");;
+				detAgregar.setIva(detAux.getIva()+"");
+				detAgregar.setSubTotal(detAux.getSubTotal());
+				detAgregar.setMontoIva(detAux.getMontoIva());
+				listado.get(i).getDetallePresupuestoProducto().add(detAgregar);
+			}
+		}
+		try {
+		
+				Map<String, Object> map = new HashMap<>();
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+		
+				report = new Reporte();
+				report.reportPDFDescarga(listado, map, "ReportePresupuestoPdf", response);
+				//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
 	
 

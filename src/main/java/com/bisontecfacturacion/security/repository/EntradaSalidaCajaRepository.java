@@ -14,6 +14,8 @@ import com.bisontecfacturacion.security.model.EntradaSalidaCaja;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+
+@Transactional(readOnly=true)
 @Repository
 public interface EntradaSalidaCajaRepository extends JpaRepository<EntradaSalidaCaja, Serializable> {
 
@@ -26,5 +28,10 @@ public interface EntradaSalidaCajaRepository extends JpaRepository<EntradaSalida
 	public void findByActualizarEntradaSalidaCajaCabeceraOperacion(@Param("id") int id, @Param("operacionCaja") int operacionCaja);
 	@Query("select c from EntradaSalidaCaja c where c.id=:id ")
 	public EntradaSalidaCaja getEntradaSalidaPorId(@Param("id") int id);
+	
+	@Modifying
+    @Transactional(readOnly=false)
+    @Query("update EntradaSalidaCaja set referencia=:refere where id=:id")
+    public void findByActualizaReferencia(@Param("refere") String refere ,@Param("id") int id);
 
 }

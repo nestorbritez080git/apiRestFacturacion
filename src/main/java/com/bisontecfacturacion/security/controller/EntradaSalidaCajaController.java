@@ -1,7 +1,10 @@
 package com.bisontecfacturacion.security.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,7 +58,7 @@ public class EntradaSalidaCajaController {
 			return new ResponseEntity<>(new CustomerErrorType("EL MOTIVO DE LA OPERACIÓN NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 		}
 		
-		entityRepository.save(entity);
+		entity.setHora(hora());
 		OperacionCaja op= new OperacionCaja();
 		op.setMonto(entity.getMonto());
 		op.getTipoOperacion().setId(entity.getTipoOperacion().getId());
@@ -103,13 +106,41 @@ public class EntradaSalidaCajaController {
 			}
 		}
 		operacionCajaRepository.save(op);
+		
 		OperacionCaja opera =  operacionCajaRepository.findTop1ByOrderByIdDesc();
+		
+
+		entity.setOperacionCaja(opera);
+		entityRepository.save(entity);
 		EntradaSalidaCaja entSalCaja= entityRepository.findTop1ByOrderByIdDesc();
-		entityRepository.findByActualizarEntradaSalidaCajaCabeceraOperacion(entSalCaja.getId(), opera.getId());
+		Concepto cc= new Concepto();
+
+		if(entity.getTipoMovimiento().getId()==1) {
+			opera.getConcepto().setId(10);
+			cc= conceptoRepository.findById(10).get();
+			opera.setMotivo(cc.getDescripcion()+" REF.: "+ entSalCaja.getId());
+			opera.setTipo("ENTRADA");
+			System.out.println("Entrada");
+			
+			
+		}else if(entity.getTipoMovimiento().getId()==2) {
+			System.out.println("Salida");
+			opera.getConcepto().setId(11);
+			cc= conceptoRepository.findById(11).get();
+			opera.setMotivo(cc.getDescripcion()+" REF.: "+ entSalCaja.getId());
+			opera.setTipo("SALIDA");
+			
+		}
+		operacionCajaRepository.save(opera);
+		
+//		entityRepository.findByActualizarEntradaSalidaCajaCabeceraOperacion(entSalCaja.getId(), opera.getId());
 		return new ResponseEntity<String>(HttpStatus.CREATED);
 	}
+	public String hora() {
+		return new SimpleDateFormat("HH:mm:ss a", Locale.US).format(new Date());
+	}
 	
-	public List<EntradaSalidaCaja> listado(List<Object[]> lista) {
+	public List<EntradaSalidaCaja> listadosss(List<Object[]> lista) {
 		List<EntradaSalidaCaja> listadoRetorno = new ArrayList<EntradaSalidaCaja>();
 		//List<Object> listadoRetorno = new ArrayList<EntradaSalidaCaja>();
 		for(Object[] l: lista) {
@@ -124,13 +155,18 @@ public class EntradaSalidaCajaController {
 			o.getTipoMovimiento().setDescripcion(l[0].toString());
 			o.setMonto(Double.parseDouble(l[0].toString()));
 			o.setMotivo(l[0].toString());
-			o.setOperacionCaja(Integer.parseInt(l[0].toString()));
+//			o.setOperacionCaja(Integer.parseInt(l[0].toString()));
 			listadoRetorno.add(o);
 		}
 		
 		return listadoRetorno;
 	}
 	
+	@RequestMapping(method=RequestMethod.GET,value = "/updateReferencia/{id}/{refere}")
+	public ResponseEntity<?> updateReferencia(@PathVariable int id, @PathVariable String refere){
+		entityRepository.findByActualizaReferencia(refere, id);
+		return new ResponseEntity<String>(HttpStatus.CREATED);
+	}
 	@RequestMapping(method=RequestMethod.GET, value="/{fecha}")
 	public List<EntradaSalidaCaja> getAlls(@PathVariable String fecha){
 		String[] fec=fecha.split("-");
@@ -151,8 +187,11 @@ public class EntradaSalidaCajaController {
 			retorno.getTipoMovimiento().setDescripcion(ob.getTipoMovimiento().getDescripcion());
 			retorno.setMonto(ob.getMonto());
 			retorno.setMotivo(ob.getMotivo());
-			retorno.setOperacionCaja(ob.getOperacionCaja());
-			venta.add(retorno);
+			retorno.setHora(ob.getHora());
+			retorno.getOperacionCaja().setId(ob.getOperacionCaja().getId());
+			retorno.setReferencia(ob.getReferencia());
+			System.out.println(retorno.getOperacionCaja().getId());
+			venta.add(retorno); 
 		}
 		return venta;
 	}

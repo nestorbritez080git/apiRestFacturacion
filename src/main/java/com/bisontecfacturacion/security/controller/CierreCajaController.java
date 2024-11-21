@@ -522,7 +522,4 @@ public class CierreCajaController {
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
 	
-	
-	
-	
 }

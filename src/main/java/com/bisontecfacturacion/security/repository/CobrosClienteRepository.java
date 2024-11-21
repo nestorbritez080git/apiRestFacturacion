@@ -54,7 +54,7 @@ public interface CobrosClienteRepository extends JpaRepository<CobrosCliente, Se
 	@Query(value = "SELECT ccc.fecha, p.nombre, p.apellido FROM cuenta_cobrar_cabecera ccc INNER JOIN cliente c ON ccc.cliente_id=c.id INNER JOIN persona p ON c.persona_id=p.id  WHERE c.id = :id order by ccc.fecha desc limit 1",nativeQuery=true)
 	public List<Object[]> getCuentaCobrarCabeceraIdCliente(@Param("id") int id);
 	
-	@Query(value = "select pfun.nombre || ' ' || pfun.apellido as funcionarioCobros, cob.fecha as fec, cob.total as totalCob, cob.id as idCob  from cobros_cliente_cabecera cob  inner join funcionario fun on fun.id= cob.funcionario_id inner join persona pfun ON pfun.id= fun.persona_id where cliente_id =:id ORDER BY cob.id ASC",nativeQuery=true)
+	@Query(value = "select pfun.nombre || ' ' || pfun.apellido as funcionarioCobros, cob.fecha as fec, cob.total as totalCob, cob.id as idCob  from cobros_cliente_cabecera cob  inner join funcionario fun on fun.id= cob.funcionario_id inner join persona pfun ON pfun.id= fun.persona_id where cliente_id =:id ORDER BY cob.id DESC",nativeQuery=true)
 	public List<Object[]> getCobrosClienteCabecera(@Param("id") int id);
 	
 	@Query(value = "SELECT to_char(ccc.fecha, 'TMMonth')  || '-' || date_part('year', ccc.fecha ) as fecha, sum(ccc.total) as total, sum(ccc.pagado) as pagado, sum(ccc.saldo) as saldo, extract(month from cast(ccc.fecha as Date)) as mes FROM cuenta_cobrar_cabecera ccc  where cliente_id = :id and  extract(year from cast(ccc.fecha as Date))=:anho and ccc.pagado = ccc.total group by to_char(ccc.fecha, 'TMMonth'), date_part('year', ccc.fecha), mes order by mes desc",nativeQuery=true)
@@ -72,6 +72,10 @@ public interface CobrosClienteRepository extends JpaRepository<CobrosCliente, Se
 	@Query("SELECT c FROM CobrosClienteCabecera c WHERE id=:id")
 	public CobrosClienteCabecera getCobrosCabeceraPorId(@Param("id") int id);
 
+	@Query(value = "select c from CobrosCliente c where id=:id")
+	public List<CobrosCliente> getCobrosClientePorId(@Param("id") int id);
 	
+	@Query(value = "select c from CobrosCliente c where cobros_cliente_cabecera_id=:id")
+	public List<CobrosCliente> getCobrosClientePorIdCabecera(@Param("id") int id);
 
 }

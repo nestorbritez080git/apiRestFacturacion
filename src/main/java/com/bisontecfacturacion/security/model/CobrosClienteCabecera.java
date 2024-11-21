@@ -1,16 +1,20 @@
 package com.bisontecfacturacion.security.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.lang.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class CobrosClienteCabecera {
@@ -26,12 +30,18 @@ public class CobrosClienteCabecera {
 	private Funcionario funcionario;
 	@ManyToOne
 	private Cliente cliente;
+	@JsonIgnoreProperties("venta")
+	@OneToMany(mappedBy="cobrosClienteCabecera")
+	private List<CobrosCliente> cobrosClientes;
+	
     public CobrosClienteCabecera() {
 		this.id=0;
 		this.fecha= new Date();
 		this.total=0.0;
 		this.funcionario = new Funcionario();
 		this.cliente = new Cliente();
+		this.cobrosClientes = new ArrayList<CobrosCliente>();
+
 	}
 	public int getId() {
 		return id;
@@ -62,6 +72,12 @@ public class CobrosClienteCabecera {
 	}
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
+	}
+	public List<CobrosCliente> getCobrosClientes() {
+		return cobrosClientes;
+	}
+	public void setCobrosClientes(List<CobrosCliente> cobrosClientes) {
+		this.cobrosClientes = cobrosClientes;
 	}
     
 	

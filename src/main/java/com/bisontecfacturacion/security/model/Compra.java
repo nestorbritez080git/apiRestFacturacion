@@ -29,6 +29,7 @@ public class Compra {
 	private Date fecha;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fechaFactura;
+	
 	private String hora;
 	private double total;
 	private String nroDocumento;

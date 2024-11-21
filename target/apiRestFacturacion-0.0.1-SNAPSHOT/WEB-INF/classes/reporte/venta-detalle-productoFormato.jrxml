@@ -61,7 +61,7 @@
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.0").format($F{cantidad})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="111" y="1" width="205" height="12" uuid="67b63645-b7b4-4a5f-b93f-a4cbce670cf5">
+				<reportElement x="111" y="1" width="197" height="12" uuid="67b63645-b7b4-4a5f-b93f-a4cbce670cf5">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -70,9 +70,10 @@
 				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="316" y="1" width="70" height="12" uuid="0eb09c00-ae37-4d23-ae64-6c3985df4fb3">
+				<reportElement x="308" y="1" width="65" height="12" uuid="0eb09c00-ae37-4d23-ae64-6c3985df4fb3">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="8"/>
@@ -80,8 +81,9 @@
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($F{precio})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement isPrintRepeatedValues="false" x="387" y="1" width="37" height="12" uuid="00045d65-0b36-4fc2-8b2d-7326010c8ef3">
+				<reportElement isPrintRepeatedValues="false" x="374" y="1" width="65" height="12" uuid="00045d65-0b36-4fc2-8b2d-7326010c8ef3">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					<printWhenExpression><![CDATA[$F{iva}.equals("Exenta")]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -90,7 +92,8 @@
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.0").format($F{subTotal})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="425" y="1" width="60" height="12" uuid="1c00bf89-7b76-4cec-94eb-b3a26b23cbe3">
+				<reportElement x="440" y="1" width="65" height="12" uuid="1c00bf89-7b76-4cec-94eb-b3a26b23cbe3">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					<printWhenExpression><![CDATA[$F{iva}.equals("5 %")]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -99,7 +102,8 @@
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($F{subTotal})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="485" y="1" width="84" height="12" uuid="5c5f2a2f-77f2-4287-ac6b-2b3bee8beac1">
+				<reportElement x="505" y="1" width="65" height="12" uuid="5c5f2a2f-77f2-4287-ac6b-2b3bee8beac1">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					<printWhenExpression><![CDATA[$F{iva}.equals("10 %")]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">

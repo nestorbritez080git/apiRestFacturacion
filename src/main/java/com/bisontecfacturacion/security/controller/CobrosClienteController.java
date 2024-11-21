@@ -33,11 +33,13 @@ import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.DetalleProducto;
+import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.Grupo;
 import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Org;
+import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
@@ -205,6 +207,7 @@ public class CobrosClienteController {
 				cob.getFuncionario().getPersona().setNombre(cobros.getFuncionario().getPersona().getNombre());
 				cob.getFuncionario().getPersona().setApellido(cobros.getFuncionario().getPersona().getApellido());
 				cob.setOperacionCaja(cobros.getOperacionCaja());
+				cob.getCobrosClienteCabecera().setId(cobros.getCobrosClienteCabecera().getId());
 				listadoRetorno.add(cob);
 			}
 		}
@@ -685,7 +688,9 @@ public  ResponseEntity<?> getReporteCobrosClienteRango(HttpServletResponse respo
 		Date fecF=formater.parse(fechaF);
 		System.out.println(fecF.getDate());
 		fecF.setHours(23);
-		fecI.setHours(1);
+		fecF.setSeconds(59);
+		fecI.setHours(0);
+		fecI.setSeconds(1);
 		System.out.println("hora final fechas::: "+fecF+ " hora inicio finbal: "+fecI);
 		List<CobrosClienteCabecera> listado= listado(cobrosClienteCabeceraRepository.findByCobrosClientePorRango(id, fecI, fecF));
 		if(listado.size()>0) {
@@ -731,9 +736,32 @@ public List<CobrosClienteCabecera> listado(List<CobrosClienteCabecera> lis){
 		cuenta.getFuncionario().getPersona().setNombre(cue.getFuncionario().getPersona().getNombre());
 		cuenta.getFuncionario().getPersona().setApellido(cue.getFuncionario().getPersona().getApellido());
 		cuenta.setFecha(cue.getFecha());
+		cuenta.setCobrosClientes(listaCobroClienteDetallado(cobrosClienteCabeceraRepository.findByCobrosDetalladoPorIdCabecera(cue.getId())));
+		System.out.println("LISTA TOTAL DE DETALLE COBROS: "+cuenta.getCobrosClientes().size());
 		listadoRetorno.add(cuenta);
 	}
 	return listadoRetorno;
+}
+private List<CobrosCliente> listaCobroClienteDetallado(List<CobrosCliente> lis){
+	List<CobrosCliente> listaRetorno = new  ArrayList<CobrosCliente>();
+	for(CobrosCliente ob: lis) {
+		CobrosCliente cob= new CobrosCliente();
+		cob.setId(ob.getId());
+		cob.getCuentaCobrarCabecera().setId(ob.getCuentaCobrarCabecera().getId());
+		cob.getCuentaCobrarCabecera().getVenta().setId(ob.getCuentaCobrarCabecera().getVenta().getId());
+		cob.getCuentaCobrarCabecera().setEntrega(ob.getCuentaCobrarCabecera().getEntrega());
+		cob.getCuentaCobrarCabecera().setTotal(ob.getCuentaCobrarCabecera().getTotal());
+		cob.getCuentaCobrarCabecera().setPagado(ob.getCuentaCobrarCabecera().getPagado());
+		cob.getCuentaCobrarCabecera().setSaldo(ob.getCuentaCobrarCabecera().getSaldo());
+		cob.getOperacionCaja().setId(ob.getOperacionCaja().getId());
+		cob.getCuentaCobrarCabecera().setFraccionCuota(ob.getCuentaCobrarCabecera().getFraccionCuota());
+		cob.setTotal(ob.getTotal());
+		listaRetorno.add(cob);
+		
+		
+		
+	}
+	return listaRetorno;
 }
 
 
@@ -752,6 +780,8 @@ public ResponseEntity<?>  descargarPdfCobros(HttpServletResponse response, OAuth
 		cob.getFuncionario().getPersona().setApellido(c.getFuncionario().getPersona().getApellido()+" ");
 		cob.setFecha(c.getFecha());
 		cob.setTotal(c.getTotal());
+		cob.setId(c.getId());
+		cob.setCobrosClientes(listaCobroClienteDetallado(entityRepository.getCobrosClientePorIdCabecera(idCobros)));
 		
 		listado.add(cob);
 		System.out.println("LISTA.SIZE::::"+ listado.size());
@@ -772,10 +802,45 @@ public ResponseEntity<?>  descargarPdfCobros(HttpServletResponse response, OAuth
 		map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
 		map.put("cliente", ""+cl.getPersona().getNombre()+" "+cl.getPersona().getApellido());
 		report = new Reporte();
-		report.reportPDFDescarga(listado, map, "ReporteCobrosClientesCabecera", response);
+		report.reportPDFDescarga(listado, map, "ReporteCobrosClientesPdf", response);
 
 	} catch (Exception e) {
 		e.printStackTrace();
+	}
+	return  new  ResponseEntity<String>(HttpStatus.OK);
+}
+
+
+
+@RequestMapping(value="/descargarCobros/unificado/{id}", method=RequestMethod.GET)
+public ResponseEntity<?>  resumenConcepto(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
+	Usuario usuario = usuarioService.findByUsername(authentication.getName());
+	Org org = orgRepository.findById(1).get();
+	CobrosCliente pre= new CobrosCliente(); 
+	pre=entityRepository.getOne(id);
+	
+	List<CobrosCliente> listado= new ArrayList<CobrosCliente>();
+	listado.add(pre);
+	Cliente cl= clienteRepository.getIdCliente(pre.getCobrosClienteCabecera().getCliente().getId());
+	
+	try {
+	
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+			map.put("cliente", ""+cl.getPersona().getNombre()+" "+cl.getPersona().getApellido());
+			report = new Reporte();
+			report.reportPDFDescarga(listado, map, "ReporteCobrosClientesUnificado", response);
+			//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+		
+	} catch (Exception e) {
+		e.printStackTrace();
+		return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 	}
 	return  new  ResponseEntity<String>(HttpStatus.OK);
 }

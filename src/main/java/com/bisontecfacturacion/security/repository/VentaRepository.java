@@ -51,6 +51,9 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 
 	@Query("select v from Venta v where v.id= :operacionCaja")
 	public Venta getVentaPorOperacionId(@Param("operacionCaja") int operacionCaja);
+	
+	@Query("select ccc from Venta ccc where ccc.id=:id AND ccc.estado='FACTURADO'")
+	public Venta getVentaIdFacturado(@Param("id") int id);
 
 	@Query("select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and v.estado ='FACTURADO'")
 	public List<Venta> getVentaPorRangoFechaHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
