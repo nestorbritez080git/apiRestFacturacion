@@ -136,6 +136,23 @@ public class PersonaController {
 			}
 			
 		}
+		if(param==4){
+			if(descripcion.equals("9999999999")){
+				lis=entityRepository.getListadoPersonaAlumnoAll();
+			}else{
+				lis=entityRepository.getListadoPersonaAlumno("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+			}
+			
+		}
+		if(param==5){
+			if(descripcion.equals("9999999999")){
+				lis=entityRepository.getListadoPersonaDocenteAll();
+			}else{
+				lis=entityRepository.getListadoPersonaDocente("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+			}
+			
+		}
+
 
 		return lis;
 

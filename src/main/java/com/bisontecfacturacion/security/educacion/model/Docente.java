@@ -16,10 +16,14 @@ public class Docente {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
+	private String tipoSangre;
+	private String datosClinico;
 	@ManyToOne
     private Persona persona;
 	public Docente() {
 		this.id=0;
+		this.tipoSangre="";
+		this.datosClinico="";
 		this.persona=new Persona();
 	}
 	public int getId() {
@@ -27,6 +31,19 @@ public class Docente {
 	}
 	public void setId(int id) {
 		this.id = id;
+	}
+	
+	public String getTipoSangre() {
+		return tipoSangre;
+	}
+	public void setTipoSangre(String tipoSangre) {
+		this.tipoSangre = tipoSangre;
+	}
+	public String getDatosClinico() {
+		return datosClinico;
+	}
+	public void setDatosClinico(String datosClinico) {
+		this.datosClinico = datosClinico;
 	}
 	public Persona getPersona() {
 		return persona;

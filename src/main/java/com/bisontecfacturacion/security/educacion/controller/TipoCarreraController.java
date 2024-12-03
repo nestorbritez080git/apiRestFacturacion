@@ -28,23 +28,23 @@ import com.bisontecfacturacion.security.service.CustomerErrorType;
 @RequestMapping("tipoCarrera")
 public class TipoCarreraController {
 	@Autowired
-	private CarreraRepository entityRepository;
+	private TipoCarreraRepository entityRepository;
 	
 	@RequestMapping(method = RequestMethod.GET)
-	public List<Carrera> getAllTipoCarrera(){
-		 return entityRepository.findAll();
+	public List<TipoCarrera> getAllTipoCarrera(){
+		 return listSer(entityRepository.findAll());
 	}
 	@Transactional
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> guardar(@RequestBody Carrera entity){
+	public ResponseEntity<?> guardar(@RequestBody TipoCarrera entity){
 		try {
 			if(entity.getDescripcion()!=null){
 				entity.setDescripcion(Utilidades.eliminaCaracterIzqDer(entity.getDescripcion().trim().toUpperCase()));			
 			}else {
 				return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL ES OBLIGATORIO"), HttpStatus.CONFLICT);
 			}
-			if(entity.getAplicacion()!=null){
-				entity.setAplicacion(Utilidades.eliminaCaracterIzqDer(entity.getAplicacion().trim().toUpperCase()));			
+			if(entity.getObservacion()!=null){
+				entity.setObservacion(Utilidades.eliminaCaracterIzqDer(entity.getObservacion().trim().toUpperCase()));			
 			}else {
 				
 			}
@@ -61,18 +61,21 @@ public class TipoCarreraController {
 		entityRepository.deleteById(id);
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/buscar/{descripcion}")
-	public List<Carrera> consultarPorDescripcion(@PathVariable String descripcion){
-		List<Carrera> objeto=entityRepository.getBuscarPorDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+	public List<TipoCarrera> consultarPorDescripcion(@PathVariable String descripcion){
+		List<TipoCarrera> objeto=entityRepository.getBuscarPorDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
 		return listSer(objeto);
 	}
-	public List<Carrera> listSer(List<Carrera> objeto) {
-		List<Carrera> servi=new ArrayList<>();
-		for(Carrera ob:objeto){
-			Carrera s=new Carrera();
+	@RequestMapping(method=RequestMethod.GET, value="/buscarId/{id}")
+	public TipoCarrera consultarPorId(@PathVariable int id){
+		return entityRepository.findById(id).orElse(null);
+	}
+	public List<TipoCarrera> listSer(List<TipoCarrera> objeto) {
+		List<TipoCarrera> servi=new ArrayList<>();
+		for(TipoCarrera ob:objeto){
+			TipoCarrera s=new TipoCarrera();
 			s.setId(ob.getId());
 			s.setDescripcion(ob.getDescripcion());
-			s.setCosto(ob.getCosto());
-			s.setAplicacion(ob.getAplicacion());
+			s.setObservacion(ob.getObservacion());
 			servi.add(s);
 		}
 		return servi;

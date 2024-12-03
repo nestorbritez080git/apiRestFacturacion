@@ -18,14 +18,22 @@ public class Carrera {
 	private int id;
 	@NotNull
 	private String descripcion;
-	private Double costo;
+	private Double costoMatricula;
+	private Double costoMensual;
+	private Double costoAumentoAnual;
+	private Double costoDerechoExamen;
+	private int duracion;
 	private String aplicacion;
 	@ManyToOne
 	private TipoCarrera tipoCarrera;
 	public Carrera() {
 		this.id=0;
 		this.descripcion="";
-		this.costo=0.0;
+		this.costoMatricula=0.0;
+		this.costoMensual=0.0;
+		this.costoAumentoAnual=0.0;
+		this.costoDerechoExamen=0.0;  
+		this.duracion=0;
 		this.aplicacion="";
 		this.tipoCarrera= new TipoCarrera();
 	}
@@ -41,11 +49,35 @@ public class Carrera {
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
-	public Double getCosto() {
-		return costo;
+	public Double getCostoMatricula() {
+		return costoMatricula;
 	}
-	public void setCosto(Double costo) {
-		this.costo = costo;
+	public void setCostoMatricula(Double costoMatricula) {
+		this.costoMatricula = costoMatricula;
+	}
+	public Double getCostoMensual() {
+		return costoMensual;
+	}
+	public void setCostoMensual(Double costoMensual) {
+		this.costoMensual = costoMensual;
+	}
+	public Double getCostoAumentoAnual() {
+		return costoAumentoAnual;
+	}
+	public void setCostoAumentoAnual(Double costoAumentoAnual) {
+		this.costoAumentoAnual = costoAumentoAnual;
+	}
+	public Double getCostoDerechoExamen() {
+		return costoDerechoExamen;
+	}
+	public void setCostoDerechoExamen(Double costoDerechoExamen) {
+		this.costoDerechoExamen = costoDerechoExamen;
+	}
+	public int getDuracion() {
+		return duracion;
+	}
+	public void setDuracion(int duracion) {
+		this.duracion = duracion;
 	}
 	public String getAplicacion() {
 		return aplicacion;
@@ -59,6 +91,5 @@ public class Carrera {
 	public void setTipoCarrera(TipoCarrera tipoCarrera) {
 		this.tipoCarrera = tipoCarrera;
 	}
-	
 	
 }

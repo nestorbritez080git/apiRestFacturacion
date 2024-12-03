@@ -20,17 +20,29 @@ public interface PersonaRepository extends JpaRepository<Persona, Serializable>{
 	
 
 
-	@Query(value = "select * from persona p where (not exists (select null from proveedor t2 where p.id=t2.persona_id) and p.nombre ilike :descripcion) OR (not exists (select null from cliente t2 where p.id=t2.persona_id) and p.apellido ILIKE :descripcion) order by id desc", nativeQuery = true)
+	@Query(value = "select * from persona p where (not exists (select null from proveedor t2 where p.id=t2.persona_id) and p.nombre ilike :descripcion) OR (not exists (select null from proveedor t2 where p.id=t2.persona_id) and p.apellido ILIKE :descripcion) order by id desc", nativeQuery = true)
 	public List<Persona> getListadoPersonaProveedor(@Param("descripcion") String descripcion);
 
 	@Query(value = "select * from persona p where not exists (select null from proveedor t2 where p.id=t2.persona_id) order by id desc", nativeQuery = true)
 	public List<Persona> getListadoPersonaProveedorAll();
 
+	@Query(value = "select * from persona p where not exists (select null from alumno t2 where p.id=t2.persona_id) order by id desc", nativeQuery = true)
+	public List<Persona> getListadoPersonaAlumnoAll();
 	
-
+	@Query(value = "select * from persona p where (not exists (select null from alumno t2 where p.id=t2.persona_id) and p.nombre ilike :descripcion) OR (not exists (select null from alumno t2 where p.id=t2.persona_id) and p.apellido ILIKE :descripcion) order by id desc", nativeQuery = true)
+	public List<Persona> getListadoPersonaAlumno(@Param("descripcion") String descripcion);
+	
+	@Query(value = "select * from persona p where not exists (select null from docente t2 where p.id=t2.persona_id) order by id desc", nativeQuery = true)
+	public List<Persona> getListadoPersonaDocenteAll();
+	
+	@Query(value = "select * from persona p where (not exists (select null from docente t2 where p.id=t2.persona_id) and p.nombre ilike :descripcion) OR (not exists (select null from docente t2 where p.id=t2.persona_id) and p.apellido ILIKE :descripcion) order by id desc", nativeQuery = true)
+	public List<Persona> getListadoPersonaDocente(@Param("descripcion") String descripcion);
+	
 	
 	@Query(value = "select * from persona p where (not exists (select null from cliente t2 where p.id=t2.persona_id) and p.nombre ilike :descripcion) OR (not exists (select null from cliente t2 where p.id=t2.persona_id) and p.apellido ILIKE :descripcion) order by id desc", nativeQuery = true)
 	public List<Persona> getListadoPersonaCliente(@Param("descripcion") String descripcion);
+	
+	
 
 	@Query(value = "select * from persona p where not exists (select null from cliente t2 where p.id=t2.persona_id) order by id desc", nativeQuery = true)
 	public List<Persona> getListadoPersonaClienteAll();
@@ -41,7 +53,7 @@ public interface PersonaRepository extends JpaRepository<Persona, Serializable>{
 	@Query(value = "select * from persona p where not exists (select null from funcionario t2 where p.id=t2.persona_id) order by id desc", nativeQuery = true)
 	public List<Persona> getListadoPersonaFuncionarioAll();
 
-	@Query(value = "select * from persona p where (not exists (select null from funcionario t2 where p.id=t2.persona_id) and p.nombre ilike :descripcion) OR (not exists (select null from cliente t2 where p.id=t2.persona_id) and p.apellido ILIKE :descripcion) order by id desc", nativeQuery = true)
+	@Query(value = "select * from persona p where (not exists (select null from funcionario t2 where p.id=t2.persona_id) and p.nombre ilike :descripcion) OR (not exists (select null from funcionario t2 where p.id=t2.persona_id) and p.apellido ILIKE :descripcion) order by id desc", nativeQuery = true)
 	public List<Persona> getListadoPersonaFuncionario(@Param("descripcion") String descripcion);
 
 
