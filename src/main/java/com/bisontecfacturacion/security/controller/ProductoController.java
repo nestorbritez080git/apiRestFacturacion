@@ -149,7 +149,9 @@ public class ProductoController {
 			List<Producto> objeto=entityRepository.listasLimites();
 			return product(objeto);
 		} else {
-			List<Producto> objeto=entityRepository.getBuscarPorDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+			 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+			  System.out.println("FILTRO: "+filtro);
+			List<Producto> objeto=entityRepository.getBuscarPorDescripcion(filtro);
 			return product(objeto);
 		}
 	}
@@ -160,7 +162,9 @@ public class ProductoController {
 			List<Producto> objeto=entityRepository.listaAjusteStock();
 			return product(objeto);
 		} else {
-			List<Producto> objeto=entityRepository.getBuscarPorDescripcionAjusteStock("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+			String filtro= "%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%";
+			  System.out.println("FILTRO: "+filtro);
+			List<Producto> objeto=entityRepository.getBuscarPorDescripcionAjusteStock(filtro);
 			return product(objeto);
 		}
 	}
@@ -373,7 +377,7 @@ public class ProductoController {
 			return new ResponseEntity<>(new CustomerErrorType("DEBES SELECCIONAR TIPO IVA"), HttpStatus.CONFLICT);
 		}
 		if(entity.getCodbar()!= ""){
-			if (siExiste(entity)) {
+			if (siExisteVerificacionNuevo(entity.getCodbar(), entity.getId())) {
 				return new ResponseEntity<>(new CustomerErrorType("EL CÓDIGO DE BARRA:  "+entity.getCodbar()+", YA EXISTE EN EL SISTEMA"), HttpStatus.CONFLICT);
 			}
 		}
@@ -383,14 +387,11 @@ public class ProductoController {
 		return  new  ResponseEntity<String>(HttpStatus.CREATED);
 	}
 
-	public boolean siExiste(Producto entity){
-		return entityRepository.findByCodbar(entity.getCodbar())!=null;
-	}
-	public Producto siExisteEditar(Producto entity){
-		if (entity.getCodbar() == null) {
-			entity.setCodbar("");
-		}
-		return entityRepository.findByCodbar(entity.getCodbar());
+	public Boolean siExisteVerificacionNuevo(String codbar, int id){
+		Boolean operacionRetrono=false;
+		Producto prod= entityRepository.verificarCodbarNuevo(codbar, id);
+		if(prod !=null) {operacionRetrono=true;}else {operacionRetrono=false;}
+		return operacionRetrono;
 	}
 
 	@RequestMapping(method=RequestMethod.PUT)
@@ -432,21 +433,11 @@ public class ProductoController {
 			return new ResponseEntity<>(new CustomerErrorType("DEBES SELECCIONAR TIPO IVA"), HttpStatus.CONFLICT);
 		}
 		if(entity.getCodbar()!= ""){
-			Producto p = new Producto();
-			p=siExisteEditar(entity);
-			if (p!=null) {
-				if(entity.getId()==p.getId()){
-					entityRepository.save(entity);
-				}else {
-					return new ResponseEntity<>(new CustomerErrorType("EL CÓDIGO DE BARRA:  "+entity.getCodbar()+", PERTENECE A UN PRODUCTO YA REGISTRADO ANTERIORMENTE"), HttpStatus.CONFLICT);
-				}
-			}else {
-				entityRepository.save(entity);
+			if (siExisteVerificacionNuevo(entity.getCodbar(), entity.getId())) {
+				return new ResponseEntity<>(new CustomerErrorType("EL CÓDIGO DE BARRA:  "+entity.getCodbar()+", YA EXISTE EN EL SISTEMA"), HttpStatus.CONFLICT);
 			}
-		}else {
-			entityRepository.save(entity);
 		}
-
+		entityRepository.save(entity);
 		return  new  ResponseEntity<String>(HttpStatus.CREATED);
 	}
 	@RequestMapping(method=RequestMethod.DELETE, value="/{id}")
@@ -505,7 +496,15 @@ public class ProductoController {
 		return new ResponseEntity<>(cargarProductoModelo(producto), HttpStatus.OK);
 
 	}
-
+	@RequestMapping(method=RequestMethod.GET, value="/codbarProducto/{codbar}/{idProducto}")
+	public ResponseEntity<?> buscarCodigoBarraProductoVerificacion(@PathVariable String codbar, @PathVariable int idProducto){
+		Producto pr=entityRepository.verificarCodbarNuevo(codbar, idProducto);
+		if(pr==null) {
+			return new ResponseEntity<>(null, HttpStatus.OK);	
+		}
+		
+		return new ResponseEntity<>(cargarProductoModelo(pr), HttpStatus.OK);
+	}
 
 	@RequestMapping(method=RequestMethod.POST, value="/buscar/descripcion")
 	public List<Producto> consultarPorDescripcion(@RequestBody String descripcion){
@@ -1441,7 +1440,7 @@ public class ProductoController {
 		}
 		
 		report = new Reporte();
-		report.reportPDFImprimir(producto, null, "Blank_A4", "Microsoft Print to PDF");			
+		//report.reportPDFImprimir(producto, null, "Blank_A4", "Microsoft Print to PDF");			
 	
 	}
 	

@@ -429,7 +429,7 @@ public class TesoreriaController {
 
 	@RequestMapping(method=RequestMethod.GET, value = "/transferenciaAnticipo/consultaTodo")
 	public List<TransferenciaAnticipo> consultarTransferenciaAnticipo() {
-		List<Object []> lisObj= transferenciaAnticipoRepository.consultarDetalleTransferenciaAnticipo();
+		List<Object []> lisObj= transferenciaAnticipoRepository.consultarDetalleTransferenciaAnticipos();
 		List<TransferenciaAnticipo> listRetorno= new ArrayList<TransferenciaAnticipo>();
 		for(Object [] ob :lisObj) {
 			TransferenciaAnticipo tf= new TransferenciaAnticipo();
@@ -454,9 +454,9 @@ public class TesoreriaController {
 			TransferenciaPagosProveedor tf= new TransferenciaPagosProveedor();
 			tf.setId(Integer.parseInt(ob[0].toString()));
 			tf.setFecha(FechaUtil.convertirFechaStringADateUtil(ob[1].toString()));
-			tf.getPagosProveedor().setId(Integer.parseInt(ob[2].toString()));
+			tf.getPagosProveedorCabecera().setId(Integer.parseInt(ob[2].toString()));
 			tf.getFuncionario().getPersona().setNombre(ob[3].toString()+ " "+ob[4].toString());
-			tf.getPagosProveedor().getFuncionarioA().getPersona().setNombre(ob[5].toString()+" "+ob[6].toString());
+			tf.getPagosProveedorCabecera().getFuncionarioA().getPersona().setNombre(ob[5].toString()+" "+ob[6].toString());
 			tf.setMonto(Double.parseDouble(ob[7].toString()));
 			tf.setMontoCheque(Double.parseDouble(ob[8].toString()));
 			tf.setMontoTarjeta(Double.parseDouble(ob[9].toString()));
@@ -527,6 +527,7 @@ public class TesoreriaController {
 
 		return listRetorno;
 	}
+	/*
 	@RequestMapping(method=RequestMethod.GET, value = "/transferenciaAperturaCaja/{id}")
 	public List<TransferenciaAperturaCaja> consultarTransferenciaAperturaCajaPorIdCajaChica(@PathVariable int id) {
 		List<Object []> lisObj= transferenciaAperturaCajaRepository.consultarTranferenciaAperturaCajaPorIdCajaChica(id);
@@ -547,7 +548,7 @@ public class TesoreriaController {
 
 		return listRetorno;
 	}
-	
+	*/
 
 	@RequestMapping(method=RequestMethod.GET, value="/pruebaaa/{fechaI}/{fechaF}")
 	public List<ResumenEntradaSalidaTipoOperacion> getResumenEntradaSalidaTipoOperacion(@PathVariable String fechaI, @PathVariable String fechaF){

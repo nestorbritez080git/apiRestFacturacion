@@ -9,13 +9,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bisontecfacturacion.security.model.Persona;
+import com.bisontecfacturacion.security.model.Venta;
 @Repository
 public interface PersonaRepository extends JpaRepository<Persona, Serializable>{
 	
 	public abstract List<Persona> findTop100ByOrderByIdDesc();
 	public abstract Persona findByCedula(String cedula);
 	
-	@Query("select p from Persona p where p.nombre like :descripcion% or p.apellido like :descripcion%")
+	public abstract Persona findTop1ByOrderByIdDesc();
+	
+	@Query("select p from Persona p where p.cedula like :descripcion% or p.nombre like :descripcion% or p.apellido like :descripcion%")
 	List<Persona> findByTop100DescripcionLike(@Param("descripcion") String descripcion);
 	
 

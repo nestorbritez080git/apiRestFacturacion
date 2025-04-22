@@ -10,8 +10,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaPagarCabecera;
+import com.bisontecfacturacion.security.model.PagosProveedorCabecera;
 
 
 public interface CuentaPagarCabeceraRepository extends JpaRepository<CuentaPagarCabecera, Serializable>{
@@ -48,10 +50,17 @@ public interface CuentaPagarCabeceraRepository extends JpaRepository<CuentaPagar
 	 @Query(value= "select det.numero_cuota as cuota, det.monto as monto, det.importe as imorte, det.sub_total as subtotal, det.fecha_vencimiento as venci from cuenta_pagar_detalle det where det.cuenta_pagar_cabecera_id=:idCuenta",nativeQuery = true)
 	 List<Object[]> getReporteExtractoCuentaPagarDetalleCuenta(@Param("idCuenta")int idCuenta);
 	 
+	@Query(value = "select pfun.nombre || ' ' || pfun.apellido as funcionarioCobros, cob.fecha_registro as fec, cob.fecha_pagos as fecPag cob.total as totalCob, cob.id as idCob  from pagos_proveedor_cabecera cob  inner join funcionario fun on fun.id= cob.funcionarior_id inner join persona pfun ON pfun.id= fun.persona_id where proveedor_id =:id ORDER BY cob.id DESC",nativeQuery=true)
+	public List<Object[]> getPagosProveedorCabecera(@Param("id") int id);
+	 
+	 
 	 @Modifying
 	 @Transactional(readOnly=false)
 	 @Query("update CuentaPagarCabecera set pagado=:pagado, saldo=:saldo where id=:id")
 	 public void findByCancelarCuentaCabecera(@Param("pagado") double pagado, @Param("saldo") double saldo, @Param("id") int id);
+	 
+	 @Query("select  c from PagosProveedorCabecera c where id=:id order by id desc")
+	 public PagosProveedorCabecera buscarPagosCabeceraPorId(@Param("id") int id);
 	 
 	 
 	 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,11 +120,22 @@ public interface CuentaPagarCabeceraRepository extends JpaRepository<CuentaPagar
 	
 	
 	
-	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, proveedor.id, persona.cedula from proveedor  inner join cuenta_pagar_cabecera c on c.proveedor_id = proveedor.id inner join persona on persona.id=proveedor.persona_id where c.saldo > 0 group by persona.nombre, persona.apellido, proveedor.id , persona.cedula",nativeQuery = true)
+	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, proveedor.id, persona.cedula, persona.direccion as dir, persona.telefono as tele, proveedor.numero_cuenta as num from proveedor  inner join cuenta_pagar_cabecera c on c.proveedor_id = proveedor.id inner join persona on persona.id=proveedor.persona_id where c.saldo > 0 group by persona.nombre, persona.apellido, proveedor.id, persona.cedula, persona.direccion, persona.telefono, proveedor.numero_cuenta",nativeQuery = true)
 	List<Object[]> getProveedorCuentaACobrar();
 
-	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, proveedor.id, persona.cedula from proveedor inner join cuenta_pagar_cabecera c on c.proveedor_id = proveedor.id inner join persona on persona.id=proveedor.persona_id where c.pagado = c.total  group by persona.nombre, persona.apellido, proveedor.id , persona.cedula",nativeQuery = true)
+	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, proveedor.id, persona.cedula, persona.direccion as dir, persona.telefono as tele, proveedor.numero_cuenta as num from proveedor inner join cuenta_pagar_cabecera c on c.proveedor_id = proveedor.id inner join persona on persona.id=proveedor.persona_id where c.pagado = c.total  group by persona.nombre, persona.apellido, proveedor.id, persona.cedula, persona.direccion, persona.telefono, proveedor.numero_cuenta",nativeQuery = true)
 	List<Object[]> getProveedorCuentaCobrado();
+	
+	
+	@Query("select  c from CuentaPagarCabecera c where saldo > 0 and proveedor_id=:id order by id asc")
+	public List<CuentaPagarCabecera> findByCuentaPorIdACobrars(@Param("id") int id);
+	
+	
+	@Modifying
+    @Transactional(readOnly=false)
+	@Query(value = "update cuenta_pagar_cabecera set pagado=pagado+:monto, saldo=saldo-:monto where id=:id", nativeQuery = true)
+	public void findByActualizarPagadoCuentaProveedor(@Param("id") int id, @Param("monto")double monto );
+	
 	
 
 }

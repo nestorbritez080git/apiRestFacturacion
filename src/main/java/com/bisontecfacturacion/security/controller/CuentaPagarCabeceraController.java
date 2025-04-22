@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Reporte;
+import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
@@ -33,6 +34,7 @@ import com.bisontecfacturacion.security.model.CuentaPagarDetalle;
 import com.bisontecfacturacion.security.model.DetalleCompra;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.Org;
+import com.bisontecfacturacion.security.model.PagosProveedorCabecera;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.CompraRepository;
@@ -79,6 +81,7 @@ public class CuentaPagarCabeceraController {
 			entity.getCompra().setId(v.getId());
 		}
 		try {
+			entity.getConcepto().setId(20);
 			 if(entity.getFuncionario().getId() == 0) {
 		            return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 		     } else if(entity.getTipoPlazo().getId() == 0) {
@@ -220,6 +223,27 @@ public class CuentaPagarCabeceraController {
 		
 		return cuenta;
 	}
+	@RequestMapping(method = RequestMethod.GET, value = "/cabecera/id/{id}")
+	public PagosProveedorCabecera buscarCobrosClienteCabeceraPorId(@PathVariable int id) {		
+		return cargarCabecera(entityRepository.buscarPagosCabeceraPorId(id));
+	}
+	
+	private PagosProveedorCabecera cargarCabecera(PagosProveedorCabecera ob) {
+		PagosProveedorCabecera c= new PagosProveedorCabecera();
+		c.setId(ob.getId());
+		c.getProveedor().getPersona().setNombre(ob.getProveedor().getPersona().getNombre()+ " "+ob.getProveedor().getPersona().getApellido());
+		c.getProveedor().getPersona().setCedula(ob.getProveedor().getPersona().getCedula());
+		c.getProveedor().getPersona().setDireccion(ob.getProveedor().getPersona().getDireccion());
+		c.getProveedor().getPersona().setTelefono(ob.getProveedor().getPersona().getTelefono());
+		c.getFuncionarioR().getPersona().setNombre(ob.getFuncionarioR().getPersona().getNombre()+" "+ob.getFuncionarioR().getPersona().getApellido());
+		c.setTotal(ob.getTotal());
+		c.setFechaRegistro(ob.getFechaRegistro());
+		c.setFechaPagos(ob.getFechaPagos());
+		c.setTotal(ob.getTotal());
+		c.setComprobante(ob.getComprobante());
+
+		return c;
+	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{desc}/{tipo}/{tipoCuenta}")
 	public List<CuentaPagarCabecera> getCuenta(@PathVariable String desc, @PathVariable int tipo, @PathVariable int tipoCuenta) {
@@ -299,9 +323,12 @@ public class CuentaPagarCabeceraController {
 			cuenta.setTotal(Double.parseDouble(cue[0].toString()));
 			cuenta.setPagado(Double.parseDouble(cue[1].toString()));
 			cuenta.setSaldo(Double.parseDouble(cue[2].toString()));
-			cuenta.getProveedor().getPersona().setNombre(cue[3].toString()+", "+ cue[4].toString());
+			cuenta.getProveedor().getPersona().setNombre(cue[3].toString()+" "+ cue[4].toString());
 			cuenta.getProveedor().setId(Integer.parseInt(cue[5].toString()));
 			cuenta.getProveedor().getPersona().setCedula(cue[6].toString());
+			cuenta.getProveedor().getPersona().setTelefono(cue[7].toString());
+			cuenta.getProveedor().getPersona().setDireccion(cue[8].toString());
+			cuenta.getProveedor().setNumeroCuenta(cue[9].toString());
 			listadoRetorno.add(cuenta);
 		}
 		return listadoRetorno;
@@ -341,6 +368,7 @@ public class CuentaPagarCabeceraController {
 			cuenta.setTotal(cue.getTotal()); 
 			cuenta.setPagado(cue.getPagado());
 			cuenta.setSaldo(cue.getSaldo());
+			cuenta.getProveedor().setId(cue.getProveedor().getId());
 			cuenta.getProveedor().getPersona().setNombre(cue.getProveedor().getPersona().getNombre());
 			cuenta.getProveedor().getPersona().setApellido(cue.getProveedor().getPersona().getApellido());
 			cuenta.getFuncionario().getPersona().setNombre(cue.getFuncionario().getPersona().getNombre());
@@ -349,7 +377,7 @@ public class CuentaPagarCabeceraController {
 			cuenta.getCompra().setNroDocumento(cue.getCompra().getNroDocumento());
 			cuenta.getCompra().setFecha(cue.getCompra().getFecha());
 			cuenta.getCompra().setFechaFactura(cue.getCompra().getFechaFactura());
-
+			cuenta.getCompra().setId(cue.getCompra().getId());
 //			cuenta.getCompra().setFecha(sumarDia(cue.getFecha(), (24 * cue.getTipoPlazo().getValor())));
 			cuenta.getTipoPlazo().setValor(validarDiaAtraso(cuenta.getCompra().getFecha()));
 			System.out.println("Cuneta dia atraso:  "+cuenta.getTipoPlazo().getValor());
@@ -404,7 +432,7 @@ public class CuentaPagarCabeceraController {
 			lis= entityRepository.findByCuentaPorIdAPagarListas(id);
 		}
 		if(filtro == 3){
-			lis= entityRepository.findByCuentaPorIdAPagarListas(id);
+			lis= entityRepository.findByCuentaPorIdPagado(id);
 		}
 		return listadoDetalleCuenta(lis);
 	}
@@ -457,23 +485,30 @@ public class CuentaPagarCabeceraController {
 	
 	@RequestMapping(method=RequestMethod.GET, value="/buscar/detalle/{idCuenta}")
 	public List<CuentaPagarDetalle> consultarCuentaDetallePorIdCabecera(@PathVariable int idCuenta){
-		List<Object []> lis = new ArrayList<>();
-		List<CuentaPagarDetalle> lisRetorno = new ArrayList<>();
-		lis=detalleRepository.consultarDetalleCuentaPorIdCabecera(idCuenta);
-		for (Object [] ob: lis) {
-			CuentaPagarDetalle cuDet= new CuentaPagarDetalle();
-			cuDet.getCuentaPagarCabecera().setFraccionCuota(Integer.parseInt(ob[0].toString()));
-			cuDet.setNumeroCuota(Integer.parseInt(ob[1].toString()));
-			cuDet.setFechaVencimiento(FechaUtil.convertirFechaStringADateUtil(ob[2].toString()));
-			cuDet.setMonto(Double.parseDouble(ob[3].toString()));
-			cuDet.setImporte(Double.parseDouble(ob[4].toString()));
-			cuDet.setId(Integer.parseInt(ob[5].toString()));
-			cuDet.setSubTotal(Double.parseDouble(ob[6].toString()));
-			cuDet.getCuentaPagarCabecera().setId(Integer.parseInt(ob[7].toString()));
-			lisRetorno.add(cuDet);
-			
+		List<Object[]> object = detalleRepository.consultarDetalleCuentaPorIdCabecera(idCuenta);
+		List<CuentaPagarDetalle> lista= new ArrayList<>();	
+//		cuenta_pagar_cabecera.fraccion_cuota, 
+//		cuenta_pagar_detalle.numero_cuota, 
+//		cuenta_pagar_detalle.fecha_vencimiento, 
+//		cuenta_pagar_detalle.monto, 
+//		cuenta_pagar_detalle.importe, 
+//		cuenta_pagar_detalle.id, 
+//		cuenta_pagar_detalle.sub_total, 
+//		cuenta_pagar_detalle.cuenta_pagar_cabecera_id
+		for(Object[] ob: object){
+			CuentaPagarDetalle cue= new CuentaPagarDetalle();
+			cue.getCuentaPagarCabecera().setFraccionCuota(Integer.parseInt(ob[0].toString()));
+			cue.setNumeroCuota(Integer.parseInt(ob[1].toString()));
+			cue.setFechaVencimiento(FechaUtil.convertirFechaStringADateUtil(ob[2].toString()));
+			cue.setMonto(Double.parseDouble(ob[3].toString()));
+			cue.setImporte(Double.parseDouble(ob[4].toString()));
+			cue.setId(Integer.parseInt(ob[5].toString()));
+			cue.setSubTotal(Double.parseDouble(ob[6].toString()));
+			cue.getCuentaPagarCabecera().setId(Integer.parseInt(ob[7].toString()));
+			lista.add(cue);
 		}
-		return lisRetorno;
+
+		return lista;
 	}
 	@RequestMapping(method = RequestMethod.GET, value="/detalleCompra/{idCompra}")
 	public List<DetalleCompra> getDetalleCompraCuenta(@PathVariable int idCompra){

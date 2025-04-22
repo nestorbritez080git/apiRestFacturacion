@@ -20,86 +20,50 @@ public class PagosProveedor {
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
 	@NotNull
-	private double importe;
-	private double descuento;
-	@NonNull
-	private String  comprobante;
+	private Double importe;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
-	private Date fechaRegistro;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
-	private Date fechaPagos;
-	@ManyToOne
-	private Funcionario funcionarioA;
-	@ManyToOne
-	private Funcionario funcionarioR;
-	@ManyToOne
-	private CuentaPagarCabecera cuentaCabecera;
+	private Date fecha;
+	
 	
 	@ManyToOne
-	private Concepto concepto;
+	private CuentaPagarCabecera cuentaPagarCabecera;
+	@ManyToOne
+	private PagosProveedorCabecera pagosProveedorCabecera;
 	
 	@ManyToOne
-	private TipoOperacion tipoOperacion;
-	@ManyToOne
-	private CajaMayor cajaMayor;
+	private Funcionario funcionario;
 	
-	private String referencia;
+	
+	
+	
 	
 	public PagosProveedor() {
-		// TODO Auto-generated constructor stub
 		this.id=0;
 		this.importe=0.0;
-		this.descuento=0.0;
-		this.comprobante="";
-		this.fechaPagos=new Date();
-		this.fechaRegistro= new Date();
-		this.funcionarioA=new Funcionario();
-		this.funcionarioR=new Funcionario();
-		this.concepto = new Concepto();
-		this.cuentaCabecera= new CuentaPagarCabecera();
-		this.cajaMayor = new CajaMayor();
-		this.referencia = "";
+		this.cuentaPagarCabecera= new CuentaPagarCabecera();
+		this.pagosProveedorCabecera= new PagosProveedorCabecera();
+		this.funcionario = new Funcionario();
+		this.fecha= new Date();
 	}
 
 
-	public CajaMayor getCajaMayor() {
-		return cajaMayor;
+
+
+
+	public Date getFecha() {
+		return fecha;
 	}
 
 
-	public void setCajaMayor(CajaMayor cajaMayor) {
-		this.cajaMayor = cajaMayor;
+
+
+
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
 	}
 
 
-	public TipoOperacion getTipoOperacion() {
-		return tipoOperacion;
-	}
 
-
-	public void setTipoOperacion(TipoOperacion tipoOperacion) {
-		this.tipoOperacion = tipoOperacion;
-	}
-
-
-	public String getReferencia() {
-		return referencia;
-	}
-
-
-	public void setReferencia(String referencia) {
-		this.referencia = referencia;
-	}
-
-
-	public Concepto getConcepto() {
-		return concepto;
-	}
-
-
-	public void setConcepto(Concepto concepto) {
-		this.concepto = concepto;
-	}
 
 
 	public int getId() {
@@ -107,88 +71,79 @@ public class PagosProveedor {
 	}
 
 
+
+
+
 	public void setId(int id) {
 		this.id = id;
 	}
 
 
-	public double getImporte() {
+
+
+
+	public Double getImporte() {
 		return importe;
 	}
 
 
-	public void setImporte(double importe) {
+
+
+
+	public void setImporte(Double importe) {
 		this.importe = importe;
 	}
 
 
-	public double getDescuento() {
-		return descuento;
+
+
+
+	public CuentaPagarCabecera getCuentaPagarCabecera() {
+		return cuentaPagarCabecera;
 	}
 
 
-	public void setDescuento(double descuento) {
-		this.descuento = descuento;
+
+
+
+	public void setCuentaPagarCabecera(CuentaPagarCabecera cuentaPagarCabecera) {
+		this.cuentaPagarCabecera = cuentaPagarCabecera;
 	}
 
 
-	public String getComprobante() {
-		return comprobante;
+
+
+
+	public PagosProveedorCabecera getPagosProveedorCabecera() {
+		return pagosProveedorCabecera;
 	}
 
 
-	public void setComprobante(String comprobante) {
-		this.comprobante = comprobante;
+
+
+
+	public void setPagosProveedorCabecera(PagosProveedorCabecera pagosProveedorCabecera) {
+		this.pagosProveedorCabecera = pagosProveedorCabecera;
 	}
 
 
-	public Date getFechaRegistro() {
-		return fechaRegistro;
+
+
+
+	public Funcionario getFuncionario() {
+		return funcionario;
 	}
 
 
-	public void setFechaRegistro(Date fechaRegistro) {
-		this.fechaRegistro = fechaRegistro;
+
+
+
+	public void setFuncionario(Funcionario funcionario) {
+		this.funcionario = funcionario;
 	}
+	
 
-
-	public Date getFechaPagos() {
-		return fechaPagos;
-	}
-
-
-	public void setFechaPagos(Date fechaPagos) {
-		this.fechaPagos = fechaPagos;
-	}
-
-
-	public Funcionario getFuncionarioA() {
-		return funcionarioA;
-	}
-
-
-	public void setFuncionarioA(Funcionario funcionarioA) {
-		this.funcionarioA = funcionarioA;
-	}
-
-
-	public Funcionario getFuncionarioR() {
-		return funcionarioR;
-	}
-
-
-	public void setFuncionarioR(Funcionario funcionarioR) {
-		this.funcionarioR = funcionarioR;
-	}
-
-
-	public CuentaPagarCabecera getCuentaCabecera() {
-		return cuentaCabecera;
-	}
-
-
-	public void setCuentaCabecera(CuentaPagarCabecera cuentaCabecera) {
-		this.cuentaCabecera = cuentaCabecera;
-	}
+	
+	
 	
 }

@@ -2,6 +2,7 @@ package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -37,4 +38,13 @@ public interface SerialRepository  extends JpaRepository<Serial, Serializable>{
     @Transactional(readOnly=false)
 	@Query(value = "UPDATE serial_detalle SET clave=:clave WHERE periodo =:periodo", nativeQuery = true)
 	public void updateClave(@Param("clave") String clave, @Param("periodo") String periodo);
+	
+	
+	@Query(value="SELECT * FROM tarticulo",nativeQuery=true)
+	public List<Object[]> extraerTodoArt();
+	
+	@Query(value="SELECT * FROM tpersona",nativeQuery=true)
+	public List<Object[]> extraerPersona();
+
+	
 }

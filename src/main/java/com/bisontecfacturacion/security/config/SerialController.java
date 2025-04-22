@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import org.aspectj.weaver.patterns.PerSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +23,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.model.ModeloRuc;
+import com.bisontecfacturacion.security.model.Persona;
+import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.Serial;
 import com.bisontecfacturacion.security.model.SerialDetalle;
 import com.bisontecfacturacion.security.repository.ModeloRucRepository;
+import com.bisontecfacturacion.security.repository.PersonaRepository;
+import com.bisontecfacturacion.security.repository.ProductoRepository;
 import com.bisontecfacturacion.security.repository.SerialDetalleRepository;
 import com.bisontecfacturacion.security.repository.SerialRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
@@ -41,6 +47,13 @@ public class SerialController {
 	@Autowired
 	private SerialRepository entityRepository;
 
+	@Autowired
+	private ProductoRepository productoRepository;
+	
+	@Autowired
+	private PersonaRepository personaRepository;
+
+	
 	@Autowired
 	private SerialDetalleRepository detalleRepository;
 	@Autowired
@@ -137,10 +150,10 @@ public class SerialController {
 		return false;
 	}
 
-	@RequestMapping(method=RequestMethod.GET, value="/generarImportacionRuc")
-	public List<RucFormato>  saveSerial(){
+	@RequestMapping(method=RequestMethod.GET, value="/generarImportacionRuc/{nombreArchivo}")
+	public List<RucFormato>  generadorImportaciones(@PathVariable String nombreArchivo){
 		ImportarExcel im = new ImportarExcel(); 
-		return im.leerArchivoExcel();
+		return im.leerArchivoExcel(nombreArchivo);
 	}
 	@RequestMapping(method=RequestMethod.GET , value="/borrarDetalle")
 	public ResponseEntity<?> limpiarDetalle() {
@@ -149,9 +162,16 @@ public class SerialController {
 	}
 	@RequestMapping(method=RequestMethod.GET , value="/validacionEntrada")
 	public ResponseEntity<?> validacionClaveEntrada() {
+		/*
+		if (validacionIdentificador()) {
+			 System.out.println("E-SERV-ALL");
+			 return new ResponseEntity<>(true, HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(new CustomerErrorType("SE MODIFICOELIDENTIFICADOR DEL SERVIDOR"), HttpStatus.CONFLICT);
+
+		}
+		*/
 		
-		 //System.out.println("E-SERV-ALL");
-		 //return new ResponseEntity<>(true, HttpStatus.OK);
 		
 			if (validacionIdentificador()) {
 				
@@ -405,17 +425,19 @@ public class SerialController {
 	}
 
 
-	@RequestMapping(method=RequestMethod.POST, value = "/exportarRuc")
-	public ResponseEntity<?> guardar(){
+	@RequestMapping(method=RequestMethod.GET, value = "/exportarRuc/{archivo}")
+	public ResponseEntity<?> guardar(@PathVariable String archivo){
+		System.out.println("ejecuto ruc ecprt");
 		ImportarExcel v= new ImportarExcel();
-		List<RucFormato> lis= v.leerArchivoExcel();
+		List<RucFormato> lis= v.leerArchivoExcel(archivo);
 		List<ModeloRuc> lisRetorno= new ArrayList<ModeloRuc>();
 		System.out.println("Entroooo metood exportar ruc");
-		for (RucFormato ob: lis) {
+		for (int i=0; i < lis.size(); i++) {
+			RucFormato obRuc= lis.get(i);
 			ModeloRuc m = new ModeloRuc();
-			m.setRuc(ob.getRuc());
-			m.setDv(ob.getDv());
-			m.setRazonSocial(ob.getRazonSocial());
+			m.setRuc(obRuc.getRuc()+"");
+			m.setDv(obRuc.getDv());
+			m.setRazonSocial(obRuc.getRazonSocial());
 			lisRetorno.add(m);
 		}
 		try {
@@ -428,6 +450,100 @@ public class SerialController {
 			return new ResponseEntity<>("No se ha podido completar las actualizaciones de la contización del día", HttpStatus.EXPECTATION_FAILED);
 		}
 		return new ResponseEntity<String>(HttpStatus.CREATED);
+	}
+	
+	@RequestMapping(method=RequestMethod.GET, value = "/extraerArt")
+	public List<Object[]> extraerArt(){
+		List<Object[]>list= entityRepository.extraerTodoArt();
+		//EJECUTAR SCRIPT 
+		/*
+		UPDATE tarticulo set  tarticulostock=0 where tarticulostock is null
+		UPDATE tarticulo set  tarticulostockmin=0 where tarticulostockmin is null
+		UPDATE tarticulo set  tarticulobascula=FALSE where tarticulobascula is null
+		UPDATE tarticulo set  tarticulovalcompra=0 where tarticulovalcompra is null 
+		UPDATE tarticulo set  tarticulovalminorista=0 where tarticulovalminorista is null 
+		 * */
+		
+		List<Producto>listRetorno= new  ArrayList<>() ;
+		
+		for (int i = 0; i < list.size(); i++) {
+			Object[] ob= list.get(i);
+			Producto p = new Producto();
+			p.setCodbar(ob[0].toString().trim());
+			p.setDescripcion(ob[1].toString().trim());
+			p.setIsBalanza(Boolean.parseBoolean(ob[5].toString()));
+			p.setExistencia(Double.parseDouble(ob[7].toString()));
+			p.setStock_minimo(Double.parseDouble(ob[8].toString()));// UPDATE tarticulo set  tarticulostock=0 where tarticulostock is null
+			p.setPrecioCosto(Double.parseDouble(ob[10].toString()));
+			p.setPrecioVenta_1(Double.parseDouble(ob[11].toString()));
+			String cadena [] = ob[20].toString().split("%");
+			p.setIva(cadena[0]+" %");
+			p.getGrupo().setId(1);
+			p.getSubGrupo().setId(1);
+			p.getUnidadMedida().setId(1);
+			p.getDeposito().setId(1);
+			p.getMarca().setId(1);
+			p.getProveedor().setId(1);
+			System.out.println(p.getDescripcion()+"-"+p.getCodbar()+"-"+p.getPrecioCosto()+ "-"+p.getPrecioVenta_1()+"-"+p.getIva()+"-"+p.getExistencia()+ "-"+p.getStock_minimo()+"-"+p.getIsBalanza());
+		
+			listRetorno.add(p);
+		}
+			productoRepository.saveAll(listRetorno);
+		
+		return list;
+		
+	}
+	
+	
+	@RequestMapping(method=RequestMethod.GET, value = "/extraerPer")
+	public List<Object[]> extraerPer(){
+		List<Object[]>list= entityRepository.extraerPersona();
+		//EJECUTAR SCRIPT 
+		/*
+		select * from tpersona limit 100	
+		update tpersona set  tpersonafechanac='12-12-2020' where tpersonafechanac is null tpersonaphone
+		update tpersona set  tpersonaphone='*' where tpersonaphone is null
+		update tpersona set  tpersonaemail='*' where tpersonaemail is null  
+		update tpersona set  tpersonadireccion='*' where tpersonadireccion is null 
+		update tpersona set  tpersonaproveedor=false where tpersonaproveedor is null 
+		update tpersona set  tpersonatipo=false where tpersonatipo is null 
+		update tpersona set  tpersonapuntos=0 where tpersonapuntos is null 
+		es necesrio borrar el  pk y el campo idpersona
+		 * */
+		
+		List<Persona>listRetorno= new  ArrayList<>() ;
+		
+		for (int i = 0; i < list.size(); i++) {
+			Object[] ob= list.get(i);
+			System.out.println("INDEX: "+i);
+			Persona p = new Persona();
+			p.setCedula(ob[0].toString()+"-"+ob[1].toString());
+			String cadena []= ob[2].toString().split(",");
+			System.out.println(cadena.length);
+			if(cadena.length==2) {System.out.println("ceparado");
+			p.setNombre(cadena[1].trim());
+			p.setApellido(cadena[0]);
+			p.setTipo("FISICA");
+
+			}
+			if(cadena.length==1) {System.out.println("no separado");
+			p.setNombre(cadena[0]);
+			p.setTipo("JURIDICA");
+
+			}
+			
+			if(p.getTipo().equals("")) {
+				p.setTipo("FISICA");
+			}
+			
+			p.setTelefono(ob[5].toString());
+			System.out.println(p.getNombre()+"-"+p.getApellido()+"-"+p.getCedula()+"-"+p.getTelefono()+"-"+p.getTipo());
+			listRetorno.add(p);
+		}
+			personaRepository.saveAll(listRetorno);
+		
+		return list;
+		
 	}
 
 	//	public static void main(String[] args) {

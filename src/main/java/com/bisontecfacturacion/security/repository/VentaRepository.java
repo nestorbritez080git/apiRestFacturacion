@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Documento;
 import com.bisontecfacturacion.security.model.Venta;
 
@@ -19,10 +20,10 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 
 	public abstract Venta findTop1ByOrderByIdDesc();
 
-	@Query(value="select * from venta v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id inner join documento doc on doc.id=v.documento_id where extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia order by v.id desc ",nativeQuery=true)
+	@Query(value="select * from venta v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join funcionario fv on v.funcionariov_id=fv.id inner join persona pfv on f.persona_id=pfv.id inner join funcionario fr on v.funcionarior_id=fr.id inner join persona pfr on fr.persona_id=pfr.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id inner join documento doc on doc.id=v.documento_id where extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia order by v.id desc ",nativeQuery=true)
 	List<Venta> getVenta(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
 	
-	@Query(value="select * from venta v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id inner join documento doc on doc.id=v.documento_id where extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia order by v.id desc limit :limite",nativeQuery=true)
+	@Query(value="select * from venta v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join funcionario fv on v.funcionariov_id=fv.id inner join persona pfv on f.persona_id=pfv.id inner join funcionario fr on v.funcionarior_id=fr.id inner join persona pfr on fr.persona_id=pfr.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id inner join documento doc on doc.id=v.documento_id where extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia order by v.id desc limit :limite",nativeQuery=true)
 	List<Venta> getVentaLimitessssss(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia,@Param("limite") int limite);
 
 	@Query(value="select * from detalle_producto det inner join  venta  v on v.id=det.venta_id inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id inner join documento doc on doc.id=v.documento_id where ((extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia) and det.descripcion ILIKE :desc) OR ((extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia) and cp.nombre ILIKE :desc) OR ((extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia) and cp.apellido ILIKE :desc) order by v.id desc",nativeQuery=true)
@@ -134,5 +135,66 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 			"INNER JOIN sub_grupo sg ON sg.id=p.sub_grupo_id " + 
 			"where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO'",nativeQuery=true)
 List<Object []> getReporteVentaRangoGrupoDetalladoAll(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+
+
+@Query(value="select  sum(v.total) as total, v.tipo as  concepto from venta v \r\n" + 
+			"where v.estado='FACTURADO' AND v.tipo='1' AND ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))"+ 
+			"group by v.tipo", nativeQuery = true)
+public List<Object []> getResumenVentaContado(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+@Query(value="select  sum(v.total) as total, v.tipo as  concepto from venta v \r\n" + 
+		"where v.estado='FACTURADO' AND v.tipo='2' AND ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))"+ 
+		"group by v.tipo", nativeQuery = true)
+public List<Object []> getResumenVentaCredito(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+@Query(value="select  sum(v.total)as total, c.descripcion as concepto from compra v INNER JOIN concepto c on c.id=v.concepto_id " + 
+		"where v.estado='FACTURADO' AND v.tipo='CONTADO' AND ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))"+ 
+		"group by c.id", nativeQuery = true)
+public List<Object []> getResumenCompraContado(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+
+@Query(value="select  sum(v.total)as total, c.descripcion as concepto from compra v INNER JOIN concepto c on c.id=v.concepto_id " + 
+		"where v.estado='FACTURADO' AND v.tipo='CREDITO' AND ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))"+ 
+		"group by c.id", nativeQuery = true)
+public List<Object []> getResumenCompraCredito(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+@Query(value="select sum(v.total) as total,  c.descripcion  from cobros_cliente v " + 
+			"inner join operacion_caja op on op.id=v.operacion_caja_id " + 
+			"inner join concepto c on c.id=op.concepto_id " + 
+			"where ((v.fecha >= :fecha_inicio) AND (v.fecha <=  :fecha_fin))"+ 
+			"group by c.id", nativeQuery = true)
+public List<Object []> getResumenCobros(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+
+
+@Query(value="select sum(v.total) as total, c.descripcion from pagos_proveedor_cabecera v " + 
+			   "inner join concepto c on c.id= v.concepto_id " +
+			  "where ((v.fecha_pagos >= :fecha_inicio) AND (v.fecha_pagos <=  :fecha_fin)) "+ 
+			  "group by c.id", nativeQuery = true)
+public List<Object []> getResumenPagos(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+@Query(value="select sum(v.saldo) as total, c.descripcion as iddd from cuenta_cobrar_cabecera v " + 
+			"inner join concepto c on c.id=v.concepto_id " + 
+			"where v.saldo > 0 AND ((v.fecha >= :fecha_inicio) AND (v.fecha <=  :fecha_fin)) " + 
+			"group by  c.id", nativeQuery = true)
+public List<Object []> getResumenCuentaCobrar(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+@Query(value="select sum(v.saldo) as total, c.descripcion as iddd from cuenta_pagar_cabecera v " + 
+		"inner join concepto c on c.id=v.concepto_id " + 
+		"where v.saldo > 0 AND ((v.fecha >= :fecha_inicio) AND (v.fecha <=  :fecha_fin))" + 
+		"group by  c.id", nativeQuery = true)
+public List<Object []> getResumenCuentaPagar(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+@Query(value="select sum(v.monto) as total, c.descripcion as iddd from operacion_caja v " + 
+		"inner join concepto c on c.id=v.concepto_id where c.id=24 " + 
+		"group by  c.id", nativeQuery = true)
+public List<Object []> getResumenEntregaInicialVentaCredito(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fi);
+
+
+
+
+
+@Query(value="select * from venta v inner join funcionario f on v.funcionariov_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where  cp.nombre ilike :filtro OR   cp.apellido ilike :filtro OR   cp.cedula like :filtro order by v.id desc limit 100",nativeQuery=true)
+	List<Venta> getVentaAllFiltroCliente(@Param("filtro") String filtro);
 
 }

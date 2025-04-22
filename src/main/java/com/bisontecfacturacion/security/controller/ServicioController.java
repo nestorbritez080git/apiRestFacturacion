@@ -37,8 +37,8 @@ public class ServicioController {
 
 	@RequestMapping(method=RequestMethod.PUT)
 	public Servicio editar(@RequestBody Servicio entity){
-		entity.setDescripcion(entity.getDescripcion().toUpperCase());
-		entity.setAplicacion(entity.getAplicacion().toUpperCase());
+		if(!entity.getDescripcion().equals("")) {entity.setDescripcion(entity.getDescripcion().toUpperCase());}
+		if(!entity.getAplicacion().equals("")){entity.setAplicacion(entity.getAplicacion().toUpperCase());}
 		return entityRepository.save(entity);
 	}
 	@RequestMapping(method=RequestMethod.DELETE, value="/{id}")

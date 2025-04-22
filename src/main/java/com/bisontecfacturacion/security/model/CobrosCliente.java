@@ -19,7 +19,7 @@ public class CobrosCliente {
 	private int id;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fecha;
-	private double total;
+	private Double total;
 	@ManyToOne
 	private CuentaCobrarCabecera cuentaCobrarCabecera;
 	@ManyToOne
@@ -46,8 +46,14 @@ public class CobrosCliente {
 		return fecha;
 	}
 
-	public double getTotal() {
+	
+
+	public Double getTotal() {
 		return total;
+	}
+
+	public void setTotal(Double total) {
+		this.total = total;
 	}
 
 	public CuentaCobrarCabecera getCuentaCobrarCabecera() {
@@ -66,10 +72,7 @@ public class CobrosCliente {
 		this.fecha = fecha;
 	}
 
-	public void setTotal(double total) {
-		this.total = total;
-	}
-
+	
 	public void setCuentaCobrarCabecera(CuentaCobrarCabecera cuentaCobrarCabecera) {
 		this.cuentaCobrarCabecera = cuentaCobrarCabecera;
 	}

@@ -133,7 +133,7 @@ public class ClienteController {
 	public List<Cliente> consultarPorDescripcion(@PathVariable String descripcion){
 		List<Object[]> objeto=entityRepository.getBuscarPorDescripcion("%"+descripcion.toUpperCase()+"%");
 		List<Cliente> cliente=new ArrayList<>();
-		for(Object[] ob:objeto){
+		for(Object[] ob: objeto){
 			Cliente clientes=new Cliente();
 			clientes.setId(Integer.parseInt(ob[0].toString()));
 			clientes.getPersona().setNombre(ob[1].toString());
@@ -142,6 +142,7 @@ public class ClienteController {
 			clientes.getPersona().setCedula(ob[4].toString());
 			clientes.getPersona().setTelefono(ob[5].toString());
 			clientes.setEstadoBloqueo(Boolean.parseBoolean(ob[6].toString()));
+			//select cliente.id, persona.nombre, persona.apellido, cliente.limite_credito, persona.cedula, persona.telefono,  cliente.estado_bloqueo
 			cliente.add(clientes);
 		}
 		return cliente;

@@ -16,12 +16,16 @@ public class ReporteConfig {
 	private String nombreReporte;
 	private String nombreSubReporte1;
 	private String nombreSubReporte2;
+	private int pageHeigth;
+	private int pageWidth;
 	public ReporteConfig() {
 		this.id=0;
 		this.nombreReferencia="";
 		this.nombreReporte="";
 		this.nombreSubReporte1="";
 		this.nombreSubReporte2="";
+		this.pageHeigth=0;
+		this.pageWidth=0;
 	}
 	public int getId() {
 		return id;
@@ -53,6 +57,19 @@ public class ReporteConfig {
 	public void setNombreReferencia(String nombreReferencia) {
 		this.nombreReferencia = nombreReferencia;
 	}
+	public int getPageHeigth() {
+		return pageHeigth;
+	}
+	public void setPageHeigth(int pageHeigth) {
+		this.pageHeigth = pageHeigth;
+	}
+	public int getPageWidth() {
+		return pageWidth;
+	}
+	public void setPageWidth(int pageWidth) {
+		this.pageWidth = pageWidth;
+	}
+	
 	
 
 }

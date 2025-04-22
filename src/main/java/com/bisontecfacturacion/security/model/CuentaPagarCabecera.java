@@ -33,6 +33,8 @@ public class CuentaPagarCabecera{
     private int fraccionCuota;
 	private boolean estado;
 	@ManyToOne
+	private Concepto  concepto;
+	@ManyToOne
 	private TipoPlazo tipoPlazo;
 	@ManyToOne
 	private Proveedor proveedor;
@@ -48,6 +50,8 @@ public class CuentaPagarCabecera{
 	
     public CuentaPagarCabecera(){
     	this.pagado = 0.0;
+    	this.concepto= new Concepto();
+
     	this.tipoPlazo= new TipoPlazo();
     	this.proveedor=new Proveedor();
     	this.funcionario= new Funcionario();
@@ -56,6 +60,18 @@ public class CuentaPagarCabecera{
     	this.cuentaPagarDetalle = new  ArrayList<CuentaPagarDetalle>();
     	
     }
+
+
+
+	public Concepto getConcepto() {
+		return concepto;
+	}
+
+
+
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
+	}
 
 
 

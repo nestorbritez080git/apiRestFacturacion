@@ -2,10 +2,12 @@ package com.bisontecfacturacion.security.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
@@ -30,9 +32,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
 import com.bisontecfacturacion.security.auxiliar.NroDocumento;
+import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
 import com.bisontecfacturacion.security.config.ExcelGenerator;
 import com.bisontecfacturacion.security.config.FechaUtil;
+import com.bisontecfacturacion.security.config.NumerosALetras;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.config.Utilidades;
@@ -42,6 +47,7 @@ import com.bisontecfacturacion.security.model.AutoImpresor;
 import com.bisontecfacturacion.security.model.AutoImpresorDetalleVenta;
 import com.bisontecfacturacion.security.model.CierreCaja;
 import com.bisontecfacturacion.security.model.Cliente;
+import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
@@ -85,7 +91,9 @@ import com.bisontecfacturacion.security.repository.LoteFacturaRepository;
 import com.bisontecfacturacion.security.repository.LoteTicketRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
+import com.bisontecfacturacion.security.repository.OrdenPagareRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
+import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
 import com.bisontecfacturacion.security.repository.ProductoCardexRepository;
 import com.bisontecfacturacion.security.repository.ProductoRepository;
 import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
@@ -156,8 +164,14 @@ public class VentaController {
 	private ImpresoraRepository impresoraRepository;
 
 	@Autowired
-	private ReporteFormatoDatosRepository reporteFormatoDatosRepository;
+	private ReporteFormatoDatosRepository reporteFormatoDatosRepository
+	
+	;
 
+	
+
+	@Autowired
+	private ParametroTipoHojaRepository parametroTipoHoja;
 	@Autowired
 	private TerminalConfigImpresoraRepository terminalRepository;
 
@@ -179,6 +193,9 @@ public class VentaController {
 
 	@Autowired
 	private TesoreriaRepository tesoreriaRepository;
+	@Autowired
+	private OrdenPagareRepository ordenPagareRepository;
+	
 
 	@Autowired
 	private AutoImpresorRepository autoImpresorRepository;
@@ -200,6 +217,34 @@ public class VentaController {
 	public Double getEntregaVenta(@PathVariable int idVenta){
 		return operacionRepository.getMontoEntregaPorVenta(idVenta);
 	}
+	@RequestMapping(method=RequestMethod.GET, value="/buscar/{filtro}")
+	public List<Venta> getAllsFiltro(@PathVariable String filtro){
+		
+		List<Venta> objeto=entityRepository.getVentaAllFiltroCliente("%"+Utilidades.eliminaCaracterIzqDer(filtro.toUpperCase())+"%");
+		List<Venta> venta=new ArrayList<>();
+		for(Venta ob:objeto){
+			Venta ventas=new Venta();
+			ventas.setId(ob.getId());
+			ventas.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre()+" "+ob.getFuncionario().getPersona().getApellido());
+			ventas.getFuncionarioV().getPersona().setNombre(ob.getFuncionarioV().getPersona().getNombre()+" "+ob.getFuncionarioV().getPersona().getApellido());
+			ventas.getFuncionarioR().getPersona().setNombre(ob.getFuncionarioR().getPersona().getNombre()+" "+ob.getFuncionarioR().getPersona().getApellido());
+			ventas.getCliente().getPersona().setNombre(ob.getCliente().getPersona().getNombre()+" "+ ob.getCliente().getPersona().getApellido());
+			ventas.setTotal(ob.getTotal());
+			ventas.setFecha(ob.getFecha());
+			ventas.setEstado(ob.getEstado());
+			ventas.setTipo(ob.getTipo());
+			ventas.setHora(ob.getHora());
+			ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
+			ventas.setNroDocumento(ob.getNroDocumento());
+			ventas.setEstado(ob.getEstado());
+			ventas.setObs(ob.getObs());
+			venta.add(ventas);
+			
+		}
+		return venta;
+	}
+
 
 	@RequestMapping(method=RequestMethod.GET, value="/totalventa/{fecha}")
 	public Object[] getTotalVenta(@PathVariable String fecha){
@@ -221,6 +266,8 @@ public class VentaController {
 			Venta ventas=new Venta();
 			ventas.setId(ob.getId());
 			ventas.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre()+" "+ob.getFuncionario().getPersona().getApellido());
+			ventas.getFuncionarioV().getPersona().setNombre(ob.getFuncionarioV().getPersona().getNombre()+" "+ob.getFuncionarioV().getPersona().getApellido());
+			ventas.getFuncionarioR().getPersona().setNombre(ob.getFuncionarioR().getPersona().getNombre()+" "+ob.getFuncionarioR().getPersona().getApellido());
 			ventas.getCliente().getPersona().setNombre(ob.getCliente().getPersona().getNombre()+" "+ ob.getCliente().getPersona().getApellido());
 			ventas.setTotal(ob.getTotal());
 			ventas.setFecha(ob.getFecha());
@@ -248,11 +295,18 @@ public class VentaController {
 			Venta ventas=new Venta();
 			ventas.setId(ob.getId());
 			ventas.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre()+" "+ob.getFuncionario().getPersona().getApellido());
+			ventas.getFuncionarioV().getPersona().setNombre(ob.getFuncionarioV().getPersona().getNombre()+" "+ob.getFuncionarioV().getPersona().getApellido());
+			ventas.getFuncionarioR().getPersona().setNombre(ob.getFuncionarioR().getPersona().getNombre()+" "+ob.getFuncionarioR().getPersona().getApellido());
 			ventas.getCliente().getPersona().setNombre(ob.getCliente().getPersona().getNombre()+" "+ ob.getCliente().getPersona().getApellido());
 			ventas.setTotal(ob.getTotal());
 			ventas.setFecha(ob.getFecha());
 			ventas.setEstado(ob.getEstado());
-			ventas.setTipo(ob.getTipo());
+			if (ob.getTipo().equals("1") || ob.getTipo().toLowerCase().equals("contado")) {
+				ventas.setTipo("1");
+			} else if(ob.getTipo().equals("2") || ob.getTipo().toLowerCase().equals("credito")) {
+				ventas.setTipo("2");
+				System.out.println("entro verificacion de cuenta credito");
+			}			
 			ventas.setHora(ob.getHora());
 			ventas.getDocumento().setId(ob.getDocumento().getId());
 			ventas.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
@@ -312,11 +366,16 @@ public class VentaController {
 		Venta v=entityRepository.getVentaIdFacturado(id);
 		Venta venta=null;
 		if(v != null) {
-		    venta=new Venta();
+			venta=new Venta();
 			venta.setEstado(v.getEstado());
 			venta.setId(v.getId());
-			venta.setTipo(v.getTipo()); 
-			venta.setNroDocumento(v.getNroDocumento());
+			if (v.getTipo().equals("1") || v.getTipo().toLowerCase().equals("contado")) {
+				venta.setTipo("1");
+				System.out.println("entro verificacion de cuenta contado");
+			} else if(v.getTipo().equals("2") || v.getTipo().toLowerCase().equals("credito")) {
+				venta.setTipo("2");
+				System.out.println("entro verificacion de cuenta credito");
+			}			venta.setNroDocumento(v.getNroDocumento());
 			venta.setTotal(v.getTotal());
 			venta.getFuncionario().setId(v.getFuncionario().getId());
 			venta.getCliente().setId(v.getCliente().getId());
@@ -325,7 +384,13 @@ public class VentaController {
 			venta.getDocumento().setId(v.getDocumento().getId());
 			venta.getDocumento().setDescripcion(v.getDocumento().getDescripcion());
 			venta.getFuncionarioV().setId(v.getFuncionarioV().getId());
+
+			venta.getFuncionarioR().setId(v.getFuncionarioR().getId());
+
 			venta.getFuncionario().getPersona().setNombre(v.getFuncionario().getPersona().getNombre() +" "+ v.getFuncionario().getPersona().getApellido());
+			venta.getFuncionarioV().getPersona().setNombre(v.getFuncionarioV().getPersona().getNombre() +" "+ v.getFuncionarioV().getPersona().getApellido());
+			venta.getFuncionarioR().getPersona().setNombre(v.getFuncionarioR().getPersona().getNombre() +" "+ v.getFuncionarioR().getPersona().getApellido());
+
 			venta.setOperacionCaja(v.getOperacionCaja());
 			venta.setFechaFactura(v.getFechaFactura());
 			System.out.println("vvvvv: "+v.getFecha()+ "  +  :"+v.getFechaFactura());
@@ -342,7 +407,7 @@ public class VentaController {
 		}else {
 			venta = null;
 		}
-		
+
 		return venta;
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/ventaId/{id}")
@@ -352,18 +417,27 @@ public class VentaController {
 
 		Venta venta=new Venta();
 		venta.setEstado(v.getEstado());
-		venta.setId(v.getId());
-		venta.setTipo(v.getTipo()); 
+		venta.setId(v.getId());		
+		if (v.getTipo().equals("1") || v.getTipo().toLowerCase().equals("contado")) {
+			venta.setTipo("1");
+			System.out.println("entro verificacion de cuenta contado");
+		} else if(v.getTipo().equals("2") || v.getTipo().toLowerCase().equals("credito")) {
+			venta.setTipo("2");
+			System.out.println("entro verificacion de cuenta credito");
+		}
 		venta.setNroDocumento(v.getNroDocumento());
 		venta.setTotal(v.getTotal());
 		venta.getFuncionario().setId(v.getFuncionario().getId());
+		venta.getFuncionario().getPersona().setNombre(v.getFuncionario().getPersona().getNombre() +" "+ v.getFuncionario().getPersona().getApellido());
 		venta.getCliente().setId(v.getCliente().getId());
 		venta.getCliente().getPersona().setNombre(v.getCliente().getPersona().getNombre()+ " " +v.getCliente().getPersona().getApellido());
 		venta.getCliente().getPersona().setCedula(v.getCliente().getPersona().getCedula());
 		venta.getDocumento().setId(v.getDocumento().getId());
 		venta.getDocumento().setDescripcion(v.getDocumento().getDescripcion());
 		venta.getFuncionarioV().setId(v.getFuncionarioV().getId());
-		venta.getFuncionario().getPersona().setNombre(v.getFuncionario().getPersona().getNombre() +" "+ v.getFuncionario().getPersona().getApellido());
+		venta.getFuncionarioV().getPersona().setNombre(v.getFuncionarioV().getPersona().getNombre() +" "+ v.getFuncionarioV().getPersona().getApellido());
+		venta.getFuncionarioR().setId(v.getFuncionarioR().getId());
+		venta.getFuncionarioR().getPersona().setNombre(v.getFuncionarioR().getPersona().getNombre() +" "+ v.getFuncionarioR().getPersona().getApellido());
 		venta.setOperacionCaja(v.getOperacionCaja());
 		venta.setFechaFactura(v.getFechaFactura());
 		System.out.println("vvvvv: "+v.getFecha()+ "  +  :"+v.getFechaFactura());
@@ -562,7 +636,9 @@ public class VentaController {
 			if(entity.getFuncionario().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getFuncionarioV().getId() == 0) {
-				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO VENDEDOR NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+			} else if(entity.getFuncionarioR().getId()==0) {
+				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REPARTIDOR NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getDocumento().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL DOCUMENTO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getCliente().getId() == 0) {
@@ -575,8 +651,14 @@ public class VentaController {
 				return new ResponseEntity<>(new CustomerErrorType("EL TOTAL MONTO EN LETRA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(estadoClienteBloqueo(entity.getCliente().getId(), entity.getTotal())==true && entity.getTipo().equals("2")) {
 				return new ResponseEntity<>(new CustomerErrorType("NO SE PUEDE FACTURAR VENTAS, CLIENTE BLOQUEADO POR EXCEDER LINEA DE CREDITO!!"), HttpStatus.CONFLICT);
-			}  
-			else if(terminal.getImpresora().equals("ticket") & terminal.getEstadoAutoImpresor()==true & entity.getDocumento().getId()==1){
+			} else if(entity.getTipo().equals("1") || entity.getTipo().equals("Contado")) {
+				entity.setTipo("1");
+				System.out.println("entro validacion tipo venta ct o 1");
+			}else if(entity.getTipo().equals("2") || entity.getTipo().equals("Credito")) {
+				entity.setTipo("2");
+				System.out.println("entro validacion tipo venta cr o 2");
+
+			}else if(terminal.getImpresora().equals("ticket") & terminal.getEstadoAutoImpresor()==true & entity.getDocumento().getId()==1){
 				if(autoImpresor.getNumeroActual()>=autoImpresor.getRangoFin()) {
 					autoImpresor= null;
 					return new ResponseEntity<>(new CustomerErrorType("CANTIDAD DE EXPEDICIÓN SOBREPASADA DEL AUTO IMPRESOR PARA ESTA TERMINAL.!"), HttpStatus.CONFLICT);
@@ -585,7 +667,7 @@ public class VentaController {
 			} else if(entity.getObs() != null){
 				entity.setObs(entity.getObs().toUpperCase());
 			}
-			
+
 			{
 				for(int ind=0; ind < entity.getDetalleProducto().size(); ind++) {
 					DetalleProducto pro = entity.getDetalleProducto().get(ind);
@@ -670,9 +752,7 @@ public class VentaController {
 						if (entity.getEstado().equals("FACTURADO")) {
 							for(DetalleServicios detalleServicio: entity.getDetalleServicio()) {
 								detalleServicio.getVenta().setId(idVent);
-
 								if(detalleServicio.getIva().equals("10 %")) {
-
 									total10 = total10 + Utilidades.calcularIvaDies(detalleServicio.getSubTotal()); 
 									detalleServicio.setMontoIva(Utilidades.calcularIvaDies(detalleServicio.getSubTotal()));
 								}
@@ -694,7 +774,6 @@ public class VentaController {
 								detalleServicioRepository.save(detalleServicio);
 							}
 						}
-
 					}
 					entity.setTotalIvaDies(total10);
 					entity.setTotalIvaCinco(total5);
@@ -703,7 +782,7 @@ public class VentaController {
 
 					entityRepository.save(entity);
 
-					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion());
+					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 
 				} else {
 					entity.setFecha(new Date());
@@ -735,7 +814,14 @@ public class VentaController {
 						if (entity.getEstado().equals("FACTURADO")) {
 
 							for(DetalleProducto detalleProducto: entity.getDetalleProducto()) {
-								detalleProducto.setId(0);
+								System.out.println("ctr * "+detalleProducto.getId());
+								if (detalleProducto.getId() == 0) {
+							        // Es un nuevo detalle, no asignamos el ID
+							        detalleProducto.setId(0); // Permitir que JPA lo maneje
+							    } else {
+							        // Si el detalleProducto ya tiene un ID, no lo alteramos
+							        // No necesitas hacer nada aquí
+							    }
 								totalDescuento = totalDescuento + detalleProducto.getDescuento();
 								detalleProducto.getVenta().setId(idVent);
 								detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
@@ -763,7 +849,13 @@ public class VentaController {
 						}
 						if (entity.getEstado().equals("FACTURAR")) {
 							for (DetalleProducto detalleProducto : entity.getDetalleProducto()) {
-								detalleProducto.setId(0);
+								if (detalleProducto.getId() == 0) {
+							        // Es un nuevo detalle, no asignamos el ID
+							        detalleProducto.setId(0); // Permitir que JPA lo maneje
+							    } else {
+							        // Si el detalleProducto ya tiene un ID, no lo alteramos
+							        // No necesitas hacer nada aquí
+							    }
 								detalleProducto.getVenta().setId(idVent);
 								detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
 								detalleProductoRepository.save(detalleProducto);
@@ -811,7 +903,7 @@ public class VentaController {
 
 					entityRepository.save(entity);
 					System.out.println("entro udpate nuevo");
-					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion());
+					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 
 				}
 			}
@@ -1381,6 +1473,8 @@ public class VentaController {
 		for (int i = 0; i < 1; i++) {
 			Cliente cli = clienteRepository.getIdCliente(xxx.getCliente().getId());
 			Funcionario FunV = funcionarioRepository.getIdFuncionario(xxx.getFuncionarioV().getId());
+			Funcionario FunR = funcionarioRepository.getIdFuncionario(xxx.getFuncionarioR().getId());
+
 			Venta v = new Venta();
 			v.getCliente().getPersona().setNombre(cli.getPersona().getNombre()+ " "+cli.getPersona().getApellido());
 			v.getCliente().getPersona().setCedula(cli.getPersona().getCedula());
@@ -1391,8 +1485,14 @@ public class VentaController {
 			v.setHora(xxx.getHora());
 			v.setObs(xxx.getObs());
 			v.setId(xxx.getId());
+			v.getDocumento().setId(xxx.getDocumento().getId());
+			
 			System.out.println("fun veeveveve : "+FunV.getPersona().getNombre());
 			v.getFuncionarioV().getPersona().setNombre(FunV.getPersona().getNombre()+ " "+FunV.getPersona().getApellido());
+			v.getFuncionarioV().getPersona().setTelefono(FunV.getPersona().getTelefono());
+			v.getFuncionarioR().getPersona().setNombre(FunR.getPersona().getNombre()+ " "+FunR.getPersona().getApellido());
+			v.getFuncionarioR().getPersona().setTelefono(FunR.getPersona().getTelefono());
+
 			v.setTotalDescuento(xxx.getTotalDescuento());
 			v.setTotalIvaCinco(xxx.getTotalIvaCinco());
 			v.setTotalIvaDies(xxx.getTotalIvaDies());
@@ -1412,10 +1512,12 @@ public class VentaController {
 			v.setDetalleProducto(detProducto);
 			for(DetalleServicios det: detServicio) {
 				DetalleProducto detalleProducto = new DetalleProducto();
-				detalleProducto.setDescripcion(det.getDescripcion());
+				detalleProducto.getProducto().setId(det.getId());
+				detalleProducto.setDescripcion("SRV.: "+det.getDescripcion());
 				detalleProducto.getProducto().setCodbar(det.getServicio().getId()+"");
 				detalleProducto.setCantidad(det.getCantidad());
 				detalleProducto.setPrecio(det.getPrecio());
+				detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");
 				detalleProducto.setIva(det.getIva()+"");
 				detalleProducto.setSubTotal(det.getSubTotal());
 				detalleProducto.setMontoIva(det.getMontoIva());
@@ -1432,7 +1534,7 @@ public class VentaController {
 	}
 
 
-	public void pdfPrintss(int idVenta, int numeroTerminal, String siImpresion) {
+	public void pdfPrintss(int idVenta, int numeroTerminal, String siImpresion, int tipoDocumento) {
 		if (siImpresion.equals("true")) {
 
 			Reporte report = new Reporte();
@@ -1441,9 +1543,56 @@ public class VentaController {
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
-				ReporteConfig reportConfig = reporteConfigRepository.getOne(1);
 				List<Venta> venta = getLista(idVenta);
+				ReporteConfig reportConfig = new ReporteConfig();
+				System.out.println("doc:  "+venta.get(0).getDocumento().getId());
+				if(venta.get(0).getDocumento().getId()==1) {reportConfig = reporteConfigRepository.getOne(5);}
+				if(venta.get(0).getDocumento().getId()==2) {reportConfig = reporteConfigRepository.getOne(1);}
+				if(venta.get(0).getDocumento().getId()==3) {reportConfig = reporteConfigRepository.getOne(1);}
 				Map<String, Object> map = new HashMap<>();
+				report=new Reporte();
+				int pageSize = 10;
+				int totalPages = (int) Math.ceil((double) venta.get(0).getDetalleProducto().size() / pageSize);
+				System.out.println("TOTAL DE PAGINAS:"+ totalPages);
+				
+				List<Venta> listaVentaImpresion= new ArrayList<Venta>();
+				
+				for (int i = 0; i < totalPages; i++) {	
+				    System.out.println("\n--- Página " + (i + 1) + " ---");
+
+				    int start = i * pageSize;
+				    int end = Math.min(start + pageSize, venta.get(0).getDetalleProducto().size());
+				    // Crear una nueva lista con los elementos de la página actual
+				    List<DetalleProducto> detallesPagina = new ArrayList<>(venta.get(0).getDetalleProducto().subList(start, end));
+				    Double totalMontoPagina=0.0, totalPaginaIvaCinco=0.0, totalPaginaIvaDies=0.0, totalPaginaIva=0.0,totalPaginaExcenta=0.0;
+				    for (int j = 0; j < detallesPagina.size(); j++) {
+						totalMontoPagina = totalMontoPagina + detallesPagina.get(j).getSubTotal();
+						if(detallesPagina.get(j).getIva().equals("10 %")) {totalPaginaIvaDies = totalPaginaIvaDies +  (detallesPagina.get(j).getSubTotal()/11);}
+						if(detallesPagina.get(j).getIva().equals("5 %")) {totalPaginaIvaCinco = totalPaginaIvaCinco +  (detallesPagina.get(j).getSubTotal()/21);}
+						if(detallesPagina.get(j).getIva().equals("Excenta")) {totalPaginaExcenta = totalPaginaExcenta +  (detallesPagina.get(j).getSubTotal());}
+				    }
+				    Venta ventaImpresion = new Venta();
+				    ventaImpresion.setId(venta.get(0).getId());
+				    ventaImpresion.setFechaFactura(venta.get(0).getFechaFactura());
+				    ventaImpresion.setDocumento(venta.get(0).getDocumento());
+				    ventaImpresion.setCliente(venta.get(0).getCliente());
+				    ventaImpresion.setFuncionario(venta.get(0).getFuncionario());
+				    ventaImpresion.setFuncionarioR(venta.get(0).getFuncionarioR());
+				    ventaImpresion.setFuncionarioV(venta.get(0).getFuncionarioV());
+				    ventaImpresion.setTipo(venta.get(0).getTipo());
+				    ventaImpresion.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalMontoPagina));
+				    ventaImpresion.setTotal(totalMontoPagina);
+				    ventaImpresion.setTotalIvaDies(totalPaginaIvaDies);
+				    ventaImpresion.setTotalIvaCinco(totalPaginaIvaCinco);
+				    ventaImpresion.setTotalIva(totalPaginaIvaDies +  totalPaginaIvaCinco);
+
+				    ventaImpresion.setDetalleProducto(detallesPagina);
+				    listaVentaImpresion.add(ventaImpresion);
+				    System.out.println("UNA FILA DE LA PAGINA" +listaVentaImpresion.get(i).getDetalleProducto().get(0).getDescripcion());
+				  
+
+				}
+				
 				if (t.getImpresora().equals("matricial")) {
 					ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
 
@@ -1456,8 +1605,24 @@ public class VentaController {
 					map.put("direccionReporte", f.getDireccion());
 					map.put("telefonoReporte", f.getTelefono());
 					map.put("entregaInicial", "");
+					map.put("paginaTotal", totalPages+ "");
 					try {
-						report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
+						ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+			        	System.out.println("total apartido lista :  "+listaVentaImpresion.size());
+			        	for (int i=0; i < listaVentaImpresion.size(); i++) {
+			        		map.put("paginaActual", (i +1)+ "");
+			        		if(p.getDescripcion().equals("A4")) {
+				        		report.reportPDFImprimirA4(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+			        		}
+			        		if(p.getDescripcion().equals("CORTE")) {
+				        		report.reportPDFImprimirLibreCorte(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+
+			        		}
+			        		if(p.getDescripcion().equals("PRUEBA-JOB")) {
+				        		report.reportPDFImprimirPrueba(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+
+			        		}
+			            }
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1476,33 +1641,95 @@ public class VentaController {
 	public void reImprimirMatricial(@PathVariable int id, @PathVariable int numeroTerminal, @PathVariable String fecha){
 		List<Venta> venta = getLista(id);
 		venta.get(0).setFechaFactura(FechaUtil.convertirFechaStringADateUtil(fecha));
+		
 		Reporte report = new Reporte();
 		TerminalConfigImpresora t = new TerminalConfigImpresora();
 		t= terminalRepository.consultarTerminal(numeroTerminal);
 		if (t==null) {
 			System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 		}else {
-			ReporteConfig reportConfig = reporteConfigRepository.getOne(1);
+			ReporteConfig reportConfig = new ReporteConfig();
+			System.out.println("doc:  "+venta.get(0).getDocumento().getId());
+			if(venta.get(0).getDocumento().getId()==1) {reportConfig = reporteConfigRepository.getOne(5);}
+			if(venta.get(0).getDocumento().getId()==2) {reportConfig = reporteConfigRepository.getOne(1);}
+			if(venta.get(0).getDocumento().getId()==3) {reportConfig = reporteConfigRepository.getOne(1);}
 			Map<String, Object> map = new HashMap<>();
 			report=new Reporte();
-			if (t.getImpresora().equals("matricial")) {
-				ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
-				String urlReporte ="\\reporte\\"+reportConfig.getNombreSubReporte1()+".jasper";
-				System.out.println("SUBREPORT:  "+urlReporte+ " REPORT NOMBRE : "+reportConfig.getNombreReporte());
-				map.put("urlSubRepor", urlReporte);
-				map.put("tituloReporte", f.getTitulo());
-				map.put("razonSocialReporte", f.getRazonSocial());
-				map.put("descripcionMovimiento", f.getDescripcion());
-				map.put("direccionReporte", f.getDireccion());
-				map.put("telefonoReporte", f.getTelefono());
-				map.put("entregaInicial", "");
-				try {
-					report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			int pageSize = 10;
+			int totalPages = (int) Math.ceil((double) venta.get(0).getDetalleProducto().size() / pageSize);
+			System.out.println("TOTAL DE PAGINAS:"+ totalPages);
+			
+			List<Venta> listaVentaImpresion= new ArrayList<Venta>();
+			
+			for (int i = 0; i < totalPages; i++) {	
+			    System.out.println("\n--- Página " + (i + 1) + " ---");
 
+			    int start = i * pageSize;
+			    int end = Math.min(start + pageSize, venta.get(0).getDetalleProducto().size());
+			    // Crear una nueva lista con los elementos de la página actual
+			    List<DetalleProducto> detallesPagina = new ArrayList<>(venta.get(0).getDetalleProducto().subList(start, end));
+			    Double totalMontoPagina=0.0, totalPaginaIvaCinco=0.0, totalPaginaIvaDies=0.0, totalPaginaIva=0.0,totalPaginaExcenta=0.0;
+			    for (int j = 0; j < detallesPagina.size(); j++) {
+					totalMontoPagina = totalMontoPagina + detallesPagina.get(j).getSubTotal();
+					if(detallesPagina.get(j).getIva().equals("10 %")) {totalPaginaIvaDies = totalPaginaIvaDies +  (detallesPagina.get(j).getSubTotal()/11);}
+					if(detallesPagina.get(j).getIva().equals("5 %")) {totalPaginaIvaCinco = totalPaginaIvaCinco +  (detallesPagina.get(j).getSubTotal()/21);}
+					if(detallesPagina.get(j).getIva().equals("Excenta")) {totalPaginaExcenta = totalPaginaExcenta +  (detallesPagina.get(j).getSubTotal());}
+			    }
+			    Venta ventaImpresion = new Venta();
+			    ventaImpresion.setId(venta.get(0).getId());
+			    ventaImpresion.setFechaFactura(venta.get(0).getFechaFactura());
+			    ventaImpresion.setDocumento(venta.get(0).getDocumento());
+			    ventaImpresion.setCliente(venta.get(0).getCliente());
+			    ventaImpresion.setFuncionario(venta.get(0).getFuncionario());
+			    ventaImpresion.setFuncionarioR(venta.get(0).getFuncionarioR());
+			    ventaImpresion.setFuncionarioV(venta.get(0).getFuncionarioV());
+			    ventaImpresion.setTipo(venta.get(0).getTipo());
+			    ventaImpresion.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalMontoPagina));
+			    ventaImpresion.setTotal(totalMontoPagina);
+			    ventaImpresion.setTotalIvaDies(totalPaginaIvaDies);
+			    ventaImpresion.setTotalIvaCinco(totalPaginaIvaCinco);
+			    ventaImpresion.setTotalIva(totalPaginaIvaDies +  totalPaginaIvaCinco);
+			    ventaImpresion.setDetalleProducto(detallesPagina);
+			    listaVentaImpresion.add(ventaImpresion);
+			    System.out.println("UNA FILA DE LA PAGINA" +listaVentaImpresion.get(i).getDetalleProducto().get(0).getDescripcion());
+			}
+			 if (t.getImpresora().equals("matricial")) {
+			        ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
+			        String urlReporte = "\\reporte\\" + reportConfig.getNombreSubReporte1() + ".jasper";
+			        System.out.println("SUBREPORT:  " + urlReporte + " REPORT NOMBRE : " + reportConfig.getNombreReporte());
+
+			        map.put("urlSubRepor", urlReporte);
+			        map.put("tituloReporte", f.getTitulo());
+			        map.put("razonSocialReporte", f.getRazonSocial());
+			        map.put("descripcionMovimiento", f.getDescripcion());
+			        map.put("direccionReporte", f.getDireccion());
+			        map.put("telefonoReporte", f.getTelefono());
+			        map.put("entregaInicial", "");
+					map.put("paginaTotal", totalPages+ "");
+					
+					
+
+			        try {
+			        	ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+			        	System.out.println("total apartido lista :  "+listaVentaImpresion.size());
+			        	for (int i=0; i < listaVentaImpresion.size(); i++) {
+			        		map.put("paginaActual", (i +1)+ "");
+			        		if(p.getDescripcion().equals("A4")) {
+				        		report.reportPDFImprimirA4(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+			        		}
+			        		if(p.getDescripcion().equals("CORTE")) {
+				        		report.reportPDFImprimirLibreCorte(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+			        		}
+			        		if(p.getDescripcion().equals("PRUEBA-JOB")) {
+				        		report.reportPDFImprimirPrueba(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+			        		}
+			            }
+			            // Pasamos solo los detalles de la página actual a la impresión
+			            //report.reportPDFImprimir(listaVentaImpresion, map, reportConfig.getNombreReporte(), t.getNombreImpresora());
+			        } catch (Exception e) {
+			            e.printStackTrace();
+			        }
+			    }
 		}
 	}
 
@@ -1669,71 +1896,88 @@ public class VentaController {
 			if (detallado==1) {
 				List<Venta> obb= entityRepository.getVentaPorRangoFechaHql(fecI, fecF);
 				System.out.println(obb.size()+" ************lis obb");
-				for (int i = 0; i < obb.size(); i++) {
-					totalVenta = totalVenta + obb.get(i).getTotal();
-					for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
-						totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
-						totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+				if(obb.size()>0) {
+					for (int i = 0; i < obb.size(); i++) {
+						if(obb.get(i).getTipo().equals("1")) {obb.get(i).setTipo("CONTADO");}
+						if(obb.get(i).getTipo().equals("2")) {obb.get(i).setTipo("CREDITO"
+								+ "");}
+						totalVenta = totalVenta + obb.get(i).getTotal();
+						for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
+							totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
+							totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+						}
+						for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+							totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
+							DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+							DetalleProducto detalleProducto = new DetalleProducto();
+							detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
+							detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
+							detalleProducto.setCantidad(detAux.getCantidad());
+							detalleProducto.setPrecio(detAux.getPrecio());
+							detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
+							detalleProducto.setIva(detAux.getIva()+"");
+							detalleProducto.setSubTotal(detAux.getSubTotal());
+							detalleProducto.setMontoIva(detAux.getMontoIva());
+							obb.get(i).getDetalleProducto().add(detalleProducto);
+						}
 					}
-					for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
-						totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
-						DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
-						DetalleProducto detalleProducto = new DetalleProducto();
-						detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
-						detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
-						detalleProducto.setCantidad(detAux.getCantidad());
-						detalleProducto.setPrecio(detAux.getPrecio());
-						detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
-						detalleProducto.setIva(detAux.getIva()+"");
-						detalleProducto.setSubTotal(detAux.getSubTotal());
-						detalleProducto.setMontoIva(detAux.getMontoIva());
-						obb.get(i).getDetalleProducto().add(detalleProducto);
-					}
+
+					map.put("totalCostoProducto", totalCostoProd);
+					map.put("totalProducto", totalProducto);
+					map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
+					map.put("totalServicio", totalServicio);
+					map.put("totalVenta", totalVenta);	
+					listado = obb;
+					report.reportPDFDescarga(listado, map, "ReporteVentaRango", response);
+					return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 				}
 
-				map.put("totalCostoProducto", totalCostoProd);
-				map.put("totalProducto", totalProducto);
-				map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
-				map.put("totalServicio", totalServicio);
-				map.put("totalVenta", totalVenta);	
-				listado = obb;
-				report.reportPDFDescarga(listado, map, "ReporteVentaRango", response);
 			}
 			if (detallado==2) {
 				System.out.println("ENTROO TRUE");
 				List<Venta> obb= entityRepository.getVentaPorRangoFechaHql(fecI, fecF);
 				System.out.println(obb.size()+" ************lis obb");
-				for (int i = 0; i < obb.size(); i++) {
-					totalVenta = totalVenta + obb.get(i).getTotal();
-					for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
-						totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
-						totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+				if(obb.size()>0) {
+					for (int i = 0; i < obb.size(); i++) {
+						if(obb.get(i).getTipo().equals("1")) {obb.get(i).setTipo("CONTADO");}
+						if(obb.get(i).getTipo().equals("2")) {obb.get(i).setTipo("CREDITO");}
+
+						totalVenta = totalVenta + obb.get(i).getTotal();
+						for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
+							totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
+							totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+						}
+						for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+							totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
+							DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+							DetalleProducto detalleProducto = new DetalleProducto();
+							detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
+							detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
+							detalleProducto.setCantidad(detAux.getCantidad());
+							detalleProducto.setPrecio(detAux.getPrecio());
+							detalleProducto.setCosto(0.0);
+							detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
+							detalleProducto.setIva(detAux.getIva()+"");
+							detalleProducto.setSubTotal(detAux.getSubTotal());
+							detalleProducto.setMontoIva(detAux.getMontoIva());
+							obb.get(i).getDetalleProducto().add(detalleProducto);
+						}
 					}
-					for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
-						totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
-						DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
-						DetalleProducto detalleProducto = new DetalleProducto();
-						detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
-						detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
-						detalleProducto.setCantidad(detAux.getCantidad());
-						detalleProducto.setPrecio(detAux.getPrecio());
-						detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
-						detalleProducto.setIva(detAux.getIva()+"");
-						detalleProducto.setSubTotal(detAux.getSubTotal());
-						detalleProducto.setMontoIva(detAux.getMontoIva());
-						obb.get(i).getDetalleProducto().add(detalleProducto);
-					}
+					map.put("totalCostoProducto", totalCostoProd);
+					map.put("totalProducto", totalProducto);
+					map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
+					map.put("totalServicio", totalServicio);
+					map.put("totalVenta", totalVenta);	
+					listadoDetallado = obb;
+					System.out.println("lista size: "+listadoDetallado.size());
+					report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoDetallado", response);
+					return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 				}
-				map.put("totalCostoProducto", totalCostoProd);
-				map.put("totalProducto", totalProducto);
-				map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
-				map.put("totalServicio", totalServicio);
-				map.put("totalVenta", totalVenta);	
-				listadoDetallado = obb;
-				System.out.println("lista size: "+listadoDetallado.size());
-				report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoDetallado", response);
 			}
-			//				report.reportPDFImprimir(listado, map, "ReporteVentaRango", "Microsoft Print to PDF");
 
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -1787,70 +2031,81 @@ public class VentaController {
 
 			if (detallado==1) {
 				List<Venta> obb= entityRepository.getReporteVentaRangoPorFuncionarios(fecI, fecF, idFuncionario);
-				for (int i = 0; i < obb.size(); i++) {
-					totalVenta = totalVenta + obb.get(i).getTotal();
-					for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
-						totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
-						totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+				if(listado.size()>0) {
+					for (int i = 0; i < obb.size(); i++) {
+						totalVenta = totalVenta + obb.get(i).getTotal();
+						for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
+							totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
+							totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+						}
+						for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+							totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
+							DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+							DetalleProducto detalleProducto = new DetalleProducto();
+							detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
+							detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
+							detalleProducto.setCantidad(detAux.getCantidad());
+							detalleProducto.setPrecio(detAux.getPrecio());
+							detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
+							detalleProducto.setIva(detAux.getIva()+"");
+							detalleProducto.setSubTotal(detAux.getSubTotal());
+							detalleProducto.setMontoIva(detAux.getMontoIva());
+							obb.get(i).getDetalleProducto().add(detalleProducto);
+						}
 					}
-					for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
-						totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
-						DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
-						DetalleProducto detalleProducto = new DetalleProducto();
-						detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
-						detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
-						detalleProducto.setCantidad(detAux.getCantidad());
-						detalleProducto.setPrecio(detAux.getPrecio());
-						detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
-						detalleProducto.setIva(detAux.getIva()+"");
-						detalleProducto.setSubTotal(detAux.getSubTotal());
-						detalleProducto.setMontoIva(detAux.getMontoIva());
-						obb.get(i).getDetalleProducto().add(detalleProducto);
-					}
-				}
-				//				Double totalCostoProd=0.0, totalProducto=0.0, totalUtilidadProducto=0.0, totalServicio=0.0, totalVenta=0.0 ;
+					//				Double totalCostoProd=0.0, totalProducto=0.0, totalUtilidadProducto=0.0, totalServicio=0.0, totalVenta=0.0 ;
 
-				map.put("totalCostoProducto", totalCostoProd);
-				map.put("totalProducto", totalProducto);
-				map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
-				map.put("totalServicio", totalServicio);
-				map.put("totalVenta", totalVenta);					
-				System.out.println(obb.size()+" ************lis obb");
-				listado = obb;
-				report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorFuncionario", response);
+					map.put("totalCostoProducto", totalCostoProd);
+					map.put("totalProducto", totalProducto);
+					map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
+					map.put("totalServicio", totalServicio);
+					map.put("totalVenta", totalVenta);					
+					System.out.println(obb.size()+" ************lis obb");
+					listado = obb;
+					report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorFuncionario", response);
+					return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+				}
 
 			}
 			if (detallado==2) {
 				List<Venta> obb= entityRepository.getReporteVentaRangoPorFuncionarios(fecI, fecF, idFuncionario);
-				for (int i = 0; i < obb.size(); i++) {
-					totalVenta = totalVenta + obb.get(i).getTotal();
-					for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
-						totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
-						totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+				if(listado.size()>0) {
+					for (int i = 0; i < obb.size(); i++) {
+						totalVenta = totalVenta + obb.get(i).getTotal();
+						for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
+							totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
+							totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+						}
+						for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+							totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
+							DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+							DetalleProducto detalleProducto = new DetalleProducto();
+							detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
+							detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
+							detalleProducto.setCantidad(detAux.getCantidad());
+							detalleProducto.setPrecio(detAux.getPrecio());
+							detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");
+							detalleProducto.setIva(detAux.getIva()+"");
+							detalleProducto.setSubTotal(detAux.getSubTotal());
+							detalleProducto.setMontoIva(detAux.getMontoIva());
+							obb.get(i).getDetalleProducto().add(detalleProducto);
+						}
 					}
-					for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
-						totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
-						DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
-						DetalleProducto detalleProducto = new DetalleProducto();
-						detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
-						detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
-						detalleProducto.setCantidad(detAux.getCantidad());
-						detalleProducto.setPrecio(detAux.getPrecio());
-						detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");
-						detalleProducto.setIva(detAux.getIva()+"");
-						detalleProducto.setSubTotal(detAux.getSubTotal());
-						detalleProducto.setMontoIva(detAux.getMontoIva());
-						obb.get(i).getDetalleProducto().add(detalleProducto);
-					}
+					map.put("totalCostoProducto", totalCostoProd);
+					map.put("totalProducto", totalProducto);
+					map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
+					map.put("totalServicio", totalServicio);
+					map.put("totalVenta", totalVenta);
+					System.out.println(obb.size()+" ************lis obb 22222");
+					listadoDetallado = obb;
+					report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoPorFuncionarioDetallado", response);
+					return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 				}
-				map.put("totalCostoProducto", totalCostoProd);
-				map.put("totalProducto", totalProducto);
-				map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
-				map.put("totalServicio", totalServicio);
-				map.put("totalVenta", totalVenta);
-				System.out.println(obb.size()+" ************lis obb 22222");
-				listadoDetallado = obb;
-				report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoPorFuncionarioDetallado", response);
 			}
 
 			//				report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorFuncionario", response);
@@ -1873,7 +2128,7 @@ public class VentaController {
 		Cliente cl= clienteRepository.getIdCliente(idCliente);
 		Org org = orgRepository.findById(1).get();
 		List<Object[]> listUltimaVentas= new ArrayList<Object[]>();
-		
+
 		Double totalCostoProd=0.0, totalProducto=0.0, totalUtilidadProducto=0.0, totalServicio=0.0, totalVenta=0.0 ;
 
 
@@ -1901,8 +2156,6 @@ public class VentaController {
 			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
 			map.put("desde", fecI);
 			map.put("hasta", fecF);
-			listUltimaVentas= entityRepository.getReporteVentaRangoPorClienteultimaVenta(idCliente);
-			map.put("ultimaVenta", listUltimaVentas.get(0)[1].toString());
 
 			map.put("cliente", cl.getPersona().getNombre()+ " "+ cl.getPersona().getApellido());
 
@@ -1912,70 +2165,81 @@ public class VentaController {
 			if (detallado==1) {
 				List<Venta> obb= entityRepository.getVentaPorRangoFechaClienteHql(fecI, fecF, idCliente);
 				System.out.println(obb.size()+" ************lis obb");
-				for (int i = 0; i < obb.size(); i++) {
-					totalVenta = totalVenta + obb.get(i).getTotal();
-					for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
-						totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
-						totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+				if(obb.size()>0) {
+					for (int i = 0; i < obb.size(); i++) {
+						totalVenta = totalVenta + obb.get(i).getTotal();
+						for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
+							totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
+							totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+						}
+						for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+							totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
+							DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+							DetalleProducto detalleProducto = new DetalleProducto();
+							detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
+							detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
+							detalleProducto.setCantidad(detAux.getCantidad());
+							detalleProducto.setPrecio(detAux.getPrecio());
+							detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
+							detalleProducto.setIva(detAux.getIva()+"");
+							detalleProducto.setSubTotal(detAux.getSubTotal());
+							detalleProducto.setMontoIva(detAux.getMontoIva());
+							obb.get(i).getDetalleProducto().add(detalleProducto);
+						}
 					}
-					for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
-						totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
-						DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
-						DetalleProducto detalleProducto = new DetalleProducto();
-						detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
-						detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
-						detalleProducto.setCantidad(detAux.getCantidad());
-						detalleProducto.setPrecio(detAux.getPrecio());
-						detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
-						detalleProducto.setIva(detAux.getIva()+"");
-						detalleProducto.setSubTotal(detAux.getSubTotal());
-						detalleProducto.setMontoIva(detAux.getMontoIva());
-						obb.get(i).getDetalleProducto().add(detalleProducto);
-					}
-				}
 
-				map.put("totalCostoProducto", totalCostoProd);
-				map.put("totalProducto", totalProducto);
-				map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
-				map.put("totalServicio", totalServicio);
-				map.put("totalVenta", totalVenta);	
-				listado = obb;
-				report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorCliente", response);
+					map.put("totalCostoProducto", totalCostoProd);
+					map.put("totalProducto", totalProducto);
+					map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
+					map.put("totalServicio", totalServicio);
+					map.put("totalVenta", totalVenta);	
+					listado = obb;
+					report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorCliente", response);
+					return  new  ResponseEntity<String>(HttpStatus.OK);
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+				}
 
 			}
 
 			if (detallado==2) {
 				List<Venta> obb= entityRepository.getVentaPorRangoFechaClienteHql(fecI, fecF, idCliente);
 				System.out.println(obb.size()+" ************lis obb");
-				for (int i = 0; i < obb.size(); i++) {
-					totalVenta = totalVenta + obb.get(i).getTotal();
-					for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
-						totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
-						totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+				if(obb.size()>0) {
+					for (int i = 0; i < obb.size(); i++) {
+						totalVenta = totalVenta + obb.get(i).getTotal();
+						for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
+							totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
+							totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+						}
+						for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+							totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
+							DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+							DetalleProducto detalleProducto = new DetalleProducto();
+							detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
+							detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
+							detalleProducto.setCantidad(detAux.getCantidad());
+							detalleProducto.setPrecio(detAux.getPrecio());
+							detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
+							detalleProducto.setIva(detAux.getIva()+"");
+							detalleProducto.setSubTotal(detAux.getSubTotal());
+							detalleProducto.setMontoIva(detAux.getMontoIva());
+							obb.get(i).getDetalleProducto().add(detalleProducto);
+						}
 					}
-					for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
-						totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
-						DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
-						DetalleProducto detalleProducto = new DetalleProducto();
-						detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
-						detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
-						detalleProducto.setCantidad(detAux.getCantidad());
-						detalleProducto.setPrecio(detAux.getPrecio());
-						detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
-						detalleProducto.setIva(detAux.getIva()+"");
-						detalleProducto.setSubTotal(detAux.getSubTotal());
-						detalleProducto.setMontoIva(detAux.getMontoIva());
-						obb.get(i).getDetalleProducto().add(detalleProducto);
-					}
-				}
 
-				map.put("totalCostoProducto", totalCostoProd);
-				map.put("totalProducto", totalProducto);
-				map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
-				map.put("totalServicio", totalServicio);
-				map.put("totalVenta", totalVenta);	
-				listadoDetallado = obb;
-				report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoPorClienteDetallado", response);
+					map.put("totalCostoProducto", totalCostoProd);
+					map.put("totalProducto", totalProducto);
+					map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
+					map.put("totalServicio", totalServicio);
+					map.put("totalVenta", totalVenta);	
+					listadoDetallado = obb;
+					report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoPorClienteDetallado", response);
+					return  new  ResponseEntity<String>(HttpStatus.OK);
+
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+				}
 
 			}
 
@@ -1983,7 +2247,6 @@ public class VentaController {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
-
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 
 	}
@@ -2099,103 +2362,160 @@ public class VentaController {
 
 	}
 
+	@SuppressWarnings("unused")
 	@Transactional
-	@RequestMapping(method=RequestMethod.GET, value="/anularFactura/{id}")
-	public ResponseEntity<?> anularVentar(@PathVariable int id, OAuth2Authentication authentication){
-
+	@RequestMapping(method=RequestMethod.POST, value="/anularFactura/{id}")
+	public ResponseEntity<?> anularVentar(@RequestBody OperacionCaja operacionEntidad, @PathVariable int id, OAuth2Authentication authentication){
 		try {
-			entityRepository.findByActualizarFacturas(id, "ANULADO");
+			
 			Venta v = entityRepository.findById(id).get();
+			Usuario usuario = usuarioService.findByUsername(authentication.getName());
 			if(v.getTipo().equals("1")) {
-
+				System.out.println("entro tipo contado");
+				OperacionCaja operacion = operacionRepository.findById(v.getOperacionCaja()).get();
+				OperacionCaja nuevaOperacion = new OperacionCaja();
+				nuevaOperacion.setFecha(new Date());
+				nuevaOperacion.setMonto(v.getTotal());
+				nuevaOperacion.setTipo("SALIDA"); // Marca que es una salida de dinero (devolución)
+				nuevaOperacion.setMotivo("ANULACIÓN VENTA CONTADO REF.: " + v.getId());
+				nuevaOperacion.setEfectivo(0.0); // Dependerá del medio de pago original
+				nuevaOperacion.setVuelto(0.0);
+				nuevaOperacion.getAperturaCaja().setId(operacion.getAperturaCaja().getId());
+				nuevaOperacion.getConcepto().setId(7); // "Devolución" u otro concepto relacionado
+				nuevaOperacion.getTipoOperacion().setId(1); // Efectivo, Cheque, Tarjeta, etc.
+				if (operacion.getTipoOperacion().getId() == 1) {
+				    aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(operacion.getAperturaCaja().getId(), v.getTotal());
+				}
+				if (operacion.getTipoOperacion().getId() == 2) {
+				    aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(operacion.getAperturaCaja().getId(), v.getTotal());
+				}
+				if (operacion.getTipoOperacion().getId() == 3) {
+				    aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(operacion.getAperturaCaja().getId(), v.getTotal());
+				}
+				
+				operacionRepository.save(nuevaOperacion);
+				AperturaCaja aper = aperturaCajaRepository.findById(operacion.getAperturaCaja().getId()).get();
+				if (!aper.isEstado()) {
+				    cierreCajaRepository.findByActualizarCierreMontoAnulacionVenta(aper.getId(), v.getTotal());
+				    int cierreId = cierreCajaRepository.IdCierreCaja(aper.getId());
+				    tesoreriaRepository.findByActualizarCierreMontoAnulacionVenta(cierreId, v.getTotal());
+				}else {
+					System.out.println("no esta cerrado tdoadçvia");
+				}
+				List<DetalleProducto> detalle= detalleProducto(detalleProductoRepository.lista(id));
+				for(DetalleProducto det: detalle) {
+					actualizarProductoBaseAumentarCorregido(det.getProducto().getId(), det.getCantidad(), det.getSubTotal(), det.getPrecio(), usuario.getFuncionario().getId(), "", v.getId());
+				
+				}
+				
+				AnulacionesVenta vvv = new  AnulacionesVenta();
+				vvv.setFecha(new Date());
+				vvv.getFuncionario().setId(usuario.getFuncionario().getId());
+				vvv.setTotal(v.getTotal());
+				vvv.setMotivo("ANULACIÓN VENTA REF.:  "+v.getId());
+				vvv.getVenta().setId(v.getId());;
+				anulacionVentaRepository.save(vvv);
+				entityRepository.findByActualizarFacturas(id, "ANULADO");
 			}
 			if(v.getTipo().equals("2")) {
-				CuentaCobrarCabecera cu= cuentaCobrarRepository.getCuentaCabeceraPorVentaId(v.getId());
-				if(cu!=null) {
-					cuentaCobrarDetalleRepository.eliminarDetalleCuentaPorCabeceraId(cu.getId());
-					cuentaCobrarRepository.deleteById(cu.getId());
-					System.out.println("cuenta eliminada:");
-				}
+				System.out.println("entro tipo credito");
+				 if (v.getEntrega() > 0) {
+					 AperturaCaja cC = new AperturaCaja();
+						cC=aperturaCajaRepository.getAperturaCajaPorIdCaja(operacionEntidad.getAperturaCaja().getId());
+						if(cC==null) {
+							System.out.println("entrooo null caja chiac");
+							return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO POSEE UNA APERTURA CAJA A SU NOMBRE!"), HttpStatus.CONFLICT);
+						}else {
+							if((cC.getSaldoActual()) < operacionEntidad.getMonto() && operacionEntidad.getTipoOperacion().getId()==1) {
+								return new ResponseEntity<>(new CustomerErrorType("EL EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+							}else if((cC.getSaldoActualCheque()) < operacionEntidad.getMonto()&& operacionEntidad.getTipoOperacion().getId()==2){
+								return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+							}else if((cC.getSaldoActualTarjeta())< operacionEntidad.getMonto() && operacionEntidad.getTipoOperacion().getId()==3){
+								return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+							}else {
+								 	OperacionCaja nuevaOperacion = new OperacionCaja();
+							        nuevaOperacion.setFecha(new Date());
+							        nuevaOperacion.setMonto(v.getEntrega());
+							        nuevaOperacion.setTipo("SALIDA"); // devolución
+							        nuevaOperacion.setMotivo("DEVOLUCIÓN DE ENTREGA INICIAL - VENTA CRÉDITO REF.: " + v.getId());
+							        nuevaOperacion.setEfectivo(0.0); // opcional según tipo
+							        nuevaOperacion.setVuelto(0.0);
+							        nuevaOperacion.getAperturaCaja().setId(operacionEntidad.getAperturaCaja().getId());
+							        nuevaOperacion.getConcepto().setId(7); // Devolución
+							        nuevaOperacion.getTipoOperacion().setId(operacionEntidad.getTipoOperacion().getId());
+
+							        operacionRepository.save(nuevaOperacion);
+
+							        if (operacionEntidad.getTipoOperacion().getId() == 1) {
+										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(operacionEntidad.getAperturaCaja().getId(), operacionEntidad.getMonto());
+									}
+									
+									if (operacionEntidad.getTipoOperacion().getId() == 2) {
+										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(operacionEntidad.getAperturaCaja().getId(), operacionEntidad.getMonto());
+									}
+									
+									if (operacionEntidad.getTipoOperacion().getId() == 3) {
+										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(operacionEntidad.getAperturaCaja().getId(), operacionEntidad.getMonto());
+									}
+									
+
+							        AperturaCaja aper = aperturaCajaRepository.findById(operacionEntidad.getAperturaCaja().getId()).get();
+							        if (!aper.isEstado()) {
+							            int cierreId = cierreCajaRepository.IdCierreCaja(operacionEntidad.getAperturaCaja().getId());
+							            cierreCajaRepository.findByActualizarCierreMontoAnulacionVenta(operacionEntidad.getAperturaCaja().getId(), v.getEntrega());
+							            tesoreriaRepository.findByActualizarCierreMontoAnulacionVenta(cierreId, v.getEntrega());
+							        }
+								
+							}
+						}
+				       
+				    }
+				 
+				 	System.out.println("vino aca");
+				    CuentaCobrarCabecera cuenta = cuentaCobrarRepository.getCuentaCabeceraPorVentaId(v.getId());
+				 	ordenPagareRepository.eliminarPorCuentaCobrarCabeceraId(cuenta.getId());
+				 	
+				 
+				    // Eliminar cuenta por cobrar asociada
+				    if (cuenta != null) {
+						 System.out.println("cuenta distinto nulla");
+
+				    	if(cuenta.getSaldo() > 0) {
+							 System.out.println("cuenta saldo mayor a cero");
+
+				    		cuentaCobrarDetalleRepository.liquidarDetalle(cuenta.getId(), new Date(), true);
+					        cuentaCobrarRepository.liquidarCuentaCabecera(cuenta.getId());
+					        List<DetalleProducto> detalle = detalleProducto(detalleProductoRepository.lista(v.getId()));
+						    for (DetalleProducto det : detalle) {
+						    	System.out.println("entro for update detalle prododsf");
+						        actualizarProductoBaseAumentarCorregido(
+						            det.getProducto().getId(), det.getCantidad(), det.getSubTotal(),
+						            det.getPrecio(), usuario.getFuncionario().getId(), "", v.getId()
+						        );
+						    }
+						    // Registrar anulación
+						    AnulacionesVenta anulacion = new AnulacionesVenta();
+						    anulacion.setFecha(new Date());
+						    anulacion.getFuncionario().setId(usuario.getFuncionario().getId());
+						    anulacion.setTotal(v.getTotal());
+						    anulacion.setMotivo("ANULACIÓN VENTA CRÉDITO REF.: " + v.getId());
+						    anulacion.getVenta().setId(v.getId());
+						    anulacionVentaRepository.save(anulacion);
+						    // Cambiar estado de la venta
+						    entityRepository.findByActualizarFacturas(v.getId(), "ANULADO"); 
+				    	}else {
+				    		return  new  ResponseEntity<>(new CustomerErrorType("NO SE PUEDE ANULAR VENTA CREDITO QUE YA SE PAGO POR LA TOTALIDAD"), HttpStatus.CONFLICT);
+				    	}
+				    }else {
+			    		return  new  ResponseEntity<>(new CustomerErrorType("NO SE HA ENCONTRADO LA CUENTA DE LA VENTA A CREDITO"), HttpStatus.CONFLICT);
+
+				    }
+				    	
+			
+				  
 			}
 
-			Usuario usuario = usuarioService.findByUsername(authentication.getName());
-			AnulacionesVenta vvv = new  AnulacionesVenta();
-			vvv.setFecha(new Date());
-			vvv.getFuncionario().setId(usuario.getFuncionario().getId());
-			vvv.setTotal(v.getTotal());
-			vvv.setMotivo("ANULACIÓN VENTA REF.:  "+v.getId());
-			vvv.getVenta().setId(v.getId());;
-			anulacionVentaRepository.save(vvv);
-			OperacionCaja operacion = operacionRepository.findById(v.getOperacionCaja()).get();
-			OperacionCaja ope=new OperacionCaja();
-			ope.setEfectivo(0.0);
-			ope.setFecha(new Date());
-			ope.setMonto(v.getTotal());
-			Concepto c= new Concepto();
-			c = conceptoRepository.getOne(7);
-			ope.setMotivo(c.getDescripcion()+" REF.: "+anulacionVentaRepository.getUltimaDevolucion());
-			ope.setTipo("SALIDA");
-			ope.setVuelto(0.0);	
-			ope.getAperturaCaja().setId(operacion.getAperturaCaja().getId());
-			ope.getConcepto().setId(7);
-			ope.getTipoOperacion().setId(1);
-			operacionRepository.save(ope);
-
-			if(operacion.getTipoOperacion().getId()==1) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(operacion.getAperturaCaja().getId(), v.getTotal());}
-			if(operacion.getTipoOperacion().getId()==2) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(operacion.getAperturaCaja().getId(), v.getTotal());}
-			if(operacion.getTipoOperacion().getId()==3) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(operacion.getAperturaCaja().getId(), v.getTotal());}
-			AperturaCaja aper=aperturaCajaRepository.findById(operacion.getAperturaCaja().getId()).get();
-
-			if (aper.isEstado() == false) {
-
-				cierreCajaRepository.findByActualizarCierreMontoAnulacionVenta(operacion.getAperturaCaja().getId(), v.getTotal());
-
-				int cierreId = cierreCajaRepository.IdCierreCaja(operacion.getAperturaCaja().getId());
-
-				tesoreriaRepository.findByActualizarCierreMontoAnulacionVenta(cierreId, v.getTotal());
-
-			}
-			List<DetalleProducto> detalle= detalleProducto(detalleProductoRepository.lista(id));
-			for(DetalleProducto det: detalle) {
-				actualizarProductoBaseAumentarCorregido(det.getProducto().getId(), det.getCantidad(), det.getSubTotal(), det.getPrecio(), usuario.getFuncionario().getId(), "", v.getId());
-				//				Producto p = productoRepository.getOne(det.getProducto().getId());
-				//				MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
-				//				//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
-				////				, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
-				//				mov.setDescripcion(p.getDescripcion());
-				//				mov.setCantidad(det.getCantidad());
-				//				mov.setFecha(new  Date());
-				//				mov.setHora(hora());
-				//
-				//				mov.setIngreso(det.getSubTotal());
-				//				mov.setEgreso(0.0);
-				//				mov.setVentaSalida(det.getPrecio());
-				//
-				//				mov.setCostoEntrada(0.0);
-				//				mov.setCostoEntradaAnterior(0.0);
-				//				mov.setCostoSalida(p.getPrecioCosto());
-				//
-				//				mov.setVenta_1(p.getPrecioVenta_1());
-				//				mov.setVenta_2(p.getPrecioVenta_2());
-				//				mov.setVenta_3(p.getPrecioVenta_3());
-				//				mov.setVenta_4(p.getPrecioVenta_4());
-				//
-				//				mov.setVenta_1_anterior(0.0);
-				//				mov.setVenta_2_anterior(0.0);
-				//				mov.setVenta_3_anterior(0.0);
-				//				mov.setVenta_4_anterior(0.0);
-				//
-				//				mov.getTipoMovimiento().setId(1);
-				//				mov.getProducto().setId(p.getId());
-				//				mov.getFuncionario().setId(usuario.getFuncionario().getId());
-				//				mov.setMarca(p.getMarca().getDescripcion());
-				//				Concepto ccc= new Concepto();
-				//				ccc= conceptoRepository.findById(7).get();
-				//				mov.setReferencia(ccc.getDescripcion()+" REF.: "+ v.getId());
-				//				movEntradaSalidaRepository.save(mov);
-				//this.actualizarProductoBaseAumentar(p.getId(), det.getCantidad());
-			}
-
+		
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -2295,7 +2615,7 @@ public class VentaController {
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 
 	}
-	
+
 	@RequestMapping(value="/descargarPdf/{id}", method=RequestMethod.GET)
 	public ResponseEntity<?>  resumenConcepto(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
@@ -2309,12 +2629,12 @@ public class VentaController {
 		List<Presupuesto> listadoRetorno= new ArrayList<Presupuesto>();
 
 		for (int i = 0; i < listado.size(); i++) {
-			
+
 			for (int j = 0; j < listado.get(i).getDetalleServicio().size(); j++) {
 				DetalleServicios detAux = listado.get(i).getDetalleServicio().get(j);
 				DetalleProducto detAgregar =new DetalleProducto();
 
-				
+
 				detAgregar.setDescripcion("SER - "+detAux.getDescripcion());
 				detAgregar.getProducto().setCodbar(detAux.getServicio().getId()+"");
 				detAgregar.setCantidad(detAux.getCantidad());
@@ -2327,26 +2647,165 @@ public class VentaController {
 			}
 		}
 		try {
-		
-				Map<String, Object> map = new HashMap<>();
-				map.put("org", ""+org.getNombre());
-				map.put("direccion", ""+org.getDireccion());
-				map.put("ruc", ""+org.getRuc());
-				map.put("telefono", ""+org.getTelefono());
-				map.put("ciudad", ""+org.getCiudad());
-				map.put("pais", ""+org.getPais());
-				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
-		
-				report = new Reporte();
-				report.reportPDFDescarga(listado, map, "ReporteVentaPdf", response);
-				//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
-			
+
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+
+			report = new Reporte();
+			report.reportPDFDescarga(listado, map, "ReporteVentaPdf", response);
+			//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 		}
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
-	
+
+
+	@RequestMapping(value="/resumenDiarioPdf/{fechaI}/{fechaF}", method=RequestMethod.GET)
+	public ResponseEntity<?>  getResumenDiario(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		List<Object[]> listObjVenCre= new ArrayList<>();
+		List<Object[]> listObjVenCon= new ArrayList<>();
+		List<Object[]> listObjComCre= new ArrayList<>();
+		List<Object[]> listObjComCon= new ArrayList<>();
+		List<Object[]> listObjCob=new ArrayList<>();
+		List<Object[]> listObjPago=new ArrayList<>();
+		List<Object[]> listObjCuentaCobrar=new ArrayList<>();
+		List<Object[]> listObjCuentaPagar=new ArrayList<>();
+		List<Object[]> listObjEntregaInicialVentaCredito=new ArrayList<>();
+
+		List<MovimientoPorConceptosAuxiliar> listRetorno= new ArrayList<>();
+
+		try {
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI;
+			System.out.println("pasoo1");
+			fecI = formater.parse(fechaI);
+			System.out.println("pasoo2");
+			Date fecF=formater.parse(fechaF);
+			System.out.println("pasoo3");
+			//Date fechaFi = sumarDia(fecF, 24);
+			fecF.setHours(23);
+			fecI.setHours(0);
+			System.out.println("FI: "+fecI+ "  : : : FFIN: "+fecF+ " : id Func:  ");			
+
+			listObjVenCon = entityRepository.getResumenVentaContado(fecI, fecF);
+			for (int i = 0; i < listObjVenCon.size(); i++) {
+				Object[] ob= listObjVenCon.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				if(ob[1].toString().equals("1")) { v.setDescripcion("VENTA CONTADO");}
+				listRetorno.add(v);
+			}
+
+			listObjVenCre = entityRepository.getResumenVentaCredito(fecI, fecF);
+			for (int i = 0; i < listObjVenCre.size(); i++) {
+				Object[] ob= listObjVenCre.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				if(ob[1].toString().equals("2")) { v.setDescripcion("VENTA CREDITO");}
+				listRetorno.add(v);
+			}
+			listObjComCon = entityRepository.getResumenCompraContado(fecI, fecF);
+			for (int i = 0; i < listObjComCon.size(); i++) {
+				Object[] ob= listObjComCon.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				v.setDescripcion(ob[1].toString());
+				listRetorno.add(v);
+			}
+			listObjComCre = entityRepository.getResumenCompraCredito(fecI, fecF);
+			for (int i = 0; i < listObjComCre.size(); i++) {
+				Object[] ob= listObjComCre.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				v.setDescripcion(ob[1].toString());
+				listRetorno.add(v);
+			}
+
+
+
+			listObjCob = entityRepository.getResumenCobros(fecI, fecF);
+			for (int i = 0; i < listObjCob.size(); i++) {
+				Object[] ob= listObjCob.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				v.setDescripcion(ob[1].toString());
+				listRetorno.add(v);
+			}
+
+			listObjPago = entityRepository.getResumenPagos(fecI, fecF);
+			for (int i = 0; i < listObjPago.size(); i++) {
+				Object[] ob= listObjPago.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				v.setDescripcion(ob[1].toString());
+				listRetorno.add(v);
+			}
+
+			listObjCuentaCobrar = entityRepository.getResumenCuentaCobrar(fecI, fecF);
+			for (int i = 0; i < listObjCuentaCobrar.size(); i++) {
+				Object[] ob= listObjCuentaCobrar.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				v.setDescripcion(ob[1].toString());
+				listRetorno.add(v);
+			}
+			listObjCuentaPagar = entityRepository.getResumenCuentaPagar(fecI, fecF);
+			for (int i = 0; i < listObjCuentaPagar.size(); i++) {
+				Object[] ob= listObjCuentaPagar.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				v.setDescripcion(ob[1].toString());
+				listRetorno.add(v);
+			}
+			listObjEntregaInicialVentaCredito = entityRepository.getResumenEntregaInicialVentaCredito(fecI, fecF);
+			for (int i = 0; i < listObjEntregaInicialVentaCredito.size(); i++) {
+				Object[] ob= listObjEntregaInicialVentaCredito.get(i);
+				MovimientoPorConceptosAuxiliar v = new MovimientoPorConceptosAuxiliar();
+				v.setMonto(Double.parseDouble(ob[0].toString()));
+				v.setDescripcion(ob[1].toString());
+				listRetorno.add(v);
+			}
+
+
+
+			for (int i = 0; i < listRetorno.size(); i++) {
+				System.out.println(listRetorno.get(i).getDescripcion()+ " = "+listRetorno.get(i).getMonto());
+			}
+			System.out.println(listRetorno.size()+" *SIXE RETRONO LISTA");
+
+
+
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("desde", fecI);
+			map.put("hasta", fecF);
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+
+			report = new Reporte();
+			report.reportPDFDescarga(listRetorno, map, "ReporteBalanceGeneral", response);
+			//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
 
 }

@@ -432,6 +432,9 @@ public class CierreCajaController {
 			c.getAperturaCaja().setId(Integer.parseInt(ob[0][18].toString()));
 			c.setEstadoAnulacion(Boolean.parseBoolean(ob[0][19].toString()));
 			c.setId(Integer.parseInt(ob[0][20].toString()));
+			c.setHora(ob[0][21].toString());
+			c.getAperturaCaja().setFecha(FechaUtil.convertirFechaStringADateUtil(ob[0][22].toString()));
+			c.getAperturaCaja().setHora(ob[0][23].toString());
 		
 		return c;
 	}

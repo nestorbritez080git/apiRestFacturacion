@@ -83,12 +83,12 @@ public class ImportarExcel {
 	        }
 	 }
 	 
-	 public List<RucFormato> leerArchivoExcel() {
+	 public List<RucFormato> leerArchivoExcel(String nombreArchivo) {
 		 List<RucFormato> listado= new ArrayList<RucFormato>();
 		 try {
 			
-			 String rutaArchivoExcel = "ruc.xls";
-	         Workbook wb = WorkbookFactory.create(new File("ruc.xls"));
+			 String rutaArchivoExcel = "rucccc.xls";
+	         Workbook wb = WorkbookFactory.create(new File(nombreArchivo+".xls"));
 	         Sheet firstSheet = wb.getSheetAt(0);
 				Iterator iterator = firstSheet.iterator();
 	         StringBuilder text = new StringBuilder();
@@ -137,7 +137,8 @@ public class ImportarExcel {
 	         	System.out.println("NUM dv "+nuDv);
 	         	System.out.println("NUM ruc "+nuRuc);
 	         	System.out.println("index "+i);
-	         	f.setRuc(nuRuc);
+	         	
+	         	f.setRuc(nuRuc+"-"+nuDv);
 	         	f.setDv(nuDv);
 	         	f.setRazonSocial(razon.get(i));
 	         	listado.add(f);
@@ -153,9 +154,10 @@ public class ImportarExcel {
 		
 		 return listado;
 	 }
+	 
 	public static void main(String[] args) {
 		ImportarExcel v = new ImportarExcel();
-		v.leerArchivoExcel();
+		v.leerArchivoExcel("ruc11");
 	/*	
 		try {
 			

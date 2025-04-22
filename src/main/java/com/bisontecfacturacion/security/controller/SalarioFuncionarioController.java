@@ -60,6 +60,7 @@ public class SalarioFuncionarioController {
 		List<SalarioFuncionario> li = entityRepository.findAll();
 		SalarioFuncionario p = null;
 		for (SalarioFuncionario ob: li) {
+			/*
 			p = new SalarioFuncionario();
 			p.setId(ob.getId());
 			p.getFuncionarioRegistro().setId(ob.getFuncionarioRegistro().getId());
@@ -73,6 +74,7 @@ public class SalarioFuncionarioController {
 			p.setTotalAnticipo(ob.getTotalAnticipo());
 			p.setEstado(ob.isEstado());
 			p.setFecha(ob.getFecha());
+			*/
 			liRetorno.add(p);
 		}
 		return liRetorno;
@@ -91,6 +93,7 @@ public class SalarioFuncionarioController {
 		if (obj[0][0].toString() == null) {
 			System.out.println("null");
 		}else {
+			/*
 			s= new SalarioFuncionario();
 			s.setId(Integer.parseInt(obj[0][0].toString()));
 			s.getPeriodo().setId(Integer.parseInt(obj[0][1].toString()));
@@ -104,6 +107,7 @@ public class SalarioFuncionarioController {
 			s.setTotalSalario(Double.parseDouble(obj[0][11].toString()));
 			s.setTotalAnticipo(Double.parseDouble(obj[0][12].toString()));
 			s.setTotalPagado(Double.parseDouble(obj[0][13].toString()));
+			*/
 		}
 		
 		
@@ -194,6 +198,7 @@ public class SalarioFuncionarioController {
 	}
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> guardar(@RequestBody SalarioFuncionario entity ){
+		/*
 		 try {
 			if (entity.getFuncionarioRegistro().getId()==0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
@@ -260,6 +265,7 @@ public class SalarioFuncionarioController {
 			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		*/
 		return new ResponseEntity<>(HttpStatus.OK);
 				
 		
@@ -267,8 +273,11 @@ public class SalarioFuncionarioController {
 	
 private List<SalarioFuncionarioDetalle> listar(List<Object[]> obj) {
 	List<SalarioFuncionarioDetalle> listRetorno = new ArrayList<>();
-	for(Object[] o: obj) {
+	/*
+	for(Object[] o: obj) 
 		SalarioFuncionarioDetalle s = new SalarioFuncionarioDetalle();
+
+		
 		s.setId(Integer.parseInt(o[0].toString()));
 		s.getFuncionario().getPersona().setNombre(o[1].toString()+" "+o[2].toString());
 		s.setMontoSalario(Double.parseDouble(o[3].toString()));
@@ -276,9 +285,11 @@ private List<SalarioFuncionarioDetalle> listar(List<Object[]> obj) {
 		s.setMontoPagado(Double.parseDouble(o[5].toString()));
 		
 		listRetorno.add(s);
-	}
+		*/
 	return listRetorno;
-}
+	}
+	
+
 @RequestMapping(method = RequestMethod.GET, value="/reporteSalarioFuncionario/{id}")
 public  ResponseEntity<?> getReporteSalarioFuncionario(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id) throws IOException{
 	List<SalarioFuncionarioDetalle> lis =listar(entityRepository.getSalarioFuncionarioDetallePorIdLista(id));

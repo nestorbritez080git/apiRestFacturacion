@@ -14,6 +14,12 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.venta_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, dp.monto_iva as monIva, dp.costo, dp.tipo_precio as tpPrecio from detalle_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.venta_id=:id",nativeQuery=true)
 	List<Object[]> lista(@Param("id") int id);
 	
+	@Query("SELECT SUM(d.cantidad) FROM DevolucionVentaDetalle d " +
+		       "WHERE d.detalleProducto.id = :detalleProductoId " +
+		       "AND d.devolucionVenta.venta.id = :ventaId " +
+		       "AND d.devolucionVenta.estado = 'CERRADO' ")
+		Double cantidadConfirmadaDevueltaPorProducto(@Param("detalleProductoId") int detalleProductoId,
+		                                             @Param("ventaId") int ventaId);
 	
 	
 	@Query(value = "DELETE FROM DetalleProducto where venta_id =:idVenta")

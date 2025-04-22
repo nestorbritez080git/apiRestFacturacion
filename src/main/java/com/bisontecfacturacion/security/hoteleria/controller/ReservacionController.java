@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxili
 import com.bisontecfacturacion.security.auxiliar.MovimientoCajaAuxiliar;
 import com.bisontecfacturacion.security.auxiliar.MovimientoGastosAuxiliar;
 import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
+import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
@@ -62,6 +64,7 @@ import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
+import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
 import com.bisontecfacturacion.security.repository.ProductoCardexRepository;
 import com.bisontecfacturacion.security.repository.ProductoRepository;
 import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
@@ -111,6 +114,10 @@ public class ReservacionController {
 	@Autowired
 	private TerminalConfigImpresoraRepository terminalRepository;
 
+	
+	@Autowired
+	private ParametroTipoHojaRepository parametroTipoHoja;
+	
 	@Autowired
 	private ProductoCardexRepository compuestoRepository;
 	@Autowired
@@ -581,7 +588,15 @@ public class ReservacionController {
 					map.put("telefonoReporte", f.getTelefono());
 					map.put("entregaInicial", "");
 					try {
-						report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
+						ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+
+						if(p.getDescripcion().equals("A4")) {
+			        		report.reportPDFImprimirA4(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+		        		}
+		        		if(p.getDescripcion().equals("CORTE")) {
+			        		report.reportPDFImprimirLibreCorte(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+
+		        		}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -620,8 +635,15 @@ public class ReservacionController {
 						map.put("telefonoReporte", f.getTelefono());
 						map.put("entregaInicial", "");
 						try {
-							report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
-						} catch (Exception e) {
+							ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+
+							if(p.getDescripcion().equals("A4")) {
+				        		report.reportPDFImprimirA4(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+			        		}
+			        		if(p.getDescripcion().equals("CORTE")) {
+				        		report.reportPDFImprimirLibreCorte(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+
+			        		}						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					}

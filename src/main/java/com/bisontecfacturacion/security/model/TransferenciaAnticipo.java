@@ -26,13 +26,14 @@ public class TransferenciaAnticipo {
 	@ManyToOne
 	private Anticipo anticipo;
 	@ManyToOne
-	private CajaMayor cajaMayor;
+	private CajaChica cajaChica;
 	@NotNull 
 	Double monto;
 	@NotNull
 	private Double montoCheque;
 	@NotNull
 	private Double montoTarjeta;
+	private String referencia;
 
 	public TransferenciaAnticipo() {
 		// TODO Auto-generated constructor stub
@@ -40,10 +41,19 @@ public class TransferenciaAnticipo {
 		this.fecha= new Date();
 		this.funcionario= new Funcionario();
 		this.anticipo= new Anticipo();
-		this.cajaMayor= new CajaMayor();
+		this.cajaChica= new CajaChica();
 		this.monto=0.0;
 		this.montoCheque=0.0;
 		this.montoTarjeta=0.0;
+		this.referencia="";
+	}
+
+	public String getReferencia() {
+		return referencia;
+	}
+
+	public void setReferencia(String referencia) {
+		this.referencia = referencia;
 	}
 
 	public int getId() {
@@ -78,12 +88,14 @@ public class TransferenciaAnticipo {
 		this.anticipo = anticipo;
 	}
 
-	public CajaMayor getCajaMayor() {
-		return cajaMayor;
+	
+
+	public CajaChica getCajaChica() {
+		return cajaChica;
 	}
 
-	public void setCajaMayor(CajaMayor cajaMayor) {
-		this.cajaMayor = cajaMayor;
+	public void setCajaChica(CajaChica cajaChica) {
+		this.cajaChica = cajaChica;
 	}
 
 	public Double getMonto() {

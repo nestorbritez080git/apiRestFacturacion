@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class DevolucionVentaDetalle {
 	@Id
@@ -29,7 +31,9 @@ public class DevolucionVentaDetalle {
 	
 	@ManyToOne
 	private DetalleProducto detalleProducto;
+	
 	@ManyToOne
+	@JsonIgnore
 	private DevolucionVenta devolucionVenta;
 
 	

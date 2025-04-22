@@ -60,6 +60,9 @@ public class Venta {
 	@ManyToOne
 	private Funcionario funcionarioV;
 	
+	@ManyToOne
+	private Funcionario funcionarioR;
+	
 	
 	@ManyToOne
 	private Cliente cliente;
@@ -86,6 +89,8 @@ public class Venta {
 		this.detalleProducto = new ArrayList<DetalleProducto>();
 
 		this.funcionarioV=new Funcionario();
+		this.funcionarioR=new Funcionario();
+
 		this.documento=new Documento();
 		this.funcionario= new Funcionario();
 		this.cliente= new Cliente();
@@ -293,6 +298,16 @@ public class Venta {
 	public void setFuncionarioV(Funcionario funcionarioV) {
 		this.funcionarioV = funcionarioV;
 	}
+
+	public Funcionario getFuncionarioR() {
+		return funcionarioR;
+	}
+
+
+	public void setFuncionarioR(Funcionario funcionarioR) {
+		this.funcionarioR = funcionarioR;
+	}
+
 
 	public Cliente getCliente() {
 		return cliente;

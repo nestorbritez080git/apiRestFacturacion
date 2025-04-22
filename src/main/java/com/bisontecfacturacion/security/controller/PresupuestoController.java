@@ -3,6 +3,7 @@ package com.bisontecfacturacion.security.controller;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -25,7 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxiliar;
 import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
+import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
 import com.bisontecfacturacion.security.config.FechaUtil;
+import com.bisontecfacturacion.security.config.NumerosALetras;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.config.Utilidades;
@@ -49,6 +52,7 @@ import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
+import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoDetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoDetalleServicioRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoRepository;
@@ -80,6 +84,9 @@ public class PresupuestoController {
 
 	@Autowired
 	private PresupuestoDetalleServicioRepository detalleServicioRepository;
+	
+	@Autowired
+	private ParametroTipoHojaRepository parametroTipoHoja;
 	
 	@Autowired
 	private TerminalConfigImpresoraRepository terminalRepository;
@@ -125,35 +132,39 @@ public class PresupuestoController {
 	@RequestMapping(method=RequestMethod.POST, value="/eliminarDetalleProducto")
 	public ResponseEntity<?> eliminarDetalleProducto(@RequestBody List<DetallePresupuestoProducto> detalle){
 		try {
+			System.out.println(detalle.size()+ " lista size");
 			if(detalle.size()!=-1) {
 				System.out.println("con listado lista");
-				for (DetallePresupuestoProducto de : detalle) {				
+				for (DetallePresupuestoProducto de : detalle) {		
+					System.out.println("entroo eliminar PRODUCTO for presu");
 					detalleProductoRepository.deleteById(de.getId());
 				}
-				System.out.println("sin lista");
-				return  new  ResponseEntity<String>(HttpStatus.CREATED);
-
 			}else {
-				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+				return new ResponseEntity<>(new CustomerErrorType("NO HAY LISTA PARA ELIMINAR"), HttpStatus.CONFLICT);
 			}
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
+		return  new  ResponseEntity<String>(HttpStatus.CREATED);
 	}
 	@RequestMapping(method=RequestMethod.POST, value="/eliminarDetalleServicio")
 	public ResponseEntity<?> eliminarDetalleServicio(@RequestBody List<DetallePresupuestoServicio> detalle){
-		System.out.println("entroo eliminar servicio presu");
 		try {
-			System.out.println("entroo eliminar servicio try presu");
-			for (DetallePresupuestoServicio de : detalle) {		
-				System.out.println("entroo eliminar servicio for presu");
-				detalleServicioRepository.deleteById(de.getId());
+			System.out.println(detalle.size()+ " lista size");
+			if(detalle.size()!=-1) {
+				System.out.println("con listado lista SERV PRES");
+				for (DetallePresupuestoServicio de :detalle) {		
+					System.out.println("entroo eliminar servicio for presu");
+					detalleServicioRepository.deleteById(de.getId());
+				}
+			}else {
+				return new ResponseEntity<>(new CustomerErrorType("NO HAY LISTA PARA ELIMINAR"), HttpStatus.CONFLICT);
 			}
-			return  new  ResponseEntity<String>(HttpStatus.CREATED);
+			
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return  new  ResponseEntity<String>(HttpStatus.CREATED);
 
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/nroDocumento")
@@ -465,6 +476,49 @@ public class PresupuestoController {
 		}else {
 			ReporteConfig reportConfig = reporteConfigRepository.getOne(2);
 			List<Presupuesto> venta = getListasss(pres.getId());
+			
+			report=new Reporte();
+			int pageSize = 10;
+			int totalPages = (int) Math.ceil((double) venta.get(0).getDetallePresupuestoProducto().size() / pageSize);
+			System.out.println("TOTAL DE PAGINAS:"+ totalPages);
+			
+			List<Presupuesto> listaVentaImpresion= new ArrayList<Presupuesto>();
+			
+			for (int i = 0; i < totalPages; i++) {	
+			    System.out.println("\n--- Página " + (i + 1) + " ---");
+
+			    int start = i * pageSize;
+			    int end = Math.min(start + pageSize, venta.get(0).getDetallePresupuestoProducto().size());
+			    // Crear una nueva lista con los elementos de la página actual
+			    List<DetallePresupuestoProducto> detallesPagina = new ArrayList<>(venta.get(0).getDetallePresupuestoProducto().subList(start, end));
+			    Double totalMontoPagina=0.0, totalPaginaIvaCinco=0.0, totalPaginaIvaDies=0.0, totalPaginaIva=0.0,totalPaginaExcenta=0.0;
+			    for (int j = 0; j < detallesPagina.size(); j++) {
+					totalMontoPagina = totalMontoPagina + detallesPagina.get(j).getSubTotal();
+					if(detallesPagina.get(j).getIva().equals("10 %")) {totalPaginaIvaDies = totalPaginaIvaDies +  (detallesPagina.get(j).getSubTotal()/11);}
+					if(detallesPagina.get(j).getIva().equals("5 %")) {totalPaginaIvaCinco = totalPaginaIvaCinco +  (detallesPagina.get(j).getSubTotal()/21);}
+					if(detallesPagina.get(j).getIva().equals("Excenta")) {totalPaginaExcenta = totalPaginaExcenta +  (detallesPagina.get(j).getSubTotal());}
+			    }
+			    Presupuesto ventaImpresion = new Presupuesto();
+			    ventaImpresion.setId(venta.get(0).getId());
+			    ventaImpresion.setFecha(venta.get(0).getFecha());
+			    ventaImpresion.setEstado(venta.get(0).getEstado());
+			    ventaImpresion.setCliente(venta.get(0).getCliente());
+			    ventaImpresion.setFuncionario(venta.get(0).getFuncionario());
+			    ventaImpresion.setTotalLetra(venta.get(0).getTotalLetra());
+			    ventaImpresion.setHora(venta.get(0).getHora());
+			    ventaImpresion.setObs(venta.get(0).getObs());
+			    ventaImpresion.setTotal(totalMontoPagina);
+			    ventaImpresion.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalMontoPagina));
+			    ventaImpresion.setTotalIvaDies(totalPaginaIvaDies);
+			    ventaImpresion.setTotalIvaCinco(totalPaginaIvaCinco);
+			    ventaImpresion.setTotalExcenta(totalPaginaExcenta);
+			    ventaImpresion.setTotalIva(totalPaginaIvaDies +  totalPaginaIvaCinco); 
+			    ventaImpresion.setDetallePresupuestoProducto(detallesPagina);
+			    listaVentaImpresion.add(ventaImpresion);
+			    System.out.println("UNA FILA DE LA PAGINA" +listaVentaImpresion.get(i).getDetallePresupuestoProducto().get(0).getDescripcion());
+			  
+
+			}
 			Map<String, Object> map = new HashMap<>();
 				if (t.getImpresora().equals("matricial")) {
 				ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
@@ -477,8 +531,20 @@ public class PresupuestoController {
 				map.put("descripcionMovimiento", f.getDescripcion());
 				map.put("direccionReporte", f.getDireccion());
 				map.put("telefonoReporte", f.getTelefono());
+				map.put("paginaTotal", totalPages+ "");
 				try {
-				report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
+					ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+		        	System.out.println("total apartido lista :  "+listaVentaImpresion.size());
+		        	for (int i=0; i < listaVentaImpresion.size(); i++) {
+		        		map.put("paginaActual", (i +1)+ "");
+		        		if(p.getDescripcion().equals("A4")) {
+			        		report.reportPDFImprimirA4(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+		        		}
+		        		if(p.getDescripcion().equals("CORTE")) {
+			        		report.reportPDFImprimirLibreCorte(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+
+		        		}
+		            }
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -614,6 +680,7 @@ public class PresupuestoController {
 				DetallePresupuestoProducto detalleProducto = new DetallePresupuestoProducto();
 				detalleProducto.getProducto().setId(det.getServicio().getId());
 				detalleProducto.setDescripcion("SER - "+det.getDescripcion());
+				detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");
 				detalleProducto.getProducto().setCodbar(det.getServicio().getId()+"");
 				detalleProducto.setCantidad(det.getCantidad());
 				detalleProducto.setPrecio(det.getPrecio());

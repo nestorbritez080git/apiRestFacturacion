@@ -47,6 +47,7 @@ public class DetalleCompra {
 		compra=new Compra();
 		producto=new Producto();
 		montoIva=0.0;
+		
 	}
 
 	public Double getMontoIva() {

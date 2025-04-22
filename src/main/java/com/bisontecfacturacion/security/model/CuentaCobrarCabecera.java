@@ -22,7 +22,11 @@ public class CuentaCobrarCabecera {
 	private int id;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fecha;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
+	private Date fechaVencimiento;
+	
 	private double total;
+	private String totalLetra;
 	private double pagado;
 	private double saldo;
 	private int fraccionCuota;
@@ -30,6 +34,8 @@ public class CuentaCobrarCabecera {
 	private double entrega;
 	@ManyToOne
 	private TipoPlazo tipoPlazo;
+	@ManyToOne
+	private Concepto concepto;
 	@ManyToOne
 	private Venta venta;
 	@ManyToOne
@@ -48,12 +54,16 @@ public class CuentaCobrarCabecera {
 		super();
 		id=0;
 		total=0.0;
+		totalLetra="";
 		fecha=new Date();
+		fechaVencimiento=new Date();
+
 		pagado=0.0;
 		saldo=0.0;
 		fraccionCuota=0;
 		estado= false;
 		entrega= 0.0;
+		concepto= new Concepto();
 		tipoPlazo= new TipoPlazo();
 		interesCuota = new InteresCuota();
 		interesMora = new InteresMora();
@@ -62,6 +72,22 @@ public class CuentaCobrarCabecera {
 		cliente = new Cliente();
 		cuentaCobrarDetalle= new ArrayList<>();
 		
+	}
+
+	public Date getFechaVencimiento() {
+		return fechaVencimiento;
+	}
+
+	public void setFechaVencimiento(Date fechaVencimiento) {
+		this.fechaVencimiento = fechaVencimiento;
+	}
+
+	public Concepto getConcepto() {
+		return concepto;
+	}
+
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
 	}
 
 	public int getId() {
@@ -82,6 +108,14 @@ public class CuentaCobrarCabecera {
 
 	public double getTotal() {
 		return total;
+	}
+
+	public String getTotalLetra() {
+		return totalLetra;
+	}
+
+	public void setTotalLetra(String totalLetra) {
+		this.totalLetra = totalLetra;
 	}
 
 	public void setTotal(double total) {

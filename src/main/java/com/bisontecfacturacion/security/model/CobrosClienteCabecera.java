@@ -41,6 +41,7 @@ public class CobrosClienteCabecera {
 		this.funcionario = new Funcionario();
 		this.cliente = new Cliente();
 		this.cobrosClientes = new ArrayList<CobrosCliente>();
+		
 
 	}
 	public int getId() {

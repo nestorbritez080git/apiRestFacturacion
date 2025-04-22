@@ -35,9 +35,6 @@ public class GastoConsumicionesCabecera {
 	
 	@ManyToOne
 	private TipoOperacion tipoOperacion;
-	
-
-	
 	@ManyToOne
 	private Concepto concepto;
 	

@@ -24,7 +24,7 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Serial
 	@Query("select f from  Funcionario f")
 	public List<Funcionario> getFuncionarios();
 	
-	@Query(value ="select f.id, persona.direccion, persona.nombre, persona.apellido, persona.cedula, persona.telefono as telefono, f.sueldo_bruto as sueldo from funcionario f inner join persona on persona.id=f.persona_id where persona.nombre like :nombre or persona.apellido like :nombre", nativeQuery = true)
+	@Query(value ="select f.id, persona.direccion, persona.nombre, persona.apellido, persona.cedula, persona.telefono as telefono, f.sueldo_bruto as sueldo from funcionario f inner join persona on persona.id=f.persona_id where persona.nombre like :nombre or persona.apellido like :nombre or persona.cedula ilike :nombre", nativeQuery = true)
 	List<Object[]> findByFuncionarioNombrePost(@Param("nombre") String descripcion);
 	
 	public abstract List<Funcionario> findTop100ByOrderByIdDesc();

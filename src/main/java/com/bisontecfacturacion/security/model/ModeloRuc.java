@@ -16,20 +16,20 @@ public class ModeloRuc {
 	private int id;
 	@NotNull
 	@Column(unique = true)
-	private int ruc;
+	private String ruc;
 	@NotNull
 	private int dv;
 	@NotNull
 	private String razonSocial;
 	public ModeloRuc() {
-		this.ruc=0;
+		this.ruc="";
 		this.dv=0;
 		this.razonSocial="";
 	}
-	public int getRuc() {
+	public String getRuc() {
 		return ruc;
 	}
-	public void setRuc(int ruc) {
+	public void setRuc(String ruc) {
 		this.ruc = ruc;
 	}
 	public int getDv() {

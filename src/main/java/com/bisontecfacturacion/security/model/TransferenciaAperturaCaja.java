@@ -24,9 +24,9 @@ public class TransferenciaAperturaCaja {
 	@ManyToOne
 	private Funcionario funcionario;
 	@ManyToOne
-	private AperturaCaja aperturaCaja;
+	private AperturaCaja aperturaCajaOrigen;
 	@ManyToOne
-	private CajaChica cajaChica;
+	private AperturaCaja aperturaCajaDestino;
 	@NotNull 
 	private Double monto;
 	@NotNull
@@ -35,18 +35,47 @@ public class TransferenciaAperturaCaja {
 	private Double montoTarjeta;
 	
 	private String referencia;
+	@ManyToOne
+	private Concepto concepto;
+	@ManyToOne
+	private OperacionCaja operacionCaja;
+	
+	
 	
 	public TransferenciaAperturaCaja() {
 		this.id=0;
 		this.fecha= new Date();
 		this.funcionario= new Funcionario();
-		this.aperturaCaja = new AperturaCaja();
-		this.cajaChica = new CajaChica();
+		this.aperturaCajaOrigen = new AperturaCaja();
+		this.aperturaCajaDestino = new AperturaCaja();
+		this.concepto= new Concepto();
+		this.operacionCaja= new OperacionCaja();
 		this.monto=0.0;
 		this.montoCheque=0.0;
 		this.montoTarjeta=0.0;
 		this.referencia="";
 	}
+	
+
+	public OperacionCaja getOperacionCaja() {
+		return operacionCaja;
+	}
+
+
+	public void setOperacionCaja(OperacionCaja operacionCaja) {
+		this.operacionCaja = operacionCaja;
+	}
+
+
+	public Concepto getConcepto() {
+		return concepto;
+	}
+
+
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
+	}
+
 
 	public int getId() {
 		return id;
@@ -72,22 +101,20 @@ public class TransferenciaAperturaCaja {
 		this.funcionario = funcionario;
 	}
 
-
-
-	public AperturaCaja getAperturaCaja() {
-		return aperturaCaja;
+	public AperturaCaja getAperturaCajaOrigen() {
+		return aperturaCajaOrigen;
 	}
 
-	public void setAperturaCaja(AperturaCaja aperturaCaja) {
-		this.aperturaCaja = aperturaCaja;
+	public void setAperturaCajaOrigen(AperturaCaja aperturaCajaOrigen) {
+		this.aperturaCajaOrigen = aperturaCajaOrigen;
 	}
 
-	public CajaChica getCajaChica() {
-		return cajaChica;
+	public AperturaCaja getAperturaCajaDestino() {
+		return aperturaCajaDestino;
 	}
 
-	public void setCajaChica(CajaChica cajaChica) {
-		this.cajaChica = cajaChica;
+	public void setAperturaCajaDestino(AperturaCaja aperturaCajaDestino) {
+		this.aperturaCajaDestino = aperturaCajaDestino;
 	}
 
 	public Double getMonto() {
@@ -122,6 +149,6 @@ public class TransferenciaAperturaCaja {
 		this.referencia = referencia;
 	}
 
-	
+
 	
 }

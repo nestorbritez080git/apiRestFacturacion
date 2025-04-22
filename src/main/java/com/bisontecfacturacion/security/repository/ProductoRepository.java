@@ -27,13 +27,17 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 	public abstract Producto findByCodbar(String codBar);
 	public abstract Producto findTop1ByOrderByIdDesc();
 	
+	@Query(value="select * from producto where codbar=:codbar AND id <> :id limit 1", nativeQuery = true)
+	Producto verificarCodbarNuevo(@Param("codbar") String codbar, @Param("id") int id);
+	
+	
 	@Query(value="select * from producto order by id desc limit 50", nativeQuery = true)
 	List<Producto> lista();
 	
 	@Query(value="select * from producto order by id desc limit 50", nativeQuery = true)
 	List<Producto> listasLimites();
 	
-	@Query(value="select * from producto where estado_compuesto=true order by id desc limit 50", nativeQuery = true)
+	@Query(value="select * from producto where estado_compuesto=true order by id desc", nativeQuery = true)
 	List<Producto> listarInventario();
 	
 	@Query(value="select * from producto order by existencia asc limit 50", nativeQuery = true)
@@ -42,19 +46,19 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 	@Query(value="select * from producto  where existencia > 0 order by id desc limit 50", nativeQuery = true)
 	List<Producto> listaStockBajo();
 	
-	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion like :descripcion or p.codbar like :descripcion or p.codoriginal like :descripcion or fabricante like :descripcion or aplicacion like :descripcion or marca.descripcion like :descripcion  or grupo.descripcion like :descripcion or cast(p.id AS VARCHAR)   like :descripcion   order by p.id desc  limit 50",nativeQuery=true)
+	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal like :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion or cast(p.id AS VARCHAR)   ilike :descripcion   order by p.id desc  limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
 	
-	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion like :descripcion or p.codbar like :descripcion or p.codoriginal like :descripcion or fabricante like :descripcion or aplicacion like :descripcion or marca.descripcion like :descripcion  or grupo.descripcion like :descripcion or cast(p.id AS VARCHAR)   like :descripcion   order by p.id desc  limit 50",nativeQuery=true)
+	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal like :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion or cast(p.id AS VARCHAR)   ilike :descripcion   order by p.id desc  limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcionLimites(@Param("descripcion") String descripcion);
 	
-	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where  p.estado_compuesto=true and p.descripcion like :descripcion or p.codbar like :descripcion or p.codoriginal like :descripcion or fabricante like :descripcion or aplicacion like :descripcion or marca.descripcion like :descripcion  or grupo.descripcion like :descripcion OR cast(p.id AS VARCHAR) like :descripcion order by p.id desc limit 50",nativeQuery=true)
+	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where  p.estado_compuesto=true and p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal ilike :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion OR cast(p.id AS VARCHAR) ilike :descripcion order by p.id desc limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcionListadoInventario(@Param("descripcion") String descripcion);
 	
-	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion like :descripcion or p.codbar like :descripcion or p.codoriginal like :descripcion or fabricante like :descripcion or aplicacion like :descripcion or marca.descripcion like :descripcion  or grupo.descripcion like :descripcion OR cast(p.id AS VARCHAR) like :descripcion order by p.existencia asc limit 50",nativeQuery=true)
+	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal ilike :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion OR cast(p.id AS VARCHAR) ilike :descripcion order by p.existencia asc limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcionAjusteStock(@Param("descripcion") String descripcion);
 	
-	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where (existencia > 0 and p.descripcion like :descripcion) or (existencia > 0 and p.codbar like :descripcion) or (existencia > 0 and marca.descripcion like :descripcion) or (existencia > 0 and p.codoriginal like :descripcion) or (existencia > 0 and cast(p.id AS VARCHAR) like :descripcion) order by p.id desc limit 50",nativeQuery=true)
+	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where (existencia > 0 and p.descripcion ilike :descripcion) or (existencia > 0 and p.codbar ilike :descripcion) or (existencia > 0 and marca.descripcion ilike :descripcion) or (existencia > 0 and p.codoriginal ilike :descripcion) or (existencia > 0 and cast(p.id AS VARCHAR) ilike :descripcion) order by p.id desc limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcionStockBajo(@Param("descripcion") String descripcion);
 	
 	@Modifying

@@ -19,16 +19,7 @@ public class SalarioFuncionarioDetalle {
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
 	@ManyToOne
-	private Funcionario funcionario;
-	
-	@NotNull
-	private Double montoSalario;
-	
-	private Double montoAnticipo;
-	
-	@NotNull
-	private Double montoPagado;
-	
+	private Anticipo anticipo;
 	@ManyToOne
 	private SalarioFuncionario salarioFuncionario;
 	
@@ -37,71 +28,25 @@ public class SalarioFuncionarioDetalle {
 	public SalarioFuncionarioDetalle() {
 		// TODO Auto-generated constructor stub
 		this.id=0;
-		this.funcionario= new Funcionario();
-		this.montoSalario=0.0;
-		this.montoAnticipo=0.0;
-		this.montoPagado=0.0;
+		this.anticipo= new Anticipo();
 		this.salarioFuncionario= new SalarioFuncionario();
 	}
-
-	public Double getMontoAnticipo() {
-		return montoAnticipo;
-	}
-
-	public void setMontoAnticipo(Double montoAnticipo) {
-		this.montoAnticipo = montoAnticipo;
-	}
-
-
-
-	public Double getMontoPagado() {
-		return montoPagado;
-	}
-
-
-
-	public void setMontoPagado(Double montoPagado) {
-		this.montoPagado = montoPagado;
-	}
-
-
-
 	public int getId() {
 		return id;
 	}
-
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	public Funcionario getFuncionario() {
-		return funcionario;
+	public Anticipo getAnticipo() {
+		return anticipo;
 	}
-
-	public void setFuncionario(Funcionario funcionario) {
-		this.funcionario = funcionario;
+	public void setAnticipo(Anticipo anticipo) {
+		this.anticipo = anticipo;
 	}
-
-	
-
-	public Double getMontoSalario() {
-		return montoSalario;
-	}
-
-	public void setMontoSalario(Double montoSalario) {
-		this.montoSalario = montoSalario;
-	}
-
 	public SalarioFuncionario getSalarioFuncionario() {
 		return salarioFuncionario;
 	}
-
 	public void setSalarioFuncionario(SalarioFuncionario salarioFuncionario) {
 		this.salarioFuncionario = salarioFuncionario;
 	}
-
-	
-	
-
-
 }

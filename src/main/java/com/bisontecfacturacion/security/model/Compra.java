@@ -48,7 +48,9 @@ public class Compra {
 	
 	@ManyToOne
 	private Proveedor proveedor;
-	
+
+	@ManyToOne
+	private Concepto concepto;
 	@ManyToOne
 	private Funcionario funcionario;
 	
@@ -57,21 +59,23 @@ public class Compra {
 
 	public Compra() {
 		super();
-		id=0;
-		timbrado="";
-		tipo="";
-		nroDocumento="";
-		fecha=new Date();
-		estado="FACTURAR";
-		total=0.0;
-		hora="";
-		proveedor=new Proveedor();
-		funcionario=new Funcionario();
-		documento = new Documento();
+		this.id=0;
+		this.timbrado="";
+		this.tipo="";
+		this.nroDocumento="";
+		this.fecha=new Date();
+		this.estado="FACTURAR";
+		this.total=0.0;
+		this.hora="";
+		this.proveedor=new Proveedor();
+		this.funcionario=new Funcionario();
+		this.documento = new Documento();
+		this.concepto= new Concepto();
 		this.totalIvaCinco=0.0;
 		this.totalIvaDies=0.0;
 		this.totalExcenta=0.0;
-		totalLetra="";
+		this.totalLetra="";
+		this.valorCotizacion=0.0;
 	}
 
 	public String getTotalLetra() {
@@ -230,6 +234,14 @@ public class Compra {
 
 	public void setHora(String hora) {
 		this.hora = hora;
+	}
+
+	public Concepto getConcepto() {
+		return concepto;
+	}
+
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
 	}
 
 	

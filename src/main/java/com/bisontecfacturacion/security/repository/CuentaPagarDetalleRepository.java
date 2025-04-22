@@ -1,6 +1,7 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,8 +34,16 @@ public interface CuentaPagarDetalleRepository extends JpaRepository<CuentaPagarD
 	 @Query(value ="select dv.descripcion as des, dv.precio_costo as precio, dv.cantidad as cantidad, dv.sub_total as subtotal, um.descripcion, dv.id as idDetalle, p.id as idProducto from cuenta_pagar_cabecera ccc inner join compra v on ccc.compra_id=v.id inner join detalle_compra dv on dv.compra_id=v.id inner join producto p on dv.producto_id=p.id inner join unidad_medida um on p.unidad_medida_id=um.id where ccc.id=:idCabecera", nativeQuery = true)
 	 List<Object[]> getDetalleProductoCompraCuenta(@Param("idCabecera") int idCabecera);
 	 
+	 
+   //@Query(value ="select cuenta_cobrar_cabecera.fraccion_cuota, cuenta_cobrar_detalle.numero_cuota, cuenta_cobrar_detalle.fecha_vencimiento, cuenta_cobrar_detalle.monto, cuenta_cobrar_detalle.importe, cuenta_cobrar_detalle.interes_mora, cuenta_cobrar_detalle.id, cuenta_cobrar_detalle.sub_total, cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id from cuenta_cobrar_detalle inner join cuenta_cobrar_cabecera on cuenta_cobrar_cabecera.id=cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id  where cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id=:idCabecera order by cuenta_cobrar_detalle.numero_cuota ASC ", nativeQuery = true)
 	 @Query(value ="select cuenta_pagar_cabecera.fraccion_cuota, cuenta_pagar_detalle.numero_cuota, cuenta_pagar_detalle.fecha_vencimiento, cuenta_pagar_detalle.monto, cuenta_pagar_detalle.importe, cuenta_pagar_detalle.id, cuenta_pagar_detalle.sub_total, cuenta_pagar_detalle.cuenta_pagar_cabecera_id from cuenta_pagar_detalle inner join cuenta_pagar_cabecera on cuenta_pagar_cabecera.id=cuenta_pagar_detalle.cuenta_pagar_cabecera_id  where cuenta_pagar_detalle.cuenta_pagar_cabecera_id=:idCabecera order by cuenta_pagar_detalle.numero_cuota ASC", nativeQuery = true)
 	 List<Object[]> consultarDetalleCuentaPorIdCabecera(@Param("idCabecera") int idCabecera);
+		
+		
+	 @Modifying
+	 @Transactional(readOnly=false)
+	 @Query("update CuentaPagarDetalle set importe=subTotal, fechaPago=:fecha, estado=:est where cuenta_pagar_cabecera_id=:id")
+	 public void liquidarDetalleCuentaProveedor(@Param("id") int id, @Param("fecha") Date fecha, @Param("est") Boolean est);
 		
 	 
 }

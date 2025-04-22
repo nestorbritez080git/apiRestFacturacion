@@ -172,8 +172,12 @@ public class CobrosCuotaController {
 
 	@RequestMapping(method=RequestMethod.GET, value="/buscarId/{id}")
 	public CobrosCuota consultarPorId(@PathVariable int id){
-		return entityRepository.getOne(id);
-	}sdefgdfsag
+		CobrosCuota ov= entityRepository.findById(id).orElse(null);
+		System.out.println(ov.getId()+"+-+-+-");
+		ov.setCobrosCuotaDetalles(detalleRepository.getCobroDetallePorIdCabecera(id));
+		System.out.println(ov.getId()+"+-+-+-"+ov.getCobrosCuotaDetalles().get(0).getCobrosCuota().getId());
+		return ov;
+	}
 	
 	@RequestMapping(method=RequestMethod.POST, value="/buscar/descripcion")
 	public List<CobrosCuota> consultarPorDescripcion(@RequestBody String descripcion){

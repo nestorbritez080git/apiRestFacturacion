@@ -61,7 +61,7 @@
 		<fieldDescription><![CDATA[funcionario.persona.apellido]]></fieldDescription>
 	</field>
 	<field name="apertura" class="java.lang.Integer">
-		<fieldDescription><![CDATA[operacionCaja.id]]></fieldDescription>
+		<fieldDescription><![CDATA[operacionCaja.aperturaCaja.id]]></fieldDescription>
 	</field>
 	<field name="turno" class="java.lang.String">
 		<fieldDescription><![CDATA[matriculacion.turno.descripcion]]></fieldDescription>

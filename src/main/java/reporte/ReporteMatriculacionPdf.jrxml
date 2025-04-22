@@ -549,7 +549,7 @@
 				</jr:list>
 			</componentElement>
 			<staticText>
-				<reportElement x="14" y="3" width="72" height="12" uuid="76414716-867f-4212-857d-63e9813fa170">
+				<reportElement x="21" y="2" width="72" height="12" uuid="76414716-867f-4212-857d-63e9813fa170">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
@@ -558,7 +558,7 @@
 				<text><![CDATA[#.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="90" y="3" width="70" height="12" uuid="d521ea55-f9d9-4d0a-8ce8-94419dbcd52b">
+				<reportElement x="97" y="2" width="70" height="12" uuid="d521ea55-f9d9-4d0a-8ce8-94419dbcd52b">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
@@ -567,7 +567,7 @@
 				<text><![CDATA[Número Cuota]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="160" y="3" width="70" height="12" uuid="e51e9726-8790-4a20-acdd-f3d3d00f32cd">
+				<reportElement x="167" y="2" width="70" height="12" uuid="e51e9726-8790-4a20-acdd-f3d3d00f32cd">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
@@ -576,7 +576,7 @@
 				<text><![CDATA[Monto Cuota]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="232" y="3" width="90" height="12" uuid="d59febf2-68fa-4333-bf6a-3bd531409926">
+				<reportElement x="239" y="2" width="90" height="12" uuid="d59febf2-68fa-4333-bf6a-3bd531409926">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
@@ -603,7 +603,7 @@
 				<text><![CDATA[Subtotal]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="332" y="3" width="78" height="12" uuid="aa411524-501e-4ece-ad2a-dab2f118959c">
+				<reportElement x="339" y="2" width="78" height="12" uuid="aa411524-501e-4ece-ad2a-dab2f118959c">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>

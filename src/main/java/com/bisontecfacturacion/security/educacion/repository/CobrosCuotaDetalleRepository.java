@@ -25,6 +25,8 @@ public interface CobrosCuotaDetalleRepository extends JpaRepository<CobrosCuotaD
 //	List<TipoCarrera>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
 	@Query("select  c from CobrosCuotaDetalle c  order by c.id desc")
 	public List<CobrosCuotaDetalle> getAll();
+	@Query("SELECT cpc FROM CobrosCuotaDetalle cpc  INNER JOIN cpc.cobrosCuota cob INNER JOIN cpc.matriculacionDetalle det  WHERE cob.id=:id order by det.numeroCuota ASC")
+	public List<CobrosCuotaDetalle> getCobroDetallePorIdCabecera(@Param("id") int id);
 	public abstract CobrosCuotaDetalle findTop1ByOrderByIdDesc();
 	@Query(value="select * from cobros_cuota_detalle v order by v.id desc limit 1", nativeQuery = true)
 	CobrosCuotaDetalle getUltimaCobrosCuotaDetalle();

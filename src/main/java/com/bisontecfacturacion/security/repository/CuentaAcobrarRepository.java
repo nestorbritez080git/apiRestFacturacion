@@ -29,22 +29,27 @@ public interface CuentaAcobrarRepository extends JpaRepository<CuentaCobrarCabec
 	@Query(value = "update cuenta_cobrar_cabecera set pagado=pagado+:monto, saldo = saldo-:monto where id=:id", nativeQuery = true)
 	public void findByActualizarPagadoCuenta(@Param("id") int id, @Param("monto")double monto );
 	
+	@Modifying
+    @Transactional(readOnly=false)
+	@Query(value = "update cuenta_cobrar_cabecera set pagado=total, saldo=0 where id=:id", nativeQuery = true)
+	public void liquidarCuentaCabecera(@Param("id") int id);
 	
-	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where (c.saldo > 0 and persona.cedula like :desc) or (c.saldo > 0 and persona.apellido like :desc) or (c.saldo > 0 and persona.nombre like :desc) group by persona.nombre, persona.apellido, cliente.id, persona.cedula",nativeQuery = true)
+	
+	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where (c.saldo > 0 and persona.cedula like :desc) or (c.saldo > 0 and persona.apellido like :desc) or (c.saldo > 0 and persona.nombre like :desc) group by persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito",nativeQuery = true)
 	List<Object[]> getAllCuentaACobrar(@Param("desc") String des);
 
-	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where (c.pagado = c.saldo and persona.cedula like '%') or (c.pagado = c.saldo and persona.apellido like :desc) or (c.pagado = c.saldo and persona.nombre like :desc) group by persona.nombre, persona.apellido, cliente.id, persona.cedula",nativeQuery = true)
+	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where (c.pagado = c.saldo and persona.cedula like '%') or (c.pagado = c.saldo and persona.apellido like :desc) or (c.pagado = c.saldo and persona.nombre like :desc) group by persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito",nativeQuery = true)
 	List<Object[]> getAllCuentaCobrado(@Param("desc") String des);
 	
-	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where c.saldo > 0 group by persona.nombre, persona.apellido, cliente.id , persona.cedula",nativeQuery = true)
-	List<Object[]> getCLienteCuentaACobrar();
 	
 	
-	@Query(value= "select sum(saldo) as saldoPendiente,  cliente.limite_credito as limite, cliente.estado_bloqueo from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where c.saldo > 0 and cliente.id=:id group by persona.nombre, persona.apellido, cliente.id , persona.cedula ",nativeQuery = true)
+	
+	@Query(value= "select sum(saldo) as saldoPendiente,  cli.limite_credito as limite, cli.estado_bloqueo as  bloqueo from cuenta_cobrar_cabecera c  inner join cliente cli on c.cliente_id = cli.id inner join persona on persona.id=cli.persona_id where c.saldo > 0 and cli.id=:id group by persona.nombre, persona.apellido, cli.id , persona.cedula ",nativeQuery = true)
 	List<Object[]> getCLienteCuentaACobrarPorIdCliente(@Param("id") int id);
 	
-
-	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where c.pagado = c.total  group by persona.nombre, persona.apellido, cliente.id , persona.cedula",nativeQuery = true)
+	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where c.saldo > 0 group by persona.nombre, persona.apellido, cliente.id , persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito",nativeQuery = true)
+	List<Object[]> getCLienteCuentaACobrar();
+	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where c.pagado = c.total  group by persona.nombre, persona.apellido, cliente.id , persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito",nativeQuery = true)
 	List<Object[]> getCLienteCuentaCobrado();
 
 	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where c.saldo > 0 and cliente.id =:id group by persona.nombre, persona.apellido, cliente.id , persona.cedula",nativeQuery = true)
@@ -71,7 +76,7 @@ public interface CuentaAcobrarRepository extends JpaRepository<CuentaCobrarCabec
 	
 	@Query("select  c from CuentaCobrarCabecera c where saldo > 0 and cliente_id=:id order by id asc")
 	public List<CuentaCobrarCabecera> findByCuentaPorIdACobrars(@Param("id") int id);
-
+	
 	@Query("select  c from CuentaCobrarCabecera c where saldo = 0 and cliente_id=:id order by id desc")
 	public List<CuentaCobrarCabecera> findByCuentaPorIdCobrar(@Param("id") int id);
 	

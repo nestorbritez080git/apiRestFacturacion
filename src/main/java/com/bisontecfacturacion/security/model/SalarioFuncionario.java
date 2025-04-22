@@ -29,15 +29,14 @@ public class SalarioFuncionario {
 	@ManyToOne
 	private Funcionario funcionarioAutorizado;
 	@NotNull
-	private Double totalSalario;
+	private Double monto;
 	private Double totalAnticipo;
 	private Double totalPagado;
-	@ManyToOne
-	private PlanillaSalarioFuncionario planillaSalarioFuncionario;
-	@ManyToOne
-	private Periodo periodo;
 	
-	private boolean estado;
+	@ManyToOne
+	private Concepto concepto;
+	private String referencia;
+	
 	
 	@OneToMany(mappedBy="salarioFuncionario")
 	private List<SalarioFuncionarioDetalle> salarioFuncionarioDetalles;
@@ -48,29 +47,12 @@ public class SalarioFuncionario {
 		this.fecha= new Date();
 		this.funcionarioRegistro= new Funcionario();
 		this.funcionarioAutorizado= new Funcionario();
-		this.totalSalario=0.0;
+		this.concepto= new Concepto();
+		this.referencia= "";
 		this.totalAnticipo=0.0;
 		this.totalPagado=0.0;
-		this.planillaSalarioFuncionario= new PlanillaSalarioFuncionario();
-		this.periodo= new Periodo();
-		this.estado=false;
+		this.monto=0.0;
 		this.salarioFuncionarioDetalles = new  ArrayList<SalarioFuncionarioDetalle>();
-	}
-
-	public Double getTotalPagado() {
-		return totalPagado;
-	}
-
-	public void setTotalPagado(Double totalPagado) {
-		this.totalPagado = totalPagado;
-	}
-
-	public boolean isEstado() {
-		return estado;
-	}
-
-	public void setEstado(boolean estado) {
-		this.estado = estado;
 	}
 
 	public int getId() {
@@ -105,12 +87,12 @@ public class SalarioFuncionario {
 		this.funcionarioAutorizado = funcionarioAutorizado;
 	}
 
-	public Double getTotalSalario() {
-		return totalSalario;
+	public Double getMonto() {
+		return monto;
 	}
 
-	public void setTotalSalario(Double totalSalario) {
-		this.totalSalario = totalSalario;
+	public void setMonto(Double monto) {
+		this.monto = monto;
 	}
 
 	public Double getTotalAnticipo() {
@@ -121,20 +103,28 @@ public class SalarioFuncionario {
 		this.totalAnticipo = totalAnticipo;
 	}
 
-	public PlanillaSalarioFuncionario getPlanillaSalarioFuncionario() {
-		return planillaSalarioFuncionario;
+	public Double getTotalPagado() {
+		return totalPagado;
 	}
 
-	public void setPlanillaSalarioFuncionario(PlanillaSalarioFuncionario planillaSalarioFuncionario) {
-		this.planillaSalarioFuncionario = planillaSalarioFuncionario;
+	public void setTotalPagado(Double totalPagado) {
+		this.totalPagado = totalPagado;
 	}
 
-	public Periodo getPeriodo() {
-		return periodo;
+	public Concepto getConcepto() {
+		return concepto;
 	}
 
-	public void setPeriodo(Periodo periodo) {
-		this.periodo = periodo;
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
+	}
+
+	public String getReferencia() {
+		return referencia;
+	}
+
+	public void setReferencia(String referencia) {
+		this.referencia = referencia;
 	}
 
 	public List<SalarioFuncionarioDetalle> getSalarioFuncionarioDetalles() {

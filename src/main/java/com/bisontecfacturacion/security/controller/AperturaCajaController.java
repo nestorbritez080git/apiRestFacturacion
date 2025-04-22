@@ -108,6 +108,30 @@ public class AperturaCajaController {
 
 		return apertura;
 	}
+	@RequestMapping(method=RequestMethod.GET, value="/arqueoCaja/idDistinto/{idDistinto}")
+	public List<AperturaCaja> getListaArqueoCajaActivoIdDistinto(@PathVariable int idDistinto){
+		List<AperturaCaja> a= entityRepository.getAperturaCajaActivoIdDistinto(idDistinto);
+		List<AperturaCaja> apertura = new ArrayList<>();
+		for(AperturaCaja ap: a) {
+			AperturaCaja c=new AperturaCaja();
+			c.setId(ap.getId());
+			c.setFecha(ap.getFecha());
+			c.setHora(ap.getHora());
+			c.setSaldoInicial(ap.getSaldoInicial());
+			c.setSaldoActual(ap.getSaldoActual());
+			c.getCaja().setDescripcion(ap.getCaja().getDescripcion());
+			c.getFuncionario().getPersona().setNombre(ap.getFuncionario().getPersona().getNombre());
+			c.getFuncionario().getPersona().setApellido(ap.getFuncionario().getPersona().getApellido());
+			c.setEstado(ap.isEstado());
+			c.setSaldoInicialCheque(ap.getSaldoInicialCheque());
+			c.setSaldoActualCheque(ap.getSaldoActualCheque());
+			c.setSaldoInicialTarjeta(ap.getSaldoInicialTarjeta());
+			c.setSaldoActualTarjeta(ap.getSaldoActualTarjeta());
+			apertura.add(c);
+		}
+
+		return apertura;
+	}
 	
 	@RequestMapping(method=RequestMethod.GET, value="/false")
 	public List<AperturaCaja> getFalse(){
@@ -288,6 +312,7 @@ public class AperturaCajaController {
 	@RequestMapping(method=RequestMethod.POST, value = "/guardarTransferencia")
 	public ResponseEntity<?>  guardarTrasnferenciaAperturaCaja(@RequestBody TransferenciaAperturaCaja entity) throws Exception {
 		try {
+			/*
 			AperturaCaja ape= entityRepository.getAperturaCajaPorIdCaja(entity.getAperturaCaja().getId());
 			if((ape.getSaldoActual()< entity.getMonto())|| (+ape.getSaldoActualCheque()<entity.getMontoCheque()) || (ape.getSaldoActualTarjeta()<entity.getMontoTarjeta())) {
 				return new ResponseEntity<>(new CustomerErrorType("NO SE PUEDE TRANSFERIR, MONTO SOBREPASADO EN CAJA!"), HttpStatus.CONFLICT);
@@ -322,7 +347,7 @@ public class AperturaCajaController {
 			operacionCajaRepository.save(o);
 			cajaMayorRepository.findByActualizaTransferenciaCajaChicaPositivo(entity.getCajaChica().getId(), entity.getMonto(), entity.getMontoCheque(), entity.getMontoTarjeta());
 
-			
+			*/
 			
 			
 		} catch (Exception e) {

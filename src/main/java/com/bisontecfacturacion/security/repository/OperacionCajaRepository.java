@@ -13,10 +13,10 @@ import com.bisontecfacturacion.security.model.OperacionCaja;
 
 public interface OperacionCajaRepository extends JpaRepository<OperacionCaja, Serializable> {
 	public abstract List<OperacionCaja>findTop100ByOrderByIdDesc();
-	@Query(value="select oc.id as id, oc.fecha as fecha, oc.monto as monto, oc.motivo as motivo, oc.tipo as tipo, top.descripcion as tipooperacion, top.id as tipoId from operacion_caja oc inner join tipo_operacion top on oc.tipo_operacion_id=top.id inner join apertura_caja ap on oc.apertura_caja_id= ap.id inner join concepto con on con.id = oc.concepto_id  where ap.id=:idApertura ",nativeQuery=true)
+	@Query(value="select oc.id as id, oc.fecha as fecha, oc.monto as monto, oc.motivo as motivo, oc.tipo as tipo, top.descripcion as tipooperacion, top.id as tipoId from operacion_caja oc inner join tipo_operacion top on oc.tipo_operacion_id=top.id inner join apertura_caja ap on oc.apertura_caja_id= ap.id inner join concepto con on con.id = oc.concepto_id  where ap.id=:idApertura order by oc.id desc ",nativeQuery=true)
 	List<Object[]> getOperacionProIdApertura(@Param("idApertura") int idApertura);
 	
-	@Query(value="select oc.id as id, oc.fecha as fecha, oc.monto as monto, oc.motivo as motivo, oc.tipo as tipo, top.descripcion as tipooperacion, top.id as tipoId from operacion_caja oc inner join tipo_operacion top on oc.tipo_operacion_id=top.id inner join apertura_caja ap on oc.apertura_caja_id= ap.id inner join concepto con on con.id = oc.concepto_id  where ap.id=:idApertura ",nativeQuery=true)
+	@Query(value="select oc.id as id, oc.fecha as fecha, oc.monto as monto, oc.motivo as motivo, oc.tipo as tipo, top.descripcion as tipooperacion, top.id as tipoId from operacion_caja oc inner join tipo_operacion top on oc.tipo_operacion_id=top.id inner join apertura_caja ap on oc.apertura_caja_id= ap.id inner join concepto con on con.id = oc.concepto_id  where ap.id=:idApertura order by oc.id desc ",nativeQuery=true)
 	List<Object[]> getOperacionTipoMovimientoPorIdApertura(@Param("idApertura") int idApertura);
 	
 	

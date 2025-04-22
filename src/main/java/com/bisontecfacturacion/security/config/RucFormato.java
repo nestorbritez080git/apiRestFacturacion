@@ -2,13 +2,13 @@ package com.bisontecfacturacion.security.config;
 
 public class RucFormato {
 
-	private int ruc;
+	private String ruc;
 	private int dv;
 	private String razonSocial;
-	public int getRuc() {
+	public String getRuc() {
 		return ruc;
 	}
-	public void setRuc(int ruc) {
+	public void setRuc(String ruc) {
 		this.ruc = ruc;
 	}
 	public int getDv() {

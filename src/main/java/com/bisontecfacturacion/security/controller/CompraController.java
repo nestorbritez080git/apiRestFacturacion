@@ -133,14 +133,10 @@ public class CompraController {
 		}
 		return listRetorno;
 	}
-
-	@RequestMapping(method=RequestMethod.GET, value="/{fecha}")
-	public List<Compra> getAlls(@PathVariable String fecha){
-		String[] fec=fecha.split("-");
-		Integer dia=Integer.parseInt(fec[0]);
-		Integer mes=Integer.parseInt(fec[1]);
-		Integer ano=Integer.parseInt(fec[2]);
-		List<Compra> objeto=entityRepository.getCompra(ano, mes, dia);
+	@RequestMapping(method=RequestMethod.GET, value="/buscar/{filtro}")
+	public List<Compra> getAllsFiltro(@PathVariable String filtro){
+		
+		List<Compra> objeto=entityRepository.getCompraAllFiltroProveedor("%"+Utilidades.eliminaCaracterIzqDer(filtro.toUpperCase())+"%");
 		List<Compra> venta=new ArrayList<>();
 		for(Compra ob:objeto){
 			Compra ventas=new Compra();
@@ -159,6 +155,60 @@ public class CompraController {
 			System.out.println(ventas.getProveedor().getPersona().getNombre());
 		}
 		return venta;
+	}
+	@RequestMapping(method=RequestMethod.GET, value="/{fecha}")
+	public List<Compra> getAlls(@PathVariable String fecha){
+		String[] fec=fecha.split("-");
+		Integer dia=Integer.parseInt(fec[0]);
+		Integer mes=Integer.parseInt(fec[1]);
+		Integer ano=Integer.parseInt(fec[2]);
+		List<Compra> objeto=entityRepository.getCompraFechaRegistro(ano, mes, dia);
+		List<Compra> venta=new ArrayList<>();
+		for(Compra ob:objeto){
+			Compra ventas=new Compra();
+			ventas.setId(ob.getId());
+			ventas.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre()+" "+ob.getFuncionario().getPersona().getApellido());
+			ventas.getProveedor().getPersona().setNombre(ob.getProveedor().getPersona().getNombre()+" "+ ob.getProveedor().getPersona().getApellido());
+			ventas.setTotal(ob.getTotal());
+			ventas.setFecha(ob.getFecha());
+			ventas.setFechaFactura(ob.getFechaFactura());
+			ventas.setNroDocumento(ob.getNroDocumento());
+			ventas.setEstado(ob.getEstado());
+			ventas.setTipo(ob.getTipo());
+			ventas.setHora(ob.getHora());
+			//ventas.getDocumento().setId(ob.getDocumento().getId());
+			venta.add(ventas);
+			System.out.println(ventas.getProveedor().getPersona().getNombre());
+		}
+		return venta;
+	}
+	@RequestMapping(method=RequestMethod.GET, value="/fechaRegistro/{fecha}")
+	public List<Compra> getAllsFechaRegistro(@PathVariable String fecha){
+		System.out.println("filtro por fecha compra");
+		String[] fec=fecha.split("-");
+		Integer dia=Integer.parseInt(fec[0]);
+		Integer mes=Integer.parseInt(fec[1]);
+		Integer ano=Integer.parseInt(fec[2]);
+		List<Compra> objeto=entityRepository.getCompraFechaRegistro(ano, mes, dia);
+		System.out.println("lista size: "+objeto.size());
+		List<Compra> listaRetorno=new ArrayList<>();
+		for(Compra ob:objeto){
+			Compra ventas=new Compra();
+			ventas.setId(ob.getId());
+			ventas.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre()+" "+ob.getFuncionario().getPersona().getApellido());
+			ventas.getProveedor().getPersona().setNombre(ob.getProveedor().getPersona().getNombre()+" "+ ob.getProveedor().getPersona().getApellido());
+			ventas.setTotal(ob.getTotal());
+			ventas.setFecha(ob.getFecha());
+			ventas.setFechaFactura(ob.getFechaFactura());
+			ventas.setNroDocumento(ob.getNroDocumento());
+			ventas.setEstado(ob.getEstado());
+			ventas.setTipo(ob.getTipo());
+			ventas.setHora(ob.getHora());
+			//ventas.getDocumento().setId(ob.getDocumento().getId());
+			listaRetorno.add(ventas);
+			System.out.println(ventas.getProveedor().getPersona().getNombre());
+		}
+		return listaRetorno;
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/fechaFactura/{fecha}")
 	public List<Compra> getAllsFechaFactura(@PathVariable String fecha){
@@ -210,10 +260,11 @@ public class CompraController {
 		return venta;
 		 */
 	}
-
-
-
-
+	@RequestMapping(method=RequestMethod.GET, value="/compraId/lista/{id}")
+	public Compra getCompraIdLista(@PathVariable int id){
+		
+		return entityRepository.getCompraId(id);
+	}
 
 	public String hora() {
 		return new SimpleDateFormat("HH:mm:ss a", Locale.US).format(new Date());
@@ -232,6 +283,8 @@ public class CompraController {
 				return new ResponseEntity<>(new CustomerErrorType("EL PROVEEDOR NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getEstado().equals("FACTURADO") && entity.getFechaFactura() == null){
 				return new ResponseEntity<>(new CustomerErrorType("LA FECHA DE LA FACTURA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+			}else if(entity.getConcepto().getId()==0){
+				return new ResponseEntity<>(new CustomerErrorType("EL CONCEPTO DE SE DEBE CARGAR ANTES DE GUARDAR COMPRA!"), HttpStatus.CONFLICT);
 			}{
 				for(int ind=0; ind < entity.getDetalleCompra().size(); ind++) {
 					DetalleCompra pro = entity.getDetalleCompra().get(ind);
@@ -823,8 +876,8 @@ public class CompraController {
 				com.setFechaFactura(FechaUtil.convertirFechaStringADateUtil("2020-11-11"));
 				com.setTotal(1200.0);
 				listado.add(com);
-				//report.reportPDFDescarga(listado, map, "ReporteCompraRangoPorProveedor", response);
-				report.reportPDFImprimir(listado, map, "ReporteCompraRangoPorProveedor", "Microsoft Print to PDF");
+				report.reportPDFDescarga(listado, map, "ReporteCompraRangoPorProveedor", response);
+				//report.reportPDFDescarga(listado, map, "ReporteCompraRangoPorProveedor",  "Microsoft Print to PDF");
 			}
 			if(detallado==2) {
 				System.out.println("ENTROO TRUE");

@@ -1,0 +1,245 @@
+# Created at 2025-03-18T12:40:12.563
+TestSet has not finished before stream error has appeared >> initializing exit by non-null configuration: null
+java.io.EOFException
+	at java.io.DataInputStream.readInt(DataInputStream.java:392)
+	at org.apache.maven.surefire.booter.MasterProcessCommand.decode(MasterProcessCommand.java:115)
+	at org.apache.maven.surefire.booter.CommandReader$CommandRunnable.run(CommandReader.java:391)
+	at java.lang.Thread.run(Thread.java:748)
+
+
+# Created at 2025-03-18T12:40:12.615
+Unexpected IOException: I,1,sun.desktop,windows
+
+
+# Created at 2025-03-18T12:40:12.616
+Unexpected IOException: I,1,awt.toolkit,sun.awt.windows.WToolkit
+
+
+# Created at 2025-03-18T12:40:12.617
+Unexpected IOException: I,1,file.encoding.pkg,sun.io
+
+
+# Created at 2025-03-18T12:40:12.617
+Unexpected IOException: I,1,java.specification.version,1.8
+
+
+# Created at 2025-03-18T12:40:12.617
+Unexpected IOException: I,1,sun.cpu.isalist,amd64
+
+
+# Created at 2025-03-18T12:40:12.618
+Unexpected IOException: I,1,sun.jnu.encoding,Cp1252
+
+
+# Created at 2025-03-18T12:40:12.620
+Unexpected IOException: I,1,java.class.path,C:\005CUsers\005CNestor\005CDocuments\005CDeveloper\005Cproyecto-bisontec\005CBisontec Software\005CapiRestFacturacion\005Ctarget\005Ctest-classes;C:\005CUsers\005CNestor\005CDocuments\005CDeveloper\005Cproyecto-bisontec\005CBisontec Software\005CapiRestFacturacion\005Ctarget\005Cclasses;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-data-jpa\005C2.1.0.RELEASE\005Cspring-boot-starter-data-jpa-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-aop\005C2.1.0.RELEASE\005Cspring-boot-starter-aop-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-aop\005C5.1.2.RELEASE\005Cspring-aop-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Caspectj\005Caspectjweaver\005C1.9.2\005Caspectjweaver-1.9.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-jdbc\005C2.1.0.RELEASE\005Cspring-boot-starter-jdbc-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Czaxxer\005CHikariCP\005C3.2.0\005CHikariCP-3.2.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-jdbc\005C5.1.2.RELEASE\005Cspring-jdbc-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Ctransaction\005Cjavax.transaction-api\005C1.3\005Cjavax.transaction-api-1.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cxml\005Cbind\005Cjaxb-api\005C2.3.1\005Cjaxb-api-2.3.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cactivation\005Cjavax.activation-api\005C1.2.0\005Cjavax.activation-api-1.2.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Chibernate\005Chibernate-core\005C5.3.7.Final\005Chibernate-core-5.3.7.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Clogging\005Cjboss-logging\005C3.3.2.Final\005Cjboss-logging-3.3.2.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cpersistence\005Cjavax.persistence-api\005C2.2\005Cjavax.persistence-api-2.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjavassist\005Cjavassist\005C3.23.1-GA\005Cjavassist-3.23.1-GA.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cnet\005Cbytebuddy\005Cbyte-buddy\005C1.9.3\005Cbyte-buddy-1.9.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cantlr\005Cantlr\005C2.7.7\005Cantlr-2.7.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Cjandex\005C2.0.5.Final\005Cjandex-2.0.5.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cclassmate\005C1.4.0\005Cclassmate-1.4.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cdom4j\005Cdom4j\005C2.1.1\005Cdom4j-2.1.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Chibernate\005Ccommon\005Chibernate-commons-annotations\005C5.0.4.Final\005Chibernate-commons-annotations-5.0.4.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cdata\005Cspring-data-jpa\005C2.1.2.RELEASE\005Cspring-data-jpa-2.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cdata\005Cspring-data-commons\005C2.1.2.RELEASE\005Cspring-data-commons-2.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-orm\005C5.1.2.RELEASE\005Cspring-orm-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-tx\005C5.1.2.RELEASE\005Cspring-tx-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cslf4j\005Cslf4j-api\005C1.7.25\005Cslf4j-api-1.7.25.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-aspects\005C5.1.2.RELEASE\005Cspring-aspects-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-web\005C2.1.0.RELEASE\005Cspring-boot-starter-web-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter\005C2.1.0.RELEASE\005Cspring-boot-starter-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot\005C2.1.0.RELEASE\005Cspring-boot-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-autoconfigure\005C2.1.0.RELEASE\005Cspring-boot-autoconfigure-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-logging\005C2.1.0.RELEASE\005Cspring-boot-starter-logging-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cch\005Cqos\005Clogback\005Clogback-classic\005C1.2.3\005Clogback-classic-1.2.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cch\005Cqos\005Clogback\005Clogback-core\005C1.2.3\005Clogback-core-1.2.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Clogging\005Clog4j\005Clog4j-to-slf4j\005C2.11.1\005Clog4j-to-slf4j-2.11.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Clogging\005Clog4j\005Clog4j-api\005C2.11.1\005Clog4j-api-2.11.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cslf4j\005Cjul-to-slf4j\005C1.7.25\005Cjul-to-slf4j-1.7.25.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cyaml\005Csnakeyaml\005C1.23\005Csnakeyaml-1.23.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-json\005C2.1.0.RELEASE\005Cspring-boot-starter-json-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Cdatatype\005Cjackson-datatype-jdk8\005C2.9.7\005Cjackson-datatype-jdk8-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Cdatatype\005Cjackson-datatype-jsr310\005C2.9.7\005Cjackson-datatype-jsr310-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Cmodule\005Cjackson-module-parameter-names\005C2.9.7\005Cjackson-module-parameter-names-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Chibernate\005Cvalidator\005Chibernate-validator\005C6.0.13.Final\005Chibernate-validator-6.0.13.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cvalidation\005Cvalidation-api\005C2.0.1.Final\005Cvalidation-api-2.0.1.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-web\005C5.1.2.RELEASE\005Cspring-web-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-webmvc\005C5.1.2.RELEASE\005Cspring-webmvc-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-expression\005C5.1.2.RELEASE\005Cspring-expression-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Coauth\005Cspring-security-oauth2\005C2.4.0.RELEASE\005Cspring-security-oauth2-2.4.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-beans\005C5.1.2.RELEASE\005Cspring-beans-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-core\005C5.1.2.RELEASE\005Cspring-core-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-jcl\005C5.1.2.RELEASE\005Cspring-jcl-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-context\005C5.1.2.RELEASE\005Cspring-context-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Cspring-security-core\005C5.1.1.RELEASE\005Cspring-security-core-5.1.1.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Cspring-security-config\005C5.1.1.RELEASE\005Cspring-security-config-5.1.1.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Cspring-security-web\005C5.1.1.RELEASE\005Cspring-security-web-5.1.1.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-codec\005Ccommons-codec\005C1.11\005Ccommons-codec-1.11.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cpostgresql\005Cpostgresql\005C42.2.5\005Cpostgresql-42.2.5.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Cpoi\005Cpoi\005C3.16\005Cpoi-3.16.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ccommons\005Ccommons-collections4\005C4.1\005Ccommons-collections4-4.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Cpoi\005Cpoi-ooxml\005C3.16\005Cpoi-ooxml-3.16.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Cpoi\005Cpoi-ooxml-schemas\005C3.16\005Cpoi-ooxml-schemas-3.16.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Cxmlbeans\005Cxmlbeans\005C2.6.0\005Cxmlbeans-2.6.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cstax\005Cstax-api\005C1.0.1\005Cstax-api-1.0.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cgithub\005Cvirtuald\005Ccurvesapi\005C1.04\005Ccurvesapi-1.04.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Ccodehaus\005Cgroovy\005Cgroovy-all\005C2.0.1\005Cgroovy-all-2.0.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Citextpdf\005Citext-pdfa\005C5.5.0\005Citext-pdfa-5.5.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Citextpdf\005Citextpdf\005C5.5.0\005Citextpdf-5.5.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cnet\005Csourceforge\005Cbarbecue\005Cbarbecue\005C1.5-beta1\005Cbarbecue-1.5-beta1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cnet\005Csf\005Cjasperreports\005Cjasperreports\005C6.16.0\005Cjasperreports-6.16.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-beanutils\005Ccommons-beanutils\005C1.9.4\005Ccommons-beanutils-1.9.4.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-collections\005Ccommons-collections\005C3.2.2\005Ccommons-collections-3.2.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-digester\005Ccommons-digester\005C2.1\005Ccommons-digester-2.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-logging\005Ccommons-logging\005C1.1.1\005Ccommons-logging-1.1.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Clowagie\005Citext\005C2.1.7.js8\005Citext-2.1.7.js8.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cbouncycastle\005Cbcprov-jdk15on\005C1.64\005Cbcprov-jdk15on-1.64.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjfree\005Cjcommon\005C1.0.23\005Cjcommon-1.0.23.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjfree\005Cjfreechart\005C1.0.19\005Cjfreechart-1.0.19.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Ceclipse\005Cjdt\005Cecj\005C3.21.0\005Cecj-3.21.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Ccodehaus\005Ccastor\005Ccastor-xml\005C1.4.1\005Ccastor-xml-1.4.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Ccodehaus\005Ccastor\005Ccastor-core\005C1.4.1\005Ccastor-core-1.4.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ccommons\005Ccommons-lang3\005C3.8.1\005Ccommons-lang3-3.8.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cinject\005Cjavax.inject\005C1\005Cjavax.inject-1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Ccore\005Cjackson-core\005C2.9.7\005Cjackson-core-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Ccore\005Cjackson-databind\005C2.9.7\005Cjackson-databind-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Ccore\005Cjackson-annotations\005C2.9.0\005Cjackson-annotations-2.9.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Cspring-security-jwt\005C1.1.0.RELEASE\005Cspring-security-jwt-1.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cbouncycastle\005Cbcpkix-jdk15on\005C1.64\005Cbcpkix-jdk15on-1.64.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-tomcat\005C2.1.0.RELEASE\005Cspring-boot-starter-tomcat-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cannotation\005Cjavax.annotation-api\005C1.3.2\005Cjavax.annotation-api-1.3.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ctomcat\005Cembed\005Ctomcat-embed-core\005C9.0.12\005Ctomcat-embed-core-9.0.12.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ctomcat\005Cembed\005Ctomcat-embed-el\005C9.0.12\005Ctomcat-embed-el-9.0.12.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ctomcat\005Cembed\005Ctomcat-embed-websocket\005C9.0.12\005Ctomcat-embed-websocket-9.0.12.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjunit\005Cvintage\005Cjunit-vintage-engine\005C5.7.0\005Cjunit-vintage-engine-5.7.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capiguardian\005Capiguardian-api\005C1.1.0\005Capiguardian-api-1.1.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjunit\005Cplatform\005Cjunit-platform-engine\005C1.3.1\005Cjunit-platform-engine-1.3.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjunit\005Cplatform\005Cjunit-platform-commons\005C1.3.1\005Cjunit-platform-commons-1.3.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Copentest4j\005Copentest4j\005C1.1.1\005Copentest4j-1.1.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjunit\005Cjunit\005C4.12\005Cjunit-4.12.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Chamcrest\005Chamcrest-core\005C1.3\005Chamcrest-core-1.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cgithub\005Culisesbocchio\005Cjasypt-spring-boot\005C2.0.0\005Cjasypt-spring-boot-2.0.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjasypt\005Cjasypt\005C1.9.2\005Cjasypt-1.9.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cglassfish\005Cmain\005Cextras\005Cglassfish-embedded-all\005C4.1.2\005Cglassfish-embedded-all-4.1.2.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005C..\005Clib\005Ctools.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-glassfish-embedded-3.1\005C1.0.0.Final\005Carquillian-glassfish-embedded-3.1-1.0.0.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-container-spi\005C1.1.11.Final\005Carquillian-container-spi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccore\005Carquillian-core-spi\005C1.1.11.Final\005Carquillian-core-spi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccore\005Carquillian-core-api\005C1.1.11.Final\005Carquillian-core-api-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Cconfig\005Carquillian-config-api\005C1.1.11.Final\005Carquillian-config-api-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Cconfig\005Carquillian-config-impl-base\005C1.1.11.Final\005Carquillian-config-impl-base-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Cshrinkwrap\005Cshrinkwrap-api\005C1.2.3\005Cshrinkwrap-api-1.2.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Cshrinkwrap\005Cdescriptors\005Cshrinkwrap-descriptors-api-base\005C2.0.0-alpha-8\005Cshrinkwrap-descriptors-api-base-2.0.0-alpha-8.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-container-test-spi\005C1.1.11.Final\005Carquillian-container-test-spi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctest\005Carquillian-test-spi\005C1.1.11.Final\005Carquillian-test-spi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctest\005Carquillian-test-api\005C1.1.11.Final\005Carquillian-test-api-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-container-test-api\005C1.1.11.Final\005Carquillian-container-test-api-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Cprotocol\005Carquillian-protocol-servlet\005C1.1.11.Final\005Carquillian-protocol-servlet-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-container-test-impl-base\005C1.1.11.Final\005Carquillian-container-test-impl-base-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Cshrinkwrap\005Cdescriptors\005Cshrinkwrap-descriptors-spi\005C2.0.0-alpha-8\005Cshrinkwrap-descriptors-spi-2.0.0-alpha-8.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctestenricher\005Carquillian-testenricher-cdi\005C1.1.11.Final\005Carquillian-testenricher-cdi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctestenricher\005Carquillian-testenricher-ejb\005C1.1.11.Final\005Carquillian-testenricher-ejb-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctestenricher\005Carquillian-testenricher-resource\005C1.1.11.Final\005Carquillian-testenricher-resource-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctestenricher\005Carquillian-testenricher-initialcontext\005C1.1.11.Final\005Carquillian-testenricher-initialcontext-1.1.11.Final.jar;
+
+
+# Created at 2025-03-18T12:40:12.621
+Unexpected IOException: I,1,java.vm.vendor,Oracle Corporation
+
+
+# Created at 2025-03-18T12:40:12.621
+Unexpected IOException: I,1,sun.arch.data.model,64
+
+
+# Created at 2025-03-18T12:40:12.621
+Unexpected IOException: I,1,user.variant,
+
+
+# Created at 2025-03-18T12:40:12.622
+Unexpected IOException: I,1,java.vendor.url,http://java.oracle.com/
+
+
+# Created at 2025-03-18T12:40:12.622
+Unexpected IOException: I,1,user.timezone,America/Asuncion
+
+
+# Created at 2025-03-18T12:40:12.622
+Unexpected IOException: I,1,os.name,Windows 10
+
+
+# Created at 2025-03-18T12:40:12.623
+Unexpected IOException: I,1,java.vm.specification.version,1.8
+
+
+# Created at 2025-03-18T12:40:12.623
+Unexpected IOException: I,1,user.country,ES
+
+
+# Created at 2025-03-18T12:40:12.624
+Unexpected IOException: I,1,sun.java.launcher,SUN_STANDARD
+
+
+# Created at 2025-03-18T12:40:12.624
+Unexpected IOException: I,1,sun.boot.library.path,C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Cbin
+
+
+# Created at 2025-03-18T12:40:12.624
+Unexpected IOException: I,1,sun.java.command,C:\005CUsers\005CNestor\005CAppData\005CLocal\005CTemp\005Csurefire4725301221840069652\005Csurefirebooter5691444008051059442.jar C:\005CUsers\005CNestor\005CAppData\005CLocal\005CTemp\005Csurefire4725301221840069652 2025-03-18T12-40-11_768-jvmRun1 surefire1296276407300376554tmp surefire_03772941560601421954tmp
+
+
+# Created at 2025-03-18T12:40:12.626
+Unexpected IOException: I,1,surefire.test.class.path,C:\005CUsers\005CNestor\005CDocuments\005CDeveloper\005Cproyecto-bisontec\005CBisontec Software\005CapiRestFacturacion\005Ctarget\005Ctest-classes;C:\005CUsers\005CNestor\005CDocuments\005CDeveloper\005Cproyecto-bisontec\005CBisontec Software\005CapiRestFacturacion\005Ctarget\005Cclasses;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-data-jpa\005C2.1.0.RELEASE\005Cspring-boot-starter-data-jpa-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-aop\005C2.1.0.RELEASE\005Cspring-boot-starter-aop-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-aop\005C5.1.2.RELEASE\005Cspring-aop-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Caspectj\005Caspectjweaver\005C1.9.2\005Caspectjweaver-1.9.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-jdbc\005C2.1.0.RELEASE\005Cspring-boot-starter-jdbc-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Czaxxer\005CHikariCP\005C3.2.0\005CHikariCP-3.2.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-jdbc\005C5.1.2.RELEASE\005Cspring-jdbc-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Ctransaction\005Cjavax.transaction-api\005C1.3\005Cjavax.transaction-api-1.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cxml\005Cbind\005Cjaxb-api\005C2.3.1\005Cjaxb-api-2.3.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cactivation\005Cjavax.activation-api\005C1.2.0\005Cjavax.activation-api-1.2.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Chibernate\005Chibernate-core\005C5.3.7.Final\005Chibernate-core-5.3.7.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Clogging\005Cjboss-logging\005C3.3.2.Final\005Cjboss-logging-3.3.2.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cpersistence\005Cjavax.persistence-api\005C2.2\005Cjavax.persistence-api-2.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjavassist\005Cjavassist\005C3.23.1-GA\005Cjavassist-3.23.1-GA.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cnet\005Cbytebuddy\005Cbyte-buddy\005C1.9.3\005Cbyte-buddy-1.9.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cantlr\005Cantlr\005C2.7.7\005Cantlr-2.7.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Cjandex\005C2.0.5.Final\005Cjandex-2.0.5.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cclassmate\005C1.4.0\005Cclassmate-1.4.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cdom4j\005Cdom4j\005C2.1.1\005Cdom4j-2.1.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Chibernate\005Ccommon\005Chibernate-commons-annotations\005C5.0.4.Final\005Chibernate-commons-annotations-5.0.4.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cdata\005Cspring-data-jpa\005C2.1.2.RELEASE\005Cspring-data-jpa-2.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cdata\005Cspring-data-commons\005C2.1.2.RELEASE\005Cspring-data-commons-2.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-orm\005C5.1.2.RELEASE\005Cspring-orm-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-tx\005C5.1.2.RELEASE\005Cspring-tx-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cslf4j\005Cslf4j-api\005C1.7.25\005Cslf4j-api-1.7.25.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-aspects\005C5.1.2.RELEASE\005Cspring-aspects-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-web\005C2.1.0.RELEASE\005Cspring-boot-starter-web-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter\005C2.1.0.RELEASE\005Cspring-boot-starter-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot\005C2.1.0.RELEASE\005Cspring-boot-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-autoconfigure\005C2.1.0.RELEASE\005Cspring-boot-autoconfigure-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-logging\005C2.1.0.RELEASE\005Cspring-boot-starter-logging-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cch\005Cqos\005Clogback\005Clogback-classic\005C1.2.3\005Clogback-classic-1.2.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cch\005Cqos\005Clogback\005Clogback-core\005C1.2.3\005Clogback-core-1.2.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Clogging\005Clog4j\005Clog4j-to-slf4j\005C2.11.1\005Clog4j-to-slf4j-2.11.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Clogging\005Clog4j\005Clog4j-api\005C2.11.1\005Clog4j-api-2.11.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cslf4j\005Cjul-to-slf4j\005C1.7.25\005Cjul-to-slf4j-1.7.25.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cyaml\005Csnakeyaml\005C1.23\005Csnakeyaml-1.23.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-json\005C2.1.0.RELEASE\005Cspring-boot-starter-json-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Cdatatype\005Cjackson-datatype-jdk8\005C2.9.7\005Cjackson-datatype-jdk8-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Cdatatype\005Cjackson-datatype-jsr310\005C2.9.7\005Cjackson-datatype-jsr310-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Cmodule\005Cjackson-module-parameter-names\005C2.9.7\005Cjackson-module-parameter-names-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Chibernate\005Cvalidator\005Chibernate-validator\005C6.0.13.Final\005Chibernate-validator-6.0.13.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cvalidation\005Cvalidation-api\005C2.0.1.Final\005Cvalidation-api-2.0.1.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-web\005C5.1.2.RELEASE\005Cspring-web-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-webmvc\005C5.1.2.RELEASE\005Cspring-webmvc-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-expression\005C5.1.2.RELEASE\005Cspring-expression-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Coauth\005Cspring-security-oauth2\005C2.4.0.RELEASE\005Cspring-security-oauth2-2.4.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-beans\005C5.1.2.RELEASE\005Cspring-beans-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-core\005C5.1.2.RELEASE\005Cspring-core-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-jcl\005C5.1.2.RELEASE\005Cspring-jcl-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cspring-context\005C5.1.2.RELEASE\005Cspring-context-5.1.2.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Cspring-security-core\005C5.1.1.RELEASE\005Cspring-security-core-5.1.1.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Cspring-security-config\005C5.1.1.RELEASE\005Cspring-security-config-5.1.1.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Cspring-security-web\005C5.1.1.RELEASE\005Cspring-security-web-5.1.1.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-codec\005Ccommons-codec\005C1.11\005Ccommons-codec-1.11.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cpostgresql\005Cpostgresql\005C42.2.5\005Cpostgresql-42.2.5.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Cpoi\005Cpoi\005C3.16\005Cpoi-3.16.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ccommons\005Ccommons-collections4\005C4.1\005Ccommons-collections4-4.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Cpoi\005Cpoi-ooxml\005C3.16\005Cpoi-ooxml-3.16.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Cpoi\005Cpoi-ooxml-schemas\005C3.16\005Cpoi-ooxml-schemas-3.16.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Cxmlbeans\005Cxmlbeans\005C2.6.0\005Cxmlbeans-2.6.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cstax\005Cstax-api\005C1.0.1\005Cstax-api-1.0.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cgithub\005Cvirtuald\005Ccurvesapi\005C1.04\005Ccurvesapi-1.04.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Ccodehaus\005Cgroovy\005Cgroovy-all\005C2.0.1\005Cgroovy-all-2.0.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Citextpdf\005Citext-pdfa\005C5.5.0\005Citext-pdfa-5.5.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Citextpdf\005Citextpdf\005C5.5.0\005Citextpdf-5.5.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cnet\005Csourceforge\005Cbarbecue\005Cbarbecue\005C1.5-beta1\005Cbarbecue-1.5-beta1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cnet\005Csf\005Cjasperreports\005Cjasperreports\005C6.16.0\005Cjasperreports-6.16.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-beanutils\005Ccommons-beanutils\005C1.9.4\005Ccommons-beanutils-1.9.4.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-collections\005Ccommons-collections\005C3.2.2\005Ccommons-collections-3.2.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-digester\005Ccommons-digester\005C2.1\005Ccommons-digester-2.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccommons-logging\005Ccommons-logging\005C1.1.1\005Ccommons-logging-1.1.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Clowagie\005Citext\005C2.1.7.js8\005Citext-2.1.7.js8.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cbouncycastle\005Cbcprov-jdk15on\005C1.64\005Cbcprov-jdk15on-1.64.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjfree\005Cjcommon\005C1.0.23\005Cjcommon-1.0.23.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjfree\005Cjfreechart\005C1.0.19\005Cjfreechart-1.0.19.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Ceclipse\005Cjdt\005Cecj\005C3.21.0\005Cecj-3.21.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Ccodehaus\005Ccastor\005Ccastor-xml\005C1.4.1\005Ccastor-xml-1.4.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Ccodehaus\005Ccastor\005Ccastor-core\005C1.4.1\005Ccastor-core-1.4.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ccommons\005Ccommons-lang3\005C3.8.1\005Ccommons-lang3-3.8.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cinject\005Cjavax.inject\005C1\005Cjavax.inject-1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Ccore\005Cjackson-core\005C2.9.7\005Cjackson-core-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Ccore\005Cjackson-databind\005C2.9.7\005Cjackson-databind-2.9.7.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cfasterxml\005Cjackson\005Ccore\005Cjackson-annotations\005C2.9.0\005Cjackson-annotations-2.9.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Csecurity\005Cspring-security-jwt\005C1.1.0.RELEASE\005Cspring-security-jwt-1.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cbouncycastle\005Cbcpkix-jdk15on\005C1.64\005Cbcpkix-jdk15on-1.64.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cspringframework\005Cboot\005Cspring-boot-starter-tomcat\005C2.1.0.RELEASE\005Cspring-boot-starter-tomcat-2.1.0.RELEASE.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjavax\005Cannotation\005Cjavax.annotation-api\005C1.3.2\005Cjavax.annotation-api-1.3.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ctomcat\005Cembed\005Ctomcat-embed-core\005C9.0.12\005Ctomcat-embed-core-9.0.12.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ctomcat\005Cembed\005Ctomcat-embed-el\005C9.0.12\005Ctomcat-embed-el-9.0.12.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capache\005Ctomcat\005Cembed\005Ctomcat-embed-websocket\005C9.0.12\005Ctomcat-embed-websocket-9.0.12.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjunit\005Cvintage\005Cjunit-vintage-engine\005C5.7.0\005Cjunit-vintage-engine-5.7.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Capiguardian\005Capiguardian-api\005C1.1.0\005Capiguardian-api-1.1.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjunit\005Cplatform\005Cjunit-platform-engine\005C1.3.1\005Cjunit-platform-engine-1.3.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjunit\005Cplatform\005Cjunit-platform-commons\005C1.3.1\005Cjunit-platform-commons-1.3.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Copentest4j\005Copentest4j\005C1.1.1\005Copentest4j-1.1.1.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Cjunit\005Cjunit\005C4.12\005Cjunit-4.12.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Chamcrest\005Chamcrest-core\005C1.3\005Chamcrest-core-1.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Ccom\005Cgithub\005Culisesbocchio\005Cjasypt-spring-boot\005C2.0.0\005Cjasypt-spring-boot-2.0.0.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjasypt\005Cjasypt\005C1.9.2\005Cjasypt-1.9.2.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cglassfish\005Cmain\005Cextras\005Cglassfish-embedded-all\005C4.1.2\005Cglassfish-embedded-all-4.1.2.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005C..\005Clib\005Ctools.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-glassfish-embedded-3.1\005C1.0.0.Final\005Carquillian-glassfish-embedded-3.1-1.0.0.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-container-spi\005C1.1.11.Final\005Carquillian-container-spi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccore\005Carquillian-core-spi\005C1.1.11.Final\005Carquillian-core-spi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccore\005Carquillian-core-api\005C1.1.11.Final\005Carquillian-core-api-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Cconfig\005Carquillian-config-api\005C1.1.11.Final\005Carquillian-config-api-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Cconfig\005Carquillian-config-impl-base\005C1.1.11.Final\005Carquillian-config-impl-base-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Cshrinkwrap\005Cshrinkwrap-api\005C1.2.3\005Cshrinkwrap-api-1.2.3.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Cshrinkwrap\005Cdescriptors\005Cshrinkwrap-descriptors-api-base\005C2.0.0-alpha-8\005Cshrinkwrap-descriptors-api-base-2.0.0-alpha-8.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-container-test-spi\005C1.1.11.Final\005Carquillian-container-test-spi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctest\005Carquillian-test-spi\005C1.1.11.Final\005Carquillian-test-spi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctest\005Carquillian-test-api\005C1.1.11.Final\005Carquillian-test-api-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-container-test-api\005C1.1.11.Final\005Carquillian-container-test-api-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Cprotocol\005Carquillian-protocol-servlet\005C1.1.11.Final\005Carquillian-protocol-servlet-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ccontainer\005Carquillian-container-test-impl-base\005C1.1.11.Final\005Carquillian-container-test-impl-base-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Cshrinkwrap\005Cdescriptors\005Cshrinkwrap-descriptors-spi\005C2.0.0-alpha-8\005Cshrinkwrap-descriptors-spi-2.0.0-alpha-8.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctestenricher\005Carquillian-testenricher-cdi\005C1.1.11.Final\005Carquillian-testenricher-cdi-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctestenricher\005Carquillian-testenricher-ejb\005C1.1.11.Final\005Carquillian-testenricher-ejb-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctestenricher\005Carquillian-testenricher-resource\005C1.1.11.Final\005Carquillian-testenricher-resource-1.1.11.Final.jar;C:\005CUsers\005CNestor\005C.m2\005Crepository\005Corg\005Cjboss\005Carquillian\005Ctestenricher\005Carquillian-testenricher-initialcontext\005C1.1.11.Final\005Carquillian-testenricher-initialcontext-1.1.11.Final.jar;
+
+
+# Created at 2025-03-18T12:40:12.627
+Unexpected IOException: I,1,sun.cpu.endian,little
+
+
+# Created at 2025-03-18T12:40:12.627
+Unexpected IOException: I,1,user.home,C:\005CUsers\005CNestor
+
+
+# Created at 2025-03-18T12:40:12.628
+Unexpected IOException: I,1,user.language,es
+
+
+# Created at 2025-03-18T12:40:12.628
+Unexpected IOException: I,1,java.specification.vendor,Oracle Corporation
+
+
+# Created at 2025-03-18T12:40:12.628
+Unexpected IOException: I,1,java.home,C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre
+
+
+# Created at 2025-03-18T12:40:12.629
+Unexpected IOException: I,1,basedir,C:\005CUsers\005CNestor\005CDocuments\005CDeveloper\005Cproyecto-bisontec\005CBisontec Software\005CapiRestFacturacion
+
+
+# Created at 2025-03-18T12:40:12.629
+Unexpected IOException: I,1,style.color,always
+
+
+# Created at 2025-03-18T12:40:12.629
+Unexpected IOException: I,1,file.separator,\005C
+
+
+# Created at 2025-03-18T12:40:12.630
+Unexpected IOException: I,1,line.separator,\000D\000A
+
+
+# Created at 2025-03-18T12:40:12.630
+Unexpected IOException: I,1,java.vm.specification.vendor,Oracle Corporation
+
+
+# Created at 2025-03-18T12:40:12.631
+Unexpected IOException: I,1,java.specification.name,Java Platform API Specification
+
+
+# Created at 2025-03-18T12:40:12.631
+Unexpected IOException: I,1,java.awt.graphicsenv,sun.awt.Win32GraphicsEnvironment
+
+
+# Created at 2025-03-18T12:40:12.632
+Unexpected IOException: I,1,surefire.real.class.path,C:\005CUsers\005CNestor\005CAppData\005CLocal\005CTemp\005Csurefire4725301221840069652\005Csurefirebooter5691444008051059442.jar
+
+
+# Created at 2025-03-18T12:40:12.632
+Unexpected IOException: I,1,sun.boot.class.path,C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Cresources.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Crt.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Csunrsasign.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Cjsse.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Cjce.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Ccharsets.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Cjfr.jar;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Cclasses
+
+
+# Created at 2025-03-18T12:40:12.633
+Unexpected IOException: I,1,user.script,
+
+
+# Created at 2025-03-18T12:40:12.633
+Unexpected IOException: I,1,sun.management.compiler,HotSpot 64-Bit Tiered Compilers
+
+
+# Created at 2025-03-18T12:40:12.633
+Unexpected IOException: I,1,java.runtime.version,1.8.0_271-b09
+
+
+# Created at 2025-03-18T12:40:12.634
+Unexpected IOException: I,1,user.name,Nestor
+
+
+# Created at 2025-03-18T12:40:12.634
+Unexpected IOException: I,1,path.separator,;
+
+
+# Created at 2025-03-18T12:40:12.635
+Unexpected IOException: I,1,os.version,10.0
+
+
+# Created at 2025-03-18T12:40:12.635
+Unexpected IOException: I,1,java.endorsed.dirs,C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Cendorsed
+
+
+# Created at 2025-03-18T12:40:12.635
+Unexpected IOException: I,1,java.runtime.name,Java(TM) SE Runtime Environment
+
+
+# Created at 2025-03-18T12:40:12.636
+Unexpected IOException: I,1,file.encoding,Cp1252
+
+
+# Created at 2025-03-18T12:40:12.636
+Unexpected IOException: I,1,java.vm.name,Java HotSpot(TM) 64-Bit Server VM
+
+
+# Created at 2025-03-18T12:40:12.636
+Unexpected IOException: I,1,localRepository,C:\005CUsers\005CNestor\005C.m2\005Crepository
+
+
+# Created at 2025-03-18T12:40:12.636
+Unexpected IOException: I,1,java.vendor.url.bug,http://bugreport.sun.com/bugreport/
+
+
+# Created at 2025-03-18T12:40:12.636
+Unexpected IOException: I,1,java.io.tmpdir,C:\005CUsers\005CNestor\005CAppData\005CLocal\005CTemp\005C
+
+
+# Created at 2025-03-18T12:40:12.637
+Unexpected IOException: I,1,java.version,1.8.0_271
+
+
+# Created at 2025-03-18T12:40:12.637
+Unexpected IOException: I,1,user.dir,C:\005CUsers\005CNestor\005CDocuments\005CDeveloper\005Cproyecto-bisontec\005CBisontec Software\005CapiRestFacturacion
+
+
+# Created at 2025-03-18T12:40:12.637
+Unexpected IOException: I,1,os.arch,amd64
+
+
+# Created at 2025-03-18T12:40:12.638
+Unexpected IOException: I,1,java.vm.specification.name,Java Virtual Machine Specification
+
+
+# Created at 2025-03-18T12:40:12.638
+Unexpected IOException: I,1,java.awt.printerjob,sun.awt.windows.WPrinterJob
+
+
+# Created at 2025-03-18T12:40:12.638
+Unexpected IOException: I,1,sun.os.patch.level,
+
+
+# Created at 2025-03-18T12:40:12.639
+Unexpected IOException: I,1,java.library.path,C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Cbin;C:\005CWindows\005CSun\005CJava\005Cbin;C:\005CWindows\005Csystem32;C:\005CWindows;C:/Program Files/Java/jre1.8.0_271/bin/server;C:/Program Files/Java/jre1.8.0_271/bin;C:/Program Files/Java/jre1.8.0_271/lib/amd64;C:\005CProgram Files (x86)\005CCommon Files\005COracle\005CJava\005Cjavapath;C:\005CWindows\005Csystem32;C:\005CWindows;C:\005CWindows\005CSystem32\005CWbem;C:\005CWindows\005CSystem32\005CWindowsPowerShell\005Cv1.0\005C;C:\005CWindows\005CSystem32\005COpenSSH\005C;C:\005CProgram Files\005Cnodejs\005C;C:\005CProgram Files (x86)\005CATI Technologies\005CATI.ACE\005CCore-Static;C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cbin;C:\005CProgram Files\005Cnodejs;C:\005CUsers\005CNestor\005CAppData\005CRoaming\005Cnpm;C:\005CUsers\005CNestor\005CAppData\005CRoaming\005Cnpm\005Cnode_modules\005C@angular\005Ccli\005Cbin;C:\005CProgram Files\005CGit\005Ccmd;C:\005Csrc\005Cflutter\005Cbin;C:\005CUsers\005CNestor\005CAppData\005CLocal\005CMicrosoft\005CWindowsApps;C:\005CUsers\005CNestor\005CAppData\005CRoaming\005Cnpm;C:\005CUsers\005CNestor\005CAppData\005CLocal\005CPrograms\005CMicrosoft VS Code\005Cbin;C:\005CUsers\005CNestor\005CAppData\005CLocal\005CGitHubDesktop\005Cbin;C:\005CUsers\005CNestor\005CAppData\005CRoaming\005Cnpm\005Cnode_modules\005C@angular\005Ccli\005Cbin;;C:\005CUsers\005CNestor\005CDocuments\005CDeveloper\005Cspring-tool-suite-4-4.4.1.RELEASE-e4.13.0-win32.win32.x86_64.self-extracting\005Csts-4.4.1.RELEASE;;.
+
+
+# Created at 2025-03-18T12:40:12.641
+Unexpected IOException: I,1,java.vm.info,mixed mode
+
+
+# Created at 2025-03-18T12:40:12.642
+Unexpected IOException: I,1,java.vendor,Oracle Corporation
+
+
+# Created at 2025-03-18T12:40:12.642
+Unexpected IOException: I,1,java.vm.version,25.271-b09
+
+
+# Created at 2025-03-18T12:40:12.642
+Unexpected IOException: I,1,java.ext.dirs,C:\005CProgram Files\005CJava\005Cjdk1.8.0_271\005Cjre\005Clib\005Cext;C:\005CWindows\005CSun\005CJava\005Clib\005Cext
+
+
+# Created at 2025-03-18T12:40:12.643
+Unexpected IOException: I,1,sun.io.unicode.encoding,UnicodeLittle
+
+
+# Created at 2025-03-18T12:40:12.643
+Unexpected IOException: I,1,java.class.version,52.0
+
+

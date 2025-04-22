@@ -1,14 +1,21 @@
 package com.bisontecfacturacion.security.controller;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Formatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.config.Reporte;
+import com.bisontecfacturacion.security.model.Anticipo;
+import com.bisontecfacturacion.security.model.AnticipoReferenciaCajaChica;
+import com.bisontecfacturacion.security.model.AnticipoReferenciaOperacionCaja;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CajaChica;
 import com.bisontecfacturacion.security.model.Concepto;
@@ -24,7 +35,9 @@ import com.bisontecfacturacion.security.model.GastoConsumicionesDetalle;
 import com.bisontecfacturacion.security.model.GastoConsumicionesReferenciaCajaChica;
 import com.bisontecfacturacion.security.model.GastoConsumicionesReferenciaOperacionCaja;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.TransferenciaGastos;
+import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CajaChicaRepository;
 import com.bisontecfacturacion.security.repository.CajaMayorRepository;
@@ -34,18 +47,26 @@ import com.bisontecfacturacion.security.repository.GastoConsumicionesDetalleRepo
 import com.bisontecfacturacion.security.repository.GastoConsumicionesReferenciaAperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.GastoConsumicionesReferenciaCajaChicaRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
+import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaGastoRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
+import com.bisontecfacturacion.security.service.IUsuarioService;
 
 @RestController
 @Transactional
 @RequestMapping("gastoConsumiciones")
 public class GastoConsumicionesCabeceraController {
+	private static Formatter ft;
+	private Reporte report;
 	@Autowired
 	private GastoConsumicionesCabeceraRepository entityRepository;
 
 	@Autowired
 	private GastoConsumicionesDetalleRepository detalleRepository;
+	@Autowired
+	private IUsuarioService usuarioService;
+	@Autowired
+	private OrgRepository orgRepository;
 	
 	@Autowired
 	private CajaChicaRepository cajaChicaRepository;
@@ -401,5 +422,32 @@ public class GastoConsumicionesCabeceraController {
 		for(GastoConsumicionesDetalle ob: lista) {
 			this.detalleRepository.deleteById(ob.getId());
 		}
+	}
+	
+	@RequestMapping(value="/descargarPdf/{id}", method=RequestMethod.GET)
+	public ResponseEntity<?>  descargarPdf(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		GastoConsumicionesCabecera pre= new GastoConsumicionesCabecera(); 
+		pre=entityRepository.getOne(id);
+		List<GastoConsumicionesCabecera> listadoRetorno= new ArrayList<GastoConsumicionesCabecera>();
+		listadoRetorno.add(pre);
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+		try {
+			report = new Reporte();
+			report.reportPDFDescarga(listadoRetorno, map, "ReporteGastoPdf", response);
+			//report.reportPDFImprimir(listado, map, "ReporteCompraRangoFecha", "Microsoft Print to PDF");			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
 }

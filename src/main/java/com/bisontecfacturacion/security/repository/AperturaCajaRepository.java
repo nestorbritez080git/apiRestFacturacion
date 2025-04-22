@@ -17,6 +17,8 @@ public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Seri
 
 	@Query("select a from AperturaCaja a where a.estado = true and a.estadoAnulacion = false")
 	public List<AperturaCaja> getAperturaCajaActivo();
+	@Query("select a from AperturaCaja a INNER JOIN a.funcionario as fun where a.estado = true and a.estadoAnulacion = false AND fun.id<>:idDistinto")
+	public List<AperturaCaja> getAperturaCajaActivoIdDistinto(@Param("idDistinto")int idDistinto);
 
 	@Query("select a from AperturaCaja a where funcionario_id=:idFuncionario order by id desc")
 	public List<AperturaCaja> getAperturaCajaPorFuncionario(@Param("idFuncionario")int idFuncionario);
@@ -43,7 +45,7 @@ public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Seri
 			+ "where funcionario_id =:id and apertura_caja.estado=true and apertura_caja.estado_anulacion=false",nativeQuery=true )
 	public List<Object[]> getAperturaActivoCaja(@Param("id") int id);
 	
-	@Query(value=" SELECT * "
+	@Query(value="SELECT * "
 			+ "from apertura_caja inner "
 			+ "join caja on caja.id= apertura_caja.caja_id "
 			+ "inner join funcionario on apertura_caja.funcionario_id=funcionario.id "

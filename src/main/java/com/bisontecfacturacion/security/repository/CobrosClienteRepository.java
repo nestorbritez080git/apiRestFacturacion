@@ -39,8 +39,21 @@ public interface CobrosClienteRepository extends JpaRepository<CobrosCliente, Se
 	
 	@Query(value = "select c from CobrosCliente c where cuenta_cobrar_cabecera_id=:idCuenta")
 	public List<CobrosCliente> getCobrosPorIdCuenta(@Param("idCuenta") int idCuenta);
-	@Query(value = "select c from CobrosClienteCabecera c where cliente_id=:idCliente")
+	
+	
+	@Query(value = "select c from CobrosCliente c where cobros_cliente_cabecera_id=:idCabecera")
+	public List<CobrosCliente> getCobrosClientePorCobrosCabeceraId(@Param("idCabecera") int idCabecera);
+	
+	@Query(value = "select c from CobrosClienteCabecera c where cliente_id=:idCliente order by id desc")
 	public List<CobrosClienteCabecera> getCobrosClienteCabeceraPorIdCliente(@Param("idCliente") int idCliente);
+	
+	@Query(value = "select c from CobrosClienteCabecera c where id =:idCabecera order by id desc")
+	public List<CobrosClienteCabecera> getCobrosClienteCabeceraPorId(@Param("idCabecera") int idCabecera);
+	
+	
+	@Query(value = "select c from CobrosClienteCabecera c order by id desc")
+	public List<CobrosClienteCabecera> getCobrosClienteCabeceraAll();
+	
 	
 	@Query(value = "SELECT p.nombre || ' ' || p.apellido as nombres, to_char(cc.fecha, 'TMDay') || ' ' || extract(day from cast(cc.fecha as Date)) || ' ' || to_char(cc.fecha, 'TMMonth') || ' de ' || extract(year from cast(cc.fecha as Date)) as fecha, cc.fecha as fehc FROM cobros_cliente cc inner join cuenta_cobrar_cabecera ccc on cc.cuenta_cobrar_cabecera_id=ccc.id inner join cliente c on ccc.cliente_id=c.id inner join persona p on c.persona_id=p.id where ccc.cliente_id=:id order by cc.fecha desc limit 1",nativeQuery=true)
 	public List<Object[]> getCabeceraCuentaClienteId(@Param("id") int id);

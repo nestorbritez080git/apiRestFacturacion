@@ -27,13 +27,17 @@ public class Anticipo {
 	private Funcionario funcionarioEncargado;
 	@ManyToOne
 	private Funcionario funcionarioAutorizado;
-	@ManyToOne
-	private Periodo periodo;
+	
 	@ManyToOne
 	private TipoOperacion tipoOperacion;
+	@ManyToOne
+	private Concepto concepto;
 	@NotNull
 	private double monto;
 	private boolean estado;
+	private String tipo;
+	private String disponibilidad;
+
 	
 	public Anticipo() {
 		this.id=0;
@@ -41,11 +45,44 @@ public class Anticipo {
 		this.funcionarioRegistro= new Funcionario();
 		this.funcionarioEncargado= new Funcionario();
 		this.funcionarioAutorizado= new Funcionario();
-		this.periodo=new Periodo();
 		this.tipoOperacion = new TipoOperacion();
+		this.concepto= new Concepto();
 		this.monto=0.0;
 		this.estado=false;
+		this.tipo="";
+		this.disponibilidad="";
 	}
+
+	
+	public String getDisponibilidad() {
+		return disponibilidad;
+	}
+
+
+	public void setDisponibilidad(String disponibilidad) {
+		this.disponibilidad = disponibilidad;
+	}
+
+
+	public String getTipo() {
+		return tipo;
+	}
+
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
+
+	public Concepto getConcepto() {
+		return concepto;
+	}
+
+
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
+	}
+
 
 	public TipoOperacion getTipoOperacion() {
 		return tipoOperacion;
@@ -103,13 +140,7 @@ public class Anticipo {
 		this.funcionarioAutorizado = funcionarioAutorizado;
 	}
 
-	public Periodo getPeriodo() {
-		return periodo;
-	}
-
-	public void setPeriodo(Periodo periodo) {
-		this.periodo = periodo;
-	}
+	
 
 	public double getMonto() {
 		return monto;

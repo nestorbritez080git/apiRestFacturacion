@@ -24,10 +24,10 @@ public class TransferenciaPagosProveedor {
 	@ManyToOne
 	private Funcionario funcionario;
 	@ManyToOne
-	private PagosProveedor pagosProveedor;
+	private PagosProveedorCabecera pagosProveedorCabecera;
 	@ManyToOne
 	private CajaMayor cajaMayor;
-	@NotNull 
+	@NotNull
 	Double monto;
 	@NotNull
 	private Double montoCheque;
@@ -39,7 +39,7 @@ public class TransferenciaPagosProveedor {
 		this.id=0;
 		this.fecha= new Date();
 		this.funcionario= new Funcionario();
-		this.pagosProveedor = new PagosProveedor();
+		this.pagosProveedorCabecera = new PagosProveedorCabecera();
 		this.cajaMayor = new CajaMayor();
 		this.monto=0.0;
 		this.montoCheque=0.0;
@@ -71,15 +71,16 @@ public class TransferenciaPagosProveedor {
 		this.funcionario = funcionario;
 	}
 
-	public PagosProveedor getPagosProveedor() {
-		return pagosProveedor;
+	
+	public PagosProveedorCabecera getPagosProveedorCabecera() {
+		return pagosProveedorCabecera;
 	}
 
-	public void setPagosProveedor(PagosProveedor pagosProveedor) {
-		this.pagosProveedor = pagosProveedor;
+	public void setPagosProveedorCabecera(PagosProveedorCabecera pagosProveedorCabecera) {
+		this.pagosProveedorCabecera = pagosProveedorCabecera;
 	}
 
-	public CajaMayor getCajaMayor() {
+	public CajaMayor getCajaMayorrr() {
 		return cajaMayor;
 	}
 

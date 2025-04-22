@@ -49,6 +49,7 @@ public class Persona {
 		this.cedula = "";
 		this.direccion = "";
 		this.telefono = "";
+		this.tipo="";
 		
 	}
 	

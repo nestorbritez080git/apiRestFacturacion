@@ -29,6 +29,10 @@ public class LimitesRegistroListaController {
 	public  LimitesRegistroLista getLimiteRegistroListaVenta(@PathVariable int id){
 		return entityRepository.findById(id).get();
 	}
+	@RequestMapping(method=RequestMethod.GET, value="/productoLista/{id}")
+	public  LimitesRegistroLista getLimiteRegistroListaProducto(@PathVariable int id){
+		return entityRepository.findById(id).get();
+	}
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public  List<LimitesRegistroLista> getLimiteRegistroListaaLL(){

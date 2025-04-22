@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.CuentaCliente;
+import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
+import com.bisontecfacturacion.security.config.NumerosALetras;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.model.Cliente;
@@ -32,6 +35,7 @@ import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
+import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
@@ -55,6 +59,7 @@ import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
+import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
 import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
 import com.bisontecfacturacion.security.repository.ReporteFormatoDatosRepository;
 import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
@@ -102,6 +107,10 @@ public class CobrosClienteController {
 	@Autowired
 	
 	private TerminalConfigImpresoraRepository terminalRepository;
+	
+	@Autowired
+	private ParametroTipoHojaRepository parametroTipoHoja;
+
 	
 	@Autowired
 	private ReporteFormatoDatosRepository reporteFormatoDatosRepository;
@@ -171,6 +180,24 @@ public class CobrosClienteController {
 		}
 		return cobro;
 	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/cabecera")
+	public List<CobrosClienteCabecera> getAllCabecera() {
+		List<CobrosClienteCabecera> cobroCliente = entityRepository.getCobrosClienteCabeceraAll();
+		List<CobrosClienteCabecera> cobro = new ArrayList<>();
+		for (CobrosClienteCabecera c : cobroCliente) {
+			CobrosClienteCabecera co = new CobrosClienteCabecera();
+			co.setId(c.getId());
+			co.getCliente().setPersona(c.getCliente().getPersona());;
+			co.getFuncionario().setPersona(c.getFuncionario().getPersona());
+			co.setFecha(c.getFecha());
+			co.setTotal(c.getTotal());
+			
+			cobro.add(co);
+		}
+		return cobro;
+	}
+
 
 	@RequestMapping(method = RequestMethod.GET, value = "/buscar/{descripcion}")
 	public List<CobrosCliente> getBuscarNombreApellidoCliente(@PathVariable String descripcion) {
@@ -213,6 +240,32 @@ public class CobrosClienteController {
 		}
 		return new ResponseEntity<>(listadoRetorno, HttpStatus.OK);
 	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/buscarCobros/cabeceraCobros/{idCabecera}")
+	public ResponseEntity<?> getCobrosClientePorCobrosCabeceraId(@PathVariable int idCabecera) {
+		List<CobrosCliente> listado = entityRepository.getCobrosClientePorCobrosCabeceraId(idCabecera);
+		List<CobrosCliente> listadoRetorno = new ArrayList<>();
+		if (listado.size() < 0) {
+			return new ResponseEntity<>(new CustomerErrorType("Esta cuenta aún no posee Cobros"), HttpStatus.CONFLICT);
+		} else {
+
+			for (CobrosCliente cobros : listado) {
+				CobrosCliente cob = new CobrosCliente();
+				cob.setId(cobros.getId());
+				cob.setFecha(cobros.getFecha());
+				cob.setTotal(cobros.getTotal());
+				cob.getFuncionario().getPersona().setNombre(cobros.getFuncionario().getPersona().getNombre());
+				cob.getFuncionario().getPersona().setApellido(cobros.getFuncionario().getPersona().getApellido());
+				cob.setOperacionCaja(cobros.getOperacionCaja());
+				cob.getCuentaCobrarCabecera().getVenta().setId(cobros.getCuentaCobrarCabecera().getVenta().getId());
+				cob.getCobrosClienteCabecera().setId(cobros.getCobrosClienteCabecera().getId());
+				listadoRetorno.add(cob);
+			}
+		}
+		return new ResponseEntity<>(listadoRetorno, HttpStatus.OK);
+	}
+	
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/buscarCobros/cliente/{idCliente}")
 	public ResponseEntity<?> getCobrosClienteCabeceraPorIdCliente(@PathVariable int idCliente) {
 		List<CobrosClienteCabecera> listado = entityRepository.getCobrosClienteCabeceraPorIdCliente(idCliente);
@@ -228,7 +281,11 @@ public class CobrosClienteController {
 				cob.setTotal(cobros.getTotal());
 				cob.getFuncionario().getPersona().setNombre(cobros.getFuncionario().getPersona().getNombre());
 				cob.getFuncionario().getPersona().setApellido(cobros.getFuncionario().getPersona().getApellido());
-				
+				cob.getCliente().getPersona().setNombre(cobros.getCliente().getPersona().getNombre());
+				cob.getCliente().getPersona().setApellido(cobros.getCliente().getPersona().getApellido());
+				cob.getCliente().getPersona().setDireccion(cobros.getCliente().getPersona().getDireccion());
+				cob.getCliente().setId(cobros.getCliente().getId());
+
 				listadoRetorno.add(cob);
 			}
 		}
@@ -237,6 +294,53 @@ public class CobrosClienteController {
 	////////////////////////////////////////////// operacion cobros
 	////////////////////////////////////////////// cliente/////////////////////////////////////////////////////////////
 
+	@RequestMapping(method = RequestMethod.GET, value = "/buscarCobros/cabecera/{idCabecera}")
+	public ResponseEntity<?> getCobrosClienteCabeceraPorId(@PathVariable int idCabecera) {
+		List<CobrosClienteCabecera> listado = entityRepository.getCobrosClienteCabeceraPorId(idCabecera);
+		List<CobrosClienteCabecera> listadoRetorno = new ArrayList<>();
+		if (listado.size() < 0) {
+			return new ResponseEntity<>(new CustomerErrorType("Esta cuenta aún no posee Cobros"), HttpStatus.CONFLICT);
+		} else {
+			for (CobrosClienteCabecera cobros : listado) {
+				CobrosClienteCabecera cob = new CobrosClienteCabecera();
+				cob.setId(cobros.getId());
+				cob.setFecha(cobros.getFecha());
+				cob.setTotal(cobros.getTotal());
+				cob.getFuncionario().getPersona().setNombre(cobros.getFuncionario().getPersona().getNombre());
+				cob.getFuncionario().getPersona().setApellido(cobros.getFuncionario().getPersona().getApellido());
+				cob.getCliente().getPersona().setNombre(cobros.getCliente().getPersona().getNombre());
+				cob.getCliente().getPersona().setApellido(cobros.getCliente().getPersona().getApellido());
+				cob.getCliente().getPersona().setDireccion(cobros.getCliente().getPersona().getDireccion());
+				cob.getCliente().setId(cobros.getCliente().getId());
+				cob.setCobrosClientes(cobros.getCobrosClientes());
+				//cob.setCobrosClientes(entityRepository.getCobrosClientePorIdCabecera(idCabecera));
+				//cob.setCobrosClientes(cobrosClienteCabeceraRepository.findByCobrosDetalladoPorIdCabecera(idCabecera));
+				listadoRetorno.add(cob);
+			}
+		}
+		return new ResponseEntity<>(listado, HttpStatus.OK);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/idcuenta/{idCuenta}/{monto}/{idUser}/{idOpe}")
+	public List<Object[][]> operacionCobrosPorCuenta(@PathVariable int idCuenta, @PathVariable Double monto,@PathVariable int idUser, @PathVariable int idOpe) {
+		Funcionario f = funcionarioRepository.getIdFuncionario(idUser);
+		
+		CobrosClienteCabecera cab= new CobrosClienteCabecera();
+		cab.getCliente().setId(cuentaCobrarRepository.getOne(idCuenta).getCliente().getId());
+		cab.getFuncionario().setId(f.getId());
+		cab.setFecha(new Date());
+		cab.setTotal(monto);
+		cobrosClienteCabeceraRepository.save(cab);
+		
+		System.out.println("Entro en desde ceutna areglo^^^^^^^^^^^^^^^^^^^^");
+		CuentaCobrarCabecera cabecera = new CuentaCobrarCabecera();
+		cabecera=cuentaCobrarRepository.getOne(idCuenta);
+		List<CuentaCobrarCabecera> cuentaCabecera = new ArrayList<CuentaCobrarCabecera>();
+		cuentaCabecera.add(cabecera);
+		return operacion(cuentaCabecera, monto, idUser, idOpe, cobrosClienteCabeceraRepository.getUltimoCobrosClienteCab().getId());
+
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/idcliente/{idcliente}/{monto}/{idUser}/{idOpe}")
 	public List<Object[][]> operacionCobrosPorCliente(@PathVariable int idcliente, @PathVariable Double monto,
 			@PathVariable int idUser, @PathVariable int idOpe) {
@@ -257,16 +361,17 @@ public class CobrosClienteController {
 
 	public List<Object[][]> operacion(List<CuentaCobrarCabecera> cuentas, Double monto, int idUser, int idOpe, int idCabCobros) {
 
+		String tipoPago="";
 		System.out.println("Entro 1*******************");
-		Object[][] obResult = new Object[cuentas.size()][5];
+		Object[][] obResult = new Object[cuentas.size()][12];
 		int contador = 0;
 		List<Object[][]> listRes = new ArrayList<>();
 		Funcionario f = funcionarioRepository.getIdFuncionario(idUser);
 		int idApertura = aperturaCajaRepository.getAperturaActivoCajaId(f.getId());
 		Double cobradoActual = 0.0;
-		for (int i = 0; i < cuentas.size(); i++) {
+		for (int i = 0; i < cuentas.size() && cobradoActual < monto; i++) {
 			CuentaCobrarCabecera cue = cuentas.get(i);
-			System.out.println("cue.getCliente().getId(): "+cue.getCliente().getId());
+			System.out.println("cue.getCliente().getId(): veeveve "+cue.getVenta().getId());
 			if ((monto - cobradoActual) >= cue.getSaldo()) {
 
 				System.out.println("Entro en 2*******************************");
@@ -289,12 +394,10 @@ public class CobrosClienteController {
 				cobros.getOperacionCaja().setId(operacioActualziar.getId());
 				entityRepository.save(cobros);
 				cuentaCobrarDetalleRepository.liquidarDetalle(cue.getId(), new Date(), true);
-				cuentaCobrarRepository.findByActualizarPagadoCuenta(cobros.getCuentaCobrarCabecera().getId(),
-						op.getMonto());
-
-				// CobrosCliente cobrosActualizar = entityRepository.findTop1ByOrderByIdDesc();
-				// entityRepository.findByActualizarCobrosOperacion(cobrosActualizar.getId(),
-				// operacioActualziar.getId());;
+				cuentaCobrarRepository.findByActualizarPagadoCuenta(cobros.getCuentaCobrarCabecera().getId(),op.getMonto());
+				
+				CobrosCliente coACt = entityRepository.findTop1ByOrderByIdDesc();
+			//	 entityRepository.findByActualizarCobrosOperacion(coACt.getId(), operacioActualziar.getId());;
 
 				Concepto c = new Concepto();
 				c = conceptoRepository.findById(operacioActualziar.getConcepto().getId()).get();
@@ -303,30 +406,39 @@ public class CobrosClienteController {
 				if (operacioActualziar.getTipoOperacion().getId() == 1) {
 					aperturaCajaRepository.findByActualizarAperturaSaldo(operacioActualziar.getAperturaCaja().getId(),
 							operacioActualziar.getMonto());
+					tipoPago="EFECTIVO";
 				}
 				if (operacioActualziar.getTipoOperacion().getId() == 2) {
 					aperturaCajaRepository.findByActualizarAperturaSaldoCheque(
 							operacioActualziar.getAperturaCaja().getId(), operacioActualziar.getMonto());
+					tipoPago="CHEQUE";
 				}
 				if (operacioActualziar.getTipoOperacion().getId() == 3) {
 					aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(
 							operacioActualziar.getAperturaCaja().getId(), operacioActualziar.getMonto());
+					tipoPago="TARJETA";
 				}
 				// aperturaCajaRepository.findByActualizarAperturaSaldo(op.getAperturaCaja().getId(),
 				// op.getMonto());
 				operacionCajaRepository.save(operacioActualziar);
 
 				// d: id, total: total, pagado: pagado, importe: importe
+//				idCuenta, totalCuenta, pagadoCuenta, saldoCuenta, idCli, tipoOperacion, numeroVenta, idCobroCabecera, totalCobrado, numeroCobrosçItem, cobradoPorCuenta
+				
 				obResult[i][0] = cue.getId();
 				obResult[i][1] = cue.getTotal();
 				obResult[i][2] = cue.getPagado();
 				obResult[i][3] = cue.getSaldo();
 				obResult[i][4] = cue.getCliente().getId();
-				
+				obResult[i][5] = tipoPago;
+				obResult[i][6] = cue.getVenta().getId();
+				obResult[i][7] = idCabCobros;
+				obResult[i][8] = monto;
+				obResult[i][9] = coACt.getId();
+				obResult[i][10] = coACt.getTotal();
+				obResult[i][11] = f.getId();
+
 				System.out.println(obResult[i][0] + "" + obResult[i][1] + obResult[i][2] + obResult[i][3]);
-						
-				
-				
 			} else {
 				System.out.println("Entro en 3***********************************");
 				Double saldoPositivoaCobrar = 0.0;
@@ -350,13 +462,18 @@ public class CobrosClienteController {
 					cobros.getCobrosClienteCabecera().setId(idCabCobros);
 					cobros.getCuentaCobrarCabecera().setId(cue.getId());
 					cobros.setTotal(saldoPositivoaCobrar);
-					// cobradoActual = cobradoActual + cue.getSaldo();
+					cobradoActual = cobradoActual + saldoPositivoaCobrar;
 					cobros.getFuncionario().setId(f.getId());
 					cobros.getOperacionCaja().setId(operacioActualziar.getId());
 					entityRepository.save(cobros);
+					
+					CobrosCliente coAc = entityRepository.findTop1ByOrderByIdDesc();
+					//entityRepository.findByActualizarCobrosOperacion(coAc.getId(), operacioActualziar.getId());;
+					
 					List<Object[]> det = cuentaCobrarDetalleRepository.consultarDetalleCuentaPorIdCabecera(cue.getId());
 					List<CuentaCobrarDetalle> listadoDetalleActualizados = new ArrayList<CuentaCobrarDetalle>();
 					for (int index = 0; index < det.size() && saldoPositivoaCobrar > 0; index++) {
+						System.out.println("revision detalle cuenta patraajustar con el pagado");
 						Object[] ob = det.get(index);
 						montoCuotaActualizados = Double.parseDouble(ob[7].toString())
 								- Double.parseDouble(ob[4].toString());
@@ -364,35 +481,37 @@ public class CobrosClienteController {
 						if (saldoPositivoaCobrar >= montoCuotaActualizados) {
 							saldoPositivoaCobrar = saldoPositivoaCobrar - montoCuotaActualizados;
 							montoIMporteActualizados = montoCuotaActualizados;
-							cobradoActual = cobradoActual + montoIMporteActualizados;
+							//cobradoActual = cobradoActual + montoIMporteActualizados;
 						} else {
 							montoIMporteActualizados = saldoPositivoaCobrar;
 							saldoPositivoaCobrar = saldoPositivoaCobrar - montoCuotaActualizados;
-							cobradoActual = cobradoActual + montoIMporteActualizados;
+							//cobradoActual = cobradoActual + montoIMporteActualizados;
 						}
+						System.out.println("Cobrado cuota actualizados:  "+montoCuotaActualizados);
+
+						System.out.println("Cobrado por detalle de cuenta:  "+montoIMporteActualizados);
 						CuentaCobrarDetalle detalleCuenta = new CuentaCobrarDetalle();
 						detalleCuenta.getCuentaCobrarCabecera().setFraccionCuota(Integer.parseInt(ob[0].toString()));
 						detalleCuenta.setNumeroCuota(Integer.parseInt(ob[1].toString()));
 						if (ob[2].toString() == null) {
 							detalleCuenta.setFechaVencimiento(null);
 						} else {
-							detalleCuenta
-									.setFechaVencimiento(FechaUtil.convertirFechaStringADateUtil(ob[2].toString()));
+							detalleCuenta.setFechaVencimiento(FechaUtil.convertirFechaStringADateUtil(ob[2].toString()));
 						}
-						detalleCuenta.setMonto(Double.parseDouble(ob[3].toString()));
 						detalleCuenta.setImporte(montoIMporteActualizados + Double.parseDouble(ob[4].toString()));
 						detalleCuenta.setInteresMora(Double.parseDouble(ob[5].toString()));
-						detalleCuenta.setId(Integer.parseInt(ob[6].toString()));
 						detalleCuenta.setSubTotal(Double.parseDouble(ob[7].toString()));
 						detalleCuenta.getCuentaCobrarCabecera().setId(Integer.parseInt(ob[8].toString()));
+						detalleCuenta.setId(Integer.parseInt(ob[6].toString()));
+						detalleCuenta.setMonto(Double.parseDouble(ob[3].toString()));
+						System.out.println(detalleCuenta.getMonto()+ "  monto verificar");
 						listadoDetalleActualizados.add(detalleCuenta);
 
 					}
 
 					cuentaCobrarDetalleRepository.saveAll(listadoDetalleActualizados);
 
-					cuentaCobrarRepository.findByActualizarPagadoCuenta(cobros.getCuentaCobrarCabecera().getId(),
-							op.getMonto());
+					cuentaCobrarRepository.findByActualizarPagadoCuenta(cobros.getCuentaCobrarCabecera().getId(), op.getMonto());
 					Concepto c = new Concepto();
 					c = conceptoRepository.findById(operacioActualziar.getConcepto().getId()).get();
 					operacioActualziar.setMotivo(c.getDescripcion() + " REF.: " + cobros.getId());
@@ -400,24 +519,38 @@ public class CobrosClienteController {
 					if (operacioActualziar.getTipoOperacion().getId() == 1) {
 						aperturaCajaRepository.findByActualizarAperturaSaldo(
 								operacioActualziar.getAperturaCaja().getId(), operacioActualziar.getMonto());
+						tipoPago="EFECTIVO";
+
 					}
 					if (operacioActualziar.getTipoOperacion().getId() == 2) {
 						aperturaCajaRepository.findByActualizarAperturaSaldoCheque(
 								operacioActualziar.getAperturaCaja().getId(), operacioActualziar.getMonto());
+						tipoPago="CHEQUE";
+
 					}
 					if (operacioActualziar.getTipoOperacion().getId() == 3) {
 						aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(
 								operacioActualziar.getAperturaCaja().getId(), operacioActualziar.getMonto());
+						tipoPago="TARJETA";
 					}
 					// aperturaCajaRepository.findByActualizarAperturaSaldo(op.getAperturaCaja().getId(),
 					// op.getMonto());
 					operacionCajaRepository.save(operacioActualziar);
 
+				
+					
 					obResult[i][0] = cue.getId();
 					obResult[i][1] = cue.getTotal();
 					obResult[i][2] = cue.getPagado();
-					obResult[i][3] = cobros.getTotal();
+					obResult[i][3] = cue.getSaldo();
 					obResult[i][4] = cue.getCliente().getId();
+					obResult[i][5] = tipoPago;
+					obResult[i][6] = cue.getVenta().getId();
+					obResult[i][7] = idCabCobros;
+					obResult[i][8] = monto;
+					obResult[i][9] = coAc.getId();
+					obResult[i][10] = operacioActualziar.getMonto();	
+					obResult[i][11] = f.getId();
 					
 					System.out.println(obResult[i][0] + "" + obResult[i][1] + obResult[i][2] + obResult[i][3]);
 				}
@@ -432,7 +565,7 @@ public class CobrosClienteController {
 			}
 		}
 		System.out.println("Contador de lam matriz nueva " + contador);
-		Object[][] obResultadoNuevo = new Object[contador][5];
+		Object[][] obResultadoNuevo = new Object[contador][12];
 		List<Object[][]> listResNuevo = new ArrayList<>();
 		for (int i = 0; i < obResult.length; i++) {
 			if (obResult[i][0] != null) {
@@ -441,12 +574,17 @@ public class CobrosClienteController {
 				obResultadoNuevo[i][2] = obResult[i][2];
 				obResultadoNuevo[i][3] = obResult[i][3];
 				obResultadoNuevo[i][4] = obResult[i][4];
+				obResultadoNuevo[i][5] = obResult[i][5];
+				obResultadoNuevo[i][6] = obResult[i][6];
+				obResultadoNuevo[i][7] = obResult[i][7];
+				obResultadoNuevo[i][8] = obResult[i][8];
+				obResultadoNuevo[i][9] = obResult[i][9];
+				obResultadoNuevo[i][10] = obResult[i][10];
+				obResultadoNuevo[i][11] = obResult[i][11];
 
 			}
-
 		}
 		listResNuevo.add(obResultadoNuevo);
-
 		return listResNuevo;
 	}
 
@@ -467,6 +605,22 @@ public class CobrosClienteController {
 
 		}
 		return c;
+	}
+	private CobrosClienteCabecera cargarCabecera(CobrosClienteCabecera ob) {
+		CobrosClienteCabecera c= new CobrosClienteCabecera();
+		c.setId(ob.getId());
+		c.getCliente().getPersona().setNombre(ob.getCliente().getPersona().getNombre()+ " "+ob.getCliente().getPersona().getApellido());
+		c.getCliente().getPersona().setCedula(ob.getCliente().getPersona().getCedula());
+		c.getCliente().getPersona().setDireccion(ob.getCliente().getPersona().getDireccion());
+		c.getCliente().getPersona().setTelefono(ob.getCliente().getPersona().getTelefono());
+		c.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre()+" "+ob.getFuncionario().getPersona().getApellido());
+		c.setTotal(ob.getTotal());
+		c.setFecha(ob.getFecha());
+		return c;
+	}
+	@RequestMapping(method = RequestMethod.GET, value = "/cabecera/id/{id}")
+	public CobrosClienteCabecera buscarCobrosClienteCabeceraPorId(@PathVariable int id) {		
+		return cargarCabecera(cobrosClienteCabeceraRepository.buscarCobrosCabeceraPorId(id));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/cuentaClienteAll/{idCliente}")
@@ -540,20 +694,65 @@ public class CobrosClienteController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/impresionMatricial/{numeroTerminal}/{siImprimir}")
 	public void getCobroCliente(@RequestBody List<CobrosCliente> cobros, @PathVariable int numeroTerminal, @PathVariable String siImprimir) {
+		System.out.println("lista sise"+cobros.size());
 		if (siImprimir.equals("true")) {
-
+			System.out.println(cobros.size());
+			
 			Reporte report = new Reporte();
 			Cliente cl = clienteRepository.getIdCliente(cobros.get(0).getCuentaCobrarCabecera().getCliente().getId());
+			Funcionario fu = funcionarioRepository.getIdFuncionario(cobros.get(0).getFuncionario().getId());
+			System.out.println("ID FUNCIONARIO: "+fu.getPersona().getNombre());
 			cobros.get(0).getCuentaCobrarCabecera().getCliente().getPersona().setNombre(cl.getPersona().getNombre()+ " "+cl.getPersona().getApellido());
 			cobros.get(0).getCuentaCobrarCabecera().getCliente().getPersona().setCedula(cl.getPersona().getCedula());
+			cobros.get(0).getCuentaCobrarCabecera().getCliente().getPersona().setTelefono(cl.getPersona().getTelefono());
+			cobros.get(0).getCuentaCobrarCabecera().getCliente().getPersona().setDireccion(cl.getPersona().getDireccion());
+
+			cobros.get(0).getFuncionario().getPersona().setNombre(fu.getPersona().getNombre()+ " "+fu.getPersona().getApellido());
+			cobros.get(0).getFuncionario().getPersona().setTelefono(fu.getPersona().getTelefono());
+
+			
 			cobros.get(0).setFecha(new Date());
+			System.out.println("D-: "+cobros.get(0).getOperacionCaja().getTipoOperacion().getDescripcion());
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
 			t= terminalRepository.consultarTerminal(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
-				ReporteConfig reportConfig = reporteConfigRepository.getOne(3);
 				
+				List<CobrosCliente> listaVentaImpresion= new ArrayList<CobrosCliente>();
+
+				ReporteConfig reportConfig = reporteConfigRepository.getOne(3);
+				int pageSize = 10;
+				int totalPages = (int) Math.ceil((double) cobros.size() / pageSize);
+				System.out.println("TOTAL DE PAGINAS:"+ totalPages);
+				
+				
+				for (int i = 0; i < totalPages; i++) {
+				    System.out.println("\n--- Página " + (i + 1) + " ---");
+
+				    int start = i * pageSize;
+				    int end = Math.min(start + pageSize, cobros.size());
+				    // Crear una nueva lista con los elementos de la página actual
+				    List<CobrosCliente> detallesPagina = new ArrayList<>(cobros.subList(start, end));
+				    System.out.println("total item : "+detallesPagina.size());
+				    Double totalMontoPagina=0.0, totalPaginaIvaCinco=0.0, totalPaginaIvaDies=0.0, totalPaginaIva=0.0,totalPaginaExcenta=0.0;
+				    for (int jjj = 0; jjj < detallesPagina.size(); jjj++) {
+						totalMontoPagina = totalMontoPagina + detallesPagina.get(jjj).getTotal();
+						CobrosCliente ventaImpresion = new CobrosCliente();
+						 ventaImpresion.setCuentaCobrarCabecera(cobros.get(jjj).getCuentaCobrarCabecera());
+						    ventaImpresion.setId(cobros.get(jjj).getId());
+						    ventaImpresion.setFuncionario(cobros.get(jjj).getFuncionario());
+						    ventaImpresion.getCuentaCobrarCabecera().setCliente(cobros.get(jjj).getCuentaCobrarCabecera().getCliente());
+						    ventaImpresion.setCobrosClienteCabecera(cobros.get(jjj).getCobrosClienteCabecera());
+						    ventaImpresion.setOperacionCaja(cobros.get(jjj).getOperacionCaja());
+						    ventaImpresion.setTotal(cobros.get(jjj).getTotal());
+						    listaVentaImpresion.add(ventaImpresion);
+						    System.out.println("UNA FILA DE LA PAGINA" +listaVentaImpresion.get(jjj).getTotal());
+				    }
+				   
+				  
+
+				}
 				Map<String, Object> map = new HashMap<>();
 				if (t.getImpresora().equals("matricial")) {
 					ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
@@ -567,7 +766,16 @@ public class CobrosClienteController {
 					map.put("direccionReporte", f.getDireccion());
 					map.put("telefonoReporte", f.getTelefono());
 					try {
-						report.reportPDFImprimir(cobros, map, reportConfig.getNombreReporte(), t.getNombreImpresora());	
+						
+						ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+						if(p.getDescripcion().equals("A4")) {
+			        		report.reportPDFImprimirA4(listaVentaImpresion, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+		        		}
+		        		if(p.getDescripcion().equals("CORTE")) {
+			        		report.reportPDFImprimirLibreCorte(listaVentaImpresion, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+
+		        		}
+						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -579,11 +787,13 @@ public class CobrosClienteController {
 		
 	}
 	
-	public void pdfPrintss(String desc, int idVenta, int tipoDocumento, String tipoImpresora) {
+	public void pdfPrintss(String desc, int idVenta, int tipoDocumento, String tipoImpresora, int numeroterminal) {
 		Reporte report=new Reporte();
 		Impresora imNombreImpresora = impresoraRepository.getOne(8);
 		ReporteConfig reportConfig = reporteConfigRepository.getOne(1);
 		List<CobrosCliente> venta = getLista(idVenta);
+		TerminalConfigImpresora t = new TerminalConfigImpresora();
+		t= terminalRepository.consultarTerminal(numeroterminal);
 		Map<String, Object> map = new HashMap<>();
 		System.out.println("entroooo imprimir "+ tipoImpresora);
 		
@@ -610,7 +820,14 @@ public class CobrosClienteController {
 						map.put("telefonoReporte", f.getTelefono());
 						
 						try {
-							report.reportPDFImprimir(venta, map, reportConfig.getNombreReporte(), imNombreImpresora.getDescripcion());				
+							ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+							if(p.getDescripcion().equals("A4")) {
+				        		report.reportPDFImprimirA4(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+			        		}
+			        		if(p.getDescripcion().equals("CORTE")) {
+				        		report.reportPDFImprimirLibreCorte(venta, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+
+			        		}
 
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -744,6 +961,7 @@ public List<CobrosClienteCabecera> listado(List<CobrosClienteCabecera> lis){
 }
 private List<CobrosCliente> listaCobroClienteDetallado(List<CobrosCliente> lis){
 	List<CobrosCliente> listaRetorno = new  ArrayList<CobrosCliente>();
+	System.out.println("lisado detlle cobro cliente: ++++" + lis.size());
 	for(CobrosCliente ob: lis) {
 		CobrosCliente cob= new CobrosCliente();
 		cob.setId(ob.getId());
@@ -781,6 +999,10 @@ public ResponseEntity<?>  descargarPdfCobros(HttpServletResponse response, OAuth
 		cob.setFecha(c.getFecha());
 		cob.setTotal(c.getTotal());
 		cob.setId(c.getId());
+		cob.getCliente().getPersona().setNombre(c.getCliente().getPersona().getNombre()+" "+c.getCliente().getPersona().getApellido());
+		cob.getCliente().getPersona().setDireccion(c.getCliente().getPersona().getDireccion());
+		cob.getCliente().getPersona().setTelefono(c.getCliente().getPersona().getTelefono());
+		
 		cob.setCobrosClientes(listaCobroClienteDetallado(entityRepository.getCobrosClientePorIdCabecera(idCobros)));
 		
 		listado.add(cob);

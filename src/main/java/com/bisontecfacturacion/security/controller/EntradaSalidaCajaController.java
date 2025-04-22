@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.FechaUtil;
+import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.EntradaSalidaCaja;
 import com.bisontecfacturacion.security.model.EntregaProduccion;
@@ -41,11 +42,19 @@ public class EntradaSalidaCajaController {
 	@Autowired
 	private AperturaCajaRepository aperturaRepository;
 	@Autowired
+	private AperturaCajaRepository aperturaCajaRepository;
+
+	
+	
+	@Autowired
 	private ConceptoRepository conceptoRepository;
 	@Transactional
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?> guardar(@RequestBody EntradaSalidaCaja entity){
 		 
+		//uso entit.getOperacionCaja.id para recibir numero de apertura para poder consultar por id Apertura
+		AperturaCaja XX = new AperturaCaja();
+		XX=aperturaCajaRepository.getAperturaCajaPorIdCaja(entity.getOperacionCaja().getConcepto().getId());
 		if(entity.getFuncionario().getId() == 0) {
 			return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 		} else if(entity.getTipoOperacion().getId() == 0) {
@@ -56,6 +65,15 @@ public class EntradaSalidaCajaController {
 			return new ResponseEntity<>(new CustomerErrorType("EL MONTO DE LA OPERCIÓN DEBE SER MAYOR A CERO!"), HttpStatus.CONFLICT);
 		} else if(entity.getMotivo().equals("")) {
 			return new ResponseEntity<>(new CustomerErrorType("EL MOTIVO DE LA OPERACIÓN NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+		} else	if(entity.getTipoMovimiento().getId()==2 && XX.getSaldoActual() < entity.getMonto() && entity.getTipoOperacion().getId()==1) {
+			System.out.println("entrooo monto superaod efe");
+			return new ResponseEntity<>(new CustomerErrorType("EL EFECTIVO DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+		}else if(entity.getTipoMovimiento().getId()==2 && XX.getSaldoActualCheque() < entity.getMonto()&& entity.getTipoOperacion().getId()==2){
+			System.out.println("entrooo monto superaod che");
+			return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+		}else if(entity.getTipoMovimiento().getId()==2 && XX.getSaldoInicialTarjeta() < entity.getMonto() && entity.getTipoOperacion().getId()==3){
+			System.out.println("entrooo monto superaod tarj");
+			return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
 		}
 		
 		entity.setHora(hora());
