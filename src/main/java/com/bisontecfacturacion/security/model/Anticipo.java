@@ -37,7 +37,7 @@ public class Anticipo {
 	private boolean estado;
 	private String tipo;
 	private String disponibilidad;
-
+	private Double montoLiquidado;
 	
 	public Anticipo() {
 		this.id=0;
@@ -48,6 +48,7 @@ public class Anticipo {
 		this.tipoOperacion = new TipoOperacion();
 		this.concepto= new Concepto();
 		this.monto=0.0;
+		this.montoLiquidado=0.0;
 		this.estado=false;
 		this.tipo="";
 		this.disponibilidad="";
@@ -148,6 +149,16 @@ public class Anticipo {
 
 	public void setMonto(double monto) {
 		this.monto = monto;
+	}
+
+
+	public Double getMontoLiquidado() {
+		return montoLiquidado;
+	}
+
+
+	public void setMontoLiquidado(Double montoLiquidado) {
+		this.montoLiquidado = montoLiquidado;
 	}
 	
 

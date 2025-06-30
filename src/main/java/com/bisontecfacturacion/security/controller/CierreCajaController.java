@@ -388,6 +388,8 @@ public class CierreCajaController {
 			c.setPrecio(Double.parseDouble(o[3].toString()));
 			c.setSubTotal(Double.parseDouble(o[4].toString()));
 			c.getFuncionario().getPersona().setNombre(o[5].toString()+" "+o[6].toString());
+			c.getVenta().setId(Integer.parseInt(o[7].toString()));
+			c.getVenta().getCliente().getPersona().setNombre(o[8].toString()+" "+o[9].toString());
 			listaRetrono.add(c);
 		}
 		
@@ -403,6 +405,9 @@ public class CierreCajaController {
 			c.setCantidad(Double.parseDouble(o[2].toString()));
 			c.setPrecio(Double.parseDouble(o[3].toString()));
 			c.setSubTotal(Double.parseDouble(o[4].toString()));
+			c.getVenta().setId(Integer.parseInt(o[5].toString()));
+			c.getVenta().getCliente().getPersona().setNombre(o[6].toString()+" "+o[7].toString());
+
 			listaRetrono.add(c);
 		}
 		

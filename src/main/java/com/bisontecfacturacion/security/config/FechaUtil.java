@@ -40,6 +40,19 @@ public class FechaUtil {
 		 }
 		 return fecha;
 	}
+	
+	public static Date convertirFechaStringADateUtilConHoraIncluido(String v) {
+		 SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		 
+		 Date fecha = null;
+		 try {
+		     fecha = formatoDelTexto.parse(v);
+		 } catch (ParseException ex) {
+		     ex.printStackTrace();
+		 }
+		 System.out.println(fecha);
+		 return fecha;
+	}
 	public static Date setFechaHoraInicial(String fecInicial) {
 		
 		Date fecI = new Date();

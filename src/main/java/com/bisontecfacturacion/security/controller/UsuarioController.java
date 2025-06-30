@@ -50,6 +50,19 @@ public class UsuarioController {
 		}
 		return lista;
 	}
+
+	
+	@RequestMapping(method=RequestMethod.GET, value="/listadoUsuario")
+	public List<Usuario> listadoUsuaro() {
+		List<Usuario> u=userRepository.findTop50ByOrderByIdDesc();
+		List<Usuario> lista=new ArrayList<Usuario>();
+		for(Usuario c: u) {
+			Usuario user= new Usuario();
+			user=c;
+			lista.add(user);
+		}
+		return lista;
+	}
 	
 
 	@RequestMapping(method=RequestMethod.GET, value="/userId")

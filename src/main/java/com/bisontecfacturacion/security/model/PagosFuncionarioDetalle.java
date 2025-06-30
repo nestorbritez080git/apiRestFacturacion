@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -11,42 +12,57 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 @Entity
-public class SalarioFuncionarioDetalle {
+public class PagosFuncionarioDetalle {
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
+	@NotNull
+	private Double monto;
 	@ManyToOne
 	private Anticipo anticipo;
 	@ManyToOne
-	private SalarioFuncionario salarioFuncionario;
-	
-
-	
-	public SalarioFuncionarioDetalle() {
-		// TODO Auto-generated constructor stub
+	private PagosFuncionario pagosFuncionario;
+	public PagosFuncionarioDetalle() {
 		this.id=0;
-		this.anticipo= new Anticipo();
-		this.salarioFuncionario= new SalarioFuncionario();
+		this.monto=0.0;
+		this.anticipo=new Anticipo();
+		this.pagosFuncionario=new PagosFuncionario();
+
+		
 	}
+
 	public int getId() {
 		return id;
 	}
+
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public Double getMonto() {
+		return monto;
+	}
+
+	public void setMonto(Double monto) {
+		this.monto = monto;
 	}
 	public Anticipo getAnticipo() {
 		return anticipo;
 	}
+
 	public void setAnticipo(Anticipo anticipo) {
 		this.anticipo = anticipo;
 	}
-	public SalarioFuncionario getSalarioFuncionario() {
-		return salarioFuncionario;
+
+	public PagosFuncionario getPagosFuncionario() {
+		return pagosFuncionario;
 	}
-	public void setSalarioFuncionario(SalarioFuncionario salarioFuncionario) {
-		this.salarioFuncionario = salarioFuncionario;
+
+	public void setPagosFuncionario(PagosFuncionario pagosFuncionario) {
+		this.pagosFuncionario = pagosFuncionario;
 	}
+
+	
 }

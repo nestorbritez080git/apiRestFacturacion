@@ -297,7 +297,7 @@ public class InventarioCabeceraController {
 			Concepto conce= new Concepto();
 
 			conce = conceptoRepository.findById(8).get();	
-
+			movEnt.getConcepto().setId(conce.getId());
 			movEnt.setReferencia(conce.getDescripcion()+" REF.: "+ idCab);
 			movEntradaSalidaRepository.save(movEnt);
 			List<ProductoCardex> list = compuestoRepository.getBase(ca.getProductoBase().getId());
@@ -344,6 +344,8 @@ public class InventarioCabeceraController {
 				Concepto co= new Concepto();
 
 				co = conceptoRepository.findById(8).get();	
+				mov.getConcepto().setId(co.getId());
+
 				mov.setReferencia(co.getDescripcion()+" REF.: "+ idCab);
 				movEntradaSalidaRepository.save(mov);
 			} 
@@ -389,7 +391,9 @@ public class InventarioCabeceraController {
 				mov.setMarca(pp.getMarca().getDescripcion());
 				Concepto co= new Concepto();
 
-				co = conceptoRepository.findById(8).get();	
+				co = conceptoRepository.findById(8).get();
+				mov.getConcepto().setId(co.getId());
+
 				mov.setReferencia(co.getDescripcion()+" REF.: "+ idCab);
 				movEntradaSalidaRepository.save(mov);
 
@@ -436,7 +440,7 @@ public class InventarioCabeceraController {
 					Concepto conce= new Concepto();
 
 					conce = conceptoRepository.findById(8).get();	
-
+					movEnt.getConcepto().setId(conce.getId());
 					movEnt.setReferencia(conce.getDescripcion()+" REF.: "+ idCab);
 					movEntradaSalidaRepository.save(movEnt);
 
@@ -484,6 +488,7 @@ public class InventarioCabeceraController {
 				Concepto conce= new Concepto();
 
 				conce = conceptoRepository.findById(8).get();	
+				movEnt.getConcepto().setId(conce.getId());
 
 				movEnt.setReferencia(conce.getDescripcion()+" REF.: "+ idCab);
 				movEntradaSalidaRepository.save(movEnt);

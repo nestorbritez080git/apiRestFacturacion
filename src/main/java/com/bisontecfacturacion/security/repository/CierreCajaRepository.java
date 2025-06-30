@@ -65,10 +65,11 @@ public interface CierreCajaRepository extends JpaRepository<CierreCaja, Serializ
 	
 	
 	
-	@Query(value="select dt.id as id, dt.descripcion as des, dt.cantidad as cant, dt.precio as precio, dt.sub_total as subTotal, pf.nombre as nom, pf.apellido as ape from  detalle_servicios dt " + 
+	@Query(value="select dt.id as id, dt.descripcion as des, dt.cantidad as cant, dt.precio as precio, dt.sub_total as subTotal, pf.nombre as nom, pf.apellido as ape, v.id as idventa, pc.nombre as nocli, pc.apellido as percli from  detalle_servicios dt " + 
 			" inner join funcionario fun on fun.id=dt.funcionario_id " + 
 			" inner join persona pf on pf.id=fun.persona_id " + 
 			" inner join venta v on v.id=dt.venta_id " + 
+			" inner join cliente cl on cl.id=v.cliente_id INNER JOIN persona pc on pc.id=cl.persona_id " +
 			" inner join operacion_caja op on op.id=v.operacion_caja " + 
 			" inner join apertura_caja ap on ap.id=op.apertura_caja_id " + 
 			" where ap.id = :id",nativeQuery=true)
@@ -83,8 +84,9 @@ public interface CierreCajaRepository extends JpaRepository<CierreCaja, Serializ
 			" where ap.id = :id",nativeQuery=true)
 	Double getDetalleServicioPorAperturaTotal(@Param("id") int id);
 	
-	@Query(value="select dt.id as id, dt.descripcion as des, dt.cantidad as cant, dt.precio as precio, dt.sub_total as subTotal from detalle_producto dt " + 
+	@Query(value="select dt.id as id, dt.descripcion as des, dt.cantidad as cant, dt.precio as precio, dt.sub_total as subTotal, v.id as idVenta, pc.nombre as nocli, pc.apellido as percli from detalle_producto dt " + 
 			" inner join venta v on v.id=dt.venta_id " + 
+			" inner join cliente cl on cl.id=v.cliente_id INNER JOIN persona pc on pc.id=cl.persona_id " +
 			" inner join operacion_caja op on op.id=v.operacion_caja " + 
 			" inner join apertura_caja ap on ap.id=op.apertura_caja_id " + 
 			" where ap.id = :id",nativeQuery=true)

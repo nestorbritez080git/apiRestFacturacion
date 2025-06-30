@@ -140,7 +140,7 @@
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<text><![CDATA[FECHA:]]></text>
+				<text><![CDATA[FECHA FAC.:]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="89" y="13" width="38" height="12" uuid="79c4291a-35ab-4a92-8cfa-e4e5d6fae040"/>
@@ -150,7 +150,7 @@
 				<textFieldExpression><![CDATA["DE: "]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="508" y="55" width="65" height="12" uuid="f2059c07-072c-414e-8e5f-1625ebe69422">
+				<reportElement x="491" y="55" width="82" height="12" uuid="f2059c07-072c-414e-8e5f-1625ebe69422">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
 				</reportElement>
@@ -210,7 +210,7 @@
 				<textFieldExpression><![CDATA[$F{direccion}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="508" y="44" width="66" height="12" uuid="5b0e2927-7012-4a7c-ab0a-4c2ef14434dd"/>
+				<reportElement x="490" y="44" width="84" height="12" uuid="5b0e2927-7012-4a7c-ab0a-4c2ef14434dd"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
@@ -267,7 +267,7 @@
 				<textFieldExpression><![CDATA[$F{funcionarioTelefono}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="416" y="44" width="90" height="12" uuid="f3781f5e-101c-4383-b08d-0206f7842bc1">
+				<reportElement x="416" y="44" width="74" height="12" uuid="f3781f5e-101c-4383-b08d-0206f7842bc1">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -276,7 +276,7 @@
 				<text><![CDATA[NÚMERO DEV.:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="416" y="55" width="90" height="12" uuid="70b12cc0-b2e7-4bd6-a4e5-a8c1a045bd00">
+				<reportElement x="416" y="55" width="74" height="12" uuid="70b12cc0-b2e7-4bd6-a4e5-a8c1a045bd00">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -285,7 +285,7 @@
 				<text><![CDATA[TIPO DEV.:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="506" y="78" width="70" height="12" uuid="1280c968-76c9-4a75-8267-10cab0797a51">
+				<reportElement x="491" y="68" width="85" height="12" uuid="1280c968-76c9-4a75-8267-10cab0797a51">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -294,7 +294,7 @@
 				<textFieldExpression><![CDATA[$P{paginaActual} +" DE: "+$P{paginaTotal}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="421" y="78" width="84" height="12" uuid="a539dbaf-9d17-4a9d-b4ac-543c93d801c9">
+				<reportElement x="421" y="68" width="69" height="12" uuid="a539dbaf-9d17-4a9d-b4ac-543c93d801c9">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -302,23 +302,6 @@
 				</textElement>
 				<text><![CDATA[PAGINA:]]></text>
 			</staticText>
-			<staticText>
-				<reportElement x="404" y="66" width="102" height="12" uuid="fb8d1bab-5a2a-494b-a085-297a0d70f407">
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-					<property name="com.jaspersoft.studio.unit.y" value="px"/>
-				</reportElement>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="9"/>
-				</textElement>
-				<text><![CDATA[TIPO COMPENSACIÓN:]]></text>
-			</staticText>
-			<textField>
-				<reportElement x="509" y="66" width="62" height="12" uuid="3ba64308-6ef9-4157-9bf0-cb427186c4e4"/>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font fontName="Lucida Console" size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{tipoCompensacion}]]></textFieldExpression>
-			</textField>
 			<staticText>
 				<reportElement x="204" y="79" width="68" height="12" uuid="854559f3-c35a-4ccb-a89a-87996f8422be">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>

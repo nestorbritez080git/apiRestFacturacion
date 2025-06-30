@@ -27,6 +27,9 @@ public interface LiquidacionAnticipoRepository extends JpaRepository<Liquidacion
 	public List<LiquidacionAnticipo> getLiquidacionListaPorIdFuncionario(@Param("id") int id);
 
 	
+	@Query("select c from LiquidacionAnticipo c WHERE funcionario_liquidacion_id=:id AND estado = 'ABIERTO' ORDER BY c.id desc")
+	public List<LiquidacionAnticipo> getLiquidacionaActivoListaPorIdFuncionario(@Param("id") int id);
+
 	
 
 	

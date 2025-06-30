@@ -11,7 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
+@JsonIgnoreProperties({"i"})
 @Entity
 public class DetalleProducto {
 	
@@ -26,6 +26,8 @@ public class DetalleProducto {
 	private String descripcion;
 	@NotNull
 	private Double cantidad;
+	private Double cantidadDevolucion;
+	
 	@NotNull
 	private Double precio;
 	private Double descuento;
@@ -41,20 +43,36 @@ public class DetalleProducto {
 	private Venta venta;
 	
 	private Double costo;
+	private Double costoPromedio;
+	private Double subTotalCostoPromedio;
+
 	
 	public DetalleProducto() {
 		this.id=0;
 		this.descuento = 0.0;
 		this.venta = new Venta();
 		this.producto=new Producto();
-		this.cantidad=0.00;
-		this.precio=0.00;
-		this.subTotal=0.00;
+		this.cantidad=0.0;
+		this.cantidadDevolucion=0.0;
+		this.precio=0.0;
+		this.subTotal=0.0;
 		this.iva="";
 		this.isBalanza=false;
 		this.tipoPrecio="";
 		this.costo=0.0;
 		this.montoIva=0.0;
+		this.costoPromedio=0.0;
+		this.subTotalCostoPromedio=0.0;
+	}
+
+
+	public Double getCantidadDevolucion() {
+		return cantidadDevolucion;
+	}
+
+
+	public void setCantidadDevolucion(Double cantidadDevolucion) {
+		this.cantidadDevolucion = cantidadDevolucion;
 	}
 
 
@@ -184,6 +202,27 @@ public class DetalleProducto {
 	public void setTipoPrecio(String tipoPrecio) {
 		this.tipoPrecio = tipoPrecio;
 	}
+
+
+	public Double getCostoPromedio() {
+		return costoPromedio;
+	}
+
+
+	public void setCostoPromedio(Double costoPromedio) {
+		this.costoPromedio = costoPromedio;
+	}
+
+
+	public Double getSubTotalCostoPromedio() {
+		return subTotalCostoPromedio;
+	}
+
+
+	public void setSubTotalCostoPromedio(Double subTotalCostoPromedio) {
+		this.subTotalCostoPromedio = subTotalCostoPromedio;
+	}
+
 
 
 	

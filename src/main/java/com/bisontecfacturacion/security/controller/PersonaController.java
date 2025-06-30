@@ -26,7 +26,7 @@ public class PersonaController {
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Persona> getAll(){
-		return entityRepository.findTop100ByOrderByIdDesc();
+		return entityRepository.findAll();
 	}
 	
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")
@@ -61,7 +61,6 @@ public class PersonaController {
 	                if (p!=null) {
 	                    if(entity.getId()==p.getId()){
 	                            entityRepository.save(entity);
-	                
 	                       // entityRepository.save(entity);
 	                    }else {
 	                        return new ResponseEntity<>(new CustomerErrorType("EL N° DE CEDULA : "+entity.getCedula()+", PERTENECE A UNA PERSONA YA REGISTRADO ANTERIORMENTE"), HttpStatus.CONFLICT);

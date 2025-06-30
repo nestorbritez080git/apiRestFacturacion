@@ -27,7 +27,7 @@ public interface CobrosClienteRepository extends JpaRepository<CobrosCliente, Se
 	@Query("update CobrosCliente set operacionCaja =:operacionCaja where id=:id")
 	public void findByActualizarCobrosOperacion(@Param("id") int id, @Param("operacionCaja") int operacionCaja);
 	public abstract CobrosCliente findTop1ByOrderByIdDesc();
-	@Query(value="select c.id, pf.nombre || ', ' || pf.apellido as pf, pc.nombre || ', ' || pc.apellido as pc, c.total,c.fecha "
+	@Query(value="select c.id, pf.nombre || ', ' || pf.apellido as pf, pc.nombre || ', ' || pc.apellido as pc, c.total,c.fecha, pc.cedula as cedcli, pf.cedula as cedfun "
 			+ "from cobros_cliente c "
 			+ "inner join cuenta_cobrar_cabecera cl on c.cuenta_cobrar_cabecera_id=cl.id  "
 			+ "inner join funcionario f on c.funcionario_id=f.id "
@@ -36,6 +36,9 @@ public interface CobrosClienteRepository extends JpaRepository<CobrosCliente, Se
 			+ "inner join persona pc on cli.persona_id=pc.id "
 			+ "where pc.nombre ilike :descripcion or pc.apellido ilike :descripcion order by id desc",nativeQuery=true)
 	List<Object[]> getBuscarClienteNombreApellido(@Param("descripcion") String descripcion);
+	
+	@Query(value="select c.id as id, pf.nombre || ', ' || pf.apellido as pf, pc.nombre || ', ' || pc.apellido as pc, c.total,c.fecha, pc.cedula as cedcli, pf.cedula as cedfun from cobros_cliente_cabecera c inner join cliente cl on cl.id=c.cliente_id inner join persona pc on pc.id=cl.persona_id inner join funcionario f on f.id=c.funcionario_id inner join persona pf on pf.id=f.persona_id where pc.nombre ilike :descripcion or pc.apellido ilike :descripcion or pc.cedula ilike :descripcion or pf.nombre ilike :descripcion or pf.apellido ilike :descripcion or pf.cedula ilike :descripcion order by id desc",nativeQuery=true)
+	List<Object[]> getBuscarClienteNombreApellidoCabecera(@Param("descripcion") String descripcion);
 	
 	@Query(value = "select c from CobrosCliente c where cuenta_cobrar_cabecera_id=:idCuenta")
 	public List<CobrosCliente> getCobrosPorIdCuenta(@Param("idCuenta") int idCuenta);

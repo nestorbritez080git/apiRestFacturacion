@@ -9,6 +9,7 @@ import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,6 +52,11 @@ public class ConfigImpresora {
 		return lista;
 	}
 	*/
+	
+	@RequestMapping(method=RequestMethod.GET, value="/test/api")
+    public String ping() {
+        return "pong";
+    }
 	
 	@RequestMapping(method=RequestMethod.GET, value="/listImpresora")
 	public List<Impresora> getAllImpresora(){

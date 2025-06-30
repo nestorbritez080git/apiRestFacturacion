@@ -40,6 +40,7 @@ public class Usuario implements Serializable {
     private Boolean enabled;
     
     private Boolean administrador;
+    
 
     @ManyToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
     private List<Role> roles;

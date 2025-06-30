@@ -11,9 +11,6 @@
 	<parameter name="pais" class="java.lang.String"/>
 	<parameter name="desde" class="java.util.Date"/>
 	<parameter name="hasta" class="java.util.Date"/>
-	<parameter name="totalVenta" class="java.lang.Double"/>
-	<parameter name="totalCosto" class="java.lang.Double"/>
-	<parameter name="totalUtilidad" class="java.lang.Double"/>
 	<parameter name="grupo" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[]]>
@@ -36,8 +33,14 @@
 	<field name="tipoPreco" class="java.lang.String">
 		<fieldDescription><![CDATA[tipoPrecio]]></fieldDescription>
 	</field>
-	<variable name="utlidad" class="java.lang.Double">
-		<variableExpression><![CDATA[$F{subtotal}-($F{costo}*$F{cantidad})]]></variableExpression>
+	<variable name="utlidad" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{subtotal}-$F{costo}]]></variableExpression>
+	</variable>
+	<variable name="totalCosto" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{costo}]]></variableExpression>
+	</variable>
+	<variable name="totalVenta" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{subtotal}]]></variableExpression>
 	</variable>
 	<title>
 		<band height="105" splitType="Stretch">
@@ -340,7 +343,7 @@
 				<textElement textAlignment="Right">
 					<font size="7"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($V{utlidad})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($V{utlidad})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="319" y="0" width="68" height="9" uuid="72467585-2a5d-4efa-9453-a734dcad036f">
@@ -367,7 +370,7 @@
 				<textElement textAlignment="Center">
 					<font size="7"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{subtotal})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($F{subtotal})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="205" y="1" width="72" height="9" uuid="f1cb9afc-dda6-4032-a846-5f72e888c29e">
@@ -376,7 +379,7 @@
 				<textElement textAlignment="Left">
 					<font size="7"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{precio})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($F{precio})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="277" y="1" width="40" height="9" uuid="9f3297dc-af36-4292-a737-45508024c00b">
@@ -427,14 +430,14 @@
 				<textElement>
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalCosto})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($V{totalCosto})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="19" width="184" height="11" uuid="91a03e98-fdc8-4c1e-a4f0-9699c05eb3bb"/>
 				<textElement>
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalVenta})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($V{totalVenta})]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="186" y="10" width="183" height="9" uuid="37c2b0ba-9bec-4ad2-ad1d-01cbe48233ba">
@@ -454,7 +457,7 @@
 				<textElement>
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalUtilidad})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($V{utlidad})]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="371" y="10" width="200" height="9" uuid="faa2199a-3189-40e0-a672-27c6586b3052">

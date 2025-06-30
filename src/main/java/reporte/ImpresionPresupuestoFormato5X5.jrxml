@@ -317,7 +317,7 @@
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA["TOTAL A PAGAR: "+new java.text.DecimalFormat(" #,##0.00").format($F{total})]]></textFieldExpression>
+				<textFieldExpression><![CDATA["TOTAL A PAGAR: "+new java.text.DecimalFormat("#,##0").format($F{total})]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="0" y="10" width="126" height="20" uuid="a7f65da5-7dff-4229-9cf2-052543f8f9ea"/>

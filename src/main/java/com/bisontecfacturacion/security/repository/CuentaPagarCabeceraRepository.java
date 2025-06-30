@@ -131,6 +131,9 @@ public interface CuentaPagarCabeceraRepository extends JpaRepository<CuentaPagar
 	public List<CuentaPagarCabecera> findByCuentaPorIdACobrars(@Param("id") int id);
 	
 	
+	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, prov.id, persona.cedula, persona.telefono, persona.direccion from proveedor prov inner join cuenta_pagar_cabecera c on c.proveedor_id = prov.id inner join persona on persona.id=prov.persona_id where c.saldo > 0 group by persona.nombre, persona.apellido, prov.id , persona.cedula, persona.telefono, persona.direccion",nativeQuery = true)
+	List<Object[]> getProveedorCuentaACobrarGeneral();
+	
 	@Modifying
     @Transactional(readOnly=false)
 	@Query(value = "update cuenta_pagar_cabecera set pagado=pagado+:monto, saldo=saldo-:monto where id=:id", nativeQuery = true)

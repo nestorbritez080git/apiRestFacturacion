@@ -23,13 +23,21 @@ public interface PedidoRepository extends JpaRepository<Pedido, Serializable>{
 
     @Query(value="select * from pedido v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id where v.estado ='ABIERTO' ORDER BY v.id desc",nativeQuery=true)
 	List<Pedido> getPedidoActivo();
+    @Query(value="select * from pedido v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id where (v.estado ='ABIERTO'AND cp.nombre ilike :des) OR (v.estado ='ABIERTO'AND cp.apellido ilike :des) OR (v.estado ='ABIERTO'AND cp.cedula ilike :des)  ORDER BY v.id desc",nativeQuery=true)
+   	List<Pedido> getPedidoActivoDescripcion(@Param("des") String des);
+    
     @Query(value="select * from pedido v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id where v.estado ='CERRADO' ORDER BY v.id desc",nativeQuery=true)
 	List<Pedido> getPedidoCerrado();
+    @Query(value="select * from pedido v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id where (v.estado ='CERRADO' AND cp.nombre ilike :des) OR (v.estado ='CERRADO' AND cp.apellido ilike :des) OR (v.estado ='CERRADO' AND cp.cedula ilike :des) ORDER BY v.id desc",nativeQuery=true)
+	List<Pedido> getPedidoCerradoDescripcion(@Param("des") String des);
+    
     @Query(value="select * from pedido v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id ORDER BY v.id desc",nativeQuery=true)
 	List<Pedido> getPedidoAll();
+    @Query(value="select * from pedido v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id WHERE cp.nombre ilike :des OR cp.apellido ilike :des OR cp.cedula ilike :des ORDER BY v.id desc",nativeQuery=true)
+	List<Pedido> getPedidoAllDescripcion(@Param("des") String des);
     
 
-    @Query(value="SELECT d.id as detId, p.id as proId, p.codbar, d.descripcion,d.cantidad,d.precio_costo,d.iva,d.sub_total, d.precio_venta_1, d.precio_venta_2, d.precio_venta_3, d.precio_venta_4, d.pedido_id, u.descripcion as descripcionDescrip, m.descripcion as marcadesc FROM pedido_detalle d INNER JOIN producto p ON d.producto_id=p.id INNER JOIN unidad_medida u ON p.unidad_medida_id=u.id INNER JOIN marca m ON p.marca_id=m.id  where d.pedido_id=:id",nativeQuery=true)
+    @Query(value="SELECT d.id as detId, p.id as proId, p.codbar, d.descripcion,d.cantidad,d.precio_costo,d.iva,d.sub_total, d.precio_venta_1, d.precio_venta_2, d.precio_venta_3, d.precio_venta_4, d.pedido_id, u.descripcion as descripcionDescrip, m.descripcion as marcadesc FROM pedido_detalle d INNER JOIN producto p ON d.producto_id=p.id INNER JOIN unidad_medida u ON p.unidad_medida_id=u.id INNER JOIN marca m ON p.marca_id=m.id  where d.pedido_id=:id order by d.id DESC",nativeQuery=true)
 	List<Object[]> listaDetallePedidoProducto(@Param("id") int id);
     
 

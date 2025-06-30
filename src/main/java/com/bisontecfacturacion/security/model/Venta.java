@@ -30,6 +30,8 @@ public class Venta {
 	private Date fecha;
 	@NotNull
 	private Double total;
+	private Double totalCostoPromedio;
+	
 	@NotNull
 	private String nroDocumento;
 	private String estado;
@@ -75,13 +77,16 @@ public class Venta {
 	private String totalLetra;
 	private Double totalExcenta;
 	private Double totalIva;
+	private Double totalDevolucion;
 
 	
 	public Venta() {
 		this.id=0;
 		this.tipo="";
 		this.estado="FACTURAR";
-		this.total=0.00;
+		this.total=0.0;
+		this.totalCostoPromedio=0.0;
+		this.totalDevolucion=0.0;
 		this.hora = "";
 		this.timbrado = ""; 
 		this.fecha=new Date();
@@ -114,6 +119,16 @@ public class Venta {
 
 	public void setObs(String obs) {
 		this.obs = obs;
+	}
+
+
+	public Double getTotalCostoPromedio() {
+		return totalCostoPromedio;
+	}
+
+
+	public void setTotalCostoPromedio(Double totalCostoPromedio) {
+		this.totalCostoPromedio = totalCostoPromedio;
 	}
 
 
@@ -184,6 +199,16 @@ public class Venta {
 
 	public void setTotalIvaDies(Double totalIvaDies) {
 		this.totalIvaDies = totalIvaDies;
+	}
+
+
+	public Double getTotalDevolucion() {
+		return totalDevolucion;
+	}
+
+
+	public void setTotalDevolucion(Double totalDevolucion) {
+		this.totalDevolucion = totalDevolucion;
 	}
 
 
@@ -341,6 +366,6 @@ public class Venta {
 		this.hora = hora;
 	}
 
-	
+
 	
 }

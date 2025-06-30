@@ -157,7 +157,7 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($F{precio})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($F{precio})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="473" y="1" width="96" height="10" uuid="5c5f2a2f-77f2-4287-ac6b-2b3bee8beac1">
@@ -166,7 +166,7 @@
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($F{subTotal})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($F{subTotal})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="442" y="1" width="24" height="10" uuid="e8f0d877-bfcd-45ab-8fdb-021b03c69fb4">

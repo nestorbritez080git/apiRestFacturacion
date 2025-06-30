@@ -20,18 +20,25 @@ public class AjusteInventario {
 	private int id;
 	private String tipo;
 	private double cantidad;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "America/Asuncion")
 	private Date fecha;
 	private String motivo;
+	private String descripcion;
 	
 	@ManyToOne
 	private Funcionario funcionario;
 	
 	@ManyToOne
 	private Producto producto;
+	
+	@ManyToOne
+	private Concepto concepto;
+	
+	
 
 	public AjusteInventario() {
 		super();
+		this.descripcion="";
 		id=0;
 		tipo="";
 		cantidad=0.0;
@@ -39,6 +46,23 @@ public class AjusteInventario {
 		motivo="";
 		funcionario=new Funcionario();
 		producto=new Producto();
+		concepto= new Concepto();
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
+	public Concepto getConcepto() {
+		return concepto;
+	}
+
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
 	}
 
 	public int getId() {

@@ -353,7 +353,7 @@ public class AnticipoController {
 			a.getTipoOperacion().setId(Integer.parseInt(ob[13].toString()));
 			a.setTipo(ob[14].toString());
 			a.setDisponibilidad(ob[15].toString());
-			
+			a.setMontoLiquidado(Double.parseDouble(ob[16].toString()));
 			listaRetrono.add(a);
 		}
 		return listaRetrono;
@@ -439,7 +439,6 @@ public class AnticipoController {
 	public ResponseEntity<?> anularAnticipo(@RequestBody AnulacionesAnticipo entity, OAuth2Authentication authentication){
 
 		try {
-			entityRepository.anularAnticipo(entity.getAnticipo().getId(), "ANULADO");
 			Anticipo v = entityRepository.findById(entity.getAnticipo().getId()).get();
 			if(Boolean.parseBoolean(entity.getConcepto().getDescripcion())==false) {
 				Usuario usuario = usuarioService.findByUsername(authentication.getName());
@@ -476,10 +475,12 @@ public class AnticipoController {
 				if (op.getTipoOperacion().getId() == 3) {
 					aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(aper.getId(), v.getMonto());
 				}
-				new ResponseEntity<>(HttpStatus.CREATED);
+				
+				entityRepository.anularAnticipo(entity.getAnticipo().getId(), "ANULADO");
+				return new ResponseEntity<>(HttpStatus.CREATED);
 			}
 			if(v.getTipo().equals("T-C")) {
-				 new ResponseEntity<>(new CustomerErrorType("ESTE OPERACIÒN NO TIENE SOPORTE PARA ANULACIÒN ANTICIPO TIPO OPERACIÒN T-A"), HttpStatus.CONFLICT);
+				 return new ResponseEntity<>(new CustomerErrorType("ESTE OPERACIÒN NO TIENE SOPORTE PARA ANULACIÒN ANTICIPO TIPO OPERACIÒN T-A"), HttpStatus.CONFLICT);
 			}
 
 		} catch (Exception e) {

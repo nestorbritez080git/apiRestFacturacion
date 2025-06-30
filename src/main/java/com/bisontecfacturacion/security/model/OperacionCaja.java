@@ -50,6 +50,7 @@ public class OperacionCaja {
 		this.vuelto=0.0;
 		this.efectivo=0.0;
 	}
+	
 	public int getId() {
 		return id;
 	}

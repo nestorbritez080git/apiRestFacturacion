@@ -18,7 +18,7 @@ public interface AjusteInventarioRepository extends JpaRepository<AjusteInventar
 	@Query(value="select * from ajuste_inventario v order by v.id desc limit 1", nativeQuery = true)
 	AjusteInventario getAjusteUlt();
 	
-	@Query(value="select ajuste_inventario.id,persona.nombre,persona.apellido,producto.descripcion,ajuste_inventario.cantidad,ajuste_inventario.tipo,ajuste_inventario.fecha,ajuste_inventario.motivo from ajuste_inventario inner join producto on ajuste_inventario.producto_id=producto.id inner join funcionario on ajuste_inventario.funcionario_id=funcionario.id inner join persona on funcionario.persona_id=persona.id where extract(year from cast(ajuste_inventario.fecha as Date))=:ano AND extract(month from cast(ajuste_inventario.fecha as Date))=:mes AND extract(day from cast(ajuste_inventario.fecha as Date))=:dia",nativeQuery=true)
+	@Query(value="select ajuste_inventario.id,persona.nombre,persona.apellido,producto.descripcion,ajuste_inventario.cantidad,ajuste_inventario.tipo,ajuste_inventario.fecha,ajuste_inventario.motivo, producto.id as idProd from ajuste_inventario inner join producto on ajuste_inventario.producto_id=producto.id inner join funcionario on ajuste_inventario.funcionario_id=funcionario.id inner join persona on funcionario.persona_id=persona.id where extract(year from cast(ajuste_inventario.fecha as Date))=:ano AND extract(month from cast(ajuste_inventario.fecha as Date))=:mes AND extract(day from cast(ajuste_inventario.fecha as Date))=:dia ORDER BY ajuste_inventario.ID DESC",nativeQuery=true)
 	List<Object[]> listaAjusteInventario(@Param("dia") int dia, @Param("mes") int mes, @Param("ano") int ano);
 	
 }

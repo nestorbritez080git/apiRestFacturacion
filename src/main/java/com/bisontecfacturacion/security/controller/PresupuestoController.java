@@ -48,10 +48,13 @@ import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
+import com.bisontecfacturacion.security.repository.AnticipoReferenciaCajaChicaRepository;
+import com.bisontecfacturacion.security.repository.AnticipoReferenciaOperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
+import com.bisontecfacturacion.security.repository.PagosFuncionarioReferenciaOperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoDetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoDetalleServicioRepository;
@@ -99,6 +102,12 @@ public class PresupuestoController {
 	@Autowired
 	private OrgRepository orgRepository;
 	
+	@Autowired
+	private PagosFuncionarioReferenciaOperacionCajaRepository pagosFuncionarioReferenciaOperacionCajaRepository;
+	
+	@Autowired
+	private AnticipoReferenciaCajaChicaRepository  anticipoReferenciaCajaChicaRepository;
+	
 	private Reporte report;
 	
 
@@ -124,6 +133,18 @@ public class PresupuestoController {
 		if(filtro==1) { lisRetorno= listar(entityRepository.getPresupuestoAll());}
 		if(filtro==2) { lisRetorno= listar(entityRepository.getPresupuestoActivo());}
 		if(filtro==3) { lisRetorno= listar(entityRepository.getPresupuestoCerrado());}
+
+		return lisRetorno;
+		
+	}
+	
+	
+	@RequestMapping(method=RequestMethod.POST, value="/buscar/{filtro}")
+	public List<Presupuesto> getAllsPorDescripcion(@RequestBody String descripcion, @PathVariable int filtro){
+		List<Presupuesto> lisRetorno= new ArrayList<Presupuesto>();
+		if(filtro==1) { lisRetorno= listar(entityRepository.getPresupuestoAllDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
+		if(filtro==2) { lisRetorno= listar(entityRepository.getPresupuestoActivoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
+		if(filtro==3) { lisRetorno= listar(entityRepository.getPresupuestoCerradoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
 
 		return lisRetorno;
 		

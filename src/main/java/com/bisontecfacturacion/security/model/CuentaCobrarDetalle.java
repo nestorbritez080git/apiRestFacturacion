@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class CuentaCobrarDetalle {
@@ -31,6 +32,7 @@ public class CuentaCobrarDetalle {
 	private double interesMora;
 	@NotNull
 	private boolean estado;
+	
 
 	@ManyToOne
 	private CuentaCobrarCabecera cuentaCobrarCabecera;

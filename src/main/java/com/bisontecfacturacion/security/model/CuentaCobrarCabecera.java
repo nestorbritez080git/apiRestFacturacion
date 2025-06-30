@@ -25,13 +25,19 @@ public class CuentaCobrarCabecera {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fechaVencimiento;
 	
-	private double total;
+	private Double total;
 	private String totalLetra;
-	private double pagado;
-	private double saldo;
+	private Double pagado;
+	private Double saldo;
 	private int fraccionCuota;
 	private boolean estado;
-	private double entrega;
+	private Double entrega;
+	private Double totalDevolucion;
+	
+	
+	
+
+	
 	@ManyToOne
 	private TipoPlazo tipoPlazo;
 	@ManyToOne
@@ -54,10 +60,10 @@ public class CuentaCobrarCabecera {
 		super();
 		id=0;
 		total=0.0;
+		totalDevolucion=0.0;
 		totalLetra="";
 		fecha=new Date();
 		fechaVencimiento=new Date();
-
 		pagado=0.0;
 		saldo=0.0;
 		fraccionCuota=0;
@@ -71,23 +77,6 @@ public class CuentaCobrarCabecera {
 		venta=new Venta();
 		cliente = new Cliente();
 		cuentaCobrarDetalle= new ArrayList<>();
-		
-	}
-
-	public Date getFechaVencimiento() {
-		return fechaVencimiento;
-	}
-
-	public void setFechaVencimiento(Date fechaVencimiento) {
-		this.fechaVencimiento = fechaVencimiento;
-	}
-
-	public Concepto getConcepto() {
-		return concepto;
-	}
-
-	public void setConcepto(Concepto concepto) {
-		this.concepto = concepto;
 	}
 
 	public int getId() {
@@ -106,8 +95,20 @@ public class CuentaCobrarCabecera {
 		this.fecha = fecha;
 	}
 
-	public double getTotal() {
+	public Date getFechaVencimiento() {
+		return fechaVencimiento;
+	}
+
+	public void setFechaVencimiento(Date fechaVencimiento) {
+		this.fechaVencimiento = fechaVencimiento;
+	}
+
+	public Double getTotal() {
 		return total;
+	}
+
+	public void setTotal(Double total) {
+		this.total = total;
 	}
 
 	public String getTotalLetra() {
@@ -118,23 +119,19 @@ public class CuentaCobrarCabecera {
 		this.totalLetra = totalLetra;
 	}
 
-	public void setTotal(double total) {
-		this.total = total;
-	}
-
-	public double getPagado() {
+	public Double getPagado() {
 		return pagado;
 	}
 
-	public void setPagado(double pagado) {
+	public void setPagado(Double pagado) {
 		this.pagado = pagado;
 	}
 
-	public double getSaldo() {
+	public Double getSaldo() {
 		return saldo;
 	}
 
-	public void setSaldo(double saldo) {
+	public void setSaldo(Double saldo) {
 		this.saldo = saldo;
 	}
 
@@ -154,12 +151,20 @@ public class CuentaCobrarCabecera {
 		this.estado = estado;
 	}
 
-	public double getEntrega() {
+	public Double getEntrega() {
 		return entrega;
 	}
 
-	public void setEntrega(double entrega) {
+	public void setEntrega(Double entrega) {
 		this.entrega = entrega;
+	}
+
+	public Double getTotalDevolucion() {
+		return totalDevolucion;
+	}
+
+	public void setTotalDevolucion(Double totalDevolucion) {
+		this.totalDevolucion = totalDevolucion;
 	}
 
 	public TipoPlazo getTipoPlazo() {
@@ -168,6 +173,14 @@ public class CuentaCobrarCabecera {
 
 	public void setTipoPlazo(TipoPlazo tipoPlazo) {
 		this.tipoPlazo = tipoPlazo;
+	}
+
+	public Concepto getConcepto() {
+		return concepto;
+	}
+
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
 	}
 
 	public Venta getVenta() {
@@ -217,7 +230,6 @@ public class CuentaCobrarCabecera {
 	public void setCuentaCobrarDetalle(List<CuentaCobrarDetalle> cuentaCobrarDetalle) {
 		this.cuentaCobrarDetalle = cuentaCobrarDetalle;
 	}
-
 
 
 	

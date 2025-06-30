@@ -21,6 +21,27 @@ import com.bisontecfacturacion.security.model.Producto;
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Serializable>, PagingAndSortingRepository<Producto, Serializable>{
 	
+	
+	@Query(value = "SELECT p.*\r\n" + 
+			"FROM producto p\r\n" + 
+			"INNER JOIN marca m ON p.marca_id = m.id\r\n" + 
+			"INNER JOIN grupo g ON p.grupo_id = g.id\r\n" + 
+			"WHERE\r\n" + 
+			"  similarity(p.descripcion, :filtro) > 0.2\r\n" + 
+			"  OR similarity(p.codoriginal, :filtro) > 0.2\r\n" + 
+			"  OR similarity(p.fabricante, :filtro) > 0.2\r\n" + 
+			"  OR similarity(m.descripcion, :filtro) > 0.2\r\n" + 
+			"  OR similarity(g.descripcion, :filtro) > 0.2\r\n" + 
+			"ORDER BY\r\n" + 
+			"  GREATEST(\r\n" + 
+			"    similarity(p.descripcion, :filtro), \r\n" + 
+			"    similarity(p.codoriginal, :filtro),\r\n" + 
+			"    similarity(p.fabricante, :filtro),\r\n" + 
+			"    similarity(m.descripcion, :filtro),\r\n" + 
+			"    similarity(g.descripcion, :filtro)\r\n" + 
+			"  ) DESC; ", nativeQuery = true)
+    List<Producto> buscarPorDescripcionSimilar(@Param("filtro") String filtro);
+	
 	public abstract Page<Producto> findAll(Pageable pageable); 
 	
 	public abstract Producto findByDescripcion(String descripcion);
@@ -33,6 +54,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 	
 	@Query(value="select * from producto order by id desc limit 50", nativeQuery = true)
 	List<Producto> lista();
+	
+	@Query(value="select * from producto order by id desc", nativeQuery = true)
+	List<Producto> listadoCompleto();
 	
 	@Query(value="select * from producto order by id desc limit 50", nativeQuery = true)
 	List<Producto> listasLimites();
@@ -49,16 +73,99 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal like :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion or cast(p.id AS VARCHAR)   ilike :descripcion   order by p.id desc  limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
 	
+	
+	
+
+	
+	@Query(value="SELECT p.*\r\n" + 
+			"FROM producto p\r\n" + 
+			"INNER JOIN marca ON marca.id = p.marca_id\r\n" + 
+			"INNER JOIN grupo ON grupo.id = p.grupo_id\r\n" + 
+			"INNER JOIN sub_grupo ON sub_grupo.id = p.sub_grupo_id\r\n" + 
+			"INNER JOIN unidad_medida ON unidad_medida.id = p.unidad_medida_id\r\n" + 
+			"INNER JOIN deposito ON deposito.id = p.deposito_id\r\n" + 
+			"WHERE \r\n" + 
+			"  similarity(p.descripcion, :descripcion) > 0.2\r\n" + 
+			"  OR similarity(p.codbar, :descripcion) > 0.2\r\n" + 
+			"  OR similarity(p.codoriginal, :descripcion) > 0.2\r\n" + 
+			"  OR similarity(p.fabricante, :descripcion) > 0.2\r\n" + 
+			"  OR similarity(p.aplicacion, :descripcion) > 0.2\r\n" + 
+			"  OR similarity(marca.descripcion, :descripcion) > 0.2\r\n" + 
+			"  OR similarity(grupo.descripcion, :descripcion) > 0.2\r\n" + 
+			"  OR similarity(CAST(p.id AS VARCHAR), :descripcion) > 0.2\r\n" + 
+			"ORDER BY GREATEST(\r\n" + 
+			"  similarity(p.descripcion, :descripcion),\r\n" + 
+			"  similarity(p.codbar, :descripcion),\r\n" + 
+			"  similarity(p.codoriginal, :descripcion),\r\n" + 
+			"  similarity(p.fabricante, :descripcion),\r\n" + 
+			"  similarity(p.aplicacion, :descripcion),\r\n" + 
+			"  similarity(marca.descripcion, :descripcion),\r\n" + 
+			"  similarity(grupo.descripcion, :descripcion),\r\n" + 
+			"  similarity(CAST(p.id AS VARCHAR), :descripcion)\r\n" + 
+			") DESC " + 
+			"LIMIT 50;",nativeQuery=true)
+	List<Producto>  getBuscarPorDescripcionDifuzze(@Param("descripcion") String descripcion);
+	
+	
 	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal like :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion or cast(p.id AS VARCHAR)   ilike :descripcion   order by p.id desc  limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcionLimites(@Param("descripcion") String descripcion);
 	
 	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where  p.estado_compuesto=true and p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal ilike :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion OR cast(p.id AS VARCHAR) ilike :descripcion order by p.id desc limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcionListadoInventario(@Param("descripcion") String descripcion);
 	
+
+	
 	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal ilike :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion OR cast(p.id AS VARCHAR) ilike :descripcion order by p.existencia asc limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcionAjusteStock(@Param("descripcion") String descripcion);
+	@Query(value="SELECT p.*\r\n" + 
+			"FROM producto p\r\n" + 
+			"INNER JOIN marca ON marca.id = p.marca_id\r\n" + 
+			"INNER JOIN grupo ON grupo.id = p.grupo_id\r\n" + 
+			"INNER JOIN sub_grupo ON sub_grupo.id = p.sub_grupo_id\r\n" + 
+			"INNER JOIN unidad_medida ON unidad_medida.id = p.unidad_medida_id\r\n" + 
+			"INNER JOIN deposito ON deposito.id = p.deposito_id\r\n" + 
+			"WHERE \r\n" + 
+			"  similarity(p.descripcion, :descripcion) > 0.2 OR\r\n" + 
+			"  similarity(p.codbar, :descripcion) > 0.2 OR\r\n" + 
+			"  similarity(p.codoriginal, :descripcion) > 0.2 OR\r\n" + 
+			"  similarity(p.fabricante, :descripcion) > 0.2 OR\r\n" + 
+			"  similarity(p.aplicacion, :descripcion) > 0.2 OR\r\n" + 
+			"  similarity(marca.descripcion, :descripcion) > 0.2 OR\r\n" + 
+			"  similarity(grupo.descripcion, :descripcion) > 0.2 OR\r\n" + 
+			"  similarity(CAST(p.id AS VARCHAR), :descripcion) > 0.2\r\n" + 
+			"ORDER BY p.existencia ASC\r\n" + 
+			"LIMIT 50;",nativeQuery=true)
+	List<Producto>  getBuscarPorDescripcionAjusteStockDisfuzze(@Param("descripcion") String descripcion);
 	
-	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where (existencia > 0 and p.descripcion ilike :descripcion) or (existencia > 0 and p.codbar ilike :descripcion) or (existencia > 0 and marca.descripcion ilike :descripcion) or (existencia > 0 and p.codoriginal ilike :descripcion) or (existencia > 0 and cast(p.id AS VARCHAR) ilike :descripcion) order by p.id desc limit 50",nativeQuery=true)
+	
+	@Query(value="SELECT p.*\r\n" + 
+			"FROM producto p\r\n" + 
+			"INNER JOIN marca ON marca.id = p.marca_id\r\n" + 
+			"INNER JOIN grupo ON grupo.id = p.grupo_id\r\n" + 
+			"INNER JOIN sub_grupo ON sub_grupo.id = p.sub_grupo_id\r\n" + 
+			"INNER JOIN unidad_medida ON unidad_medida.id = p.unidad_medida_id\r\n" + 
+			"INNER JOIN deposito ON deposito.id = p.deposito_id\r\n" + 
+			"WHERE\r\n" + 
+			"  p.existencia > 0\r\n" + 
+			"  AND (\r\n" + 
+			"    similarity(p.descripcion, :descripcion) > 0.2 OR\r\n" + 
+			"    similarity(p.codbar, :descripcion) > 0.2 OR\r\n" + 
+			"    similarity(marca.descripcion, :descripcion) > 0.2 OR\r\n" + 
+			"    similarity(p.codoriginal, :descripcion) > 0.2 OR\r\n" + 
+			"    similarity(CAST(p.id AS VARCHAR), :descripcion) > 0.2\r\n" + 
+			"  )\r\n" + 
+			"ORDER BY GREATEST(\r\n" + 
+			"  similarity(p.descripcion, :descripcion),\r\n" + 
+			"  similarity(p.codbar, :descripcion),\r\n" + 
+			"  similarity(marca.descripcion, :descripcion),\r\n" + 
+			"  similarity(p.codoriginal, :descripcion),\r\n" + 
+			"  similarity(CAST(p.id AS VARCHAR), :descripcion)\r\n" + 
+			") DESC " + 
+			"LIMIT 50;",nativeQuery=true)
+	List<Producto>  getBuscarPorDescripcionStockBajoDifuzze(@Param("descripcion") String descripcion);
+	@Query(value="SELECT p.*  FROM producto p "
+				+ " INNER JOIN marca ON marca.id = p.marca_id INNER JOIN grupo ON grupo.id = p.grupo_id INNER JOIN sub_grupo ON sub_grupo.id = p.sub_grupo_id INNER JOIN unidad_medida ON unidad_medida.id = p.unidad_medida_id  INNER JOIN deposito ON deposito.id = p.deposito_id  "
+				+ " WHERE  p.existencia > 0 AND ( p.descripcion ILIKE :descripcion OR p.codbar ILIKE :descripcion OR  marca.descripcion ILIKE :descripcion OR   p.codoriginal ILIKE :descripcion OR CAST(p.id AS VARCHAR) ILIKE :descripcion )   ORDER BY p.id DESC LIMIT 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcionStockBajo(@Param("descripcion") String descripcion);
 	
 	@Modifying

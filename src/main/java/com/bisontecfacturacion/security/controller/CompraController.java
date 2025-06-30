@@ -496,9 +496,11 @@ public class CompraController {
 			mov.setMarca(marca);
 			Concepto c= new Concepto();
 			if(tipo.equals("CONTADO")){
-				c= conceptoRepository.findById(3).get();	
+				c= conceptoRepository.findById(3).get();
+				mov.getConcepto().setId(c.getId());
 			}else {
 				c= conceptoRepository.findById(4).get();
+				mov.getConcepto().setId(c.getId());
 			}
 
 			mov.setReferencia(c.getDescripcion()+" REF.: "+ idCompra);
@@ -561,8 +563,10 @@ public class CompraController {
 				Concepto ccc= new Concepto();
 				if(tipo.equals("CONTADO")){
 					ccc= conceptoRepository.findById(3).get();	
+					movEntr.getConcepto().setId(ccc.getId());
 				}else {
 					ccc= conceptoRepository.findById(4).get();
+					movEntr.getConcepto().setId(ccc.getId());
 				}
 
 				movEntr.setReferencia(ccc.getDescripcion()+" REF.: "+ idCompra);
@@ -620,9 +624,13 @@ public class CompraController {
 				
 				Concepto ccc= new Concepto();
 				if(tipo.equals("CONTADO")){
-					ccc= conceptoRepository.findById(3).get();	
+					ccc= conceptoRepository.findById(3).get();
+					movEntr.getConcepto().setId(ccc.getId());
+
 				}else {
 					ccc= conceptoRepository.findById(4).get();
+					movEntr.getConcepto().setId(ccc.getId());
+
 				}
 
 				movEntr.setReferencia(ccc.getDescripcion()+" REF.: "+ idCompra);
@@ -674,9 +682,11 @@ public class CompraController {
 					mov.setMarca(marca);
 					Concepto c= new Concepto();
 					if(tipo.equals("CONTADO")){
-						c= conceptoRepository.findById(3).get();	
+						c= conceptoRepository.findById(3).get();
+						mov.getConcepto().setId(c.getId());
 					}else {
 						c= conceptoRepository.findById(4).get();
+						mov.getConcepto().setId(c.getId());
 					}
 
 					mov.setReferencia(c.getDescripcion()+" REF.: "+ idCompra);
@@ -729,9 +739,11 @@ public class CompraController {
 				mov.setMarca(marca);
 				Concepto c= new Concepto();
 				if(tipo.equals("CONTADO")){
-					c= conceptoRepository.findById(3).get();	
+					c= conceptoRepository.findById(3).get();
+					mov.getConcepto().setId(c.getId());
 				}else {
 					c= conceptoRepository.findById(4).get();
+					mov.getConcepto().setId(c.getId());
 				}
 
 				mov.setReferencia(c.getDescripcion()+" REF.: "+ idCompra);
@@ -749,45 +761,6 @@ public class CompraController {
 			}
 			
 		}
-	}
-
-
-	public void actualizarProductoBaseCorregidosss(int id , double cantidad) {
-		ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
-		if(ca!=null) {
-			double existenciaBase=0.0;
-			existenciaBase= cantidad * ca.getCantidadAplicacion();
-			productoRepository.findByActualizaA(existenciaBase, ca.getProductoBase().getId());
-			
-			List<ProductoCardex> listadoDeCompuestoPorBase = compuestoRepository.getBase(ca.getProductoBase().getId());
-			for(ProductoCardex obCompuesto: listadoDeCompuestoPorBase) {
-				Double existenciaActual=0.0;
-				existenciaActual=  (cantidad * ca.getCantidadAplicacion())/obCompuesto.getCantidadAplicacion();
-				productoRepository.findByActualizaA(existenciaActual, obCompuesto.getProductoCompuesto().getId());// actualiza pro compuesto
-			}
-			
-		}else {
-			System.out.println("entrooo else no tiene compusto el id: "+id);
-			ProductoCardex pBase = compuestoRepository.getProductoPorIdBase(id);
-			if(pBase != null) {
-				System.out.println("Producto relacio0nado con un base");
-				productoRepository.findByActualizaA(cantidad, id);
-				List<ProductoCardex> list = compuestoRepository.getBase(id);
-				//actualiza producto base
-				for(ProductoCardex ob: list) {
-					System.out.println("Producto relacio0nado con un base relacionado.!!!");
-					Double existenciaActual=0.0;
-					existenciaActual= cantidad / ob.getCantidadAplicacion();
-					productoRepository.findByActualizaA(existenciaActual, ob.getProductoCompuesto().getId());// actualiza pro compuesto
-				}
-			}else {
-				System.out.println("Producto unitario");
-				productoRepository.findByActualizaA(cantidad, id);
-			}
-
-		}
-
-
 	}
 	@RequestMapping(value="/resumenCompraTodosRangoFecha/{fechaInicio}/{fechaFin}", method=RequestMethod.GET)
 	public ResponseEntity<?>  resumenCompraTodos(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaInicio, @PathVariable String fechaFin) throws IOException {

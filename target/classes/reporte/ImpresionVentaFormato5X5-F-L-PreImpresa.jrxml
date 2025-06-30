@@ -117,14 +117,14 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{totalIvaCinco})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($F{totalIvaCinco})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="292" y="387" width="92" height="12" uuid="96275f25-564e-4101-b371-d946c8af316d"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{totalIvaDies})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($F{totalIvaDies})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="433" y="387" width="146" height="12" uuid="902a3dab-2ecd-4757-b487-02282869613b">
@@ -134,10 +134,10 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($V{totalIva})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($V{totalIva})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="31" y="363" width="419" height="22" uuid="c8537296-88ec-42ac-9299-573e00d9e30a">
+				<reportElement x="31" y="363" width="412" height="16" uuid="c8537296-88ec-42ac-9299-573e00d9e30a">
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>

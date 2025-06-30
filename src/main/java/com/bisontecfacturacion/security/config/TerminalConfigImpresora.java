@@ -22,6 +22,7 @@ public class TerminalConfigImpresora {
 	private String nombreImpresora;
 
 	private Boolean estadoAutoImpresor;
+	private Boolean estadoAdicionArtVarios;
 		
 	
 	public TerminalConfigImpresora() {
@@ -31,6 +32,7 @@ public class TerminalConfigImpresora {
 		this.impresora="";
 		this.nombreImpresora="";
 		this.estadoAutoImpresor=false;
+		this.estadoAdicionArtVarios=false;
 	}
 	
 	public Boolean getEstadoAutoImpresor() {
@@ -67,5 +69,14 @@ public class TerminalConfigImpresora {
 	public void setImpresora(String impresora) {
 		this.impresora = impresora;
 	}
+
+	public Boolean getEstadoAdicionArtVarios() {
+		return estadoAdicionArtVarios;
+	}
+
+	public void setEstadoAdicionArtVarios(Boolean estadoAdicionArtVarios) {
+		this.estadoAdicionArtVarios = estadoAdicionArtVarios;
+	}
+	
 	
 }

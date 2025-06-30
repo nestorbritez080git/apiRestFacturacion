@@ -173,6 +173,17 @@ public class PedidoController {
 
 		return lisRetorno;
 	}
+	
+	@RequestMapping(method=RequestMethod.POST, value = "/buscar/{filtro}")
+	public List<Pedido> getPedidoAllPorDescripcion(@RequestBody String des, @PathVariable int filtro){
+		List<Pedido> lisRetorno= new ArrayList<Pedido>();
+		if(filtro==1) { lisRetorno= listar(entityRepository.getPedidoAllDescripcion("%"+Utilidades.eliminaCaracterIzqDer(des.toUpperCase())+"%"));}
+		if(filtro==2) { lisRetorno= listar(entityRepository.getPedidoActivoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(des.toUpperCase())+"%"));}
+		if(filtro==3) { lisRetorno= listar(entityRepository.getPedidoCerradoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(des.toUpperCase())+"%"));}
+
+		return lisRetorno;
+	}
+
 	@RequestMapping(method=RequestMethod.GET, value="/{id}")
 	public Pedido getPedidoId(@PathVariable int id){
 		return entityRepository.findById(id).get();

@@ -30,14 +30,17 @@ public class ClienteController {
 
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Cliente> getAll(){
-		List<Cliente> lista=entityRepository.findTop100ByOrderByIdDesc();
+		List<Cliente> lista=entityRepository.findAll();
 		List<Cliente> cliente=new ArrayList<>();
 		for(Cliente c: lista) {
 			Cliente clientes=new Cliente();
 			clientes.setId(c.getId());
+			clientes.getPersona().setId(c.getId());
 			clientes.getPersona().setNombre(c.getPersona().getNombre());
 			clientes.getPersona().setApellido(c.getPersona().getApellido());
 			clientes.setEstadoBloqueo(c.isEstadoBloqueo());
+			clientes.setLimiteCredito(c.getLimiteCredito());
+			clientes.setDiaLimite(c.getDiaLimite());
 			cliente.add(clientes);
 		}
 		return entityRepository.findTop100ByOrderByIdDesc();

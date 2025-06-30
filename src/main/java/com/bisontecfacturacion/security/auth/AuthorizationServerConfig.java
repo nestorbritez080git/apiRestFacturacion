@@ -39,14 +39,25 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(final ClientDetailsServiceConfigurer clients) throws Exception {
 
+    	
+    	
         clients.inMemory().withClient("apiRestFacturacion")
             .secret(passwordEncoder.encode("12345ndaikuaainolose"))
             .scopes("read", "white")
             .authorizedGrantTypes("password")
             .accessTokenValiditySeconds(36000)
-            .refreshTokenValiditySeconds(36000);
+            .refreshTokenValiditySeconds(36000).and().withClient("flutterApp")
+            .secret(passwordEncoder.encode("12345ndaikuaainolose"))
+            .scopes("read", "white")
+            .authorizedGrantTypes("password", "refresh_token")
+            .accessTokenValiditySeconds(31536000)
+            .refreshTokenValiditySeconds(31536000);
+        
+        
     }
 
+    
+    
     @Override
     public void configure(final AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         final TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();

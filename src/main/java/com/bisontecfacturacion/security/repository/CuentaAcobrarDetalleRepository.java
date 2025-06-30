@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bisontecfacturacion.security.model.CierreCaja;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 
 @Transactional(readOnly=true)
@@ -32,9 +33,18 @@ public interface CuentaAcobrarDetalleRepository extends JpaRepository<CuentaCobr
 //	
 	@Modifying
 	@Transactional(readOnly=false)
-	@Query(value = "DELETE FROM CuentaCobrarDetalle where cuenta_cobrar_cabecera_id =:idVenta")
-	public void eliminarDetalleCuentaPorCabeceraId(@Param("idVenta") int idVenta );
+	@Query(value = "UPDATE CuentaCobrarDetalle SET importe=importe+:monto where id=:idDetalle")
+	public void actualizarImporteAplciado(@Param("idDetalle") int idDetalle, @Param("monto") Double monto);
 	
+	@Modifying
+	@Transactional(readOnly=false)
+	@Query(value = "DELETE FROM CuentaCobrarDetalle where cuenta_cobrar_cabecera_id =:idVenta")
+	public void  eliminarDetalleCuentaPorCabeceraId(@Param("idVenta") int idVenta );
+	
+	
+	@Query("select a from CuentaCobrarDetalle a where cuenta_cobrar_cabecera_id=:idCabecera order by id asc")
+	public List<CuentaCobrarDetalle> getCuentaCobrarDetalle(@Param("idCabecera")int idCabecera);
+
 	
 
 }

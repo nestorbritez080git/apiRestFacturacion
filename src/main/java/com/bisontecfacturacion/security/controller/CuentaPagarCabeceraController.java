@@ -649,4 +649,52 @@ public class CuentaPagarCabeceraController {
 	}
 	
 	
+	public List<CuentaPagarCabecera> cuentaListadoProveedor(List<Object[]> object) {
+		List<CuentaPagarCabecera> listadoRetorno= new ArrayList<>();
+		for (Object[] cue: object) {
+			CuentaPagarCabecera cuenta= new CuentaPagarCabecera();
+			//cuenta.setId(cue[0].toString();
+			cuenta.setTotal(Double.parseDouble(cue[0].toString()));
+			cuenta.setPagado(Double.parseDouble(cue[1].toString()));
+			cuenta.setSaldo(Double.parseDouble(cue[2].toString()));
+			cuenta.getProveedor().getPersona().setNombre(cue[3].toString()+" "+ cue[4].toString());
+			cuenta.getProveedor().setId(Integer.parseInt(cue[5].toString()));
+			cuenta.getProveedor().getPersona().setCedula(cue[6].toString());
+			cuenta.getProveedor().getPersona().setTelefono(cue[7].toString());
+			cuenta.getProveedor().getPersona().setDireccion(cue[8].toString());
+			listadoRetorno.add(cuenta);
+		}
+		System.out.println("list size: cuenta "+listadoRetorno.size());
+		return listadoRetorno;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value="/reporteCuentaProveedorGeneral")
+	public  ResponseEntity<?> getReporteCuentaClienteGeneral(HttpServletResponse response, OAuth2Authentication authentication ) throws IOException, ParseException{
+		List<Object[]> lis =new ArrayList<>();
+		List<CuentaPagarCabecera> listadoRetorno= new ArrayList<>();
+		lis= entityRepository.getProveedorCuentaACobrarGeneral();
+		System.out.println("obje sise: "+lis.size());
+		listadoRetorno = cuentaListadoProveedor(lis);
+		if(listadoRetorno.size()>0) {
+			Usuario usuario = usuarioService.findByUsername(authentication.getName());
+			Org org = orgRepository.findById(1).get();
+
+			Map<String, Object> map = new HashMap<>();
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+
+			report = new Reporte();
+			report.reportPDFDescarga(listadoRetorno, map, "ReporteCuentaProveedorGeneral", response);
+
+			return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
+		}else {
+			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+		}
+	}
+	
 }

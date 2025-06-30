@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 
 public interface DetalleProductoRepository extends JpaRepository<DetalleProducto, Serializable> {
-	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.venta_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, dp.monto_iva as monIva, dp.costo, dp.tipo_precio as tpPrecio from detalle_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.venta_id=:id",nativeQuery=true)
+	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.venta_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, dp.monto_iva as monIva, dp.costo, dp.tipo_precio as tpPrecio, dp.cantidad_devolucion as cantDevol from detalle_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.venta_id=:id",nativeQuery=true)
 	List<Object[]> lista(@Param("id") int id);
 	
 	@Query("SELECT SUM(d.cantidad) FROM DevolucionVentaDetalle d " +
@@ -72,16 +72,16 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 	
 	
 	
-	@Query(value="select dp.venta_id nroventa, dp.descripcion as descripcion, p.codbar as codigobarra, m.descripcion as marca, dp.cantidad as cantidad, dp.precio as precio, dp.descuento as descuento, dp.sub_total as subtotal  \n" + 
+	@Query(value="select dp.venta_id nroventa, dp.descripcion as descripcion, p.codbar as codigobarra, m.descripcion as marca, dp.cantidad as cantidad, dp.precio as precio, dp.descuento as descuento, dp.sub_total as subtotal, dp.cantidad_devolucion as devolCant  \n" + 
 			"from detalle_producto dp " + 
 			"inner join producto p on dp.producto_id=p.id " + 
 			"inner join venta  v on v.id=dp.venta_id " + 
 			"inner join unidad_medida on p.unidad_medida_id=unidad_medida.id " + 
 			"inner join marca m on p.marca_id=m.id " + 
 			"where (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO')",nativeQuery=true)
-	List<Object[]> listaDetalleProductoAll(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
+	List<Object[]> listaDetalleProductoAlls(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
 	
-	@Query(value="select p.id as idP, dp.descripcion as descripcion, p.codbar as codigobarra, m.descripcion as marca, dp.cantidad as cantidad, dp.precio as precio, dp.descuento as descuento, dp.sub_total as subtotal, p.iva as iva  \n" + 
+	@Query(value="select p.id as idP, dp.descripcion as descripcion, p.codbar as codigobarra, m.descripcion as marca, dp.cantidad as cantidad, dp.precio as precio, dp.descuento as descuento, dp.sub_total as subtotal, p.iva as iva, dp.cantidad_devolucion as devCant  \n" + 
 			"from detalle_producto dp " + 
 			"inner join producto p on dp.producto_id=p.id " + 
 			"inner join venta  v on v.id=dp.venta_id " +
@@ -89,7 +89,7 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 			"inner join unidad_medida on p.unidad_medida_id=unidad_medida.id " + 
 			"inner join marca m on p.marca_id=m.id " + 
 			"where cl.id=:idC AND (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO')",nativeQuery=true)
-	List<Object[]> listaDetalleProductoAllPorCliente(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idC") int id);
+	List<Object[]> listaDetalleProductoAllPorClientes(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idC") int id);
 	
 	
 	
@@ -103,8 +103,8 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 	
 	
 	
-	@Query(value="select dp.venta_id nroventa, dp.descripcion as descripcion, p.codbar as codigobarra, m.descripcion as marca, dp.cantidad as cantidad, dp.precio as precio, dp.descuento as descuento, dp.sub_total as subtotal  from detalle_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id inner join venta  v on v.id=dp.venta_id where (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO') AND dp.descripcion ilike :desc order by dp.venta_id desc",nativeQuery=true)
-	List<Object[]> listaDetalleProductoDesc(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("desc") String desc);
+	@Query(value="select dp.venta_id nroventa, dp.descripcion as descripcion, p.codbar as codigobarra, m.descripcion as marca, dp.cantidad as cantidad, dp.precio as precio, dp.descuento as descuento, dp.sub_total as subtotal, dp.cantidad_devolucion as cantDevol  from detalle_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id inner join venta  v on v.id=dp.venta_id where (v.fecha >= :fecha_inicio AND v.estado='FACTURADO') AND (v.fecha <=  :fecha_fin AND v.estado='FACTURADO') AND dp.descripcion ilike :desc order by dp.venta_id desc",nativeQuery=true)
+	List<Object[]> listaDetalleProductoDes(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("desc") String desc);
 	
 	@Query(value="SELECT sum(det.costo)as costoTotal, sum(det.sub_total)as subtotal, sum(det.sub_total - det.costo) as utilidad  from detalle_producto det  inner join venta v on v.id=det.venta_id inner join operacion_caja op on op.id=v.operacion_caja inner join apertura_caja ap on ap.id=op.apertura_caja_id where ap.id=:id and v.tipo='1' and v.estado='FACTURADO'",nativeQuery=true)
 	Object[][] getResumenUtilidad(@Param("id") int id);

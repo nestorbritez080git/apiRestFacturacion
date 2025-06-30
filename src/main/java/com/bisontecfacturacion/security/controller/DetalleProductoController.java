@@ -74,7 +74,7 @@ public class DetalleProductoController {
 		fecF.setHours(23);
 		fecI.setHours(1);
 		//System.out.println("entrooo rango por descripcion::: "+fecF+ " hora inicio finbal: "+fecI);
-		List<Object[]> objeto=entityRepository.listaDetalleProductoDesc(fecI, fecF,"%"+Utilidades.eliminaCaracterIzqDer(desc)+"%");
+		List<Object[]> objeto=entityRepository.listaDetalleProductoDes(fecI, fecF,"%"+Utilidades.eliminaCaracterIzqDer(desc)+"%");
 		for(Object[] ob:objeto){
 			DetalleProducto dp=new DetalleProducto();
 			dp.getVenta().setId(Integer.parseInt(ob[0].toString()));
@@ -85,6 +85,8 @@ public class DetalleProductoController {
 			dp.setPrecio(Double.parseDouble(ob[5].toString()));
 			dp.setDescuento(Double.parseDouble(ob[6].toString()));
 			dp.setSubTotal(Double.parseDouble(ob[7].toString()));
+			dp.setCantidadDevolucion(Double.parseDouble(ob[8].toString()));
+		
 			listRetorno.add(dp);
 		}
 		} catch (Exception e) {
@@ -112,7 +114,7 @@ public class DetalleProductoController {
 		fecI.setHours(1);
 		System.out.println("hora final fechas::: "+fecF+ " hora inicio finbal: "+fecI);
 		
-		List<Object[]> objeto=entityRepository.listaDetalleProductoAll(fecI, fecF);
+		List<Object[]> objeto=entityRepository.listaDetalleProductoAlls(fecI, fecF);
 		
 		
 		for(Object[] ob:objeto){
@@ -125,6 +127,7 @@ public class DetalleProductoController {
 			dp.setPrecio(Double.parseDouble(ob[5].toString()));
 			dp.setDescuento(Double.parseDouble(ob[6].toString()));
 			dp.setSubTotal(Double.parseDouble(ob[7].toString()));
+			dp.setCantidadDevolucion(Double.parseDouble(ob[8].toString()));
 			listRetorno.add(dp);
 		}
 		System.out.println(listRetorno.size());
@@ -166,6 +169,7 @@ public class DetalleProductoController {
 			detalleProductos.setMontoIva(Double.parseDouble(ob[18].toString()));
 			detalleProductos.setCosto(Double.parseDouble(ob[19].toString()));
 			detalleProductos.setTipoPrecio(ob[20].toString());
+			detalleProductos.setCantidadDevolucion(Double.parseDouble(ob[21].toString()));
 			detalleProducto.add(detalleProductos);
 		}
 		System.out.println("Retorno Lista Detalle Producto "+detalleProducto.size());

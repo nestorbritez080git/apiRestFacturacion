@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +42,8 @@ import com.bisontecfacturacion.security.auxiliar.ProductoAuxiliar;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.Utilidades;
+import com.bisontecfacturacion.security.contabilidad.controller.AsientoContableServices;
+import com.bisontecfacturacion.security.contabilidad.model.AsientoContableDTO;
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
 import com.bisontecfacturacion.security.model.AjusteInventario;
 import com.bisontecfacturacion.security.model.Concepto;
@@ -93,6 +96,10 @@ public class ProductoController {
 	private MovimientoE_SRepository movEntradaSalidaRepository;
 	
 	@Autowired
+	private AsientoContableServices asienotContableServices; 
+
+	
+	@Autowired
 	private ConceptoRepository conceptoRepository;
 
 	@Autowired
@@ -126,47 +133,87 @@ public class ProductoController {
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Producto> getAll(){
 		Impresora conf=repository.findById(2).get();
+		List<Producto> objeto= new ArrayList<Producto>();
 		if(conf.isEstado() == true) {
-			List<Producto> objeto=entityRepository.lista();
+			objeto=entityRepository.lista();
 			return product(objeto);
 		} else {
-			List<Producto> objeto=entityRepository.listaStockBajo();
+			objeto=entityRepository.listaStockBajo();
 			return product(objeto);
 		}
 	}
 	
+	@RequestMapping(method=RequestMethod.GET, value = "/traerTodo")
+	public List<Producto> getAllListado(){
+		Impresora conf=repository.findById(2).get();
+		List<Producto> objeto= new ArrayList<Producto>();
+		objeto=entityRepository.listadoCompleto();
+		return productTraerTodo(objeto);
+	
+		
+	}
+	
 	@RequestMapping(method=RequestMethod.GET, value = "/listarInventario")
 	public List<Producto> getAllInventario(){
-	
 			List<Producto> objeto=entityRepository.listarInventario();
 			return product(objeto);
 	
 	}
 	
-	@RequestMapping(method=RequestMethod.POST, value = "/producto/descripcion")
-	public List<Producto> getAllProducto(@RequestBody String descripcion){
-		if (descripcion.equals("9999999999")) {
-			List<Producto> objeto=entityRepository.listasLimites();
-			return product(objeto);
-		} else {
-			 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
-			  System.out.println("FILTRO: "+filtro);
-			List<Producto> objeto=entityRepository.getBuscarPorDescripcion(filtro);
-			return product(objeto);
+	@RequestMapping(method=RequestMethod.POST, value = "/producto/descripcion/{difuzze}")
+	public List<Producto> getAllProducto(@RequestBody String descripcion, @PathVariable Boolean difuzze){
+		List<Producto> objeto= new ArrayList<>();
+		if(difuzze == true) {
+			System.out.println("F-ALGORITMO-DIFUZZE");
+			if (descripcion.equals("9999999999")) {
+				objeto=entityRepository.listasLimites();
+				return product(objeto);
+			} else {
+				 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+				  System.out.println("FILTRO: "+filtro);
+				objeto=entityRepository.buscarPorDescripcionSimilar(filtro);
+				return product(objeto);
+			}
+		}else {
+			  System.out.println("FILTRO NORMAL: ");
+			if (descripcion.equals("9999999999")) {
+				objeto=entityRepository.listasLimites();
+				return product(objeto);
+			} else {
+				 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+				objeto=entityRepository.getBuscarPorDescripcion(filtro);
+				return product(objeto);
+			}
 		}
+		
 	}
 
-	@RequestMapping(method=RequestMethod.POST, value = "/producto/descripcion/ajusteStock")
-	public List<Producto> getAllProductoAjusteStock(@RequestBody String descripcion){
-		if (descripcion.equals("9999999999")) {
-			List<Producto> objeto=entityRepository.listaAjusteStock();
-			return product(objeto);
-		} else {
-			String filtro= "%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%";
-			  System.out.println("FILTRO: "+filtro);
-			List<Producto> objeto=entityRepository.getBuscarPorDescripcionAjusteStock(filtro);
-			return product(objeto);
+	@RequestMapping(method=RequestMethod.POST, value = "/producto/descripcion/ajusteStock/{difuzze}")
+	public List<Producto> getAllProductoAjusteStock(@RequestBody String descripcion, @PathVariable Boolean difuzze){
+		List<Producto> objeto= new ArrayList<>();
+		if(difuzze == true) {
+			System.out.println("F-ALGORITMO-DIFUZZE");
+			if (descripcion.equals("9999999999") ||   descripcion.equals("")) {
+				objeto=entityRepository.listaAjusteStock();
+				return product(objeto);
+			} else {
+				 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+				 System.out.println("FILTRO: "+filtro);
+				 objeto=entityRepository.getBuscarPorDescripcionAjusteStockDisfuzze(filtro);
+				return product(objeto);
+			}
+		}else {
+			  System.out.println("FILTRO NORMAL: ");
+			if (descripcion.equals("9999999999") ||   descripcion.equals("") ) {
+				objeto=entityRepository.listaAjusteStock();
+				return product(objeto);
+			} else {
+				 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+				objeto=entityRepository.getBuscarPorDescripcionAjusteStock(filtro);
+				return product(objeto);
+			}
 		}
+		
 	}
 
 	
@@ -205,6 +252,40 @@ public class ProductoController {
 		
 	}
 	
+	
+	public List<Producto> productTraerTodo(List<Producto> objeto) {
+		List<Producto> producto=new ArrayList<>();
+		for(Producto ob:objeto){
+			Producto productos=new Producto();
+			productos.setId(ob.getId());
+			productos.setDescripcion(ob.getDescripcion());
+//			productos.getMarca().setDescripcion(ob.getMarca().getDescripcion());
+//			productos.getMarca().setId(ob.getMarca().getId());
+			productos.setExistencia(ob.getExistencia());
+//			productos.setStock_minimo(ob.getStock_minimo());
+//			productos.getGrupo().setDescripcion(ob.getGrupo().getDescripcion());
+//			if (ob.getCodoriginal() == null) {productos.setCodoriginal("");
+//			} else {productos.setCodoriginal(ob.getCodoriginal());}
+//			if (ob.getCodbar() == null) {productos.setCodbar("");
+//			} else {productos.setCodbar(ob.getCodbar());}
+			productos.setPrecioCosto(ob.getPrecioCosto());
+			productos.setPrecioVenta_1(ob.getPrecioVenta_1());
+			productos.setPrecioVenta_2(ob.getPrecioVenta_2());
+			productos.setPrecioVenta_3(ob.getPrecioVenta_3());
+			productos.setPrecioVenta_4(ob.getPrecioVenta_4());
+//			productos.getUnidadMedida().setDescripcion(ob.getUnidadMedida().getDescripcion());
+//			productos.getUnidadMedida().setId(ob.getUnidadMedida().getId());
+//			productos.getGrupo().setId(ob.getGrupo().getId());
+//			productos.getGrupo().setDescripcion(ob.getGrupo().getDescripcion());
+//			productos.getSubGrupo().setDescripcion(ob.getSubGrupo().getDescripcion());
+//			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
+//			
+			producto.add(productos);
+		}
+
+
+		return producto;
+	}
 	
 	public List<Producto> product(List<Producto> objeto) {
 		List<Producto> producto=new ArrayList<>();
@@ -506,16 +587,28 @@ public class ProductoController {
 		return new ResponseEntity<>(cargarProductoModelo(pr), HttpStatus.OK);
 	}
 
-	@RequestMapping(method=RequestMethod.POST, value="/buscar/descripcion")
-	public List<Producto> consultarPorDescripcion(@RequestBody String descripcion){
+	@RequestMapping(method=RequestMethod.POST, value="/buscar/descripcion/{difuzze}")
+	public List<Producto> consultarPorDescripcion(@RequestBody String descripcion, @PathVariable Boolean difuzze){
+		List<Producto>objeto = new ArrayList<>();
 		Impresora conf=repository.findById(2).get();
-		if(conf.isEstado() == true) {
-			List<Producto> objeto=entityRepository.getBuscarPorDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
-			return product(objeto);
-		} else {
-			List<Producto> objeto=entityRepository.getBuscarPorDescripcionStockBajo("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
-			return product(objeto);
+		if(difuzze==true) {
+			if(conf.isEstado() == true) {
+				objeto=entityRepository.getBuscarPorDescripcionDifuzze("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+				return product(objeto);
+			} else {
+				objeto=entityRepository.getBuscarPorDescripcionStockBajoDifuzze("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+				return product(objeto);
+			}
+		}else {
+			if(conf.isEstado() == true) {
+				objeto=entityRepository.getBuscarPorDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+				return product(objeto);
+			} else {
+				objeto=entityRepository.getBuscarPorDescripcionStockBajo("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+				return product(objeto);
+			}
 		}
+		
 	}
 	@RequestMapping(method=RequestMethod.POST, value="/buscar/descripcion/inventario")
 	public List<Producto> consultarPorDescripcionListadoInventario(@RequestBody String descripcion){
@@ -566,6 +659,7 @@ public class ProductoController {
 			mov.setMarca(p.getMarca().getDescripcion());
 			Concepto c= new Concepto();
 			c= conceptoRepository.findById(8).get();
+			mov.getConcepto().setId(c.getId());
 			mov.setReferencia(c.getDescripcion()+" REF.: "+ idCab);
 			movEntradaSalidaRepository.save(mov);
 			
@@ -614,6 +708,8 @@ public class ProductoController {
 				movEntr.setMarca(pp.getMarca().getDescripcion());
 				Concepto ccc= new Concepto();
 				ccc= conceptoRepository.findById(8).get();
+				movEntr.getConcepto().setId(ccc.getId());
+
 				movEntr.setReferencia(ccc.getDescripcion()+" REF.: "+ idCab);
 				movEntradaSalidaRepository.save(movEntr);
 				
@@ -660,6 +756,7 @@ public class ProductoController {
 				movEntr.setMarca(pp.getMarca().getDescripcion());
 				Concepto ccc= new Concepto();
 				ccc= conceptoRepository.findById(8).get();
+				movEntr.getConcepto().setId(ccc.getId());
 				movEntr.setReferencia(ccc.getDescripcion()+" REF.: "+ idCab);
 				
 				movEntradaSalidaRepository.save(movEntr);
@@ -704,6 +801,8 @@ public class ProductoController {
 					mov.setMarca(prod.getMarca().getDescripcion());
 					Concepto conn= new Concepto();
 					conn= conceptoRepository.findById(8).get();
+					mov.getConcepto().setId(conn.getId());
+
 					mov.setReferencia(conn.getDescripcion()+" REF.: "+ idCab);
 					
 					movEntradaSalidaRepository.save(mov);
@@ -748,6 +847,8 @@ public class ProductoController {
 				mov.setMarca(p.getMarca().getDescripcion());
 				Concepto conn= new Concepto();
 				conn= conceptoRepository.findById(8).get();
+				mov.getConcepto().setId(conn.getId());
+
 				mov.setReferencia(conn.getDescripcion()+" REF.: "+ idCab);
 				
 				movEntradaSalidaRepository.save(mov);
@@ -795,6 +896,8 @@ public class ProductoController {
 			mov.setMarca(p.getMarca().getDescripcion());
 			Concepto conn= new Concepto();
 			conn= conceptoRepository.findById(8).get();
+			mov.getConcepto().setId(conn.getId());
+
 			mov.setReferencia(conn.getDescripcion()+" REF.: "+ idCab);
 			
 			movEntradaSalidaRepository.save(mov);
@@ -838,6 +941,8 @@ public class ProductoController {
 				movv.setMarca(pro.getMarca().getDescripcion());
 				Concepto cn= new Concepto();
 				cn= conceptoRepository.findById(8).get();
+				movv.getConcepto().setId(cn.getId());
+
 				movv.setReferencia(cn.getDescripcion()+" REF.: "+ idCab);
 				
 				movEntradaSalidaRepository.save(movv);
@@ -879,6 +984,8 @@ public class ProductoController {
 				movv.setMarca(pro.getMarca().getDescripcion());
 				Concepto cn= new Concepto();
 				cn= conceptoRepository.findById(8).get();
+				movv.getConcepto().setId(cn.getId());
+
 				movv.setReferencia(cn.getDescripcion()+" REF.: "+ idCab);
 				
 				movEntradaSalidaRepository.save(movv);
@@ -922,6 +1029,8 @@ public class ProductoController {
 					mov.setMarca(p.getMarca().getDescripcion());
 					Concepto conn= new Concepto();
 					conn= conceptoRepository.findById(8).get();
+					mov.getConcepto().setId(conn.getId());
+
 					mov.setReferencia(conn.getDescripcion()+" REF.: "+ idCab);
 					
 					movEntradaSalidaRepository.save(mov);
@@ -960,6 +1069,8 @@ public class ProductoController {
 				movv.setMarca(pro.getMarca().getDescripcion());
 				Concepto cn= new Concepto();
 				cn= conceptoRepository.findById(8).get();
+				movv.getConcepto().setId(cn.getId());
+
 				movv.setReferencia(cn.getDescripcion()+" REF.: "+ idCab);
 				
 				movEntradaSalidaRepository.save(movv);
@@ -971,27 +1082,69 @@ public class ProductoController {
 		return new SimpleDateFormat("HH:mm:ss a", Locale.US).format(new Date());
 	}
 	@RequestMapping(method=RequestMethod.POST, value="/ajuste")
-	public void actualizarStock(@RequestBody Producto entity, OAuth2Authentication authentication){
+	public ResponseEntity<?> actualizarStock(@RequestBody Producto entity, OAuth2Authentication authentication) throws Exception{
 		AjusteInventario ajuste=new AjusteInventario();
 		ajuste.setTipo(entity.getUnidadMedida().getId()+"");
 		ajuste.getProducto().setId(entity.getId());
 		ajuste.setCantidad(entity.getExistencia());
 		ajuste.setMotivo(entity.getCodbar());
-
+		if(entity.getUnidadMedida().getId()==1) {ajuste.getConcepto().setId(8);}
+		if(entity.getUnidadMedida().getId()==2) {ajuste.getConcepto().setId(27);}
+		ajuste.setDescripcion(entity.getDescripcion());
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
 		ajuste.getFuncionario().setId(usuario.getFuncionario().getId());
-		ajusteInventarioRepository.save(ajuste);
-		if (entity.getUnidadMedida().getId()==1) {
+		AjusteInventario aju= ajusteInventarioRepository.save(ajuste);
+
+		Impresora ipmCfgContabilidad= impresoraRepository.getOne(23);
+		if(ipmCfgContabilidad!=null && ipmCfgContabilidad.isEstado() ==true){
+			AsientoContableDTO dto= new AsientoContableDTO();
+			Double cpp= movEntradaSalidaRepository.getCostoPromedioPonderado(entity.getId());
+			if(cpp==null) {
+				cpp=entity.getPrecioCosto();}else {}
+			if(ajuste.getConcepto().getId()==8){
+				dto.setConceptoId(8);
+				dto.setTipoReferencia("AJUSTE STOCK POSITIVO");	
+				dto.setReferenciaId(aju.getId());
+				Map<String, BigDecimal> mon = new HashMap<>();
+				mon.put("BASE_INVENTARIO", BigDecimal.valueOf(cpp * aju.getCantidad()));
+				dto.setMontos(mon);
+			}
+			if(ajuste.getConcepto().getId()==27){
+				dto.setConceptoId(27);
+				dto.setTipoReferencia("AJUSTE STOCK NEGATIVO");
+				dto.setReferenciaId(aju.getId());
+				Map<String, BigDecimal> mon = new HashMap<>();
+				mon.put("BASE_INVENTARIO", BigDecimal.valueOf(cpp * aju.getCantidad()));
+				dto.setMontos(mon);
+			}
+			dto.setFuncionarioRegistroId(usuario.getFuncionario().getId());
+			dto.setFuncionarioModificacionId(usuario.getFuncionario().getId());
+			ResponseEntity<?> retorString = asienotContableServices.guardarAsiento(dto);
+			System.out.println(retorString.getBody().equals("SAVE")+ " 88888          ");
+			Object body = retorString.getBody();
+			if (body instanceof CustomerErrorType) {
+			    String mensaje = ((CustomerErrorType) body).getErrorMessage();
+			    if ("SAVE".equals(mensaje)) {
+			        // correcto
+			    	System.out.println("asientoooo guardado");
+			    } else {
+					return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR GUARDAR ASIENTO DE VENTA"), HttpStatus.CONFLICT);
+			    }
+			}
 			
+		}
+
+		
+		if (entity.getUnidadMedida().getId()==1) {
 			//entityRepository.findByActualizaA(entity.getExistencia(), entity.getId());
 			this.actualizarProductoBaseAumentar(entity.getId(), entity.getExistencia(), usuario.getFuncionario().getId(), ajusteInventarioRepository.getAjusteUlt().getId());
 		} 
 		if (entity.getUnidadMedida().getId()==2) {
-			
 			this.actualizarProductoBaseDescontar(entity.getId(), entity.getExistencia(), usuario.getFuncionario().getId(), ajusteInventarioRepository.getAjusteUlt().getId());
 		}
-	}
+		return new ResponseEntity<>(HttpStatus.CREATED);
 
+	}
 	@RequestMapping(method=RequestMethod.GET, value="totalproducto")
 	public Object[] getAllTotales(){
 		return entityRepository.findByProducto();
@@ -1022,8 +1175,29 @@ public class ProductoController {
 			ajustes.setCantidad(Double.parseDouble(ob[4].toString()));
 			ajustes.setTipo(ob[5].toString());
 			String fech=ob[6].toString();
-			ajustes.setFecha(FechaUtil.convertirFechaStringADateUtil(fech));
+			ajustes.setFecha(FechaUtil.convertirFechaStringADateUtilConHoraIncluido(fech));
 			ajustes.setMotivo(ob[7].toString());
+			ajustes.getProducto().setId(Integer.parseInt(ob[8].toString()));
+			ajuste.add(ajustes);
+		}
+		return ajuste;
+	}
+	@RequestMapping(method=RequestMethod.GET, value="/ajusteInventario/all")
+	public List<AjusteInventario> getAjusteInventarioAll(){
+		List<AjusteInventario> objeto=ajusteInventarioRepository.findAll();
+		List<AjusteInventario> ajuste=new ArrayList<>();
+		for(AjusteInventario ob:objeto){
+			AjusteInventario ajustes=new AjusteInventario();
+			ajustes.setId(ob.getId());
+			ajustes.getFuncionario().setId(ob.getFuncionario().getId());
+			ajustes.getFuncionario().getPersona().setNombre(ob.getFuncionario().getPersona().getNombre());
+			ajustes.getFuncionario().getPersona().setApellido(ob.getFuncionario().getPersona().getApellido());
+			ajustes.getProducto().setDescripcion(ob.getProducto().getDescripcion());
+			ajustes.setCantidad(ob.getCantidad());
+			ajustes.setTipo(ob.getTipo());
+			ajustes.setFecha(ob.getFecha());
+			ajustes.setMotivo(ob.getMotivo());
+			ajustes.getProducto().setId(ob.getProducto().getId());
 			ajuste.add(ajustes);
 		}
 		return ajuste;

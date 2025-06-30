@@ -81,12 +81,11 @@ public class LiquidacionAnticipoController {
 		return cargar(entityRepository.getOne(id));
 
 	}
-	@RequestMapping(method=RequestMethod.GET,value = "/funcionario/{id}")
-	public List<LiquidacionAnticipo> getLiquidacionListaPorIdFuncionario(@PathVariable int id){
-		
-		List<LiquidacionAnticipo> list = entityRepository.getLiquidacionListaPorIdFuncionario(id);;
+	
+	
+	public List<LiquidacionAnticipo> cargarLiquidacion(List<LiquidacionAnticipo> obje){
 		List<LiquidacionAnticipo> cuentaCabecera=new ArrayList<>();
-		for(LiquidacionAnticipo c: list) {
+		for(LiquidacionAnticipo c: obje) {
 			LiquidacionAnticipo liq = new LiquidacionAnticipo();
 			liq.setId(c.getId());
 			liq.setFecha(c.getFecha());
@@ -98,12 +97,23 @@ public class LiquidacionAnticipoController {
 			liq.getFuncionarioRegistro().getPersona().setNombre(c.getFuncionarioRegistro().getPersona().getNombre()+ " "+c.getFuncionarioRegistro().getPersona().getApellido());
 			liq.getFuncionarioRegistro().getPersona().setCedula(c.getFuncionarioRegistro().getPersona().getCedula());
 			liq.setResumen(c.getResumen());
-			
 			cuentaCabecera.add(liq);
 		}
 		return cuentaCabecera;
-	
 	}
+	@RequestMapping(method=RequestMethod.GET,value = "/funcionario/{id}")
+	public List<LiquidacionAnticipo> getLiquidacionListaPorIdFuncionario(@PathVariable int id){
+		List<LiquidacionAnticipo> list = entityRepository.getLiquidacionListaPorIdFuncionario(id);;
+		return cargarLiquidacion(list);
+	}
+	@RequestMapping(method=RequestMethod.GET,value = "/activo/funcionario/{id}")
+	public List<LiquidacionAnticipo> getLiquidacionActivoPorFuncionario(@PathVariable int id){
+		List<LiquidacionAnticipo> list = entityRepository.getLiquidacionaActivoListaPorIdFuncionario(id);
+		return cargarLiquidacion(list);
+	}
+	
+	
+	
 	
 	@RequestMapping(method=RequestMethod.GET,value = "/buscarLiquidacionActivo/{id}")
 	public LiquidacionAnticipo buscarAnticipoActivo(@PathVariable int id){

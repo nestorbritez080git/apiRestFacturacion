@@ -26,8 +26,6 @@ import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.LiquidacionServicio;
 import com.bisontecfacturacion.security.model.LiquidacionServicioDetalle;
 import com.bisontecfacturacion.security.model.Org;
-import com.bisontecfacturacion.security.model.SalarioFuncionario;
-import com.bisontecfacturacion.security.model.SalarioFuncionarioDetalle;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.repository.LiquidacionServicioDetalleRepository;
 import com.bisontecfacturacion.security.repository.LiquidacionServicioRepository;

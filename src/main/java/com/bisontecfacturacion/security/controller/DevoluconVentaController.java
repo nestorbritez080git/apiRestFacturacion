@@ -1,6 +1,7 @@
 package com.bisontecfacturacion.security.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -89,8 +91,8 @@ public class DevoluconVentaController {
 	private Reporte report;
 	@Autowired
 	private DevolucionVentaRepository entityRepository;
-	
-	
+
+
 	@Autowired
 	private ParametroTipoHojaRepository parametroTipoHoja;
 	@Autowired
@@ -99,7 +101,7 @@ public class DevoluconVentaController {
 	@Autowired
 	private DetalleProductoRepository detalleProductoRepository;
 
-	
+
 	@Autowired
 	private ClienteRepository clienteRepository; 
 	@Autowired
@@ -134,12 +136,12 @@ public class DevoluconVentaController {
 
 	@Autowired
 	private NotaCreditoRepository notaCreditoRepository;
-	
+
 	@Autowired
 	private ReporteConfigRepository reporteConfigRepository;
 
 
-	
+
 	@Autowired
 	private IUsuarioService usuarioService;
 	@Autowired
@@ -153,7 +155,7 @@ public class DevoluconVentaController {
 
 	@Autowired
 	private TipoPlazoRepository tipoPlazoRepository;
-	
+
 	@Autowired
 	private ReporteFormatoDatosRepository reporteFormatoDatosRepository;
 
@@ -188,17 +190,21 @@ public class DevoluconVentaController {
 			det.getDetalleProducto().setSubTotal(Double.parseDouble(ob[7].toString()));
 			det.setCantidad(Double.parseDouble(ob[8].toString()));
 			det.setSubTotal(Double.parseDouble(ob[9].toString()));
+			det.getDetalleProducto().setId(Integer.parseInt(ob[10].toString()));
+			det.getDetalleProducto().getProducto().setId(Integer.parseInt(ob[11].toString()));
+			det.setPrecio(Double.parseDouble(ob[12].toString()));
 			listaRetorno.add(det);
 		}
 		return listaRetorno;
 	}
-	
-	
+
+
 
 	@RequestMapping(method=RequestMethod.GET, value="/{tipo}/{fecha}")
 	public List<DevolucionVenta> getDevolucion(@PathVariable int tipo, @PathVariable String fecha){
 		List<DevolucionVenta> listado = new ArrayList<DevolucionVenta>();
 		if (tipo == 1) {
+			System.out.println();
 			listado = cargarLista();
 		}
 		if (tipo == 2) {
@@ -216,12 +222,22 @@ public class DevoluconVentaController {
 		return listado;
 	}
 
+	@RequestMapping(method=RequestMethod.GET, value="/buscar/{filtro}")
+	public List<DevolucionVenta> getDevolucionAllPorFiltro(@PathVariable String filtro){
+		List<DevolucionVenta> listado = new ArrayList<DevolucionVenta>();
+		listado = cargarObjetos(entityRepository.getVentaFiltro("%" + filtro + "%"));
+		return listado;
+	}
+
 
 	public DevolucionVenta cargarEdicionId(DevolucionVenta objeto) {
 		DevolucionVenta dev = new DevolucionVenta();
 		dev.getVenta().setId(objeto.getVenta().getId());
 		dev.getVenta().getCliente().getPersona().setNombre(objeto.getVenta().getCliente().getPersona().getNombre() + " "+objeto.getVenta().getCliente().getPersona().getApellido());
 		dev.getVenta().setTotal(objeto.getVenta().getTotal());
+		dev.getVenta().getCliente().setId(objeto.getVenta().getCliente().getId());
+		dev.getFuncionario().setId(objeto.getFuncionario().getId());
+		dev.getFuncionario().setPersona(objeto.getFuncionario().getPersona());
 		dev.getVenta().setTipo(objeto.getVenta().getTipo());
 		dev.getVenta().setFecha(objeto.getVenta().getFecha());
 		dev.getVenta().setFechaFactura(objeto.getVenta().getFechaFactura());
@@ -229,9 +245,12 @@ public class DevoluconVentaController {
 		dev.setFecha(objeto.getFecha());
 		dev.setTotal(objeto.getTotal());
 		dev.getTipoDevolucion().setDescripcion(objeto.getTipoDevolucion().getDescripcion());
-		dev.getTipoDevolucion().setId(objeto.getId());
+		dev.getTipoDevolucion().setId(objeto.getTipoDevolucion().getId());
 		dev.setFechaFactura(objeto.getVenta().getFechaFactura());
 		dev.setNumeroOperacion(objeto.getVenta().getOperacionCaja());
+		dev.getVenta().setOperacionCaja(objeto.getVenta().getOperacionCaja()); 
+		dev.getVenta().setEntrega(objeto.getVenta().getEntrega());
+
 
 		return dev;
 	}
@@ -249,6 +268,17 @@ public class DevoluconVentaController {
 			dev.setHora(o[6].toString());
 			dev.setEstado(o[7].toString());
 			dev.getTipoDevolucion().setId(Integer.parseInt(o[8].toString()));
+			dev.getVenta().setId(Integer.parseInt(o[9].toString()));
+			dev.getVenta().setTotal(Double.parseDouble(o[10].toString()));
+			dev.getVenta().setFechaFactura(FechaUtil.convertirFechaStringADateUtil(o[11].toString()));			
+			if (o[12].toString().equals("1") || o[12].toString().toLowerCase().equals("contado")) {
+				dev.getVenta().setTipo("1");
+			} else if(o[12].toString().equals("2") || o[12].toString().toLowerCase().equals("credito")) {
+				dev.getVenta().setTipo("2");
+				System.out.println("entro verificacion de cuenta credito");
+			}
+			
+			dev.getVenta().setEntrega(Double.parseDouble(o[13].toString()));
 			lista.add(dev);
 		}
 		return lista;
@@ -271,6 +301,14 @@ public class DevoluconVentaController {
 			devol.getTipoDevolucion().setDescripcion(d.getTipoDevolucion().getDescripcion());
 			devol.getTipoDevolucion().setId(d.getTipoDevolucion().getId());
 			devol.setEstado(d.getEstado());
+			if (d.getVenta().getTipo().equals("1") || d.getVenta().getTipo().toLowerCase().equals("contado")) {
+				devol.getVenta().setTipo("1");
+			} else if(d.getVenta().getTipo().equals("2") || d.getVenta().getTipo().toLowerCase().equals("credito")) {
+				devol.getVenta().setTipo("2");
+				System.out.println("entro verificacion de cuenta credito");
+			}
+			devol.getVenta().setEntrega(d.getVenta().getEntrega());
+			System.out.println(devol.getVenta().getTipo()+"   *+*+ tipo ");
 			lista.add(devol);
 		}
 
@@ -303,340 +341,493 @@ public class DevoluconVentaController {
 		return listaRetorno;
 
 	}
+
 	@Transactional
-	@RequestMapping(method=RequestMethod.GET, value = "/confirmarDevolucion/{id}/{idTipoOperacion}/{terminal}/{siImp}")
-	public ResponseEntity<?> confirmarDevolucion (@PathVariable int id, OAuth2Authentication authentication, @PathVariable int idTipoOperacion, @PathVariable int terminal, @PathVariable String siImp){
-		
-		try {
-			
-		
-		Usuario usuario = usuarioService.findByUsername(authentication.getName());
-		
-		DevolucionVenta v= entityRepository.getOne(id);
-		OperacionCaja operacionAnterior =null;
-		if(v.getVenta().getOperacionCaja()!=0) {
-			operacionAnterior = operacionCajaRepository.getOne(v.getVenta().getOperacionCaja());
-		}else {
-			
+	@RequestMapping(method=RequestMethod.GET, value = "/verifiarCuentaSaldo/{id}")
+	public ResponseEntity<?> verificarCuentaSaldo (@PathVariable int id){
+		CuentaCobrarCabecera est = null;
+		est = entityRepository.getSaldoDisponibleVentaCredito(id);
+
+		Map<String, CuentaCobrarCabecera> response = new HashMap<>();
+		response.put("cuenta", est);
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+	@Transactional
+	@RequestMapping(method=RequestMethod.POST, value = "/prueba/{id}/{tpDevol}/{idAper}/{tpCaja}/{tComp}/{tEfe}/{tNota}/{terminal}/{imp}")
+	public ResponseEntity<?> pruebaConfirmarDevolucion (
+			@RequestBody List<CuentaCobrarCabecera> cue, 
+			@PathVariable int id, 
+			@PathVariable int tpDevol,
+			@PathVariable int idAper,
+			@PathVariable String tpCaja,
+			@PathVariable Double tComp, 
+			@PathVariable Double tEfe, 
+			@PathVariable Double tNota,
+			@PathVariable int terminal, @PathVariable String  imp){
+		AperturaCaja ape= aperturaCajaRepository.getAperturaCajaPorIdCaja(idAper);
+		if(tEfe > 0 && ape.getSaldoActual() < tEfe) {
+			return new ResponseEntity<>(new CustomerErrorType("EL MONTO DEVOLUCION ES MAYOR AL MONTO DISPONIBLE EN CAJA"), HttpStatus.CONFLICT);
 		}
-		
-		System.out.println("TIPO OPERACION: "+idTipoOperacion);
-		if(v.getVenta().getTipo().equals("1")) {
-			System.out.println("DEVOLUCION TIPO VENTA CONTADO");
-			if(idTipoOperacion==1) {
-				System.out.println("CON REENVOLSO");
-				if(operacionAnterior!=null) {					
-					OperacionCaja ope= new OperacionCaja();
-					ope.setEfectivo(0.0);
-					ope.setFecha(new Date());
-					ope.setMonto(v.getTotal());
-					ope.setReferenciaTipoOperacion("");
-					ope.setVuelto(0.0);
-					ope.setTipo("SALIDA");
-					Concepto c= new Concepto();
-					c = conceptoRepository.getOne(6);
-					ope.setMotivo(c.getDescripcion()+" REF.: "+v.getId());
-					ope.getTipoOperacion().setId(operacionAnterior.getTipoOperacion().getId());
-					ope.getAperturaCaja().setId(operacionAnterior.getAperturaCaja().getId());
-					ope.getConcepto().setId(6);
-					operacionCajaRepository.save(ope);
-					if(operacionAnterior.getTipoOperacion().getId()==1) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(operacionAnterior.getAperturaCaja().getId(), v.getTotal());}
-					if(operacionAnterior.getTipoOperacion().getId()==2) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(operacionAnterior.getAperturaCaja().getId(), v.getTotal());}
-					if(operacionAnterior.getTipoOperacion().getId()==3) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(operacionAnterior.getAperturaCaja().getId(), v.getTotal());}
-					AperturaCaja aper=aperturaCajaRepository.findById(operacionAnterior.getAperturaCaja().getId()).get();
-					if (aper.isEstado() == false) {
-						int cierreId = cierreCajaRepository.IdCierreCaja(operacionAnterior.getAperturaCaja().getId());
-						if(operacionAnterior.getTipoOperacion().getId()==1) {
-							cierreCajaRepository.findByActualizarCierreMontoAnulacionVenta(operacionAnterior.getAperturaCaja().getId(), v.getTotal());
-							tesoreriaRepository.findByActualizarCierreMontoAnulacionVenta(cierreId, v.getTotal());
-						}
-						if(operacionAnterior.getTipoOperacion().getId()==2) {
-							cierreCajaRepository.findByActualizarCierreMontoAnulacionVentaCheque(operacionAnterior.getAperturaCaja().getId(), v.getTotal());
-							tesoreriaRepository.findByActualizarCierreMontoAnulacionVentaCheque(cierreId, v.getTotal());
-						}
-						if(operacionAnterior.getTipoOperacion().getId()==3) {
-							cierreCajaRepository.findByActualizarCierreMontoAnulacionVentaTarjeta(operacionAnterior.getAperturaCaja().getId(), v.getTotal());
-							tesoreriaRepository.findByActualizarCierreMontoAnulacionVentaTarjeta(cierreId, v.getTotal());
-						}
-					}
-					List<DevolucionVentaDetalle> lista= listarDetalleDevol(detalleRepository.getDetalleDevolucionPorIdCabecera(v.getId()));
-					for (DevolucionVentaDetalle list : lista) {
-						System.out.println("entrooo for para aumentar: ");
-						this.actualizarProductoBaseA(list.getDetalleProducto().getProducto().getId(), list.getCantidad());
-						System.out.println("ID: "+list.getDetalleProducto().getProducto().getId() + " ");
-						Producto p = productoRepository.getOne(list.getDetalleProducto().getProducto().getId());
-						MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
-						System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+		try {
 
-						mov.setDescripcion(list.getDescripcion());
-						mov.setCantidad(list.getCantidad());
-						mov.setFecha(new  Date());
-						mov.setHora(hora());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		DevolucionVenta ccc = new DevolucionVenta();
+		ccc= entityRepository.getDevolucionPorId(id);
+		System.out.println("*-*- "+ccc.getDevolucionVentaDetalle().size());
+		for (int i = 0; i < ccc.getDevolucionVentaDetalle().size(); i++) {
+			System.out.println("ID DETALLE : "+ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getId());
+			entityRepository.findeByCantidadDevolucionDetalleProducto(ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getId(),ccc.getDevolucionVentaDetalle().get(i).getCantidad() );
+			   // podés obtener los demás datos desde el detalle, producto o calculados:
+		    
+			int idProducto = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getId();
+			 double cantidadDevuelta = ccc.getDevolucionVentaDetalle().get(i).getCantidad();
+			Double costo = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getCosto(); // o como corresponda
+		    double subtotal = costo * cantidadDevuelta;
 
-						mov.setIngreso(list.getSubTotal());
-						mov.setEgreso(0.0);
-						mov.setVentaSalida(list.getPrecio());
+		    double precioVenta1 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_1(); // o como corresponda
+		    double precioVenta2 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_2();
+		    double precioVenta3 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_3();
+		    double precioVenta4 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_4();
 
-						mov.setCostoEntrada(0.0);
-						mov.setCostoEntradaAnterior(0.0);
-						mov.setCostoSalida(p.getPrecioCosto());
+		    int idFuncionario = ccc.getFuncionario().getId(); // o quien confirmó la devolución
+		    String marca = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getMarca().getDescripcion(); // o código
 
-						mov.setVenta_1(p.getPrecioVenta_1());
-						mov.setVenta_2(p.getPrecioVenta_2());
-						mov.setVenta_3(p.getPrecioVenta_3());
-						mov.setVenta_4(p.getPrecioVenta_4());
-
-						mov.setVenta_1_anterior(0.0);
-						mov.setVenta_2_anterior(0.0);
-						mov.setVenta_3_anterior(0.0);
-						mov.setVenta_4_anterior(0.0);
-
-						mov.getTipoMovimiento().setId(1);
-						mov.getProducto().setId(p.getId());
-						mov.getFuncionario().setId(v.getFuncionario().getId());
-						mov.setMarca(p.getMarca().getDescripcion());
-						Concepto ccc= new Concepto();
-						ccc= conceptoRepository.findById(6).get();
-						mov.setReferencia(ccc.getDescripcion()+" REF.: "+ v.getId());
-						movEntradaSalidaRepository.save(mov);
+		    actualizarProductoBaseAumentarCorregido(
+		        idProducto,
+		        cantidadDevuelta,
+		        costo,
+		        subtotal,
+		        precioVenta1,
+		        precioVenta2,
+		        precioVenta3,
+		        precioVenta4,
+		        idFuncionario,
+		        marca,
+		        "DEVOLUCION ", // podés pasar un tipo más explícito si querés
+		        ccc.getId()); // ID de la devolución para referencia
+		}
+		System.out.println("ID VENTA: "+ccc.getVenta().getId()+" TOTAL: " + ccc.getTotal());
+		//primero confirmar la devolucion
+		entityRepository.confirmarDevolucion(id, tpDevol);
+		//segundo actualizar venta
+		entityRepository.findeByTotalDevolucionVenta(ccc.getVenta().getId(), ccc.getTotal());
+		//tercero aplicar conmpensacion en la cuenta descontar el saldo si que viene cuenta afectada
+		for (int i = 0; i < cue.size(); i++) {
+			CuentaCobrarCabecera cuentaReferencia = new CuentaCobrarCabecera();
+			cuentaReferencia = cue.get(i);
+			Double resto = cuentaReferencia.getTotalDevolucion();
+			cuentaCobrarRepository.findByActualizarTotalDevolucionCuenta(cuentaReferencia.getId(), cuentaReferencia.getTotalDevolucion());
+			List<CuentaCobrarDetalle> det = cuentaCobrarDetalleRepository.getCuentaCobrarDetalle(cuentaReferencia.getId());
+			for (CuentaCobrarDetalle detalle : det) {
+				if (resto <= 0) {
+					break; // ya se aplicó todo el monto
+				}
+				Double saldoDisponible = detalle.getSubTotal()- detalle.getImporte();
+				Double montoAplicado = 0.0;
+				if (saldoDisponible > 0) {
+					if (saldoDisponible.compareTo(resto) >= 0) {
+						montoAplicado = resto;
+					} else {
+						montoAplicado = saldoDisponible;
 					}
 				}
-				
-				pdfPrintss(id, terminal, siImp);
-			}else if(idTipoOperacion==2) {
-				System.out.println("SIN REENVOLSO");
-				NotaCredito notaCredtio = new NotaCredito();
-				notaCredtio.setFecha(new Date());
-				notaCredtio.setHora(hora());
-				notaCredtio.setTotal(v.getTotal());
-				notaCredtio.setTotalLetra(v.getTotalLetra());
-				notaCredtio.getCliente().setId(v.getVenta().getCliente().getId());
-				notaCredtio.getFuncionario().setId(usuario.getFuncionario().getId());
-				notaCredtio.getDevolucionVenta().setId(id);
-				notaCreditoRepository.save(notaCredtio);
-				List<DevolucionVentaDetalle> lista= listarDetalleDevol(detalleRepository.getDetalleDevolucionPorIdCabecera(v.getId()));
-				for (DevolucionVentaDetalle list : lista) {
-					System.out.println("entrooo for para aumentar: ");
-					this.actualizarProductoBaseA(list.getDetalleProducto().getProducto().getId(), list.getCantidad());
-					System.out.println("ID: "+list.getDetalleProducto().getProducto().getId() + " ");
-					Producto p = productoRepository.getOne(list.getDetalleProducto().getProducto().getId());
+				// Aplicar el monto al detalle
+				cuentaCobrarDetalleRepository.actualizarImporteAplciado(detalle.getId(), montoAplicado);
+				resto = resto - montoAplicado;
+			}
+		}
+		if (tComp > 0) {
+			
+		}
+		if (tEfe > 0) {
+			OperacionCaja ope= new OperacionCaja();
+			ope.getAperturaCaja().setId(idAper);
+			ope.setMonto(tEfe);
+			ope.getConcepto().setId(6);//devolucionVenta ;
+			ope.setFecha(new Date());
+			ope.setTipo("SALIDA");
+			ope.setMotivo("DEVOLUCION VENTA REF.: "+ccc.getId());
+			System.out.println(tpCaja+ " tp caja");
+			if(tpCaja.equals("EFECTIVO")) {ope.getTipoOperacion().setId(1);}
+			if(tpCaja.equals("CHEQUE")) {ope.getTipoOperacion().setId(2);}
+			if(tpCaja.equals("TARJETA")) {ope.getTipoOperacion().setId(3);}
+			operacionCajaRepository.save(ope);
+			if(tpCaja.equals("EFECTIVO")) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idAper, tEfe);}
+			if(tpCaja.equals("CHEQUE")) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idAper, tEfe);}
+			if(tpCaja.equals("TARJETA")) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idAper, tEfe);}
+		}
+		if (tNota > 0) {
+			NotaCredito nota = new NotaCredito();
+			nota.setCliente(ccc.getVenta().getCliente());
+			nota.setDevolucionVenta(ccc);
+			nota.setTotal(ccc.getTotal());
+			nota.setTotalLetra(NumerosALetras.convertirNumeroALetras(ccc.getTotal()));
+			nota.setFecha(new Date());
+			nota.getFuncionario().setId(2);
+			nota.setHora("");
+			notaCreditoRepository.save(nota);
+		}
+		printimpMatricial(id, terminal, imp);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
+	public void actualizarProductoBaseAumentarCorregido(int id , double cantidad, double costo, double subtotal, double preVen1, double preVen2, double preVen3, double preVen4, int idfuncio, String marca, String tipo, int idDevolucion) {
+		ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
+		if(ca!=null) {
+			System.out.println("producto que viene tiene compuesto");
+			double existenciaBase=0.0;
+			existenciaBase= cantidad * ca.getCantidadAplicacion();
+			System.out.println("CANT. ACT. : "+existenciaBase);
+
+
+			Producto p = productoRepository.getOne(ca.getProductoBase().getId());
+			System.out.println("CANT DESPUES: "+p.getExistencia());
+			MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
+			//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+			//			, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
+			System.out.println("compra - entro tiene compusto actuliza base :"+existenciaBase+ " "+p.getDescripcion());
+
+			mov.setDescripcion(p.getDescripcion());
+			mov.setCantidad(existenciaBase);
+			mov.setFecha(new  Date());
+			mov.setHora(hora());
+			mov.setVentaSalida(0.0);
+			System.out.println("SUBTOTAL: "+subtotal +" EXITE"+ existenciaBase);
+			mov.setCostoEntrada(subtotal/existenciaBase);
+			mov.setEgreso(subtotal);
+			mov.setCostoEntradaAnterior(p.getPrecioCosto());
+			System.out.println("venta1: "+preVen1+" venta1: "+preVen2+" venta3: "+preVen3+" venta4: "+preVen4);
+			mov.setVenta_1(preVen1/ca.getCantidadAplicacion());
+			mov.setVenta_2(preVen2/ca.getCantidadAplicacion());
+			mov.setVenta_3(preVen3/ca.getCantidadAplicacion());
+			mov.setVenta_4(preVen4/ca.getCantidadAplicacion());
+
+			mov.setVenta_1_anterior(p.getPrecioVenta_1());
+			mov.setVenta_2_anterior(p.getPrecioVenta_2());
+			mov.setVenta_3_anterior(p.getPrecioVenta_3());
+			mov.setVenta_4_anterior(p.getPrecioVenta_4());
+			mov.getTipoMovimiento().setId(1);
+			mov.getProducto().setId(p.getId());
+			mov.getFuncionario().setId(idfuncio);
+			mov.setMarca(marca);
+			Concepto ccc= new Concepto();
+			ccc= conceptoRepository.findById(6).get();
+			mov.getConcepto().setId(ccc.getId());
+			mov.setReferencia(ccc.getDescripcion()+" REF.: "+ idDevolucion);
+
+			movEntradaSalidaRepository.save(mov);
+
+			System.out.println("COSTO : "+costo+ " aplicacion: "+ca.getCantidadAplicacion());
+			p.setPrecioCosto(subtotal/existenciaBase);
+			p.setPrecioVenta_1(preVen1/ca.getCantidadAplicacion());
+			p.setPrecioVenta_2(preVen2/ca.getCantidadAplicacion());
+			p.setPrecioVenta_3(preVen3/ca.getCantidadAplicacion());
+			p.setPrecioVenta_4(preVen4/ca.getCantidadAplicacion()); 
+			System.out.println("Existemcia ************"+ p.getExistencia());
+			//p.getProveedor().setId(entity.getProveedor().getId());
+			//productoRepository.updateProveedorId(entity.getProveedor().getId(), p.getId());
+			//productoRepository.updateProveedorId(idProvee, p.getId());
+			productoRepository.save(p);
+			productoRepository.findByActualizaA(existenciaBase, ca.getProductoBase().getId());
+
+			List<ProductoCardex> list = compuestoRepository.getBase(ca.getProductoBase().getId());
+			for(ProductoCardex ob: list) {
+				System.out.println("compra - entro tiene compusto actuliza todas los compuesto por base relacionado :");
+				Double exi=0.0;
+				exi=  (cantidad * ca.getCantidadAplicacion() )/ob.getCantidadAplicacion();
+
+
+				System.out.println("CANT. ACT. : "+exi);
+
+				Producto pp = productoRepository.getOne(ob.getProductoCompuesto().getId());
+				System.out.println("CANT DESPUES: "+pp.getExistencia());
+				MovimientoEntradaSalida movEntr = new MovimientoEntradaSalida();
+				//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+				//				, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
+				System.out.println("compra - entro tiene compusto actuliza todas los compuesto por base relacionado : :"+exi+ " "+pp.getDescripcion());
+				movEntr.setDescripcion(pp.getDescripcion());
+				movEntr.setCantidad(exi);
+				movEntr.setFecha(new  Date());
+				movEntr.setHora(hora());
+				movEntr.setVentaSalida(0.0);
+				System.out.println("SUBTOTAL: "+subtotal +" EXITE"+ exi);
+
+				movEntr.setCostoEntrada(subtotal/exi);
+				movEntr.setEgreso(subtotal);
+				movEntr.setCostoEntradaAnterior(pp.getPrecioCosto());
+
+				movEntr.setVenta_1((preVen1/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
+				movEntr.setVenta_2((preVen2/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
+				movEntr.setVenta_3((preVen3/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
+				movEntr.setVenta_4((preVen4/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
+
+				movEntr.setVenta_1_anterior(pp.getPrecioVenta_1());
+				movEntr.setVenta_2_anterior(pp.getPrecioVenta_2());
+				movEntr.setVenta_3_anterior(pp.getPrecioVenta_3());
+				movEntr.setVenta_4_anterior(pp.getPrecioVenta_4());
+				movEntr.getTipoMovimiento().setId(1);
+				movEntr.getProducto().setId(pp.getId());
+				movEntr.getFuncionario().setId(idfuncio);
+				movEntr.setMarca(marca);
+
+				Concepto conc= new Concepto();
+				conc= conceptoRepository.findById(6).get();
+				movEntr.getConcepto().setId(conc.getId());
+				movEntr.setReferencia(conc.getDescripcion()+" REF.: "+ idDevolucion);
+				movEntradaSalidaRepository.save(movEntr);
+
+				System.out.println("COSTO : "+costo+ " aplicacion: "+ob.getCantidadAplicacion());
+				pp.setPrecioCosto(subtotal/exi);
+				pp.setPrecioVenta_1((preVen1/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
+				pp.setPrecioVenta_2((preVen2/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
+				pp.setPrecioVenta_3((preVen3/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
+				pp.setPrecioVenta_4((preVen4/ca.getCantidadAplicacion())*ob.getCantidadAplicacion()); 
+
+				//p.getProveedor().setId(entity.getProveedor().getId());
+				//productoRepository.updateProveedorId(entity.getProveedor().getId(), p.getId());
+				System.out.println("Existemcia forddd ************"+ pp.getExistencia());
+				//productoRepository.updateProveedorId(idProvee, pp.getId());
+				productoRepository.save(pp);
+				productoRepository.findByActualizaA(exi, ob.getProductoCompuesto().getId());// actualiza pro compuesto
+
+			}
+		}else {
+			System.out.println("entrooo else no tiene compusto el id: "+id);
+			ProductoCardex pBase = compuestoRepository.getProductoPorIdBase(id);
+			if(pBase != null) {
+				System.out.println("Producto relacio0nado con una base");
+
+
+				Producto pp = productoRepository.getOne(id);
+				MovimientoEntradaSalida movEntr = new MovimientoEntradaSalida();
+				//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+				//				, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
+				movEntr.setDescripcion(pp.getDescripcion());
+				movEntr.setCantidad(cantidad);
+				movEntr.setFecha(new  Date());
+				movEntr.setHora(hora());
+				movEntr.setVentaSalida(0.0);
+
+				movEntr.setCostoEntrada(subtotal/cantidad);
+				movEntr.setEgreso(subtotal);
+				movEntr.setCostoEntradaAnterior(pp.getPrecioCosto());
+
+				movEntr.setVenta_1(preVen1);
+				movEntr.setVenta_2(preVen2);
+				movEntr.setVenta_3(preVen3);
+				movEntr.setVenta_4(preVen4);
+
+				movEntr.setVenta_1_anterior(pp.getPrecioVenta_1());
+				movEntr.setVenta_2_anterior(pp.getPrecioVenta_2());
+				movEntr.setVenta_3_anterior(pp.getPrecioVenta_3());
+				movEntr.setVenta_4_anterior(pp.getPrecioVenta_4());
+				movEntr.getTipoMovimiento().setId(1);
+				movEntr.getProducto().setId(pp.getId());
+				movEntr.getFuncionario().setId(idfuncio);
+				movEntr.setMarca(marca);
+
+				Concepto coc= new Concepto();
+				coc= conceptoRepository.findById(6).get();
+				movEntr.getConcepto().setId(coc.getId());
+				movEntr.setReferencia(coc.getDescripcion()+" REF.: "+ idDevolucion);
+
+				movEntradaSalidaRepository.save(movEntr);
+
+				pp.setPrecioCosto(subtotal/cantidad);
+				pp.setPrecioVenta_1(preVen1);
+				pp.setPrecioVenta_2(preVen2);
+				pp.setPrecioVenta_3(preVen3);
+				pp.setPrecioVenta_4(preVen4); 
+				//p.getProveedor().setId(entity.getProveedor().getId());
+				//productoRepository.updateProveedorId(entity.getProveedor().getId(), p.getId());
+				//productoRepository.updateProveedorId(idProvee, pp.getId());
+				productoRepository.save(pp);
+				productoRepository.findByActualizaA(cantidad, id);
+
+				List<ProductoCardex> list = compuestoRepository.getBase(id);
+				for(ProductoCardex ob: list) {
+					Double existenciaActual=0.0;
+					existenciaActual= cantidad / ob.getCantidadAplicacion();
+
+					Producto p = productoRepository.getOne(ob.getProductoCompuesto().getId());
 					MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
 					//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+					//					, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
 
-					mov.setDescripcion(list.getDescripcion());
-					mov.setCantidad(list.getCantidad());
+					mov.setDescripcion(p.getDescripcion());
+					mov.setCantidad(existenciaActual);
 					mov.setFecha(new  Date());
 					mov.setHora(hora());
+					mov.setVentaSalida(0.0);
 
-					mov.setIngreso(list.getSubTotal());
-					mov.setEgreso(0.0);
-					mov.setVentaSalida(list.getPrecio());
+					mov.setCostoEntrada(subtotal/existenciaActual);
+					mov.setEgreso(subtotal);
+					mov.setCostoEntradaAnterior(p.getPrecioCosto());
 
-					mov.setCostoEntrada(0.0);
-					mov.setCostoEntradaAnterior(0.0);
-					mov.setCostoSalida(p.getPrecioCosto());
+					mov.setVenta_1(preVen1 * ob.getCantidadAplicacion());
+					mov.setVenta_2(preVen2 * ob.getCantidadAplicacion());
+					mov.setVenta_3(preVen3 * ob.getCantidadAplicacion());
+					mov.setVenta_4(preVen4 * ob.getCantidadAplicacion());
 
-					mov.setVenta_1(p.getPrecioVenta_1());
-					mov.setVenta_2(p.getPrecioVenta_2());
-					mov.setVenta_3(p.getPrecioVenta_3());
-					mov.setVenta_4(p.getPrecioVenta_4());
-
-					mov.setVenta_1_anterior(0.0);
-					mov.setVenta_2_anterior(0.0);
-					mov.setVenta_3_anterior(0.0);
-					mov.setVenta_4_anterior(0.0);
-
+					mov.setVenta_1_anterior(p.getPrecioVenta_1());
+					mov.setVenta_2_anterior(p.getPrecioVenta_2());
+					mov.setVenta_3_anterior(p.getPrecioVenta_3());
+					mov.setVenta_4_anterior(p.getPrecioVenta_4());
 					mov.getTipoMovimiento().setId(1);
 					mov.getProducto().setId(p.getId());
-					mov.getFuncionario().setId(v.getFuncionario().getId());
-					mov.setMarca(p.getMarca().getDescripcion());
-					Concepto ccc= new Concepto();
-					ccc= conceptoRepository.findById(6).get();
-					mov.setReferencia(ccc.getDescripcion()+" REF.: "+ v.getId());
+					mov.getFuncionario().setId(idfuncio);
+					mov.setMarca(marca);
+					Concepto cocc= new Concepto();
+					cocc= conceptoRepository.findById(6).get();
+					mov.getConcepto().setId(cocc.getId());
+					mov.setReferencia(cocc.getDescripcion()+" REF.: "+ idDevolucion);
 					movEntradaSalidaRepository.save(mov);
+
+					p.setPrecioCosto(subtotal / existenciaActual);
+					p.setPrecioVenta_1(preVen1 * ob.getCantidadAplicacion());
+					p.setPrecioVenta_2(preVen2 * ob.getCantidadAplicacion());
+					p.setPrecioVenta_3(preVen3 * ob.getCantidadAplicacion());
+					p.setPrecioVenta_4(preVen4 * ob.getCantidadAplicacion()); 
+					//p.getProveedor().setId(entity.getProveedor().getId());
+					//productoRepository.updateProveedorId(entity.getProveedor().getId(), p.getId());
+					//productoRepository.updateProveedorId(idProvee, p.getId());
+					productoRepository.save(p);
+					productoRepository.findByActualizaA(existenciaActual, ob.getProductoCompuesto().getId());// actualiza pro compuesto
+
 				}
-			}
+			}else {
+				System.out.println("Producto unitario");
 
-			
-			//pdfPrintss(id, terminal, siImp);
 
-		}else if (v.getVenta().getTipo().equals("2")) {
-			
-		    System.out.println("DEVOLUCIÓN TIPO VENTA CRÉDITO");
-
-		    boolean tieneEntrega = v.getVenta().getEntrega() != null && v.getVenta().getEntrega() > 0;
-		    double totalDevolucion = v.getTotal();
-		    double entrega = v.getVenta().getEntrega() != null ? v.getVenta().getEntrega() : 0.0;
-		    double montoReembolso = 0.0;
-		    double montoAplicarACuenta = totalDevolucion;
-
-		    if (idTipoOperacion == 1) { // Con reembolso
-		        if (!tieneEntrega) {
-		            return new ResponseEntity<>(new CustomerErrorType("DEVOLUCIÓN CON REEMBOLSO NO APLICA A VENTA CRÉDITO SIN ENTREGA!"), HttpStatus.CONFLICT);
-		        }
-
-		        // Permitir reembolso hasta el valor de entrega
-		        montoReembolso = Math.min(entrega, totalDevolucion);
-		        montoAplicarACuenta = totalDevolucion - montoReembolso;
-
-		        System.out.println("REEMBOLSO DE ENTREGA: " + montoReembolso);
-		        System.out.println("A APLICAR A CUENTA: " + montoAplicarACuenta);
-
-		        // Registra el reembolso en caja si es necesario (esto depende de tu lógica interna)
-		        // registrarReembolsoCaja(v.getFuncionario(), montoReembolso, v.getId());
-
-		    } else if (idTipoOperacion == 2) { // Sin reembolso
-		        System.out.println("DEVOLUCIÓN SIN REEMBOLSO - TODO VA A LA CUENTA");
-		        
-		        
-		    }
-
-		    // Aplicar devolución a cuenta corriente
-		    if (montoAplicarACuenta > 0) {
-		        CuentaCobrarCabecera cu = cuentaCobrarRepository.getCuentaCabeceraPorVentaId(v.getVenta().getId());
-
-		        if (cu != null) {
-		            String resultado = aplicarDevolucionACuentaConEntregaInicial(v.getVenta().getId(), montoAplicarACuenta);
-		            if (!resultado.equals("OK")) {
-		                return new ResponseEntity<>(new CustomerErrorType(resultado), HttpStatus.CONFLICT);
-		            }
-		        } else {
-		            return new ResponseEntity<>(new CustomerErrorType("NO SE ENCONTRÓ CUENTA PARA ESTA DEVOLUCIÓN TIPO VENTA CRÉDITO!"), HttpStatus.CONFLICT);
-		        }
-		    }
-		    
-		    List<DevolucionVentaDetalle> lista= listarDetalleDevol(detalleRepository.getDetalleDevolucionPorIdCabecera(v.getId()));
-			for (DevolucionVentaDetalle list : lista) {
-				System.out.println("entrooo for para aumentar: ");
-				this.actualizarProductoBaseA(list.getDetalleProducto().getProducto().getId(), list.getCantidad());
-				System.out.println("ID: "+list.getDetalleProducto().getProducto().getId() + " ");
-				Producto p = productoRepository.getOne(list.getDetalleProducto().getProducto().getId());
+				Producto p = productoRepository.getOne(id);
 				MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
 				//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+				//				, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
 
-				mov.setDescripcion(list.getDescripcion());
-				mov.setCantidad(list.getCantidad());
+				mov.setDescripcion(p.getDescripcion());
+				mov.setCantidad(cantidad);
 				mov.setFecha(new  Date());
 				mov.setHora(hora());
+				mov.setVentaSalida(0.0);
 
-				mov.setIngreso(list.getSubTotal());
-				mov.setEgreso(0.0);
-				mov.setVentaSalida(list.getPrecio());
+				mov.setCostoEntrada(subtotal/cantidad);
+				mov.setEgreso(subtotal);
+				mov.setCostoEntradaAnterior(p.getPrecioCosto());
 
-				mov.setCostoEntrada(0.0);
-				mov.setCostoEntradaAnterior(0.0);
-				mov.setCostoSalida(p.getPrecioCosto());
+				mov.setVenta_1(preVen1);
+				mov.setVenta_2(preVen2);
+				mov.setVenta_3(preVen3);
+				mov.setVenta_4(preVen4);
 
-				mov.setVenta_1(p.getPrecioVenta_1());
-				mov.setVenta_2(p.getPrecioVenta_2());
-				mov.setVenta_3(p.getPrecioVenta_3());
-				mov.setVenta_4(p.getPrecioVenta_4());
-
-				mov.setVenta_1_anterior(0.0);
-				mov.setVenta_2_anterior(0.0);
-				mov.setVenta_3_anterior(0.0);
-				mov.setVenta_4_anterior(0.0);
-
+				mov.setVenta_1_anterior(p.getPrecioVenta_1());
+				mov.setVenta_2_anterior(p.getPrecioVenta_2());
+				mov.setVenta_3_anterior(p.getPrecioVenta_3());
+				mov.setVenta_4_anterior(p.getPrecioVenta_4());
 				mov.getTipoMovimiento().setId(1);
 				mov.getProducto().setId(p.getId());
-				mov.getFuncionario().setId(v.getFuncionario().getId());
-				mov.setMarca(p.getMarca().getDescripcion());
-				Concepto ccc= new Concepto();
-				ccc= conceptoRepository.findById(6).get();
-				mov.setReferencia(ccc.getDescripcion()+" REF.: "+ v.getId());
+				mov.getFuncionario().setId(idfuncio);
+				mov.setMarca(marca);
+				Concepto cc= new Concepto();
+				cc= conceptoRepository.findById(6).get();
+				mov.getConcepto().setId(cc.getId());
+				mov.setReferencia(cc.getDescripcion()+" REF.: "+ idDevolucion);
 				movEntradaSalidaRepository.save(mov);
+
+				p.setPrecioCosto(costo);
+				p.setPrecioVenta_1(preVen1);
+				p.setPrecioVenta_2(preVen2);
+				p.setPrecioVenta_3(preVen3);
+				p.setPrecioVenta_4(preVen4); 
+				//productoRepository.updateProveedorId(idProvee, p.getId());
+				productoRepository.save(p);
+				productoRepository.findByActualizaA(cantidad, id);
+
 			}
-		
-		    
+
 		}
-		entityRepository.confirmarDevolucion(id);
-		
-		} catch (Exception e) {
-            return new ResponseEntity<>(new CustomerErrorType("NO SE PUDO GUARDAR LA CONFIRMACION DE DEVOLUCION!"), HttpStatus.CONFLICT);
-		}
-	
-		return new ResponseEntity<String>(HttpStatus.CREATED);
-		
 	}
-	
-	
+
+
 	public String aplicarDevolucionACuentaConEntregaInicial(int idVenta, double montoDevolucion) {
-	    CuentaCobrarCabecera cuenta = cuentaCobrarRepository.getCuentaCabeceraPorVentaId(idVenta);
+		CuentaCobrarCabecera cuenta = cuentaCobrarRepository.getCuentaCabeceraPorVentaId(idVenta);
 
-	    if (cuenta == null) {
-	        return "No se encontró una cuenta por cobrar asociada a esta venta.";
-	    }
+		if (cuenta == null) {
+			return "No se encontró una cuenta por cobrar asociada a esta venta.";
+		}
 
-	    double montoRestante = montoDevolucion;
-	    List<CuentaCobrarDetalle> detalles = cuenta.getCuentaCobrarDetalle();
+		double montoRestante = montoDevolucion;
+		List<CuentaCobrarDetalle> detalles = cuenta.getCuentaCobrarDetalle();
 
-	    for (CuentaCobrarDetalle detalle : detalles) {
-	        double montoCuota = detalle.getMonto();
-	        double importeActual = detalle.getImporte();
-	        double saldoCuota = montoCuota - importeActual;
+		for (CuentaCobrarDetalle detalle : detalles) {
+			double montoCuota = detalle.getMonto();
+			double importeActual = detalle.getImporte();
+			double saldoCuota = montoCuota - importeActual;
 
-	        if (saldoCuota > 0 && montoRestante > 0) {
-	            double aplicar = Math.min(saldoCuota, montoRestante);
+			if (saldoCuota > 0 && montoRestante > 0) {
+				double aplicar = Math.min(saldoCuota, montoRestante);
 
-	            System.out.println("Aplicando devolución a cuota #" + detalle.getNumeroCuota());
-	            System.out.println("Monto antes: " + importeActual);
-	            System.out.println("Aplicando: " + aplicar);
-	            detalle.setImporte(importeActual + aplicar);
-	            montoRestante -= aplicar;
+				System.out.println("Aplicando devolución a cuota #" + detalle.getNumeroCuota());
+				System.out.println("Monto antes: " + importeActual);
+				System.out.println("Aplicando: " + aplicar);
+				detalle.setImporte(importeActual + aplicar);
+				montoRestante -= aplicar;
+				cuentaCobrarDetalleRepository.save(detalle);
+			}
+		}
 
-	            cuentaCobrarDetalleRepository.save(detalle);
-	        }
-	    }
+		double pagadoOriginal = cuenta.getPagado();
+		double saldoOriginal = cuenta.getSaldo();
+		double totalDevlucionOriginal = cuenta.getTotalDevolucion();
+		double aplicado = montoDevolucion - montoRestante;
 
-	    double pagadoOriginal = cuenta.getPagado();
-	    double saldoOriginal = cuenta.getSaldo();
+		cuenta.setTotalDevolucion(totalDevlucionOriginal + aplicado);
+		cuenta.setPagado(pagadoOriginal);
+		cuenta.setSaldo(saldoOriginal - aplicado);
+		cuentaCobrarRepository.save(cuenta);
+		if (montoRestante > 0) {
+			System.out.println("DEVOLUCIÓN MAYOR AL SALDO PENDIENTE de: " + montoRestante);
+			return "DEVOLUCIÓN MAYOR AL SALDO PENDIENTE DE PAGO: " + montoRestante;
+		}
 
-	    double aplicado = montoDevolucion - montoRestante;
-
-	    cuenta.setPagado(pagadoOriginal + aplicado);
-	    cuenta.setSaldo(saldoOriginal - aplicado);
-
-	    cuentaCobrarRepository.save(cuenta);
-
-	    if (montoRestante > 0) {
-	        System.out.println("DEVOLUCIÓN MAYOR AL SALDO PENDIENTE. EXCEDENTE: " + montoRestante);
-	        return "DEVOLUCIÓN APLICADA PARCIALMENTE. EXCEDENTE DE " + montoRestante + " DEBERÍA SER REEMBOLSADO O QUEDAR COMO SALDO A FAVOR.";
-	    }
-
-	    return "OK";
+		return "OK";
 	}
-	
-	 public String aplicarDevolucionACuenta(int ventaId, double montoDevolucion) {
-	        CuentaCobrarCabecera cuenta = cuentaCobrarRepository.getCuentaCabeceraPorVentaId(ventaId);
-	        
-	        if (cuenta == null) {
-	            return "NO SE ENCONTRÓ NINGUNA CUENTA ASOCIADA A LA VENTA";
-	        }
 
-	        if (montoDevolucion > cuenta.getSaldo()) {
-	            return "EL MONTO DE LA DEVOLUCIÓN EXCEDE EL SALDO DE LA CUENTA";
-	        }
+	public String aplicarDevolucionACuenta(int ventaId, double montoDevolucion) {
+		CuentaCobrarCabecera cuenta = cuentaCobrarRepository.getCuentaCabeceraPorVentaId(ventaId);
+		if (cuenta == null) {
+			return "NO SE ENCONTRÓ NINGUNA CUENTA ASOCIADA A LA VENTA";
+		}
 
-	        double restante = montoDevolucion;
-	        for (CuentaCobrarDetalle detalle : cuenta.getCuentaCobrarDetalle()) {
-	            if (restante <= 0) break;
-	            if (detalle.getImporte() >= detalle.getSubTotal()) continue;
+		if (montoDevolucion > cuenta.getSaldo()) {
+			return "EL MONTO DE LA DEVOLUCIÓN EXCEDE EL SALDO DE LA CUENTA";
+		}
 
-	            double diferencia = detalle.getSubTotal() - detalle.getImporte();
-	            double aplicado = Math.min(restante, diferencia);
+		double restante = montoDevolucion;
+		for (CuentaCobrarDetalle detalle : cuenta.getCuentaCobrarDetalle()) {
+			if (restante <= 0) break;
+			if (detalle.getImporte() >= detalle.getSubTotal()) continue;
 
-	            detalle.setImporte(detalle.getImporte() + aplicado);
-	            restante -= aplicado;
+			double diferencia = detalle.getSubTotal() - detalle.getImporte();
+			double aplicado = Math.min(restante, diferencia);
 
-	            cuentaCobrarDetalleRepository.save(detalle);
-	        }
+			detalle.setImporte(detalle.getImporte() + aplicado);
+			restante -= aplicado;
 
-	        cuenta.setPagado(cuenta.getPagado() + montoDevolucion);
-	        cuenta.setSaldo(cuenta.getSaldo() - montoDevolucion);
-	        cuentaCobrarRepository.save(cuenta);
+			cuentaCobrarDetalleRepository.save(detalle);
+		}
+		double pagadoOriginal = cuenta.getPagado();
+		double saldoOriginal = cuenta.getSaldo();
+		double totalDevlucionOriginal = cuenta.getTotalDevolucion();
+		double aplicado = montoDevolucion;
 
-	        return "OK";
-	 }
+		cuenta.setTotalDevolucion(totalDevlucionOriginal + aplicado);
+		cuenta.setPagado(pagadoOriginal);
+		cuenta.setSaldo(saldoOriginal - aplicado);
+		cuentaCobrarRepository.save(cuenta);
+		return "OK";
+	}
 
 	public Date getFechaPlazo(Date fe, int plazo){
 
@@ -712,66 +903,56 @@ public class DevoluconVentaController {
 	@Transactional
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?>  guardar(@RequestBody DevolucionVenta entity){
-		 try {
-		        // Validaciones principales
-		        if (entity.getFuncionario().getId() == 0) {
-		            return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
-		        } else if (entity.getVenta().getId() == 0) {
-		            return new ResponseEntity<>(new CustomerErrorType("DEBES SELECCIONAR UNA VENTA A LA CUAL DEVOLVER PRODUCTO!"), HttpStatus.CONFLICT);
-		        } else if (entity.getFechaFactura() == null) {
-		            return new ResponseEntity<>(new CustomerErrorType("LA FECHA DE FACTURACIÓN NO DEBE QUEDAR VACÍA!"), HttpStatus.CONFLICT);
-		        } else if (entity.getTotal() == null || entity.getTotal() == 0) {
-		            return new ResponseEntity<>(new CustomerErrorType("EL MONTO A DEVOLVER DEBE SER MAYOR A CERO!"), HttpStatus.CONFLICT);
-		        } else if (entity.getVenta().getTipo().equals("1") && entity.getNumeroOperacion() == 0) {
-		            return new ResponseEntity<>(new CustomerErrorType("EL NÚMERO DE OPERACIÓN NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
-		        } else if (entity.getTipoDevolucion().getId() == 1 && entity.getVenta().getTipo().equals("2") && entity.getVenta().getEntrega()==0) {
-		            return new ResponseEntity<>(new CustomerErrorType("NO SE PUEDE GUARDAR DEVOLUCIÓN DE VENTA A CRÉDITO CON REEMBOLSO SIN ENTREGA INICIAL!"), HttpStatus.CONFLICT);
-		        }
+		try {
+			// Validaciones principales
+			if (entity.getFuncionario().getId() == 0) {
+				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
+			} else if (entity.getVenta().getId() == 0) {
+				return new ResponseEntity<>(new CustomerErrorType("DEBES SELECCIONAR UNA VENTA A LA CUAL DEVOLVER PRODUCTO!"), HttpStatus.CONFLICT);
+			} else if (entity.getFechaFactura() == null) {
+				return new ResponseEntity<>(new CustomerErrorType("LA FECHA DE FACTURACIÓN NO DEBE QUEDAR VACÍA!"), HttpStatus.CONFLICT);
+			} else if (entity.getTotal() == null || entity.getTotal() == 0) {
+				return new ResponseEntity<>(new CustomerErrorType("EL MONTO A DEVOLVER DEBE SER MAYOR A CERO!"), HttpStatus.CONFLICT);
+			} else if (entity.getVenta().getTipo().equals("1") && entity.getNumeroOperacion() == 0) {
+				return new ResponseEntity<>(new CustomerErrorType("EL NÚMERO DE OPERACIÓN NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
+			} 
+			// Validar detalles
+			for (int i = 0; i < entity.getDevolucionVentaDetalle().size(); i++) {
+				DevolucionVentaDetalle dev = entity.getDevolucionVentaDetalle().get(i);
+				int item = i + 1;
+				if (dev.getCantidad() == null) {
+					return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍA!"), HttpStatus.CONFLICT);
+				} else if (dev.getDescripcion() == null) {
+					return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍA!"), HttpStatus.CONFLICT);
+				} else if (dev.getPrecio() == null) {
+					return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
+				} else if (dev.getSubTotal() == null) {
+					return new ResponseEntity<>(new CustomerErrorType("EL SUBTOTAL DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
+				} else if (dev.getDetalleProducto().getId() == 0) {
+					return new ResponseEntity<>(new CustomerErrorType("EL DETALLE DE PRODUCTO DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
+				}
+			}
+			// Asignar hora y fecha
+			entity.setHora(hora());
+			entity.setFecha(new Date());
 
-		        // Validar detalles
-		        for (int i = 0; i < entity.getDevolucionVentaDetalle().size(); i++) {
-		            DevolucionVentaDetalle dev = entity.getDevolucionVentaDetalle().get(i);
-		            int item = i + 1;
-		            if (dev.getCantidad() == null) {
-		                return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍA!"), HttpStatus.CONFLICT);
-		            } else if (dev.getDescripcion() == null) {
-		                return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍA!"), HttpStatus.CONFLICT);
-		            } else if (dev.getPrecio() == null) {
-		                return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
-		            } else if (dev.getSubTotal() == null) {
-		                return new ResponseEntity<>(new CustomerErrorType("EL SUBTOTAL DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
-		            } else if (dev.getDetalleProducto().getId() == 0) {
-		                return new ResponseEntity<>(new CustomerErrorType("EL DETALLE DE PRODUCTO DEL ITEM N°: " + item + " NO DEBE QUEDAR VACÍO!"), HttpStatus.CONFLICT);
-		            }
-		        }
-		        // Asignar hora y fecha
-		        entity.setHora(hora());
-		        entity.setFecha(new Date());
+			// Guardar devolución
+			DevolucionVenta savedEntity = entityRepository.save(entity);
 
-		        // Guardar devolución
-		        DevolucionVenta savedEntity = entityRepository.save(entity);
+			// Guardar detalles
+			for (DevolucionVentaDetalle det : entity.getDevolucionVentaDetalle()) {
 
-		        // Guardar detalles
-		        for (DevolucionVentaDetalle det : entity.getDevolucionVentaDetalle()) {
-		        	
-		            det.setDevolucionVenta(savedEntity);
-		            detalleRepository.save(det);
+				det.setDevolucionVenta(savedEntity);
+				detalleRepository.save(det);
+			}
+			entityRepository.save(savedEntity);
 
-		            // OPCIONAL: actualizar stock del producto
-		            Producto prod = productoRepository.findById(det.getDetalleProducto().getProducto().getId()).orElse(null);
-		            if (prod != null) {
-		                prod.setExistencia(prod.getExistencia()	 + det.getCantidad());
-		                productoRepository.save(prod);
-		            }
-		        }
-		        entityRepository.save(savedEntity);
-		        
-		        return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
+			return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
 
-		    } catch (Exception e) {
-		        e.printStackTrace();
-		        return new ResponseEntity<>("Error interno al procesar la devolución", HttpStatus.INTERNAL_SERVER_ERROR);
-		    }
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Error interno al procesar la devolución", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	public String hora() {
@@ -788,7 +969,7 @@ public class DevoluconVentaController {
 					System.out.println("ID ELIMINADO : "+de.getId());
 					detalleRepository.deleteById(de.getId());
 				}
-				
+
 				return  new  ResponseEntity<String>(HttpStatus.CREATED);
 
 			}else {
@@ -800,10 +981,10 @@ public class DevoluconVentaController {
 		}
 
 	}
-	
-	
-	
-	public void pdfPrintss(int idVenta, int numeroTerminal, String siImpresion ) {
+
+
+
+	public void printimpMatricial(int idVenta, int numeroTerminal, String siImpresion ) {
 		if (siImpresion.equals("true")) {
 			System.out.println(numeroTerminal);
 			Reporte report = new Reporte();
@@ -815,6 +996,11 @@ public class DevoluconVentaController {
 				List<DevolucionVenta> venta = getLista(idVenta);
 				ReporteConfig reportConfig = new ReporteConfig();
 				reportConfig = reporteConfigRepository.getOne(6);
+				if(reportConfig == null){
+					System.out.println("no se puede mandar impresion de falta agregar REPORTCONFIG ID=6");
+				}else{
+					
+				}
 				Map<String, Object> map = new HashMap<>();
 				report=new Reporte();
 				int pageSize = 10;
@@ -822,38 +1008,38 @@ public class DevoluconVentaController {
 				System.out.println("TOTAL DE PAGINAS:"+ totalPages);
 				List<DevolucionVenta> listaVentaImpresion= new ArrayList<DevolucionVenta>();
 				for (int i = 0; i < totalPages; i++) {	
-				    System.out.println("\n--- Página " + (i + 1) + " ---");
+					System.out.println("\n--- Página " + (i + 1) + " ---");
 
-				    int start = i * pageSize;
-				    int end = Math.min(start + pageSize, venta.get(0).getDevolucionVentaDetalle().size());
-				    // Crear una nueva lista con los elementos de la página actual
-				    List<DevolucionVentaDetalle> detallesPagina = new ArrayList<>(venta.get(0).getDevolucionVentaDetalle().subList(start, end));
-				    Double totalMontoPagina=0.0, totalPaginaIvaCinco=0.0, totalPaginaIvaDies=0.0, totalPaginaIva=0.0,totalPaginaExcenta=0.0;
-				    for (int j = 0; j < detallesPagina.size(); j++) {
+					int start = i * pageSize;
+					int end = Math.min(start + pageSize, venta.get(0).getDevolucionVentaDetalle().size());
+					// Crear una nueva lista con los elementos de la página actual
+					List<DevolucionVentaDetalle> detallesPagina = new ArrayList<>(venta.get(0).getDevolucionVentaDetalle().subList(start, end));
+					Double totalMontoPagina=0.0, totalPaginaIvaCinco=0.0, totalPaginaIvaDies=0.0, totalPaginaIva=0.0,totalPaginaExcenta=0.0;
+					for (int j = 0; j < detallesPagina.size(); j++) {
 						totalMontoPagina = totalMontoPagina + detallesPagina.get(j).getSubTotal();
 						if(detallesPagina.get(j).getIva().equals("10 %")) {totalPaginaIvaDies = totalPaginaIvaDies +  (detallesPagina.get(j).getSubTotal()/11);}
 						if(detallesPagina.get(j).getIva().equals("5 %")) {totalPaginaIvaCinco = totalPaginaIvaCinco +  (detallesPagina.get(j).getSubTotal()/21);}
 						if(detallesPagina.get(j).getIva().equals("Excenta")) {totalPaginaExcenta = totalPaginaExcenta +  (detallesPagina.get(j).getSubTotal());}
-				    }
-				    DevolucionVenta ventaImpresion = new DevolucionVenta();
-				    ventaImpresion.setId(venta.get(0).getId());
-				    ventaImpresion.setFechaFactura(venta.get(0).getFechaFactura());
-				    ventaImpresion.getVenta().setCliente(venta.get(0).getVenta().getCliente());
-				    ventaImpresion.setFuncionario(venta.get(0).getFuncionario());
-				    ventaImpresion.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalMontoPagina));
-				    ventaImpresion.setTotal(totalMontoPagina);
-				    ventaImpresion.setTotalIvaDies(totalPaginaIvaDies);
-				    ventaImpresion.setTotalIvaCinco(totalPaginaIvaCinco);
-				    ventaImpresion.getTipoDevolucion().setDescripcion(venta.get(0).getTipoDevolucion().getDescripcion());
-				    //ventaImpresion.setTotalIva(totalPaginaIvaDies +  totalPaginaIvaCinco);
+					}
+					DevolucionVenta ventaImpresion = new DevolucionVenta();
+					ventaImpresion.setId(venta.get(0).getId());
+					ventaImpresion.setFechaFactura(venta.get(0).getFechaFactura());
+					ventaImpresion.getVenta().setCliente(venta.get(0).getVenta().getCliente());
+					ventaImpresion.setFuncionario(venta.get(0).getFuncionario());
+					ventaImpresion.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalMontoPagina));
+					ventaImpresion.setTotal(totalMontoPagina);
+					ventaImpresion.setTotalIvaDies(totalPaginaIvaDies);
+					ventaImpresion.setTotalIvaCinco(totalPaginaIvaCinco);
+					ventaImpresion.getTipoDevolucion().setDescripcion(venta.get(0).getTipoDevolucion().getDescripcion());
+					//ventaImpresion.setTotalIva(totalPaginaIvaDies +  totalPaginaIvaCinco);
 
-				    ventaImpresion.setDevolucionVentaDetalle(detallesPagina);
-				    listaVentaImpresion.add(ventaImpresion);
-				    System.out.println("UNA FILA DE LA PAGINA ITEM: "+i+", >>>>>>  " +listaVentaImpresion.get(i).getDevolucionVentaDetalle().get(0).getDescripcion());
-				  
+					ventaImpresion.setDevolucionVentaDetalle(detallesPagina);
+					listaVentaImpresion.add(ventaImpresion);
+					System.out.println("UNA FILA DE LA PAGINA ITEM: "+i+", >>>>>>  " +listaVentaImpresion.get(i).getDevolucionVentaDetalle().get(0).getDescripcion());
+
 
 				}
-				
+
 				if (t.getImpresora().equals("matricial")) {
 					ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
 					System.out.println("entrooo matricial");
@@ -869,24 +1055,27 @@ public class DevoluconVentaController {
 					map.put("paginaTotal", totalPages+ "");
 					try {
 						ParametroTipoHoja p = parametroTipoHoja.getOne(1);
-			        	System.out.println("total apartido lista :  "+listaVentaImpresion.size());
-			        	for (int i=0; i < listaVentaImpresion.size(); i++) {
-			        		map.put("paginaActual", (i +1)+ "");
-			        		if(p.getDescripcion().equals("A4")) {
-				        		report.reportPDFImprimirA4(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
-			        		}
-			        		if(p.getDescripcion().equals("CORTE")) {
-				        		report.reportPDFImprimirLibreCorte(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+						System.out.println("total apartido lista :  "+listaVentaImpresion.size());
+						for (int i=0; i < listaVentaImpresion.size(); i++) {
+							map.put("paginaActual", (i +1)+ "");
+							if(p.getDescripcion().equals("A4")) {
+								report.reportPDFImprimirA4(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+							}
+							if(p.getDescripcion().equals("CORTE")) {
+								report.reportPDFImprimirLibreCorte(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
 
-			        		}
-			            }
+							}
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}else {
 					System.out.println("false impresora matricial");
 				}
-			}
+
+
+			}	
+
 		}else {
 			System.out.println("entrooo else: flase impresion");
 		}
@@ -944,13 +1133,20 @@ public class DevoluconVentaController {
 
 		for (int i = 0; i < 1; i++) {
 			Cliente cli = clienteRepository.getIdCliente(xxx.getVenta().getCliente().getId());
-			Funcionario FunV = funcionarioRepository.getIdFuncionario(xxx.getVenta().getFuncionario().getId());
+			Funcionario FunV = funcionarioRepository.getIdFuncionario(xxx.getFuncionario().getId());
 
 			DevolucionVenta v = new DevolucionVenta();
 			v.getVenta().getCliente().getPersona().setNombre(cli.getPersona().getNombre()+ " "+cli.getPersona().getApellido());
 			v.getVenta().getCliente().getPersona().setCedula(cli.getPersona().getCedula());
 			v.getVenta().getCliente().getPersona().setTelefono(cli.getPersona().getTelefono());
 			v.getVenta().getCliente().getPersona().setDireccion(cli.getPersona().getDireccion());
+			
+			v.getFuncionario().getPersona().setNombre(FunV.getPersona().getNombre()+ " "+FunV.getPersona().getApellido());
+			v.getFuncionario().getPersona().setCedula(FunV.getPersona().getCedula());
+			v.getFuncionario().getPersona().setTelefono(FunV.getPersona().getTelefono());
+			v.getFuncionario().getPersona().setDireccion(FunV.getPersona().getDireccion());
+			
+			
 			v.getTipoDevolucion().setDescripcion(xxx.getTipoDevolucion().getDescripcion());
 			v.setFechaFactura(xxx.getFechaFactura());
 			v.setFecha(xxx.getFecha());
@@ -962,57 +1158,55 @@ public class DevoluconVentaController {
 			v.setTotalLetra(xxx.getTotalLetra());
 			v.setTipoDevolucion(xxx.getTipoDevolucion());
 			v.setDevolucionVentaDetalle(detProducto);
-		
+
 			lista.add(v);
 		}
 
 		return lista;
 
 	}
-	
-	
+
 	@RequestMapping(method=RequestMethod.POST, value = "/validarDetalleDevolucion")
-	    public ResponseEntity<?> validarDevoluciones(@RequestBody List<DevolucionVentaDetalle> detallesADevolver) {
-	        try {
-	        	 for (DevolucionVentaDetalle detalleDevolucion : detallesADevolver) {
-	        	        int detalleProductoId = detalleDevolucion.getDetalleProducto().getId();
-	        	        int prodId= detalleDevolucion.getDetalleProducto().getProducto().getId();
-	        	        double cantidadADevolver = detalleDevolucion.getCantidad();
+	public ResponseEntity<?> validarDevoluciones(@RequestBody List<DevolucionVentaDetalle> detallesADevolver) {
+		try {
+			for (DevolucionVentaDetalle detalleDevolucion : detallesADevolver) {
+				int detalleProductoId = detalleDevolucion.getDetalleProducto().getId();
+				int prodId= detalleDevolucion.getDetalleProducto().getProducto().getId();
+				double cantidadADevolver = detalleDevolucion.getCantidad();
+				// Obtener el detalle de la venta original
+				DetalleProducto detalleVenta = detalleProductoRepository.findById(detalleProductoId)
+						.orElseThrow(() -> new RuntimeException("Detalle del producto no encontrado: " + detalleProductoId));
 
-	        	        // Obtener el detalle de la venta original
-	        	        DetalleProducto detalleVenta = detalleProductoRepository.findById(detalleProductoId)
-	        	                .orElseThrow(() -> new RuntimeException("Detalle del producto no encontrado: " + detalleProductoId));
+				double cantidadVendida = detalleVenta.getCantidad();
+				int ventaId = detalleVenta.getVenta().getId();
 
-	        	        double cantidadVendida = detalleVenta.getCantidad();
-	        	        int ventaId = detalleVenta.getVenta().getId();
+				// Consultar cuántas unidades ya fueron devueltas y confirmadas
+				Double cantidadDevuelta = detalleProductoRepository.cantidadConfirmadaDevueltaPorProducto(detalleProductoId, ventaId);
 
-	        	        // Consultar cuántas unidades ya fueron devueltas y confirmadas
-	        	        Double cantidadDevuelta = detalleProductoRepository.cantidadConfirmadaDevueltaPorProducto(detalleProductoId, ventaId);
+				if (cantidadDevuelta == null) {
+					cantidadDevuelta = 0.0;
+				}
 
-	        	        if (cantidadDevuelta == null) {
-	        	            cantidadDevuelta = 0.0;
-	        	        }
+				double cantidadRestante = cantidadVendida - cantidadDevuelta;
 
-	        	        double cantidadRestante = cantidadVendida - cantidadDevuelta;
+				// Verificación de devolución completa
+				if (cantidadRestante <= 0.0) {
+					return new ResponseEntity<>(new CustomerErrorType("El producto con ID: " + prodId + " ya fue devuelto completamente."), HttpStatus.BAD_REQUEST);
+				}
 
-	        	        // Verificación de devolución completa
-	        	        if (cantidadRestante <= 0.0) {
-	        	            return new ResponseEntity<>(new CustomerErrorType("El producto con ID: " + prodId + " ya fue devuelto completamente."), HttpStatus.BAD_REQUEST);
-	        	        }
+				// Verificación de cantidad excedida
+				if (cantidadADevolver > cantidadRestante) {
+					return new ResponseEntity<>(new CustomerErrorType("La cantidad a devolver del producto con ID: " + prodId + 
+							" del detalle "+detalleProductoId+" excede la cantidad a devolver. Cantidad restante: " + cantidadRestante + ". Intento de devolución: " + cantidadADevolver), HttpStatus.BAD_REQUEST);
+				}
+			}
+			return new ResponseEntity<>(HttpStatus.OK);
 
-	        	        // Verificación de cantidad excedida
-	        	        if (cantidadADevolver > cantidadRestante) {
-	        	            return new ResponseEntity<>(new CustomerErrorType("La cantidad a devolver del producto con ID: " + prodId + 
-	        	                    " del detalle "+detalleProductoId+" excede la cantidad a devolver. Cantidad restante: " + cantidadRestante + ". Intento de devolución: " + cantidadADevolver), HttpStatus.BAD_REQUEST);
-	        	        }
-	        	    }
-	        	    return new ResponseEntity<>(HttpStatus.OK);
-
-	        } catch (RuntimeException e) {
-	            // En caso de error, retornamos el mensaje de error con un código HTTP 400 (Bad Request)
-	            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-	        }
-	    }
+		} catch (RuntimeException e) {
+			// En caso de error, retornamos el mensaje de error con un código HTTP 400 (Bad Request)
+			return  new ResponseEntity<>(new CustomerErrorType("Erro interno"+e.getMessage()), HttpStatus.BAD_REQUEST);
+		}
+	}
 
 
 	@RequestMapping(value="/descargarPdf/{id}", method=RequestMethod.GET)
@@ -1025,7 +1219,7 @@ public class DevoluconVentaController {
 		if(pre.getVenta().getTipo().equals("2")) {pre.getVenta().setTipo("CREDITO");}
 		List<DevolucionVenta> listado= new ArrayList<DevolucionVenta>();
 		listado.add(pre);
-		
+
 		try {
 
 			Map<String, Object> map = new HashMap<>();

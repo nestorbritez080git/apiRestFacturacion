@@ -65,8 +65,7 @@ public class Producto {
 	private List<AjusteInventario> ajusteInventario;
 	
 	
-	@Lob
-	private  byte[] foto;	
+	
 	
 	public Producto() {
 		this.codbar ="";
@@ -282,13 +281,7 @@ public class Producto {
 		this.ajusteInventario = ajusteInventario;
 	}
 
-	public byte[] getFoto() {
-		return foto;
-	}
-
-	public void setFoto(byte[] foto) {
-		this.foto = foto;
-	}
+	
 
 	public Boolean getIsBalanza() {
 		return isBalanza;

@@ -49,6 +49,8 @@ public class MovimientoEntradaSalida {
 	
 	@ManyToOne
 	private TipoMovimiento tipoMovimiento;
+	@ManyToOne
+	private Concepto concepto;
 	
 	@ManyToOne
 	private Producto producto;
@@ -66,6 +68,7 @@ public class MovimientoEntradaSalida {
 		tipoMovimiento=new TipoMovimiento();
 		producto=new Producto();
 		funcionario=new Funcionario();
+		concepto= new Concepto();
 		marca = "";
 		venta_1=0.0;
 		venta_1_anterior=0.0;
@@ -126,6 +129,14 @@ public class MovimientoEntradaSalida {
 
 	public Double getEgreso() {
 		return egreso;
+	}
+
+	public Concepto getConcepto() {
+		return concepto;
+	}
+
+	public void setConcepto(Concepto concepto) {
+		this.concepto = concepto;
 	}
 
 	public void setEgreso(Double egreso) {

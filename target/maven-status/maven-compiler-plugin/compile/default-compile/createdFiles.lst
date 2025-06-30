@@ -9,7 +9,6 @@ com\bisontecfacturacion\security\model\OrigenFlete.class
 com\bisontecfacturacion\security\repository\OrgRepository.class
 com\bisontecfacturacion\security\repository\CompraDetalleRepository.class
 com\bisontecfacturacion\security\repository\CajaRepository.class
-com\bisontecfacturacion\security\model\SalarioFuncionarioDetalle.class
 com\bisontecfacturacion\security\config\ImportarExcel$1.class
 com\bisontecfacturacion\security\model\OrdenProduccionDetalle.class
 com\bisontecfacturacion\security\repository\EntradaSalidaCajaRepository.class
@@ -35,7 +34,6 @@ com\bisontecfacturacion\security\model\FechaSerial.class
 com\bisontecfacturacion\security\model\TipoPlazo.class
 com\bisontecfacturacion\security\config\SerialController.class
 com\bisontecfacturacion\security\auth\InfoAdicionalToken.class
-com\bisontecfacturacion\security\repository\SalarioFuncionarioDetalleRepository.class
 com\bisontecfacturacion\security\model\GastoConsumicionesDetalle.class
 com\bisontecfacturacion\security\model\ProduccionCostoCabecera.class
 com\bisontecfacturacion\security\model\Moneda.class
@@ -142,7 +140,6 @@ com\bisontecfacturacion\security\model\DevolucionVenta.class
 com\bisontecfacturacion\security\auxiliar\AddListRouter.class
 com\bisontecfacturacion\security\model\CobrosCliente.class
 com\bisontecfacturacion\security\model\Tesoreria.class
-com\bisontecfacturacion\security\model\SalarioFuncionario.class
 com\bisontecfacturacion\security\config\BaseDeDatos.class
 com\bisontecfacturacion\security\controller\VentaController.class
 com\bisontecfacturacion\security\controller\OperacionCajaController.class
@@ -188,7 +185,6 @@ com\bisontecfacturacion\security\repository\OperacionCajaRepository.class
 com\bisontecfacturacion\security\repository\TransferenciaAnticipoRepository.class
 com\bisontecfacturacion\security\repository\MarcaRepository.class
 com\bisontecfacturacion\security\repository\CajaMayorRepository.class
-com\bisontecfacturacion\security\contabilidad\model\PlanCuentaCodigo.class
 com\bisontecfacturacion\security\model\Usuario.class
 com\bisontecfacturacion\security\model\Venta.class
 com\bisontecfacturacion\security\model\CuentaCobrarDetalle.class
@@ -201,7 +197,6 @@ com\bisontecfacturacion\security\auxiliar\CuentaCliente.class
 com\bisontecfacturacion\security\repository\CajaChicaRepository.class
 com\bisontecfacturacion\security\repository\TransferenciaCajaMayorRepository.class
 com\bisontecfacturacion\security\auxiliar\ResumenTesoreriaUtilidad.class
-com\bisontecfacturacion\security\repository\SalarioFuncionarioRepository.class
 com\bisontecfacturacion\security\model\LoteBoleta.class
 com\bisontecfacturacion\security\controller\PedidoController.class
 com\bisontecfacturacion\security\auxiliar\Grafico.class
