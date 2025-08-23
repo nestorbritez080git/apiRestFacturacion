@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,7 +28,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
+import com.bisontecfacturacion.security.config.NumerosALetras;
 import com.bisontecfacturacion.security.config.Reporte;
+import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.CobrosCliente;
 import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
@@ -41,6 +45,8 @@ import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.OrdenPagare;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Producto;
+import com.bisontecfacturacion.security.model.ReporteConfig;
+import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
@@ -50,10 +56,15 @@ import com.bisontecfacturacion.security.repository.CobrosClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.CuentaAcobrarDetalleRepository;
 import com.bisontecfacturacion.security.repository.CuentaAcobrarRepository;
+import com.bisontecfacturacion.security.repository.DetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrdenPagareRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
+import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
+import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
+import com.bisontecfacturacion.security.repository.ReporteFormatoDatosRepository;
+import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
 import com.bisontecfacturacion.security.repository.VentaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.FechaUtil;
@@ -67,6 +78,15 @@ import net.sf.jasperreports.engine.JRException;
 @RequestMapping("cuentaCobrar")
 public class CuentaCobrarController {
 	private Reporte report;
+
+	@Autowired
+	private ReporteConfigRepository reporteConfigRepository;
+	@Autowired
+	private ParametroTipoHojaRepository parametroTipoHoja;
+	@Autowired
+	private TerminalConfigImpresoraRepository terminalRepository;
+	@Autowired
+	private ReporteFormatoDatosRepository reporteFormatoDatosRepository;
 	
 	@Autowired
 	private CuentaAcobrarRepository entityRepository;
@@ -85,6 +105,9 @@ public class CuentaCobrarController {
 
 	@Autowired
 	private VentaRepository ventaRepository;
+	@Autowired
+	private DetalleProductoRepository detalleProductoRepository;
+
 
 	@Autowired
 	private FuncionarioRepository funcionarioRepository;
@@ -496,7 +519,7 @@ public List<CuentaCobrarCabecera> cuentaListado(List<Object[]> object) {
 		cuenta.getCliente().getPersona().setTelefono(cue[7].toString());
 		cuenta.getCliente().getPersona().setDireccion(cue[8].toString());
 		cuenta.getCliente().setLimiteCredito(Double.parseDouble(cue[9].toString()));
-		cuenta.setTotalDevolucion(Double.parseDouble(cue[10].toString()));
+		if(cue[10].toString()==null){cuenta.setTotalDevolucion(0.0);}else{cuenta.setTotalDevolucion(Double.parseDouble(cue[10].toString()));}
 		listadoRetorno.add(cuenta);
 	}
 	System.out.println("list size: cuenta "+listadoRetorno.size());
@@ -586,6 +609,24 @@ public List<CuentaCobrarCabecera> getCuentaPorClienteId(@PathVariable int id, @P
 	}
 	return listadoCargarCuenta(lis);
 }
+@RequestMapping(method = RequestMethod.GET, value="/reporteCuentaClienteListado/{id}/{filtro}")
+public List<CuentaCobrarCabecera> getReporteCuentaClienteListado(OAuth2Authentication authentication, @PathVariable int id, @PathVariable int filtro) throws IOException{
+	List<CuentaCobrarCabecera> lis =new ArrayList<>();
+	List<CuentaCobrarCabecera> listadoRetorno = new ArrayList<CuentaCobrarCabecera>();
+	if(filtro == 1){
+		lis= entityRepository.findByCuentaPorIdTodo(id);
+	}
+	if(filtro == 2){
+		lis= entityRepository.findByCuentaPorIdClienteACobrarListasss(id);
+	}
+	if(filtro == 3){
+		lis= entityRepository.findByCuentaPorIdClienteCobrado(id);
+	}
+	listadoRetorno= listadoCargar(lis);
+
+	return listadoRetorno;
+}
+
 
 @RequestMapping(method = RequestMethod.GET, value="/reporteCuentaCliente/{id}/{filtro}/{detallado}")
 public  ResponseEntity<?> getReporteCuentaCliente(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id, @PathVariable int filtro, @PathVariable int detallado) throws IOException{
@@ -600,10 +641,13 @@ public  ResponseEntity<?> getReporteCuentaCliente(HttpServletResponse response, 
 	if(filtro == 3){
 		lis= entityRepository.findByCuentaPorIdClienteCobrado(id);
 	}
-	List<CuentaCobrarCabecera> listado= listado(lis);
+	List<CuentaCobrarCabecera> listado= listadoCargar(lis);
 	String nombreCliente="";
+	String cedulaCliente="";
+
 	if(listado.size()>0) {
 		nombreCliente = listado.get(0).getCliente().getPersona().getNombre()+" "+listado.get(0).getCliente().getPersona().getApellido();
+		cedulaCliente= listado.get(0).getCliente().getPersona().getCedula();
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
 		Org org = orgRepository.findById(1).get();
 
@@ -616,6 +660,8 @@ public  ResponseEntity<?> getReporteCuentaCliente(HttpServletResponse response, 
 		map.put("pais", ""+org.getPais());
 		map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
 		map.put("cliente", nombreCliente);
+		map.put("clienteCedula", cedulaCliente);
+
 
 		report = new Reporte();
 		if(detallado==1) {
@@ -637,7 +683,7 @@ public List<CuentaCobrarCabecera>  pruebaHql() throws IOException {
 	
 		lis= entityRepository.findByCuentaPorIdTodo(4);
 	
-	return listado(lis);
+	return listadoCargar(lis);
 }
 public List<CuentaCobrarCabecera> listadoCargarCuenta(List<CuentaCobrarCabecera> lis){
 	List<CuentaCobrarCabecera> listadoRetorno = new ArrayList<>();
@@ -673,7 +719,7 @@ public List<CuentaCobrarCabecera> listadoCargarCuenta(List<CuentaCobrarCabecera>
 }
 
 
-public List<CuentaCobrarCabecera> listado(List<CuentaCobrarCabecera> lis){
+public List<CuentaCobrarCabecera> listadoCargar(List<CuentaCobrarCabecera> lis){
 	List<CuentaCobrarCabecera> listadoRetorno = new ArrayList<>();
 	for(CuentaCobrarCabecera x :lis) {
 		CuentaCobrarCabecera cuenta= new CuentaCobrarCabecera();
@@ -684,14 +730,18 @@ public List<CuentaCobrarCabecera> listado(List<CuentaCobrarCabecera> lis){
 		cuenta.setEntrega(x.getEntrega());
 		cuenta.setTotalDevolucion(x.getTotalDevolucion());
 		cuenta.setSaldo(x.getSaldo());
-		cuenta.setTotalDevolucion(x.getTotalDevolucion());
+		cuenta.getVenta().getFuncionarioV().setPersona(x.getVenta().getFuncionarioV().getPersona());
+		cuenta.getVenta().getFuncionarioR().setPersona(x.getVenta().getFuncionarioR().getPersona());
+		cuenta.getVenta().setEstado(x.getVenta().getEstado());
 		cuenta.getCliente().getPersona().setNombre(x.getCliente().getPersona().getNombre());
 		cuenta.getCliente().getPersona().setApellido(x.getCliente().getPersona().getApellido());
+		cuenta.getCliente().getPersona().setCedula(x.getCliente().getPersona().getCedula());
 		cuenta.getFuncionario().getPersona().setNombre(x.getFuncionario().getPersona().getNombre());
 		cuenta.getFuncionario().getPersona().setApellido(x.getFuncionario().getPersona().getApellido());
 		cuenta.setFecha(x.getFecha());
 		cuenta.setEntrega(x.getEntrega());
 		cuenta.getVenta().setTotal(x.getVenta().getTotal());
+		System.out.println(x.getVenta().getTotal()+" total venta");
 		cuenta.getVenta().setId(x.getVenta().getId());
 		cuenta.getVenta().setEntrega(x.getVenta().getEntrega());
 		if(x.getVenta().getDetalleProducto().size()!=-1) {
@@ -705,7 +755,6 @@ public List<CuentaCobrarCabecera> listado(List<CuentaCobrarCabecera> lis){
 				detalleProducto.setSubTotal(det.getSubTotal());
 				detalleProducto.setMontoIva(det.getMontoIva());
 				detalleProducto.setCantidadDevolucion(det.getCantidadDevolucion());
-				
 				cuenta.getVenta().getDetalleProducto().add(detalleProducto);
 				System.out.println(det.getIva()+" *8*8*8*8*");
 
@@ -767,6 +816,8 @@ public CuentaCobrarCabecera  getCuentaCobrarID(@PathVariable int id){
 	CuentaCobrarCabecera c=entityRepository.findById(id).get();
 	CuentaCobrarCabecera cuenta=new CuentaCobrarCabecera();
 	cuenta.setId(c.getId());
+	cuenta.getVenta().setId(c.getVenta().getId());
+	cuenta.getVenta().setFechaFactura(c.getVenta().getFechaFactura());
 	cuenta.getCliente().setId(c.getCliente().getId());
 	cuenta.getCliente().getPersona().setNombre(c.getCliente().getPersona().getNombre());
 	cuenta.getCliente().getPersona().setApellido(c.getCliente().getPersona().getApellido());
@@ -778,6 +829,7 @@ public CuentaCobrarCabecera  getCuentaCobrarID(@PathVariable int id){
 	cuenta.setSaldo(c.getSaldo());
 	cuenta.getVenta().setTotalDevolucion(c.getVenta().getTotalDevolucion());
 	cuenta.setFecha(c.getFecha());
+	
 	cuenta.getVenta().setTotal(c.getVenta().getTotal());
 	cuenta.setEntrega(c.getEntrega());
 	cuenta.getVenta().setEntrega(c.getVenta().getEntrega());
@@ -791,6 +843,9 @@ public CuentaCobrarCabecera  getCuentaCobrarID(@PathVariable int id){
 
 	} else if(c.getVenta().getTipo().equals("2") || c.getVenta().getTipo().toLowerCase().equals("credito")) {
 		cuenta.getVenta().setTipo("CREDITO");
+		System.out.println("entro verificacion de cuenta credito");
+	} else if(c.getVenta().getTipo().equals("3") || c.getVenta().getTipo().toLowerCase().equals("nota credito")) {
+		cuenta.getVenta().setTipo("NOTA CREDITO");
 		System.out.println("entro verificacion de cuenta credito");
 	}
 	cuenta.setTotalDevolucion(c.getTotalDevolucion());
@@ -829,12 +884,48 @@ public CuentaCobrarCabecera  getCuentaCobrarPorIdVenta(@PathVariable int id){
 	} else if(c.getVenta().getTipo().equals("2") || c.getVenta().getTipo().toLowerCase().equals("credito")) {
 		cuenta.getVenta().setTipo("2");
 		System.out.println("entro verificacion de cuenta credito");
+	}else if(c.getVenta().getTipo().equals("3") || c.getVenta().getTipo().toLowerCase().equals("nota credito")) {
+		cuenta.getVenta().setTipo("3");
+		System.out.println("entro verificacion de cuenta credito");
 	}
 	cuenta.setTotalDevolucion(c.getTotalDevolucion());
 	return cuenta;
 
 }
+@RequestMapping(method = RequestMethod.GET, value="/reporteCuentaClienteCabeceraListado/rango/{id}/{tipo}/{fechaI}/{fechaF}")
+public  List<CuentaCobrarCabecera> getReporteCuentaClienteRangoListado(OAuth2Authentication authentication,@PathVariable int id, @PathVariable int tipo, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException, ParseException{
+	List<CuentaCobrarCabecera> lis =new ArrayList<>();
+	List<CuentaCobrarCabecera> listado=new ArrayList<>();
 
+	try {
+		Calendar cc= Calendar.getInstance();
+		SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+		Date fecI;
+		System.out.println("fecha que viene: "+fechaI+ ", "+fechaF);
+		fecI = formater.parse(fechaI);
+		Date fecF=formater.parse(fechaF);
+		System.out.println(fecF.getDate());
+		fecF.setHours(23);
+		fecF.setSeconds(59);
+		fecI.setHours(0);
+		fecI.setSeconds(1);
+		System.out.println("hora final fechas::: "+fecF+ " hora inicio finbal: "+fecI);
+
+		if(tipo == 1){
+			lis= entityRepository.findByCuentaPorIdTodoRango(id, fecI, fecF);
+		}
+		if(tipo == 2){
+			lis= entityRepository.findByCuentaPorIdACobrarRango(id,fecI, fecF);
+		}
+		if(tipo == 3){
+			lis= entityRepository.findByCuentaPorIdCobradoRango(id,fecI, fecF);
+		}
+		listado = listadoCargar(lis);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	return listado;
+}
 @RequestMapping(method = RequestMethod.GET, value="/reporteCuentaClienteCabecera/rango/{id}/{tipo}/{detallado}/{fechaI}/{fechaF}")
 public  ResponseEntity<?> getReporteCuentaClienteRango(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id, @PathVariable int tipo, @PathVariable int detallado, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException, ParseException{
 	List<CuentaCobrarCabecera> lis =new ArrayList<>();
@@ -860,12 +951,14 @@ public  ResponseEntity<?> getReporteCuentaClienteRango(HttpServletResponse respo
 	}
 	if(tipo == 3){
 		lis= entityRepository.findByCuentaPorIdCobradoRango(id,fecI, fecF);
-
 	}
-	List<CuentaCobrarCabecera> listado= listado(lis);
+	List<CuentaCobrarCabecera> listado= listadoCargar(lis);
 	String nombreCliente="";
+	String cedulaCliente="";
 	if(listado.size()>0) {
 		nombreCliente = listado.get(0).getCliente().getPersona().getNombre()+" "+listado.get(0).getCliente().getPersona().getApellido();
+		cedulaCliente= listado.get(0).getCliente().getPersona().getCedula();
+		
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
 		Org org = orgRepository.findById(1).get();
 
@@ -878,6 +971,8 @@ public  ResponseEntity<?> getReporteCuentaClienteRango(HttpServletResponse respo
 		map.put("pais", ""+org.getPais());
 		map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
 		map.put("cliente", nombreCliente);
+		map.put("clienteCedula", cedulaCliente);
+
 		map.put("desde", fechaI);
 		map.put("hasta", fechaF);
 
@@ -885,13 +980,260 @@ public  ResponseEntity<?> getReporteCuentaClienteRango(HttpServletResponse respo
 		if(detallado==1) {
 			report.reportPDFDescarga(listado, map, "ReporteCuentaClienteRangoFecha", response);
 		}else {
-			report.reportPDFDescarga(listado, map, "ReporteCuentaClienteDetalladoRangoFecha", response);
+			report.reportPDFDescarga(listado, map, "ReporteCuentaClienteRangoFechaDetalladoFecha", response);
 		}
 
 		return  new ResponseEntity<>(new CustomerErrorType(""), HttpStatus.OK);
 	}else {
 		return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 	}
+}
+
+public Venta ventass(int idVenta) {
+	Venta cv = null;
+
+	cv=ventaRepository.findById(idVenta).orElse(null);
+	
+
+	return cv;
+}
+public List<DetalleServicios> detalleServicio(int idVenta) {
+	List<Object[]> objeto=detalleProductoRepository.lista(idVenta);
+	List<DetalleServicios> detalleServicio=new ArrayList<>();
+	for(Object[] ob:objeto){
+		DetalleServicios detalleServicios=new DetalleServicios();
+		detalleServicios.setId(Integer.parseInt(ob[0].toString()));
+		detalleServicios.getServicio().setId(Integer.parseInt(ob[1].toString()));
+		detalleServicios.setDescripcion(ob[2].toString());
+		detalleServicios.setCantidad(Double.parseDouble(ob[3].toString()));
+		detalleServicios.setPrecio(Double.parseDouble(ob[4].toString()));
+		detalleServicios.setSubTotal(Double.parseDouble(ob[5].toString()));
+		detalleServicios.getVenta().setId(Integer.parseInt(ob[6].toString()));
+		detalleServicios.setIva(ob[7].toString());
+
+		detalleServicio.add(detalleServicios);
+	}
+	return detalleServicio;
+}
+
+
+
+public List<Venta> getLista(int idVenta ) {
+
+	List<Venta> lista = new ArrayList<>();
+
+	Venta xxx = new Venta();
+	List<DetalleProducto> detProducto = new ArrayList<>();
+	List<DetalleServicios> detServicio = new ArrayList<>();
+
+
+	xxx = ventass(idVenta);
+	detProducto = getDetalleProducto(detalleProductoRepository.lista(idVenta));
+	detServicio = detalleServicio(idVenta);
+
+
+	for (int i = 0; i < 1; i++) {
+		Cliente cli = clienteRepository.getIdCliente(xxx.getCliente().getId());
+		Funcionario FunV = funcionarioRepository.getIdFuncionario(xxx.getFuncionarioV().getId());
+		Funcionario FunR = funcionarioRepository.getIdFuncionario(xxx.getFuncionarioR().getId());
+
+		Venta v = new Venta();
+		v.getCliente().getPersona().setNombre(cli.getPersona().getNombre()+ " "+cli.getPersona().getApellido());
+		v.getCliente().getPersona().setCedula(cli.getPersona().getCedula());
+		v.getCliente().getPersona().setTelefono(cli.getPersona().getTelefono());
+		v.getCliente().getPersona().setDireccion(cli.getPersona().getDireccion());
+		v.setFechaFactura(xxx.getFechaFactura());
+		v.setFecha(xxx.getFecha());
+		v.setHora(xxx.getHora());
+		v.setObs(xxx.getObs());
+		v.setId(xxx.getId());
+		v.getDocumento().setId(xxx.getDocumento().getId());
+
+		System.out.println("fun veeveveve : "+FunV.getPersona().getNombre());
+		v.getFuncionarioV().getPersona().setNombre(FunV.getPersona().getNombre()+ " "+FunV.getPersona().getApellido());
+		v.getFuncionarioV().getPersona().setTelefono(FunV.getPersona().getTelefono());
+		v.getFuncionarioR().getPersona().setNombre(FunR.getPersona().getNombre()+ " "+FunR.getPersona().getApellido());
+		v.getFuncionarioR().getPersona().setTelefono(FunR.getPersona().getTelefono());
+
+		v.setTotalDescuento(xxx.getTotalDescuento());
+		v.setTotalIvaCinco(xxx.getTotalIvaCinco());
+		v.setTotalIvaDies(xxx.getTotalIvaDies());
+		v.setTotal(xxx.getTotal());
+		v.setTotalLetra(xxx.getTotalLetra());
+		v.setTipo(xxx.getTipo());
+		v.setNroDocumento(xxx.getNroDocumento());
+		v.getDocumento().setDescripcion(xxx.getDocumento().getDescripcion());
+		v.setEntrega(xxx.getEntrega());
+		if (xxx.getTipo().equals("1")) {
+			v.setTipo("CONTADO");				
+		}
+		if (xxx.getTipo().equals("2")) {
+			v.setTipo("CREDITO");				
+		}
+		if (xxx.getTipo().equals("3")) {
+			v.setTipo("NOTA CREDITO");				
+		}
+
+		v.setDetalleProducto(detProducto);
+		for(DetalleServicios det: detServicio) {
+			DetalleProducto detalleProducto = new DetalleProducto();
+			detalleProducto.getProducto().setId(det.getId());
+			detalleProducto.setDescripcion("SRV.: "+det.getDescripcion());
+			detalleProducto.getProducto().setCodbar(det.getServicio().getId()+"");
+			detalleProducto.setCantidad(det.getCantidad());
+			detalleProducto.setPrecio(det.getPrecio());
+			detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");
+			detalleProducto.setIva(det.getIva()+"");
+			detalleProducto.setSubTotal(det.getSubTotal());
+			detalleProducto.setMontoIva(det.getMontoIva());
+			v.getDetalleProducto().add(detalleProducto);
+			System.out.println(det.getIva()+" *8*8*8*8*");
+
+		}
+		lista.add(v);
+		System.out.println("lista cantidad : "+lista.get(0).getDetalleProducto().size());
+	}
+
+	return lista;
+
+}
+public List<DetalleProducto> getDetalleProducto(List<Object[]> objeto) {
+	List<DetalleProducto> detalleProducto=new ArrayList<>();
+	for(Object[] ob:objeto){
+		DetalleProducto detalleProductos=new DetalleProducto();
+		detalleProductos.setId(Integer.parseInt(ob[0].toString()));
+		detalleProductos.getProducto().setId(Integer.parseInt(ob[1].toString()));
+		detalleProductos.setDescripcion(ob[2].toString());
+		detalleProductos.setCantidad(Double.parseDouble(ob[3].toString()));
+		detalleProductos.setIva(ob[4].toString());
+		detalleProductos.setPrecio(Double.parseDouble(ob[5].toString()));
+		detalleProductos.setSubTotal(Double.parseDouble(ob[6].toString()));
+		detalleProductos.getVenta().setId(Integer.parseInt(ob[7].toString()));
+
+		detalleProductos.getProducto().setPrecioVenta_1(Double.parseDouble(ob[8].toString()));
+		detalleProductos.getProducto().setPrecioVenta_2(Double.parseDouble(ob[9].toString()));
+		detalleProductos.getProducto().setPrecioVenta_3(Double.parseDouble(ob[10].toString()));
+		detalleProductos.getProducto().setPrecioVenta_4(Double.parseDouble(ob[11].toString()));
+		detalleProductos.setDescuento(Double.parseDouble((ob[12].toString())));
+		detalleProductos.getProducto().getUnidadMedida().setDescripcion(ob[13].toString());
+		if (ob[14].toString()==null) { detalleProductos.getProducto().setExistencia(0.0); } else { detalleProductos.getProducto().setExistencia(Double.parseDouble(ob[14].toString())); }
+		detalleProductos.setIsBalanza(Boolean.parseBoolean(ob[15].toString()));
+		detalleProductos.getProducto().setCodbar(ob[16].toString());
+		detalleProductos.getProducto().getMarca().setDescripcion(ob[17].toString());
+		detalleProductos.setMontoIva(Double.parseDouble(ob[18].toString()));
+		detalleProductos.setCantidadDevolucion(Double.parseDouble(ob[19].toString()));
+		System.out.println("IVA DETALLE: "+detalleProductos.getIva());
+		detalleProducto.add(detalleProductos);
+	}
+
+	return detalleProducto;
+}
+
+@RequestMapping(value="/reImprimirMatricial/{id}/{numeroTerminal}/{fecha}", method=RequestMethod.GET)
+public void reImprimirMatricial(@PathVariable int id, @PathVariable int numeroTerminal, @PathVariable String fecha){
+	List<Venta> venta = getLista(id);
+	venta.get(0).setFechaFactura(FechaUtil.convertirFechaStringADateUtil(fecha));
+
+	Reporte report = new Reporte();
+	TerminalConfigImpresora t = new TerminalConfigImpresora();
+	t= terminalRepository.consultarTerminal(numeroTerminal);
+	if (t==null) {
+		System.out.println("Se debe cargar numero terminal dentro de la base de datos");
+	}else {
+		ReporteConfig reportConfig = new ReporteConfig();
+		System.out.println("doc:  "+venta.get(0).getDocumento().getId());
+		if(venta.get(0).getDocumento().getId()==1) {reportConfig = reporteConfigRepository.getOne(5);}
+		if(venta.get(0).getDocumento().getId()==2) {reportConfig = reporteConfigRepository.getOne(1);}
+		if(venta.get(0).getDocumento().getId()==3) {reportConfig = reporteConfigRepository.getOne(1);}
+		Map<String, Object> map = new HashMap<>();
+		report=new Reporte();
+		int pageSize = 10;
+		int totalPages = (int) Math.ceil((double) venta.get(0).getDetalleProducto().size() / pageSize);
+		System.out.println("TOTAL DE PAGINAS:"+ totalPages);
+
+		List<Venta> listaVentaImpresion= new ArrayList<Venta>();
+
+		for (int i = 0; i < totalPages; i++) {	
+			System.out.println("\n--- Página " + (i + 1) + " ---");
+
+			int start = i * pageSize;
+			int end = Math.min(start + pageSize, venta.get(0).getDetalleProducto().size());
+			// Crear una nueva lista con los elementos de la página actual
+			List<DetalleProducto> detallesPagina = new ArrayList<>(venta.get(0).getDetalleProducto().subList(start, end));
+			Double totalMontoPagina=0.0, totalPaginaIvaCinco=0.0, totalPaginaIvaDies=0.0, totalPaginaIva=0.0,totalPaginaExcenta=0.0;
+			for (int j = 0; j < detallesPagina.size(); j++) {
+				totalMontoPagina = totalMontoPagina + detallesPagina.get(j).getSubTotal();
+				if(detallesPagina.get(j).getIva().equals("10 %")) {totalPaginaIvaDies = totalPaginaIvaDies +  (detallesPagina.get(j).getSubTotal()/11);}
+				if(detallesPagina.get(j).getIva().equals("5 %")) {totalPaginaIvaCinco = totalPaginaIvaCinco +  (detallesPagina.get(j).getSubTotal()/21);}
+				if(detallesPagina.get(j).getIva().equals("Excenta")) {totalPaginaExcenta = totalPaginaExcenta +  (detallesPagina.get(j).getSubTotal());}
+			}
+			Venta ventaImpresion = new Venta();
+			ventaImpresion.setId(venta.get(0).getId());
+			ventaImpresion.setFechaFactura(venta.get(0).getFechaFactura());
+			ventaImpresion.setDocumento(venta.get(0).getDocumento());
+			ventaImpresion.setCliente(venta.get(0).getCliente());
+			ventaImpresion.setFuncionario(venta.get(0).getFuncionario());
+			ventaImpresion.setFuncionarioR(venta.get(0).getFuncionarioR());
+			ventaImpresion.setFuncionarioV(venta.get(0).getFuncionarioV());
+			ventaImpresion.setTipo(venta.get(0).getTipo());
+			ventaImpresion.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalMontoPagina));
+			ventaImpresion.setTotal(totalMontoPagina);
+			ventaImpresion.setTotalIvaDies(totalPaginaIvaDies);
+			ventaImpresion.setTotalIvaCinco(totalPaginaIvaCinco);
+			ventaImpresion.setTotalIva(totalPaginaIvaDies +  totalPaginaIvaCinco);
+			ventaImpresion.setDetalleProducto(detallesPagina);
+			ventaImpresion.setEntrega(venta.get(0).getEntrega());
+
+			listaVentaImpresion.add(ventaImpresion);
+			System.out.println("UNA FILA DE LA PAGINA" +listaVentaImpresion.get(i).getDetalleProducto().get(0).getDescripcion());
+		}
+		if (t.getImpresora().equals("matricial")) {
+			ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
+			String urlReporte = "\\reporte\\" + reportConfig.getNombreSubReporte1() + ".jasper";
+			System.out.println("SUBREPORT:  " + urlReporte + " REPORT NOMBRE : " + reportConfig.getNombreReporte());
+
+			map.put("urlSubRepor", urlReporte);
+			map.put("tituloReporte", f.getTitulo());
+			map.put("razonSocialReporte", f.getRazonSocial());
+			map.put("descripcionMovimiento", f.getDescripcion());
+			map.put("direccionReporte", f.getDireccion());
+			map.put("telefonoReporte", f.getTelefono());
+			map.put("entregaInicial", "");
+			map.put("paginaTotal", totalPages+ "");
+
+
+
+			try {
+				ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+				System.out.println("total apartido lista :  "+listaVentaImpresion.size());
+				for (int i=0; i < listaVentaImpresion.size(); i++) {
+					map.put("paginaActual", (i +1)+ "");
+					if(p.getDescripcion().equals("A4")) {
+						report.reportPDFImprimirA4(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+					}
+					if(p.getDescripcion().equals("CORTE")) {
+						report.reportPDFImprimirLibreCorte(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+					}
+					if(p.getDescripcion().equals("JOB")) {
+						report.reportPDFImprimirPrueba(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+					}
+				}
+				// Pasamos solo los detalles de la página actual a la impresión
+				//report.reportPDFImprimir(listaVentaImpresion, map, reportConfig.getNombreReporte(), t.getNombreImpresora());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}
+
+@RequestMapping(method = RequestMethod.GET, value="/reporteCuentaClienteGeneralListado")
+public  List<CuentaCobrarCabecera> getReporteCuentaClienteGeneralListado( OAuth2Authentication authentication ) throws IOException, ParseException{
+	List<CuentaCobrarCabecera> lis =new ArrayList<>();
+	List<CuentaCobrarCabecera> listadoRetorno= new ArrayList<>();
+	lis= entityRepository.getTotalCuentaCobrar();
+	listadoRetorno = listadoCargar(lis);
+	return listadoRetorno;
 }
 @RequestMapping(method = RequestMethod.GET, value="/reporteCuentaClienteGeneral")
 public  ResponseEntity<?> getReporteCuentaClienteGeneral(HttpServletResponse response, OAuth2Authentication authentication ) throws IOException, ParseException{

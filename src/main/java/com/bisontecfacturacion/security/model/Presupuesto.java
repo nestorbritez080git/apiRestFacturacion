@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class Presupuesto {
@@ -21,8 +23,8 @@ public class Presupuesto {
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
 	@NotNull
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
-	private Date fecha;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
+	private LocalDateTime fecha;
 	private String hora;
 	@NotNull
 	private Double total;
@@ -30,6 +32,7 @@ public class Presupuesto {
 	private String nroDocumento;
 	
 	@OneToMany(mappedBy="presupuesto")
+	@JsonIgnoreProperties("presupuesto")
 	private List<DetallePresupuestoProducto> detallePresupuestoProducto; 
 	
 	@OneToMany(mappedBy="presupuesto")
@@ -38,6 +41,9 @@ public class Presupuesto {
 	
 	@ManyToOne
 	private Funcionario funcionario;
+	
+	@ManyToOne
+	private Zona zona;
 	private String obs;
 
 	
@@ -57,8 +63,9 @@ public class Presupuesto {
 		this.id=0;
 		this.total=0.00;
 		this.hora = "";
-		this.fecha=new Date();
+		this.fecha = LocalDateTime.now();
 		this.funcionario= new Funcionario();
+		this.zona=new  Zona();
 		this.cliente= new Cliente();
 		this.nroDocumento="";
 		this.totalIvaCinco=0.0;
@@ -68,6 +75,16 @@ public class Presupuesto {
 		this.totalExcenta=0.0;
 		this.estado="";
 		this.obs="";
+	}
+
+
+	public Zona getZona() {
+		return zona;
+	}
+
+
+	public void setZona(Zona zona) {
+		this.zona = zona;
 	}
 
 
@@ -151,12 +168,12 @@ public class Presupuesto {
 	}
 
 
-	public Date getFecha() {
+	public LocalDateTime getFecha() {
 		return fecha;
 	}
 
 
-	public void setFecha(Date fecha) {
+	public void setFecha(LocalDateTime fecha) {
 		this.fecha = fecha;
 	}
 

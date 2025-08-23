@@ -16,11 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,6 +78,7 @@ import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
+import com.bisontecfacturacion.security.model.Zona;
 import com.bisontecfacturacion.security.repository.AnulacionesVentaRepository;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.AutoImpresorDetalleVentaRepository;
@@ -105,6 +108,7 @@ import com.bisontecfacturacion.security.repository.ReporteFormatoDatosRepository
 import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
 import com.bisontecfacturacion.security.repository.TesoreriaRepository;
 import com.bisontecfacturacion.security.repository.VentaRepository;
+import com.bisontecfacturacion.security.repository.ZonaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
 
@@ -171,9 +175,7 @@ public class VentaController {
 	private ImpresoraRepository impresoraRepository;
 
 	@Autowired
-	private ReporteFormatoDatosRepository reporteFormatoDatosRepository
-
-	;
+	private ReporteFormatoDatosRepository reporteFormatoDatosRepository;
 
 
 
@@ -206,8 +208,11 @@ public class VentaController {
 
 	@Autowired
 	private AutoImpresorRepository autoImpresorRepository;
+	
 	@Autowired
-
+	private ZonaRepository zonaRepository;
+	
+	@Autowired
 	private AutoImpresorDetalleVentaRepository autoImpresorDetalleVentaRepository;
 
 
@@ -244,6 +249,8 @@ public class VentaController {
 			} else if(ob.getTipo().equals("2") || ob.getTipo().toLowerCase().equals("credito")|| ob.getTipo().toLowerCase().equals("CREDITO")) {
 				ventas.setTipo("2");
 				System.out.println("entro verificacion de cuenta credito");
+			}else if(ob.getTipo().equals("3") || ob.getTipo().toLowerCase().equals("nota credito")|| ob.getTipo().toLowerCase().equals("NOTA CREDITO")) {
+				ventas.setTipo("3");
 			}
 			ventas.setHora(ob.getHora());
 			ventas.getDocumento().setId(ob.getDocumento().getId());
@@ -251,6 +258,7 @@ public class VentaController {
 			ventas.setNroDocumento(ob.getNroDocumento());
 			ventas.setEstado(ob.getEstado());
 			ventas.setObs(ob.getObs());
+			ventas.setZona(ob.getZona());
 			venta.add(ventas);
 
 		}
@@ -289,6 +297,9 @@ public class VentaController {
 			} else if(ob.getTipo().equals("2") || ob.getTipo().toLowerCase().equals("credito")) {
 				ventas.setTipo("2");
 				System.out.println("entro verificacion de cuenta credito");
+			} else if(ob.getTipo().equals("3") || ob.getTipo().toLowerCase().equals("nota credito")) {
+				ventas.setTipo("3");
+
 			}
 			ventas.setHora(ob.getHora());
 			ventas.getDocumento().setId(ob.getDocumento().getId());
@@ -296,6 +307,7 @@ public class VentaController {
 			ventas.setNroDocumento(ob.getNroDocumento());
 			ventas.setEstado(ob.getEstado());
 			ventas.setObs(ob.getObs());
+			ventas.setZona(ob.getZona());
 			venta.add(ventas);
 		}
 		return venta;
@@ -323,6 +335,8 @@ public class VentaController {
 			} else if(ob.getTipo().equals("2") || ob.getTipo().toLowerCase().equals("credito")) {
 				ventas.setTipo("2");
 				System.out.println("entro verificacion de cuenta credito");
+			} else if(ob.getTipo().equals("3") || ob.getTipo().toLowerCase().equals("nota credito")) {
+				ventas.setTipo("3");
 			}			
 			ventas.setHora(ob.getHora());
 			ventas.getDocumento().setId(ob.getDocumento().getId());
@@ -330,6 +344,7 @@ public class VentaController {
 			ventas.setNroDocumento(ob.getNroDocumento());
 			ventas.setEstado(ob.getEstado());
 			ventas.setObs(ob.getObs());
+			ventas.setZona(ob.getZona());
 			venta.add(ventas);
 		}
 		return venta;
@@ -392,7 +407,11 @@ public class VentaController {
 			} else if(v.getTipo().equals("2") || v.getTipo().toLowerCase().equals("credito")) {
 				venta.setTipo("2");
 				System.out.println("entro verificacion de cuenta credito");
-			}			venta.setNroDocumento(v.getNroDocumento());
+			} else if(v.getTipo().equals("3") || v.getTipo().toLowerCase().equals("nota credito")) {
+				venta.setTipo("3");
+				System.out.println("entro verificacion de cuenta credito");
+			}		
+			venta.setNroDocumento(v.getNroDocumento());
 			venta.setTotal(v.getTotal());
 			venta.getFuncionario().setId(v.getFuncionario().getId());
 			venta.getCliente().setId(v.getCliente().getId());
@@ -421,6 +440,7 @@ public class VentaController {
 			venta.setTotalLetra(v.getTotalLetra());
 			venta.setEntrega(v.getEntrega());
 			venta.setObs(v.getObs());
+			venta.setZona(v.getZona());
 		}else {
 			venta = null;
 		}
@@ -440,6 +460,9 @@ public class VentaController {
 			System.out.println("entro verificacion de cuenta contado");
 		} else if(v.getTipo().equals("2") || v.getTipo().toLowerCase().equals("credito")) {
 			venta.setTipo("2");
+			System.out.println("entro verificacion de cuenta credito");
+		}else if(v.getTipo().equals("3") || v.getTipo().toLowerCase().equals("nota credito")) {
+			venta.setTipo("3");
 			System.out.println("entro verificacion de cuenta credito");
 		}
 		venta.setNroDocumento(v.getNroDocumento());
@@ -469,6 +492,7 @@ public class VentaController {
 		venta.setTotalLetra(v.getTotalLetra());
 		venta.setEntrega(v.getEntrega());
 		venta.setObs(v.getObs());
+		venta.setZona(v.getZona());
 		return venta;
 	}
 
@@ -651,7 +675,43 @@ public class VentaController {
 		System.out.println(terminal.getEstadoAutoImpresor());
 		System.out.println(entity.getDocumento().getId());
 		try {
+			if(entity.getTipo().equals("CONTADO")|| entity.getTipo().equals("1")) {
+				System.out.println("VINO ESTE EL TIPO VENTA: "+entity.getTipo());
+				entity.setTipo("1");
+			}
+			if(entity.getTipo().equals("CREDITO")|| entity.getTipo().equals("2")) {
+				System.out.println("VINO ESTE EL TIPO VENTA: "+entity.getTipo());
+				entity.setTipo("2");
+			}
+			if(entity.getTipo().equals("NOTA CREDITO")|| entity.getTipo().equals("3")) {
+				System.out.println("VINO ESTE EL TIPO VENTA: "+entity.getTipo());
+				entity.setTipo("3");
+			}
+			System.out.println("Cantidad de zonas registradas: " + zonaRepository.count());
+			System.out.println("Zona recibida en entity: " + (entity.getZona() != null ? entity.getZona().getId() : "null"));
 
+			// 1. Validar si hay al menos una zona registrada
+			if (zonaRepository.count() == 0) {
+			    return new ResponseEntity<>(
+			        new CustomerErrorType("SE DEBE CARGAR AL MENOS UNA ZONA EN EL SISTEMA"),
+			        HttpStatus.CONFLICT
+			    );
+			}
+
+			// 2. Si no hay zona asignada o id es 0, asignar la primera zona registrada
+			if (entity.getZona() == null || entity.getZona().getId() == 0) {
+			    // Buscar la primera zona (puede ser la de menor ID)
+				System.out.println("entro id 0 o null y asina el primer valor");
+			    Optional<Zona> primeraZonaOpt = zonaRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream().findFirst();
+			    if (!primeraZonaOpt.isPresent()) {
+			        return new ResponseEntity<>(
+			            new CustomerErrorType("ERROR AL ASIGNAR ZONA POR DEFECTO"),
+			            HttpStatus.CONFLICT
+			        );
+			    }
+			    entity.setZona(primeraZonaOpt.get());
+			}
+			
 			if(entity.getFuncionario().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getFuncionarioV().getId() == 0) {
@@ -677,7 +737,10 @@ public class VentaController {
 				entity.setTipo("2");
 				System.out.println("entro validacion tipo venta cr o 2");
 
-			}else if(terminal.getImpresora().equals("ticket") & terminal.getEstadoAutoImpresor()==true & entity.getDocumento().getId()==1){
+			}else if(entity.getTipo().equals("3") || entity.getTipo().equals("Nota Credito") || entity.getTipo().equals("NOTA CREDITO")){
+				entity.setTipo("3");
+				System.out.println("entro validacion tipo venta nota cr o 3");
+			} if(terminal.getImpresora().equals("ticket") & terminal.getEstadoAutoImpresor()==true & entity.getDocumento().getId()==1){
 				if(autoImpresor.getNumeroActual()>=autoImpresor.getRangoFin()) {
 					autoImpresor= null;
 					return new ResponseEntity<>(new CustomerErrorType("CANTIDAD DE EXPEDICIÓN SOBREPASADA DEL AUTO IMPRESOR PARA ESTA TERMINAL.!"), HttpStatus.CONFLICT);
@@ -1114,6 +1177,7 @@ public class VentaController {
 		}
 		System.out.println(entity.getTotalIvaDies() + " "+ entity.getTotalIvaCinco());
 		Map<String, String> map = new HashMap<>();
+		System.out.println("ID VET: RESS: "+entity.getId());
 		map.put("nroDocumento", numeroFacturaRetorno);
 		if(autoImpresor !=null) {
 			map.put("timbrado", autoImpresor.getTimbrado());
@@ -1122,6 +1186,7 @@ public class VentaController {
 		map.put("totalIvaCinco", entity.getTotalIvaCinco()+"");
 		map.put("totalIvaDies", entity.getTotalIvaDies()+"");
 		map.put("totalIva", entity.getTotalIva()+"");
+		map.put("id", entity.getId()+"");
 
 		return new ResponseEntity<Map<String, String>>(map,HttpStatus.OK);
 
@@ -1149,7 +1214,7 @@ public class VentaController {
 
 
 
-
+	
 	public void actualizarProductoBase(int id , double cantidad, double subtotal, double precio, int idFuncionario, String tipo, int idVenta) {
 		ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
 		Funcionario f = funcionarioRepository.getIdFuncionario(idFuncionario);
@@ -1389,6 +1454,7 @@ public class VentaController {
 
 		}
 	}
+	
 
 	public void actualizarProductoBaseAumentarCorregido(int id , double cantidad, double subtotal, double precio, int idFuncionario, String tipo, int idVenta) {
 		ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
@@ -1723,6 +1789,9 @@ public class VentaController {
 			if (xxx.getTipo().equals("2")) {
 				v.setTipo("CREDITO");				
 			}
+			if (xxx.getTipo().equals("3")) {
+				v.setTipo("NOTA CREDITO");				
+			}
 
 			v.setDetalleProducto(detProducto);
 			for(DetalleServicios det: detServicio) {
@@ -1950,6 +2019,104 @@ public class VentaController {
 			}
 		}
 	}
+	
+	@RequestMapping(value="/reImprimirMatricial/{id}/{idCliente}/{idDocumento}/{numeroTerminal}/{fecha}", method=RequestMethod.GET)
+	public void reImprimirMatricialDesdeDetalleVenta(@PathVariable int id, @PathVariable int idCliente, @PathVariable int idDocumento, @PathVariable int numeroTerminal, @PathVariable String fecha){
+		List<Venta> venta = getLista(id);
+		venta.get(0).setFechaFactura(FechaUtil.convertirFechaStringADateUtil(fecha));
+
+		Reporte report = new Reporte();
+		TerminalConfigImpresora t = new TerminalConfigImpresora();
+		t= terminalRepository.consultarTerminal(numeroTerminal);
+		if (t==null) {
+			System.out.println("Se debe cargar numero terminal dentro de la base de datos");
+		}else {
+			ReporteConfig reportConfig = new ReporteConfig();
+			System.out.println("doc:  "+venta.get(0).getDocumento().getId());
+			if(idDocumento==1) {reportConfig = reporteConfigRepository.getOne(5);}
+			if(idDocumento==2) {reportConfig = reporteConfigRepository.getOne(1);}
+			if(idDocumento==3) {reportConfig = reporteConfigRepository.getOne(1);}
+			Map<String, Object> map = new HashMap<>();
+			report=new Reporte();
+			int pageSize = 10;
+			int totalPages = (int) Math.ceil((double) venta.get(0).getDetalleProducto().size() / pageSize);
+			System.out.println("TOTAL DE PAGINAS:"+ totalPages);
+			Cliente cli= clienteRepository.getIdCliente(idCliente);
+			List<Venta> listaVentaImpresion= new ArrayList<Venta>();
+
+			for (int i = 0; i < totalPages; i++) {	
+				System.out.println("\n--- Página " + (i + 1) + " ---");
+
+				int start = i * pageSize;
+				int end = Math.min(start + pageSize, venta.get(0).getDetalleProducto().size());
+				// Crear una nueva lista con los elementos de la página actual
+				List<DetalleProducto> detallesPagina = new ArrayList<>(venta.get(0).getDetalleProducto().subList(start, end));
+				Double totalMontoPagina=0.0, totalPaginaIvaCinco=0.0, totalPaginaIvaDies=0.0, totalPaginaIva=0.0,totalPaginaExcenta=0.0;
+				for (int j = 0; j < detallesPagina.size(); j++) {
+					totalMontoPagina = totalMontoPagina + detallesPagina.get(j).getSubTotal();
+					if(detallesPagina.get(j).getIva().equals("10 %")) {totalPaginaIvaDies = totalPaginaIvaDies +  (detallesPagina.get(j).getSubTotal()/11);}
+					if(detallesPagina.get(j).getIva().equals("5 %")) {totalPaginaIvaCinco = totalPaginaIvaCinco +  (detallesPagina.get(j).getSubTotal()/21);}
+					if(detallesPagina.get(j).getIva().equals("Excenta")) {totalPaginaExcenta = totalPaginaExcenta +  (detallesPagina.get(j).getSubTotal());}
+				}
+				Venta ventaImpresion = new Venta();
+				ventaImpresion.setId(venta.get(0).getId());
+				ventaImpresion.setFechaFactura(venta.get(0).getFechaFactura());
+				ventaImpresion.setDocumento(venta.get(0).getDocumento());
+				ventaImpresion.setCliente(cli);
+				ventaImpresion.setFuncionario(venta.get(0).getFuncionario());
+				ventaImpresion.setFuncionarioR(venta.get(0).getFuncionarioR());
+				ventaImpresion.setFuncionarioV(venta.get(0).getFuncionarioV());
+				ventaImpresion.setTipo(venta.get(0).getTipo());
+				ventaImpresion.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalMontoPagina));
+				ventaImpresion.setTotal(totalMontoPagina);
+				ventaImpresion.setTotalIvaDies(totalPaginaIvaDies);
+				ventaImpresion.setTotalIvaCinco(totalPaginaIvaCinco);
+				ventaImpresion.setTotalIva(totalPaginaIvaDies +  totalPaginaIvaCinco);
+				ventaImpresion.setDetalleProducto(detallesPagina);
+				ventaImpresion.setEntrega(venta.get(0).getEntrega());
+
+				listaVentaImpresion.add(ventaImpresion);
+				System.out.println("UNA FILA DE LA PAGINA" +listaVentaImpresion.get(i).getDetalleProducto().get(0).getDescripcion());
+			}
+			if (t.getImpresora().equals("matricial")) {
+				ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
+				String urlReporte = "\\reporte\\" + reportConfig.getNombreSubReporte1() + ".jasper";
+				System.out.println("SUBREPORT:  " + urlReporte + " REPORT NOMBRE : " + reportConfig.getNombreReporte());
+
+				map.put("urlSubRepor", urlReporte);
+				map.put("tituloReporte", f.getTitulo());
+				map.put("razonSocialReporte", f.getRazonSocial());
+				map.put("descripcionMovimiento", f.getDescripcion());
+				map.put("direccionReporte", f.getDireccion());
+				map.put("telefonoReporte", f.getTelefono());
+				map.put("entregaInicial", "");
+				map.put("paginaTotal", totalPages+ "");
+
+
+
+				try {
+					ParametroTipoHoja p = parametroTipoHoja.getOne(1);
+					System.out.println("total apartido lista :  "+listaVentaImpresion.size());
+					for (int i=0; i < listaVentaImpresion.size(); i++) {
+						map.put("paginaActual", (i +1)+ "");
+						if(p.getDescripcion().equals("A4")) {
+							report.reportPDFImprimirA4(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+						}
+						if(p.getDescripcion().equals("CORTE")) {
+							report.reportPDFImprimirLibreCorte(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+						}
+						if(p.getDescripcion().equals("JOB")) {
+							report.reportPDFImprimirPrueba(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
+						}
+					}
+					// Pasamos solo los detalles de la página actual a la impresión
+					//report.reportPDFImprimir(listaVentaImpresion, map, reportConfig.getNombreReporte(), t.getNombreImpresora());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	public Date sumarDia(Date fecha, int hora) {
 		Calendar calendar=Calendar.getInstance();
@@ -2079,6 +2246,31 @@ public class VentaController {
 		return null;
 	}
 
+	@RequestMapping(value="/reporteVentaRangoFechaListado/{fechaI}/{fechaF}", method=RequestMethod.GET)
+	public List<Venta>  getReporteVentaRangoFechaListado(OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException {
+		List<Venta> listado = new ArrayList<>();
+		Double totalCostoProd=0.0, totalProducto=0.0, totalUtilidadProducto=0.0, totalServicio=0.0, totalVenta=0.0 ;
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			Calendar cc= Calendar.getInstance();
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI;
+			System.out.println("fecha que viene: "+fechaI+ ", "+fechaF);
+			fecI = formater.parse(fechaI);
+			Date fecF=formater.parse(fechaF);
+			System.out.println(fecF.getDate());
+			fecF.setHours(23);
+			fecI.setHours(1);
+			System.out.println("hora final fechas::: "+fecF+ " hora inicio finbal: "+fecI);
+			List<Venta> obb= entityRepository.getVentaPorRangoFechaHql(fecI, fecF);
+			System.out.println(obb.size()+" ************lis obb");
+			listado = cargarListaReporte(obb);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return listado;
+	}
 	@RequestMapping(value="/reporteVentaRangoFecha/{fechaI}/{fechaF}/{detallado}", method=RequestMethod.GET)
 	public ResponseEntity<?>  getReporteVentaRangoFecha(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int detallado) throws IOException {
 		List<Venta> listado = new ArrayList<>();
@@ -2117,8 +2309,8 @@ public class VentaController {
 				if(obb.size()>0) {
 					for (int i = 0; i < obb.size(); i++) {
 						if(obb.get(i).getTipo().equals("1")) {obb.get(i).setTipo("CONTADO");}
-						if(obb.get(i).getTipo().equals("2")) {obb.get(i).setTipo("CREDITO"
-								+ "");}
+						if(obb.get(i).getTipo().equals("2")) {obb.get(i).setTipo("CREDITO");}
+						if(obb.get(i).getTipo().equals("3")) {obb.get(i).setTipo("NOTA CREDITO");}
 						totalVenta = totalVenta + obb.get(i).getTotal();
 						for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
 							totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
@@ -2161,7 +2353,8 @@ public class VentaController {
 					for (int i = 0; i < obb.size(); i++) {
 						if(obb.get(i).getTipo().equals("1")) {obb.get(i).setTipo("CONTADO");}
 						if(obb.get(i).getTipo().equals("2")) {obb.get(i).setTipo("CREDITO");}
-
+						if(obb.get(i).getTipo().equals("3")) {obb.get(i).setTipo("NOTA CREDITO");}
+						
 						totalVenta = totalVenta + obb.get(i).getTotal();
 						for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
 							totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
@@ -2206,6 +2399,25 @@ public class VentaController {
 
 	}
 
+	@RequestMapping(value="/reporteVentaRangoFechaPorFuncionarioListado/{fechaI}/{fechaF}/{idFuncionario}", method=RequestMethod.GET)
+	public List<Venta>  getReporteVentaRangoFechaFuncionarioListado(OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idFuncionario) throws IOException {
+		List<Venta> listado = new ArrayList<>();
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Funcionario funcionario= funcionarioRepository.getIdFuncionario(idFuncionario);
+		Org org = orgRepository.findById(1).get();
+		try {
+			Date fecI, fecF;
+			fecI= FechaUtil.setFechaHoraInicial(fechaI);
+			fecF= FechaUtil.setFechaHoraFinal(fechaF);
+			List<Venta> obb= entityRepository.getReporteVentaRangoPorFuncionarioVendedorHql(fecI, fecF, idFuncionario);
+			listado= cargarListaReporte(obb);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return listado;
+	}
 	@RequestMapping(value="/reporteVentaRangoFechaPorFuncionario/{fechaI}/{fechaF}/{idFuncionario}/{detallado}", method=RequestMethod.GET)
 	public ResponseEntity<?>  getReporteVentaRangoFechaFuncionario(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idFuncionario ,  @PathVariable int detallado) throws IOException {
 		System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF);
@@ -2336,7 +2548,21 @@ public class VentaController {
 
 	}
 
-
+	@RequestMapping(value="/reporteVentaRangoFechaPorClienteListado/{fechaI}/{fechaF}/{idCliente}", method=RequestMethod.GET)
+	public List<Venta> getReporteVentaRangoFechaClienteListado(OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idCliente) throws IOException {
+		System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF);
+		List<Venta> listado = new ArrayList<>();
+		try {
+			Date fecI, fecF;
+			fecI= FechaUtil.setFechaHoraInicial(fechaI);
+			fecF= FechaUtil.setFechaHoraFinal(fechaF);
+			List<Venta> obb= entityRepository.getVentaPorRangoFechaClienteHql(fecI, fecF, idCliente);
+			listado= cargarListaReporte(obb);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return listado;
+	}
 	@RequestMapping(value="/reporteVentaRangoFechaPorCliente/{fechaI}/{fechaF}/{idCliente}/{detallado}", method=RequestMethod.GET)
 	public ResponseEntity<?>  getReporteVentaRangoFechaCliente(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idCliente ,  @PathVariable int detallado) throws IOException {
 		System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF);
@@ -2751,6 +2977,60 @@ public class VentaController {
 
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
+	@RequestMapping(value="/reporteVentaRangoGrupoListado/{fechaI}/{fechaF}/{idGrupo}", method=RequestMethod.GET)
+	public List<Venta>  getReporteVentaRangoGrupoListado(OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idGrupo) throws IOException {
+		List<Venta> listado = new ArrayList<>();
+		Double totalCostoProd=0.0, totalProducto=0.0, totalUtilidadProducto=0.0, totalServicio=0.0, totalVenta=0.0 ;
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		try {
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI, fecF;
+			fecI= FechaUtil.setFechaHoraInicial(fechaI);
+			fecF= FechaUtil.setFechaHoraFinal(fechaF);
+			List<Venta> obb =new ArrayList<>();
+			if(idGrupo==0) {
+				obb = entityRepository.getVentaPorRangoFechaHql(fecI, fecF);
+			}else {
+				obb = entityRepository.getVentaPorRangoFechaPorGrupoHql(fecI, fecF, idGrupo);
+			}
+			listado= cargarListaReporte(obb);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return listado;
+	}
+	public List<Venta> cargarListaReporte(List<Venta> obb){
+		List<Venta> listado = new ArrayList<>();
+		if(obb.size()>0) {
+			for (int i = 0; i < obb.size(); i++) {
+				if(obb.get(i).getTipo().equals("1")) {obb.get(i).setTipo("CONTADO");}
+				if(obb.get(i).getTipo().equals("2")) {obb.get(i).setTipo("CREDITO");}
+				if(obb.get(i).getTipo().equals("3")) {obb.get(i).setTipo("NOTA CREDITO");}
+				
+				for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+					DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+					DetalleProducto d = new DetalleProducto();
+					d.getProducto().setId(detAux.getServicio().getId());
+					d.setDescripcion("SER - "+detAux.getDescripcion());
+					d.getProducto().setCodbar(detAux.getServicio().getId()+"");
+					d.setCantidad(detAux.getCantidad());
+					d.setPrecio(detAux.getPrecio());
+					d.getProducto().getUnidadMedida().setDescripcion("UN");
+					d.setIva(detAux.getIva()+"");
+					d.setSubTotal(detAux.getSubTotal());
+					d.setMontoIva(detAux.getMontoIva());
+					obb.get(i).getDetalleProducto().add(d);
+					
+					System.out.println("SERRRR:"+d.getDescripcion());
+				}
+				//obb.get(i).getDetalleServicio().clear();
+			}
+			listado = obb;
+		}else {listado = null;}
+		return listado;
+	}
 	@RequestMapping(value="/reporteVentaRangoGrupo/{fechaI}/{fechaF}/{idGrupo}/{detallado}", method=RequestMethod.GET)
 	public ResponseEntity<?>  getReporteVentaRangoGrupo(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idGrupo ,  @PathVariable int detallado) throws IOException {
 		System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF+" ::::" + idGrupo+ " :::: "+detallado);
@@ -2767,12 +3047,14 @@ public class VentaController {
 			fecF= FechaUtil.setFechaHoraFinal(fechaF);
 			Object [][] objeto;
 			Grupo g=null;
+			List<Object []> obb=null;
+
 			if(idGrupo==0) {
-				objeto = entityRepository.getReporteVentaRangoGrupoAll(fecI, fecF);
+				obb= entityRepository.getReporteVentaRangoGrupoDetalladoAll(fecI, fecF);
 				g= new Grupo();
 				g.setDescripcion("TODOS");
 			}else {
-				//listado = entityRepository.getReporteVentaRangoGrupoHql(fecI, fecF, idGrupo);
+				obb= entityRepository.getReporteVentaRangoGrupoDetallado(fecI, fecF, idGrupo);
 				g= grupoService.getOne(idGrupo);
 				System.out.println("SIZE LISTADO: "+listado.size());
 
@@ -2811,7 +3093,6 @@ public class VentaController {
 			if (detallado==2) {
 
 				System.out.println("ENTROO TRUE");
-				List<Object []> obb=null;
 				if(idGrupo==0) {
 					obb= entityRepository.getReporteVentaRangoGrupoDetalladoAll(fecI, fecF);
 
@@ -2850,6 +3131,7 @@ public class VentaController {
 		pre=entityRepository.getOne(id);
 		if(pre.getTipo().equals("1")) {pre.setTipo("CONTADO");}
 		if(pre.getTipo().equals("2")) {pre.setTipo("CREDITO");}
+		if(pre.getTipo().equals("3")) {pre.setTipo("NOTA CREDITO");}
 		List<Venta> listado= new ArrayList<Venta>();
 		listado.add(pre);
 		List<Presupuesto> listadoRetorno= new ArrayList<Presupuesto>();

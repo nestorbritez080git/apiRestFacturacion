@@ -26,12 +26,19 @@ public interface ClienteRepository extends JpaRepository<Cliente, Serializable> 
 	 @Query("select c from Cliente c where id=:id ")
 	 public Cliente getIdCliente(@Param("id") int id);
 	 
+	 @Query(value =  "SELECT * FROM cliente ORDER BY id DESC LIMIT 100", nativeQuery = true)
+	 List<Cliente> getClienteAllLimites();
+	 
 	 @Query("select c from Cliente c where persona_id=:id and c.id <>:idCliente")
 	 public Proveedor getIdPersonaEditar(@Param("id") int id, @Param("idCliente") int idCliente);
 	 
 	 @Query(value = "select count(c.id) FROM Cliente c",nativeQuery = true)
 	 Object[] findByCliente();
 
-	@Query(value="select cliente.id, persona.nombre, persona.apellido, cliente.limite_credito, persona.cedula, persona.telefono,  cliente.estado_bloqueo from cliente inner join persona on cliente.persona_id=persona.id where persona.nombre ilike :descripcion or persona.apellido ilike :descripcion or persona.cedula ilike :descripcion order by id desc limit 100",nativeQuery=true)
-	List<Object[]>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
+	@Query("SELECT c FROM Cliente c INNER JOIN c.persona per WHERE " +
+		       "LOWER(per.nombre) LIKE LOWER(CONCAT('%', :descripcion, '%')) OR " +
+		       "LOWER(per.apellido) LIKE LOWER(CONCAT('%', :descripcion, '%')) OR " +
+		       "per.cedula LIKE CONCAT('%', :descripcion, '%') " +
+		       "ORDER BY c.id DESC")
+	public List<Cliente>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
 }

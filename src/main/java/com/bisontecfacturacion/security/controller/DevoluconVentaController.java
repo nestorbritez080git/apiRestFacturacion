@@ -276,6 +276,9 @@ public class DevoluconVentaController {
 			} else if(o[12].toString().equals("2") || o[12].toString().toLowerCase().equals("credito")) {
 				dev.getVenta().setTipo("2");
 				System.out.println("entro verificacion de cuenta credito");
+			} else if(o[12].toString().equals("3") || o[12].toString().toLowerCase().equals("nota credito")) {
+				dev.getVenta().setTipo("3");
+				System.out.println("entro verificacion de cuenta credito");
 			}
 			
 			dev.getVenta().setEntrega(Double.parseDouble(o[13].toString()));
@@ -305,6 +308,9 @@ public class DevoluconVentaController {
 				devol.getVenta().setTipo("1");
 			} else if(d.getVenta().getTipo().equals("2") || d.getVenta().getTipo().toLowerCase().equals("credito")) {
 				devol.getVenta().setTipo("2");
+				System.out.println("entro verificacion de cuenta credito");
+			} else if(d.getVenta().getTipo().equals("3") || d.getVenta().getTipo().toLowerCase().equals("nota credito")) {
+				devol.getVenta().setTipo("3");
 				System.out.println("entro verificacion de cuenta credito");
 			}
 			devol.getVenta().setEntrega(d.getVenta().getEntrega());
@@ -353,7 +359,7 @@ public class DevoluconVentaController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 	@Transactional
-	@RequestMapping(method=RequestMethod.POST, value = "/prueba/{id}/{tpDevol}/{idAper}/{tpCaja}/{tComp}/{tEfe}/{tNota}/{terminal}/{imp}")
+	@RequestMapping(method=RequestMethod.POST, value = "/confirmar/{id}/{tpDevol}/{idAper}/{tpCaja}/{tComp}/{tEfe}/{tNota}/{terminal}/{imp}")
 	public ResponseEntity<?> pruebaConfirmarDevolucion (
 			@RequestBody List<CuentaCobrarCabecera> cue, 
 			@PathVariable int id, 
@@ -380,7 +386,6 @@ public class DevoluconVentaController {
 			System.out.println("ID DETALLE : "+ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getId());
 			entityRepository.findeByCantidadDevolucionDetalleProducto(ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getId(),ccc.getDevolucionVentaDetalle().get(i).getCantidad() );
 			   // podés obtener los demás datos desde el detalle, producto o calculados:
-		    
 			int idProducto = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getId();
 			 double cantidadDevuelta = ccc.getDevolucionVentaDetalle().get(i).getCantidad();
 			Double costo = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getCosto(); // o como corresponda
@@ -390,7 +395,6 @@ public class DevoluconVentaController {
 		    double precioVenta2 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_2();
 		    double precioVenta3 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_3();
 		    double precioVenta4 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_4();
-
 		    int idFuncionario = ccc.getFuncionario().getId(); // o quien confirmó la devolución
 		    String marca = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getMarca().getDescripcion(); // o código
 
@@ -462,11 +466,11 @@ public class DevoluconVentaController {
 			NotaCredito nota = new NotaCredito();
 			nota.setCliente(ccc.getVenta().getCliente());
 			nota.setDevolucionVenta(ccc);
-			nota.setTotal(ccc.getTotal());
+			nota.setTotal(tNota);
+			nota.setHora(hora());
 			nota.setTotalLetra(NumerosALetras.convertirNumeroALetras(ccc.getTotal()));
 			nota.setFecha(new Date());
 			nota.getFuncionario().setId(2);
-			nota.setHora("");
 			notaCreditoRepository.save(nota);
 		}
 		printimpMatricial(id, terminal, imp);
@@ -520,7 +524,7 @@ public class DevoluconVentaController {
 			movEntradaSalidaRepository.save(mov);
 
 			System.out.println("COSTO : "+costo+ " aplicacion: "+ca.getCantidadAplicacion());
-			p.setPrecioCosto(subtotal/existenciaBase);
+			//p.setPrecioCosto(costo/ca.getCantidadAplicacion());
 			p.setPrecioVenta_1(preVen1/ca.getCantidadAplicacion());
 			p.setPrecioVenta_2(preVen2/ca.getCantidadAplicacion());
 			p.setPrecioVenta_3(preVen3/ca.getCantidadAplicacion());
@@ -579,7 +583,7 @@ public class DevoluconVentaController {
 				movEntradaSalidaRepository.save(movEntr);
 
 				System.out.println("COSTO : "+costo+ " aplicacion: "+ob.getCantidadAplicacion());
-				pp.setPrecioCosto(subtotal/exi);
+				//pp.setPrecioCosto(costo/(ca.getCantidadAplicacion()*ob.getCantidadAplicacion()));
 				pp.setPrecioVenta_1((preVen1/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
 				pp.setPrecioVenta_2((preVen2/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
 				pp.setPrecioVenta_3((preVen3/ca.getCantidadAplicacion())*ob.getCantidadAplicacion());
@@ -635,7 +639,7 @@ public class DevoluconVentaController {
 
 				movEntradaSalidaRepository.save(movEntr);
 
-				pp.setPrecioCosto(subtotal/cantidad);
+				//pp.setPrecioCosto(costo);
 				pp.setPrecioVenta_1(preVen1);
 				pp.setPrecioVenta_2(preVen2);
 				pp.setPrecioVenta_3(preVen3);
@@ -685,7 +689,7 @@ public class DevoluconVentaController {
 					mov.setReferencia(cocc.getDescripcion()+" REF.: "+ idDevolucion);
 					movEntradaSalidaRepository.save(mov);
 
-					p.setPrecioCosto(subtotal / existenciaActual);
+					//p.setPrecioCosto(costo * ob.getCantidadAplicacion());
 					p.setPrecioVenta_1(preVen1 * ob.getCantidadAplicacion());
 					p.setPrecioVenta_2(preVen2 * ob.getCantidadAplicacion());
 					p.setPrecioVenta_3(preVen3 * ob.getCantidadAplicacion());
@@ -735,7 +739,7 @@ public class DevoluconVentaController {
 				mov.setReferencia(cc.getDescripcion()+" REF.: "+ idDevolucion);
 				movEntradaSalidaRepository.save(mov);
 
-				p.setPrecioCosto(costo);
+				//p.setPrecioCosto(costo);
 				p.setPrecioVenta_1(preVen1);
 				p.setPrecioVenta_2(preVen2);
 				p.setPrecioVenta_3(preVen3);
@@ -941,7 +945,6 @@ public class DevoluconVentaController {
 
 			// Guardar detalles
 			for (DevolucionVentaDetalle det : entity.getDevolucionVentaDetalle()) {
-
 				det.setDevolucionVenta(savedEntity);
 				detalleRepository.save(det);
 			}
@@ -1217,6 +1220,7 @@ public class DevoluconVentaController {
 		pre=entityRepository.getDevolucionPorId(id);
 		if(pre.getVenta().getTipo().equals("1")) {pre.getVenta().setTipo("CONTADO");}
 		if(pre.getVenta().getTipo().equals("2")) {pre.getVenta().setTipo("CREDITO");}
+		if(pre.getVenta().getTipo().equals("3")) {pre.getVenta().setTipo("NOTA CREDITO");}
 		List<DevolucionVenta> listado= new ArrayList<DevolucionVenta>();
 		listado.add(pre);
 

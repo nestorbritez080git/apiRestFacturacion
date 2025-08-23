@@ -543,6 +543,9 @@ public class CuentaPagarCabeceraController {
 		cuenta.setFecha(c.getFecha());
 		cuenta.setHora(c.getHora());
 		cuenta.setFraccionCuota(c.getFraccionCuota());
+		cuenta.getCompra().setNroDocumento(c.getCompra().getNroDocumento());
+		cuenta.getCompra().setId(c.getCompra().getId());
+		cuenta.getCompra().setFechaFactura(c.getCompra().getFechaFactura());
 		return cuenta;
 	}
 	

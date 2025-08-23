@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 @Entity
 public class DetalleServicios {
@@ -36,6 +38,7 @@ public class DetalleServicios {
 	private String obs;
 	
 	@ManyToOne
+	@JsonIgnoreProperties("venta")
 	private Venta venta;
 	
 	@ManyToOne

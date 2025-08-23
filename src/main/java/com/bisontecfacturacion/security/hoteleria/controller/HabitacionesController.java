@@ -112,6 +112,8 @@ public class HabitacionesController {
 			Habitaciones s=new Habitaciones();
 			s.setId(ob.getId());
 			s.setDescripcion(ob.getDescripcion());
+			s.setEstadoDisponibilidad(ob.isEstadoDisponibilidad());
+			s.setEstadoReservacion(ob.isEstadoReservacion());
 			servi.add(s);
 		}
 
@@ -121,6 +123,12 @@ public class HabitacionesController {
 	public HabitacionesCategoriaCombo validarRegistroCombo(@PathVariable int idCat,  @PathVariable int idHab){
 		return comboRepository.getHabitacionesComboRegistrado(idCat, idHab);
 	}
+	
+	@RequestMapping(method=RequestMethod.GET, value="/combo/id/{idhba}")
+	public HabitacionesCategoriaCombo getComboHabitacionCategoriaPorId(@PathVariable int idhba){
+		return comboRepository.getComboHabitacionCategoriaPorId(idhba);
+	}
+	
 	@RequestMapping(method=RequestMethod.GET, value="/combo/buscar/{descripcion}")
 	public List<HabitacionesCategoriaCombo> consultarPorDescripcionCombo(@PathVariable String descripcion){
 		List<Object[]> objeto=comboRepository.getAllDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");

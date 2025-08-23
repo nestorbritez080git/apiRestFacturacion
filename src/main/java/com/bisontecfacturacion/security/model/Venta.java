@@ -50,11 +50,14 @@ public class Venta {
 	@OneToMany(mappedBy="venta")
 	private List<DetalleProducto> detalleProducto; 
 	
+	@JsonIgnoreProperties("venta")
 	@OneToMany(mappedBy="venta")
 	private List<DetalleServicios> detalleServicio; 
 	
 	@ManyToOne
 	private Documento documento;
+	@ManyToOne
+	private Zona zona;
 	
 	@ManyToOne
 	private Funcionario funcionario;
@@ -97,6 +100,7 @@ public class Venta {
 		this.funcionarioR=new Funcionario();
 
 		this.documento=new Documento();
+		this.zona= new Zona();
 		this.funcionario= new Funcionario();
 		this.cliente= new Cliente();
 		this.nroDocumento="";
@@ -111,6 +115,16 @@ public class Venta {
 		this.obs="";
 	}
 	
+
+	public Zona getZona() {
+		return zona;
+	}
+
+
+	public void setZona(Zona zona) {
+		this.zona = zona;
+	}
+
 
 	public String getObs() {
 		return obs;

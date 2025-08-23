@@ -23,6 +23,7 @@ public class TerminalConfigImpresora {
 
 	private Boolean estadoAutoImpresor;
 	private Boolean estadoAdicionArtVarios;
+	private Boolean estadoEdicionZona;
 		
 	
 	public TerminalConfigImpresora() {
@@ -33,8 +34,17 @@ public class TerminalConfigImpresora {
 		this.nombreImpresora="";
 		this.estadoAutoImpresor=false;
 		this.estadoAdicionArtVarios=false;
+		this.estadoEdicionZona= false;
 	}
 	
+	public Boolean getEstadoEdicionZona() {
+		return estadoEdicionZona;
+	}
+
+	public void setEstadoEdicionZona(Boolean estadoEdicionZona) {
+		this.estadoEdicionZona = estadoEdicionZona;
+	}
+
 	public Boolean getEstadoAutoImpresor() {
 		return estadoAutoImpresor;
 	}

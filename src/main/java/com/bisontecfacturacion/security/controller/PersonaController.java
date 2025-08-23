@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
+import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.Persona;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.repository.PersonaRepository;
@@ -27,6 +28,12 @@ public class PersonaController {
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Persona> getAll(){
 		return entityRepository.findAll();
+	}
+	
+	@RequestMapping(method=RequestMethod.GET, value = "/traerTodo")
+	public List<Persona> getAllListado(){	
+		return entityRepository.findAll();
+	
 	}
 	
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")

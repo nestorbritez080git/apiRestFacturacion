@@ -70,6 +70,7 @@ import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraReposi
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.FechaUtil;
 import com.bisontecfacturacion.security.service.IUsuarioService;
+import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 
 @Transactional
 @RestController
@@ -938,12 +939,17 @@ public class CobrosClienteController {
 		}
 	}
 	
+@RequestMapping(method = RequestMethod.GET, value="/reporteCobrosClienteCabeceraListado/{id}")
+public  List<CobrosClienteCabecera> getReporteCobrosClienteListado(OAuth2Authentication authentication,@PathVariable int id) throws IOException{
+		List<CobrosClienteCabecera> listado= listado(cobrosClienteCabeceraRepository.findByCobrosCabeceraPorIdCliente(id));
+		return  listado;
+}	
 
 @RequestMapping(method = RequestMethod.GET, value="/reporteCobrosClienteCabecera/{id}")
 public  ResponseEntity<?> getReporteCobrosClienteAll(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id) throws IOException{
 	List<CobrosClienteCabecera> lis =new ArrayList<>();
 	
-	List<CobrosClienteCabecera> listado= listado(cobrosClienteCabeceraRepository.findByCuentaPorIdCliente(id));
+	List<CobrosClienteCabecera> listado= listado(cobrosClienteCabeceraRepository.findByCobrosCabeceraPorIdCliente(id));
 	String nombreCliente="";
 	if(listado.size()>0) {
 		nombreCliente = listado.get(0).getCliente().getPersona().getNombre()+" "+listado.get(0).getCliente().getPersona().getApellido();
@@ -978,8 +984,43 @@ public Date sumarDia(Date fecha, int hora) {
 	return calendar.getTime();
 }
 
-@RequestMapping(method = RequestMethod.GET, value="/reporteCobrosClienteCabecera/rango/{id}/{fechaI}/{fechaF}")
-public  ResponseEntity<?> getReporteCobrosClienteRango(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException{
+@RequestMapping(method = RequestMethod.GET, value="/reporteCobrosClienteCabeceraListado/rango/{id}/{fechaI}/{fechaF}")
+public  List<CobrosClienteCabecera> getReporteCobrosClienteRangoListado(OAuth2Authentication authentication,@PathVariable int id, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException{
+	List<CobrosClienteCabecera> lis =new ArrayList<>();
+	try {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+		Date fecI = formatter.parse(fechaI);
+		Date fecF = formatter.parse(fechaF);
+
+		// INICIO DEL DÍA
+		Calendar calStart = Calendar.getInstance();
+		calStart.setTime(fecI);
+		calStart.set(Calendar.HOUR_OF_DAY, 0);
+		calStart.set(Calendar.MINUTE, 0);
+		calStart.set(Calendar.SECOND, 0);
+		calStart.set(Calendar.MILLISECOND, 0);
+		fecI = calStart.getTime();
+
+		// FIN DEL DÍA
+		Calendar calEnd = Calendar.getInstance();
+		calEnd.setTime(fecF);
+		calEnd.set(Calendar.HOUR_OF_DAY, 23);
+		calEnd.set(Calendar.MINUTE, 59);
+		calEnd.set(Calendar.SECOND, 59);
+		calEnd.set(Calendar.MILLISECOND, 999);
+		fecF = calEnd.getTime();
+		 System.out.println("Buscando desde: " + fecI);
+	     System.out.println("Buscando hasta: " + fecF);
+		lis= listado(cobrosClienteCabeceraRepository.findByCobrosClientePorRango(id, fecI, fecF));
+
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	return lis;
+}
+@RequestMapping(method = RequestMethod.GET, value="/reporteCobrosClienteCabecera/rango/{id}/{fechaI}/{fechaF}/{tipo}")
+public  ResponseEntity<?> getReporteCobrosClienteRango(HttpServletResponse response, OAuth2Authentication authentication,@PathVariable int id, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int tipo) throws IOException{
 	List<CobrosClienteCabecera> lis =new ArrayList<>();
 	
 	//List<CobrosClienteCabecera> listado= listado(cobrosClienteCabeceraRepository.findByCuentaPorIdCliente(id));
@@ -1018,9 +1059,14 @@ public  ResponseEntity<?> getReporteCobrosClienteRango(HttpServletResponse respo
 		map.put("cliente", nombreCliente);
 		map.put("fechaInicio", fechaI);
 		map.put("fechaFin", fechaF);
-
 		report = new Reporte();
-		report.reportPDFDescarga(listado, map, "ReporteCobrosClientesCabeceraRango", response);
+		if (tipo==1) {
+			report.reportPDFDescarga(listado, map, "ReporteCobrosClientesCabeceraRango", response);
+		}else if(tipo==2) {
+			report.reportPDFDescarga(listado, map, "ReporteCobrosClientesCabeceraRangoDetallado", response);
+
+		}
+		
 		}else {
 			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 		}
@@ -1037,6 +1083,7 @@ public  ResponseEntity<?> getReporteCobrosClienteRango(HttpServletResponse respo
 }
 
 public List<CobrosClienteCabecera> listado(List<CobrosClienteCabecera> lis){
+	System.out.println("LISTADO SIZE: "+lis.size());
 	List<CobrosClienteCabecera> listadoRetorno = new ArrayList<>();
 	for(CobrosClienteCabecera cue :lis) {
 		CobrosClienteCabecera cuenta= new CobrosClienteCabecera();
@@ -1044,8 +1091,10 @@ public List<CobrosClienteCabecera> listado(List<CobrosClienteCabecera> lis){
 		cuenta.setTotal(cue.getTotal()); 
 		cuenta.getCliente().getPersona().setNombre(cue.getCliente().getPersona().getNombre());
 		cuenta.getCliente().getPersona().setApellido(cue.getCliente().getPersona().getApellido());
+		cuenta.getCliente().getPersona().setCedula(cue.getCliente().getPersona().getCedula());
 		cuenta.getFuncionario().getPersona().setNombre(cue.getFuncionario().getPersona().getNombre());
 		cuenta.getFuncionario().getPersona().setApellido(cue.getFuncionario().getPersona().getApellido());
+		cuenta.getFuncionario().getPersona().setCedula(cue.getFuncionario().getPersona().getCedula());
 		cuenta.setFecha(cue.getFecha());
 		cuenta.setCobrosClientes(listaCobroClienteDetallado(cobrosClienteCabeceraRepository.findByCobrosDetalladoPorIdCabecera(cue.getId())));
 		System.out.println("LISTA TOTAL DE DETALLE COBROS: "+cuenta.getCobrosClientes().size());
@@ -1059,13 +1108,20 @@ private List<CobrosCliente> listaCobroClienteDetallado(List<CobrosCliente> lis){
 	for(CobrosCliente ob: lis) {
 		CobrosCliente cob= new CobrosCliente();
 		cob.setId(ob.getId());
+		cob.getCobrosClienteCabecera().setId(ob.getCobrosClienteCabecera().getId());
 		cob.getCuentaCobrarCabecera().setId(ob.getCuentaCobrarCabecera().getId());
 		cob.getCuentaCobrarCabecera().getVenta().setId(ob.getCuentaCobrarCabecera().getVenta().getId());
+		cob.getCuentaCobrarCabecera().getVenta().setFechaFactura(ob.getCuentaCobrarCabecera().getVenta().getFechaFactura());
 		cob.getCuentaCobrarCabecera().setEntrega(ob.getCuentaCobrarCabecera().getEntrega());
+		cob.getCuentaCobrarCabecera().getVenta().setTotal(ob.getCuentaCobrarCabecera().getVenta().getTotal());
+//		cob.getCuentaCobrarCabecera().getVenta().set
 		cob.getCuentaCobrarCabecera().setTotal(ob.getCuentaCobrarCabecera().getTotal());
 		cob.getCuentaCobrarCabecera().setPagado(ob.getCuentaCobrarCabecera().getPagado());
 		cob.getCuentaCobrarCabecera().setSaldo(ob.getCuentaCobrarCabecera().getSaldo());
+		cob.getCuentaCobrarCabecera().setFechaVencimiento(ob.getCuentaCobrarCabecera().getFechaVencimiento());
 		cob.getOperacionCaja().setId(ob.getOperacionCaja().getId());
+		cob.getOperacionCaja().getAperturaCaja().setId(ob.getOperacionCaja().getAperturaCaja().getId());
+		cob.getOperacionCaja().getTipoOperacion().setDescripcion(ob.getOperacionCaja().getTipoOperacion().getDescripcion());
 		cob.getCuentaCobrarCabecera().setFraccionCuota(ob.getCuentaCobrarCabecera().getFraccionCuota());
 		cob.setTotal(ob.getTotal());
 		listaRetorno.add(cob);

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -275,6 +276,15 @@ public class CompraController {
 	public ResponseEntity<?> guardar(@RequestBody Compra entity){
 		entity.setHora(hora());
 		try {
+			if(!entity.getNroDocumento().equals("")){
+				Optional<Compra> existente = entityRepository.findByProveedorAndNumeroFactura(
+				        entity.getProveedor().getId(), entity.getNroDocumento());
+				if (existente.isPresent()) {
+					return new ResponseEntity<>(new CustomerErrorType("YA EXISTE UNA FACTURA CON ESE NUMERO PARA EL PROVEEDOR SELECCIONADO"), HttpStatus.CONFLICT);
+				      
+				}
+			}
+			
 			if(entity.getFuncionario().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getDocumento().getId() == 0) {
@@ -285,7 +295,7 @@ public class CompraController {
 				return new ResponseEntity<>(new CustomerErrorType("LA FECHA DE LA FACTURA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			}else if(entity.getConcepto().getId()==0){
 				return new ResponseEntity<>(new CustomerErrorType("EL CONCEPTO DE SE DEBE CARGAR ANTES DE GUARDAR COMPRA!"), HttpStatus.CONFLICT);
-			}{
+			}else{
 				for(int ind=0; ind < entity.getDetalleCompra().size(); ind++) {
 					DetalleCompra pro = entity.getDetalleCompra().get(ind);
 					if(pro.getCantidad() <= 0) {

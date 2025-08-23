@@ -44,7 +44,7 @@ public interface CuentaAcobrarRepository extends JpaRepository<CuentaCobrarCabec
 	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito, sum(total_devolucion)as totalDevol from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where (c.saldo > 0 and persona.cedula ilike :desc) or (c.saldo > 0 and persona.apellido ilike :desc) or (c.saldo > 0 and persona.nombre ilike :desc) group by persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito",nativeQuery = true)
 	List<Object[]> getAllCuentaACobrar(@Param("desc") String des);
 
-	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito, sum(total_devolucion)as totalDevol from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where (c.pagado = c.total and persona.cedula ilike :desc) or (c.pagado = c.total and persona.apellido ilike :desc) or (c.pagado = c.total and persona.nombre ilike :desc) group by persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito",nativeQuery = true)
+	@Query(value= "select sum(total) as totalizdos, sum(pagado) as pagado, sum(saldo) as saldoPendiente, persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito, sum(total_devolucion)as totalDevol from cliente inner join cuenta_cobrar_cabecera c on c.cliente_id = cliente.id inner join persona on persona.id=cliente.persona_id where (c.saldo <= 0 and persona.cedula ilike :desc) or (c.saldo <= 0 and persona.apellido ilike :desc) or (c.saldo <= 0 and persona.nombre ilike :desc) group by persona.nombre, persona.apellido, cliente.id, persona.cedula, persona.telefono, persona.direccion, cliente.limite_credito",nativeQuery = true)
 	List<Object[]> getAllCuentaCobrado(@Param("desc") String des);
 	
 	
@@ -71,7 +71,9 @@ public interface CuentaAcobrarRepository extends JpaRepository<CuentaCobrarCabec
 	public List<CuentaCobrarCabecera> findByCuentaPorIdCobradoRango(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin")Date fecFin);
 	
 	
-	
+	@Query("select  c from CuentaCobrarCabecera c where saldo > 0 order by id desc")
+	public List<CuentaCobrarCabecera> getTotalCuentaCobrar();
+
 	
 	
     @Query("select  c from CuentaCobrarCabecera c where cliente_id=:id  order by id desc")

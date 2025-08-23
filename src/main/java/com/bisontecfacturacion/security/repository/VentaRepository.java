@@ -51,16 +51,30 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 	public void findByActualizarVentaOperacion(@Param("id") int id, @Param("operacionCaja") int operacionCaja);
 
 	@Query("select v from Venta v where v.id= :operacionCaja")
-	public Venta getVentaPorOperacionId(@Param("operacionCaja") int operacionCaja);
+	public Venta getVentaPorCabeceraId(@Param("operacionCaja") int operacionCaja);
 	
 	@Query("select ccc from Venta ccc where ccc.id=:id AND ccc.estado='FACTURADO'")
 	public Venta getVentaIdFacturado(@Param("id") int id);
 
-	@Query("select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and v.estado ='FACTURADO'")
+	@Query("select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and v.estado ='FACTURADO' ORDER BY v.id DESC")
 	public List<Venta> getVentaPorRangoFechaHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
 	
+	
+	@Query("select distinct v " + 
+			"from Venta v " + 
+			"join v.detalleProducto d " + 
+			"join d.producto p " + 
+			"join v.detalleServicio ds " + 
+			"join ds.servicio s " + 
+			"join p.grupo g " + 
+			"where v.fechaFactura >= :fecha_inicio " + 
+			"  and v.fechaFactura <= :fecha_fin " + 
+			"  and v.estado = 'FACTURADO' " + 
+			"  and g.id = :grupo ORDER BY v.id DESC")
+	public List<Venta> getVentaPorRangoFechaPorGrupoHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("grupo") int idGrupo);
+	
 
-	@Query(value="SELECT  * FROM venta v where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO' AND v.cliente_id=:idCli", nativeQuery = true)
+	@Query(value="select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and v.estado ='FACTURADO' and v.cliente.id=:idCli ORDER BY v.id DESC")
 	public List<Venta> getVentaPorRangoFechaClienteHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idCli") int idCli);
 	
 	
@@ -113,6 +127,11 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 //	((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))
 	@Query(value="SELECT  * FROM venta v where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO' AND v.funcionariov_id=:idFuncionario", nativeQuery = true)
 	public List<Venta> getReporteVentaRangoPorFuncionarios(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFuncionario") int idFuncionario);
+	
+	@Query("select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and v.estado ='FACTURADO' and v.funcionarioV.id=:idFuncionario ORDER BY v.id DESC")
+	public List<Venta> getReporteVentaRangoPorFuncionarioVendedorHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFuncionario") int idFuncionario);
+	
+	
 	
 	@Query(value="select sum(det.costo)as costoTotal, sum(det.sub_total) as ventaTotal, sum(det.sub_total - det.costo)as utilidad  from detalle_producto det inner join venta v on v.id=det.venta_id inner join funcionario f on  f.id=v.funcionariov_id inner join persona pf on pf.id=f.persona_id inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))  and v.estado ='FACTURADO' and f.id=:idFuncionario",nativeQuery=true)
 	Object [][] getReporteVentaRangoFuncionarioCabecera(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFuncionario") int idFuncionario);

@@ -39,6 +39,7 @@ import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CobrosClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.CuentaAcobrarRepository;
+import com.bisontecfacturacion.security.repository.NotaCreditoRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaAperturaCajaRepository;
@@ -57,6 +58,8 @@ public class OperacionCajaController {
 	private CuentaAcobrarRepository cuentaCobrarRepository;
 	@Autowired
 	private OperacionCajaRepository entityRepository;
+	@Autowired
+	private NotaCreditoRepository notaCreditoRepository;
 	@Autowired
 	private VentaRepository ventaRepositoty;
 	@Autowired
@@ -303,6 +306,66 @@ public class OperacionCajaController {
 		}
 		return listadoRetorno;
 	}
+	@RequestMapping(method=RequestMethod.POST, value="/reservacion/anulacion/{idReservacion}")
+	public ResponseEntity<?>  guardarOperacionReservacionAnulacion(@RequestBody OperacionCaja entity, @PathVariable int idReservacion){
+		if(idReservacion==0) {
+			ReservacionCabecera v = new ReservacionCabecera();
+			v=reservacionRepositoty.getUltimaReservacion();
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+			entity.setMotivo(c.getDescripcion()+": "+v.getDescripcionCombo()+ " Ref.:"+v.getId());
+			entity.setTipo("SALIDA");
+			if (entity.getTipoOperacion().getId() == 1) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 2) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 3) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			
+			entityRepository.save(entity);
+			OperacionCaja op=  entityRepository.findTop1ByOrderByIdDesc();
+			//reservacionRepositoty.findByActualizarReservacionOperacionEntrega(v.getId(),op.getId());
+			
+			
+		}else {
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+			entity.setTipo("SALIDA");
+			if (entity.getTipoOperacion().getId() == 1) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 2) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 3) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			
+			
+			entityRepository.save(entity);
+			OperacionCaja op= new OperacionCaja();
+			op=  entityRepository.findTop1ByOrderByIdDesc();
+			System.out.println("id operacion si es igual a dos : "+ op.getId());
+			ReservacionCabecera vv = new ReservacionCabecera();
+			vv=reservacionRepositoty.getOne(idReservacion);
+			System.out.println("vneta id: "+vv.getId());
+			op.setMotivo(c.getDescripcion()+": "+vv.getDescripcionCombo()+ " Ref.:"+vv.getId());
+			entityRepository.save(op);
+			//reservacionRepositoty.findByActualizarReservacionOperacion(vv.getId(),op.getId());
+			
+		}
+		
+		return  new  ResponseEntity<String>(HttpStatus.CREATED);
+	}
 
 	@RequestMapping(method=RequestMethod.POST, value="/reservacion/{idReservacion}")
 	public ResponseEntity<?>  guardarOperacionReservacion(@RequestBody OperacionCaja entity, @PathVariable int idReservacion){
@@ -311,7 +374,7 @@ public class OperacionCajaController {
 			v=reservacionRepositoty.getUltimaReservacion();
 			Concepto c= new Concepto();
 			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
-			entity.setMotivo(c.getDescripcion()+" REF.: "+v.getId());
+			entity.setMotivo(c.getDescripcion()+": "+v.getDescripcionCombo()+ " Ref.:"+v.getId());
 			entity.setTipo("ENTRADA");
 			if (entity.getTipoOperacion().getId() == 1) {
 				aperturaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
@@ -332,8 +395,12 @@ public class OperacionCajaController {
 			
 			
 		}else {
+			ReservacionCabecera v = new ReservacionCabecera();
+			
+			v = reservacionRepositoty.getOne(idReservacion);
 			Concepto c= new Concepto();
 			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+			entity.setMotivo(c.getDescripcion()+": "+v.getDescripcionCombo()+ " Ref.:"+v.getId());
 			entity.setTipo("ENTRADA");
 			if (entity.getTipoOperacion().getId() == 1) {
 				aperturaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
@@ -354,7 +421,7 @@ public class OperacionCajaController {
 			ReservacionCabecera vv = new ReservacionCabecera();
 			vv=reservacionRepositoty.getOne(idReservacion);
 			System.out.println("vneta id: "+vv.getId());
-			op.setMotivo(c.getDescripcion()+" REF.: "+vv.getId());
+			op.setMotivo(c.getDescripcion()+": "+vv.getDescripcionCombo()+ " Ref.:"+vv.getId());
 			entityRepository.save(op);
 			reservacionRepositoty.findByActualizarReservacionOperacion(vv.getId(),op.getId());
 			
@@ -513,6 +580,83 @@ public class OperacionCajaController {
 		
 		
 	}
+	@RequestMapping(method=RequestMethod.POST, value="/notaCredito/{nota}/{idVenta}")
+	public ResponseEntity<?> guardarNotaCreditoOperracion(@RequestBody OperacionCaja entity, @PathVariable int nota, @PathVariable int idVenta){
+		try {
+			if(nota==0) {
+				return new ResponseEntity<>(new CustomerErrorType("EL NUMERO DENOTA CREDITO NO SE HA PODIDO CARGAR"), HttpStatus.CONFLICT);
+			}else if(idVenta==0) {
+				return new ResponseEntity<>(new CustomerErrorType("EL NUMERO DE VENTA ACTUAL NO SE HA PODIDO CARGAR"), HttpStatus.CONFLICT);
+			}else if(entity.getAperturaCaja().getId() == 0) {
+				return new ResponseEntity<>(new CustomerErrorType("SE DEBE CARGAR  LOS DATOS DE LA APERTURA CAJA"), HttpStatus.CONFLICT);
+			}else if(entity.getConcepto().getId()==0) {
+				return new ResponseEntity<>(new CustomerErrorType("SE DEBE CARGAR EL CONCEPTO DE LA OPERACION CAJA"), HttpStatus.CONFLICT);
+			}else if(entity.getTipoOperacion().getId()==0) {
+				return new ResponseEntity<>(new CustomerErrorType("SE DEBE CARGAR EL TIPO DE OPERACION EN CAJA"), HttpStatus.CONFLICT);
+			}else if(entity.getMonto()==0) {
+				return new ResponseEntity<>(new CustomerErrorType("EL MONTO DEBE SER MAYOR A CERO"), HttpStatus.CONFLICT);
+			}else {
+				AperturaCaja cC = new AperturaCaja();
+				cC=aperturaRepository.getAperturaCajaPorIdCaja(entity.getAperturaCaja().getId());
+				if(cC==null) {
+					System.out.println("entrooo null caja chiac");
+					return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO POSEE UNA APERTURA CAJA A SU NOMBRE!"), HttpStatus.CONFLICT);
+				}else {
+					if(entity.getConcepto().getId()==28) {
+						if (entity.getTipoOperacion().getId() == 1) {
+							aperturaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
+						}
+						
+						if (entity.getTipoOperacion().getId() == 2) {
+							aperturaRepository.findByActualizarAperturaSaldoCheque(entity.getAperturaCaja().getId(), entity.getMonto());
+						}
+						
+						if (entity.getTipoOperacion().getId() == 3) {
+							aperturaRepository.findByActualizarAperturaSaldoTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
+						}
+						Concepto c= new Concepto();
+						c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+						entity.setMotivo(c.getDescripcion()+" REF.: "+nota);
+						entity.setTipo("ENTRADA");
+					}
+					if(entity.getConcepto().getId()==29) {
+						if((cC.getSaldoActual()) < entity.getMonto() && entity.getTipoOperacion().getId()==1) {
+							return new ResponseEntity<>(new CustomerErrorType("EL EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+						}else if((cC.getSaldoActualCheque()) < entity.getMonto()&& entity.getTipoOperacion().getId()==2){
+							return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+						}else if((cC.getSaldoActualTarjeta())< entity.getMonto() && entity.getTipoOperacion().getId()==3){
+							return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
+						}else {
+							if (entity.getTipoOperacion().getId() == 1) {
+								aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(entity.getAperturaCaja().getId(), entity.getMonto());
+							}
+							if (entity.getTipoOperacion().getId() == 2) {
+								aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(entity.getAperturaCaja().getId(), entity.getMonto());
+							}
+							if (entity.getTipoOperacion().getId() == 3) {
+								aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
+							}
+							Concepto c= new Concepto();
+							c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+							entity.setMotivo(c.getDescripcion()+" REF.: "+nota);
+							entity.setTipo("SALIDA");
+						}
+					}
+					notaCreditoRepository.findByActualizarEstadoNotaCredito(nota, idVenta, "CERRADO");
+					entityRepository.save(entity);
+					OperacionCaja op=  entityRepository.findTop1ByOrderByIdDesc();
+					ventaRepositoty.findByActualizarVentaOperacion(idVenta, op.getId());
+					
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return  new  ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+		}
+		return  new  ResponseEntity<String>(HttpStatus.CREATED);
+
+	}
 	@RequestMapping(method=RequestMethod.POST, value="/{operacion}")
 	public ResponseEntity<?> guardar(@RequestBody OperacionCaja entity, @PathVariable int operacion){
 		if (operacion == 0) {
@@ -562,7 +706,7 @@ public class OperacionCajaController {
 			op=  entityRepository.findTop1ByOrderByIdDesc();
 			System.out.println("id operacion si es igual a dos : "+ op.getId());
 			Venta vv = new Venta();
-			vv=ventaRepositoty.getVentaPorOperacionId(operacion);
+			vv=ventaRepositoty.getVentaPorCabeceraId(operacion);
 			System.out.println("vneta id: "+vv.getId());
 			op.setMotivo(c.getDescripcion()+" REF.: "+vv.getId());
 			entityRepository.save(op);
@@ -580,7 +724,7 @@ public class OperacionCajaController {
 
 	@RequestMapping(method=RequestMethod.GET, value = "/test/{id}")
 	public void test(@PathVariable int id){
-		ventaRepositoty.getVentaPorOperacionId(id);
+		//ventaRepositoty.getVentaPorOperacionId(id);
 	}
 
 

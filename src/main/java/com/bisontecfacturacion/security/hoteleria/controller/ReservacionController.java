@@ -3,6 +3,7 @@ package com.bisontecfacturacion.security.hoteleria.controller;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -50,6 +51,7 @@ import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Org;
+import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
 import com.bisontecfacturacion.security.model.ReporteConfig;
@@ -153,13 +155,10 @@ public class ReservacionController {
 		if(tipo==3) { lisRetorno= listar(entityRepository.getReservacionesFinalizadaRengoFechaAll(ano, mes, dia));}
 		return lisRetorno;
 	}
-	@RequestMapping(method = RequestMethod.GET, value = "/prereservacion/{fecha}")
-	public List<ReservacionCabecera> getAllPreReservado(@PathVariable String fecha ){
-		String[] fec=fecha.split("-");
-		Integer dia=Integer.parseInt(fec[0]);
-		Integer mes=Integer.parseInt(fec[1]);
-		Integer ano=Integer.parseInt(fec[2]);		
-		return listar(entityRepository.getReservacionesAllPreReservado(ano, mes, dia));
+	@RequestMapping(method = RequestMethod.GET, value = "/prereservacion")
+	public List<ReservacionCabecera> getAllPreReservado(){
+			
+		return listar(entityRepository.getReservacionesAllPreReservado());
 	}
 	@RequestMapping(method = RequestMethod.GET, value = "/aumentarEstadia/{id}")
 	public  ResponseEntity<?> getAumentarEstadia(@PathVariable int  id){
@@ -174,6 +173,17 @@ public class ReservacionController {
 			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR AUMENTAR LA ESTADIA"), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	@RequestMapping(method = RequestMethod.GET, value = "/anularPreReservacion/{idPreReservacion}")
+	public  ResponseEntity<?> getAnularPreReservacion(@PathVariable int idPreReservacion){
+		try {
+			ReservacionCabecera f = entityRepository.getOne(idPreReservacion);
+			entityRepository.findByActualizaEstado(f.getId(), "ANULADO");
+			actualizarHabitacionPreReservacion(f.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false);
+			return  new  ResponseEntity<String>(HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR ANULAR LA PRE-RESERVACIÓN"), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/anular")
 	public  ResponseEntity<?> getAnularReservacion(@RequestBody ReservacionAnulada  reser){
@@ -185,7 +195,7 @@ public class ReservacionController {
 			actualizarHabitacionDisponilidadReservacion(f.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 			return  new  ResponseEntity<String>(HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR AUMENTAR ANULAR LA ESTADIA"), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR ANULAR LA RESERVACIÓN"), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	@RequestMapping(method = RequestMethod.GET, value = "/restarEstadia/{id}")
@@ -263,10 +273,12 @@ public class ReservacionController {
 		r.setEstadia(ob.getEstadia());
 		r.setTotal(ob.getTotal());
 		r.setHora(ob.getHora());
-		r.setFechaFactura(ob.getFechaFactura());
 		r.setFechaRegistro(ob.getFechaRegistro());
-		System.out.println(r.getFechaRegistro()+" *+*+*+*");
-		System.out.println(r.getFechaFactura()+" *+*+*+*");
+		//r.setFechaReservacion(ob.getFechaReservacion());
+		r.setFechaReservacion(ob.getFechaReservacion());
+		r.setFechaEntrada(ob.getFechaEntrada());
+		r.setFechaFactura(ob.getFechaFactura());
+		
 		return r;
 
 	}
@@ -277,10 +289,13 @@ public class ReservacionController {
 			r.setId(ob.getId());
 			r.getFuncionarioRegistro().setId(ob.getFuncionarioRegistro().getId());
 			r.getFuncionarioRegistro().getPersona().setNombre(ob.getFuncionarioRegistro().getPersona().getNombre()+ " "+ob.getFuncionarioRegistro().getPersona().getApellido() );
+			r.getFuncionarioRegistro().getPersona().setCedula(ob.getFuncionarioRegistro().getPersona().getCedula());
 			r.getFuncionarioFinalizacion().setId(ob.getFuncionarioRegistro().getId());
 			r.getFuncionarioFinalizacion().getPersona().setNombre(ob.getFuncionarioFinalizacion().getPersona().getNombre()+" "+ ob.getFuncionarioRegistro().getPersona().getApellido());
+			r.getFuncionarioFinalizacion().getPersona().setCedula(ob.getFuncionarioFinalizacion().getPersona().getCedula());
 			r.getCliente().setId(ob.getCliente().getId());
 			r.getCliente().getPersona().setNombre(ob.getCliente().getPersona().getNombre()+" "+ob.getCliente().getPersona().getApellido());
+			r.getCliente().getPersona().setCedula(ob.getCliente().getPersona().getCedula());
 			r.getDocumento().setId(ob.getDocumento().getId());
 			r.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
 			r.setEntrega(ob.getEntrega());
@@ -296,6 +311,10 @@ public class ReservacionController {
 			r.setEstadia(ob.getEstadia());
 			r.setTotal(ob.getTotal());
 			r.setFechaRegistro(ob.getFechaRegistro());
+			//r.setFechaReservacion(ob.getFechaReservacion());
+			r.setFechaReservacion(ob.getFechaReservacion());
+			r.setFechaEntrada(ob.getFechaEntrada());
+			r.setFechaFactura(ob.getFechaFactura());
 
 			res.add(r);
 		}
@@ -342,6 +361,7 @@ public class ReservacionController {
 	@RequestMapping(method = RequestMethod.POST, value = "/{numeroTerminal}/{idAper}")
 	public ResponseEntity<?> guardar(@RequestBody ReservacionCabecera entity, @PathVariable int numeroTerminal,  @PathVariable int idAper){
 		try {
+			
 			if(entity.getFuncionarioRegistro().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(idAper == 0 && entity.getEntrega()>0) {
@@ -374,6 +394,12 @@ public class ReservacionController {
 
 
 				if(entity.getId() !=0) {
+				    ReservacionCabecera reservacionAnterior = entityRepository.findById(entity.getId()).orElse(null);
+					if (reservacionAnterior != null) {
+						if(reservacionAnterior.getHabitacionesCategoriaCombo().getHabitaciones().getId()!=entity.getHabitacionesCategoriaCombo().getHabitaciones().getId()) {
+							
+						}
+					}
 					System.out.println(entity.getFechaRegistro()+" fe registrerter");
 					if(entity.getEstado().equals("FINALIZADO")) {
 						entity.setFechaFactura(LocalDateTime.now());
@@ -381,20 +407,35 @@ public class ReservacionController {
 						//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId()));
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 					}else if(entity.getEstado().equals("RESERVADO")) {
-						if(entity.getFechaRegistro()==null) {
-							entity.setFechaRegistro(LocalDateTime.now());
-							entity.setHora(hora());
-						}
-						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), true, true);
+						if (reservacionAnterior != null) {
+				            if ("PRE-RESERVADO".equals(reservacionAnterior.getEstado())) {
+				                // Si antes era PRE-RESERVADO, ahora que pasa a RESERVADO => actualizamos fechaEntrada
+				                entity.setFechaEntrada(LocalDateTime.now());
+				                entity.setHora(hora());
+				            } else if ("RESERVADO".equals(reservacionAnterior.getEstado())) {
+				                // Si antes ya era RESERVADO, no tocar fechaEntrada
+				                entity.setFechaEntrada(reservacionAnterior.getFechaEntrada());
+				                entity.setHora(reservacionAnterior.getHora());
+				            }
+				        }
 						entity.setFechaFactura(null);
+						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), true, true);
 					}else if(entity.getEstado().equals("PRE-RESERVADO")) {
-						entity.setFechaRegistro(LocalDateTime.now());
+						if (reservacionAnterior != null) {
+							 if ("PRE-RESERVADO".equals(reservacionAnterior.getEstado())) {
+						            entity.setFechaReservacion(reservacionAnterior.getFechaReservacion());
+						            entity.setHora(reservacionAnterior.getHora());
+					         }else {
+					        	 	entity.setFechaReservacion(entity.getFechaReservacion());
+					         }
+						}
+						entity.setFechaFactura(null);
 						entity.setHora(hora());
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, true);
-						entity.setFechaFactura(null);
 					} else if(entity.getEstado().equals("CANCELADO")) {
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 						entity.setFechaFactura(null);
+						//entity.setFechaEntrada(null);
 					}
 
 					int idVent=entity.getId();
@@ -440,30 +481,6 @@ public class ReservacionController {
 						}
 					}
 
-					if(entity.getEntrega()>0 && entity.getOperacionCajaEntrega()==0) {
-						OperacionCaja op= new OperacionCaja();
-						op.getAperturaCaja().setId(idAper);
-						op.getConcepto().setId(13);
-						if(entity.getDocumento().getDescripcion().equals("EFECTIVO")) {
-							op.getTipoOperacion().setId(1);op.setEfectivo(entity.getEntrega());
-							this.aperturaCajaRepository.findByActualizarAperturaSaldo(idAper, entity.getEntrega());
-
-						}
-						if(entity.getDocumento().getDescripcion().equals("CHEQUE")) {
-							op.getTipoOperacion().setId(2);
-							this.aperturaCajaRepository.findByActualizarAperturaSaldoCheque(idAper, entity.getEntrega());							
-						}
-						if(entity.getDocumento().getDescripcion().equals("TARJETA")) {
-							op.getTipoOperacion().setId(3);
-							this.aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(idAper, entity.getEntrega());							
-						}
-						op.setTipo("ENTRADA");
-						op.setMonto(entity.getEntrega());
-						op.setMotivo("ALOJAMIENTO REF.: "+entity.getId());
-						operacionRepository.save(op);
-						OperacionCaja opNuevo= operacionRepository.findTop1ByOrderByIdDesc();
-						entity.setOperacionCajaEntrega(opNuevo.getId());
-					}
 					entity.setTotal((entity.getPrecio()*entity.getEstadia())+(entity.getTotalProducto()));
 					entity.setTotalHabitacion(entity.getPrecio()*entity.getEstadia());
 					entity.setTotalIvaDies(Utilidades.calcularIvaDies(entity.getTotalHabitacion())+total10);
@@ -471,10 +488,7 @@ public class ReservacionController {
 					entity.setTotalDescuento(totalDescuento);
 					entityRepository.save(entity);
 					System.out.println("entro  update");
-
 					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
-
-
 				}else {
 					entity.setFechaRegistro(LocalDateTime.now());
 					entity.setHora(hora());
@@ -484,19 +498,24 @@ public class ReservacionController {
 						//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId()));
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 					}else if(entity.getEstado().equals("RESERVADO")) {
+						entity.setFechaEntrada(LocalDateTime.now());
+						entity.setHora(hora());
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), true, true);
 						entity.setFechaFactura(null);
 					}else if(entity.getEstado().equals("PRE-RESERVADO")) {
+						System.out.println("entro nuevo pre-reservado");
+						entity.setFechaReservacion(entity.getFechaReservacion());
+						entity.setHora(hora());
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, true);
 						entity.setFechaFactura(null);
+						entity.setFechaEntrada(null);
 					} else if(entity.getEstado().equals("CANCELADO")) {
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 						entity.setFechaFactura(null);
+						//entity.setFechaFactura(fechaFactura);
 					}
-
 					entityRepository.save(entity);
 					ReservacionCabecera id = entityRepository.getUltimaReservacion();
-
 					int idVent=0;
 					if(id == null){idVent=1;}else{idVent=id.getId();}
 					double total10=0, total5=0, totalDescuento=0;
@@ -557,7 +576,6 @@ public class ReservacionController {
 			e.printStackTrace();
 			return new ResponseEntity<>(new CustomerErrorType("ERROR: "+e.getMessage()), HttpStatus.CONFLICT);
 		}
-		;
 		return  new  ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -662,6 +680,9 @@ public class ReservacionController {
 	private void actualizarHabitacionDisponilidadReservacion(int id, boolean dispo, boolean reser) {
 		this.habitacionesRepository.findByActualizaEstadoDisponilidadReservacion(id, dispo, reser);
 	}
+	private void actualizarHabitacionPreReservacion(int id, boolean reser) {
+		this.habitacionesRepository.findByActualizaEstadoPreReservacion(id, reser);
+	}
 	public String validarPrecio(int id, double precio) {
 		Producto pro=productoRepository.findById(id).get();
 		String op="P1";
@@ -719,10 +740,9 @@ public class ReservacionController {
 			m.getFuncionario().setId(idFuncionario);
 			m.setMarca(p.getMarca().getDescripcion());
 			Concepto c= new Concepto();
-
 			c= conceptoRepository.findById(13).get();
 
-
+			m.getConcepto().setId(c.getId());
 			m.setReferencia(c.getDescripcion()+" REF.: "+ idVenta);
 			movEntradaSalidaRepository.save(m);
 			//venta tipo, subtotl, precio, funcionario id, tipo, idVenta
@@ -763,11 +783,12 @@ public class ReservacionController {
 				movv.getProducto().setId(pp.getId());
 				movv.getFuncionario().setId(idFuncionario);
 				movv.setMarca(pp.getMarca().getDescripcion());
+
 				Concepto cc= new Concepto();
-
 				cc= conceptoRepository.findById(13).get();
+				m.getConcepto().setId(cc.getId());
 
-				movv.setReferencia(cc.getDescripcion()+" REF.: "+ idVenta);
+				m.setReferencia(cc.getDescripcion()+" REF.: "+ idVenta);
 				movEntradaSalidaRepository.save(movv);
 			}
 		}else {
@@ -806,12 +827,10 @@ public class ReservacionController {
 				movEnt.getProducto().setId(pro.getId());
 				movEnt.getFuncionario().setId(2);
 				movEnt.setMarca(pro.getMarca().getDescripcion());
-				Concepto c= new Concepto();
-
-				c= conceptoRepository.findById(13).get();
-
-
-				movEnt.setReferencia(c.getDescripcion()+" REF.: "+ idVenta);
+				Concepto ccc= new Concepto();
+				ccc= conceptoRepository.findById(13).get();
+				movEnt.setReferencia(ccc.getDescripcion()+" REF.: "+ idVenta);
+				movEnt.getConcepto().setId(ccc.getId());
 				movEntradaSalidaRepository.save(movEnt);
 				List<ProductoCardex> list = compuestoRepository.getBase(id);
 				for(ProductoCardex ob: list) {
@@ -851,7 +870,7 @@ public class ReservacionController {
 					Concepto con= new Concepto();
 
 					con= conceptoRepository.findById(13).get();
-
+					entrada.getConcepto().setId(con.getId());
 
 					entrada.setReferencia(con.getDescripcion()+" REF.: "+ idVenta);
 					movEntradaSalidaRepository.save(entrada);
@@ -889,11 +908,10 @@ public class ReservacionController {
 				mov.getProducto().setId(p.getId());
 				mov.getFuncionario().setId(idFuncionario);
 				mov.setMarca(p.getMarca().getDescripcion());
-				Concepto c= new Concepto();
-
-				c= conceptoRepository.findById(13).get();
-
-				mov.setReferencia(c.getDescripcion()+" REF.: "+ idVenta);
+				Concepto xc= new Concepto();
+				xc= conceptoRepository.findById(13).get();
+				mov.getConcepto().setId(xc.getId());
+				mov.setReferencia(xc.getDescripcion()+" REF.: "+ idVenta);
 				movEntradaSalidaRepository.save(mov);
 			}
 
@@ -1307,6 +1325,26 @@ public class ReservacionController {
 		}
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
+	@RequestMapping(method=RequestMethod.GET, value="/tipoFiltro/{filtro}")
+	public List<ReservacionCabecera> getAllsTipoFiltro(@PathVariable int filtro){
+		List<ReservacionCabecera> lisRetorno= new ArrayList<ReservacionCabecera>();
+		if(filtro==1) { lisRetorno= listar(entityRepository.getReservacionAll());}
+		if(filtro==2) { lisRetorno= listar(entityRepository.getReservacionActivo());}
+		if(filtro==3) { lisRetorno= listar(entityRepository.getReservacionFinalizado());}
+		if(filtro==4) { lisRetorno= listar(entityRepository.getReservacionPreReservado());}
+		return lisRetorno;
+		
+	}
+	@RequestMapping(method=RequestMethod.POST, value="/tipoFiltro/{filtro}")
+	public List<ReservacionCabecera> getAllsTipoFiltroPorDescripcion(@RequestBody String descripcion, @PathVariable int filtro){
+		List<ReservacionCabecera> lisRetorno= new ArrayList<ReservacionCabecera>();
+		if(filtro==1) { lisRetorno= listar(entityRepository.getReservacionAllDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
+		if(filtro==2) { lisRetorno= listar(entityRepository.getReservacionActivoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
+		if(filtro==3) { lisRetorno= listar(entityRepository.getReservacionFinalizadoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
+		if(filtro==4) { lisRetorno= listar(entityRepository.getReservacionPreReservadoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
 
+		return lisRetorno;
+		
+	}
 
 }

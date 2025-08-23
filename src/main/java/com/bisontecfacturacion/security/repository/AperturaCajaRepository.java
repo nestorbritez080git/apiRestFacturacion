@@ -15,7 +15,7 @@ import com.bisontecfacturacion.security.model.AperturaCaja;
 @Repository
 public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Serializable>{
 
-	@Query("select a from AperturaCaja a where a.estado = true and a.estadoAnulacion = false")
+	@Query("select a from AperturaCaja a where a.estado = true and a.estadoAnulacion = false ORDER BY a.id DESC")
 	public List<AperturaCaja> getAperturaCajaActivo();
 	@Query("select a from AperturaCaja a INNER JOIN a.funcionario as fun where a.estado = true and a.estadoAnulacion = false AND fun.id<>:idDistinto")
 	public List<AperturaCaja> getAperturaCajaActivoIdDistinto(@Param("idDistinto")int idDistinto);

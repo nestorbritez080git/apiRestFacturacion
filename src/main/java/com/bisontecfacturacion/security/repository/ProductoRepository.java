@@ -200,6 +200,16 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 	    
 	    @Modifying
 	    @Transactional(readOnly=false)
+	    @Query("update Producto set stockPresupuesto=stockPresupuesto +:cantidad where id=:proid")
+	    public void findByActualizarStockPresupuestoA(@Param("cantidad") double cantidad, @Param("proid") int proid);
+	    
+	    @Modifying
+	    @Transactional(readOnly=false)
+	    @Query("update Producto p set p.stockPresupuesto = p.stockPresupuesto - :cantidad where p.id = :proid")
+	    public void findByActualizarStockPresupuestoD(@Param("cantidad") double cantidad, @Param("proid") int proid);
+	   
+	    @Modifying
+	    @Transactional(readOnly=false)
 	    @Query("update Producto set is_balanza=:balanza where id=:proid")
 	    public void findByActualizarBalanza(@Param("balanza") boolean balanza,@Param("proid") int proid);
 	
@@ -276,4 +286,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 		List<Object[]> getProductoStockNegativo();
 		@Query(value="select p.descripcion, p.existencia, p.precio_costo, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, ( p.existencia * p.precio_costo) as totalCosto, ( p.existencia * p.precio_venta_1) as totalPrecioVenta1, ( p.existencia * p.precio_venta_2) as totalPrecioVenta2, ( p.existencia * p.precio_venta_3) as totalPrecioVenta3, ( p.existencia * p.precio_venta_4) as totalPrecioVenta4, p.codbar as codbar, p.id as idd, ud.descripcion as descUd from producto p inner join  unidad_medida as ud ON ud.id=p.unidad_medida_id where p.is_balanza=true order by p.descripcion ASC", nativeQuery = true)
 		List<Object[]> getProductoProvenienteBalanza();
+			
+		@Query(value="SELECT stock_presupuesto FROM producto WHERE id =:id", nativeQuery = true)
+		Double getStockPresupuestoById(@Param("id") int id);
 }

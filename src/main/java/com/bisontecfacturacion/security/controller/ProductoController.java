@@ -1,15 +1,11 @@
 package com.bisontecfacturacion.security.controller;
 
-import java.awt.Font;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,7 +16,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,21 +38,16 @@ import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.contabilidad.controller.AsientoContableServices;
 import com.bisontecfacturacion.security.contabilidad.model.AsientoContableDTO;
-import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
 import com.bisontecfacturacion.security.model.AjusteInventario;
 import com.bisontecfacturacion.security.model.Concepto;
-import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.Grupo;
 import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.Marca;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
-import com.bisontecfacturacion.security.model.Proveedor;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.UtilidadPrecio;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AjusteInventarioRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.GrupoRepository;
@@ -68,16 +57,12 @@ import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.ProductoCardexRepository;
 import com.bisontecfacturacion.security.repository.ProductoRepository;
-import com.bisontecfacturacion.security.repository.ProveedorRepository;
 import com.bisontecfacturacion.security.repository.SubGrupoRepository;
 import com.bisontecfacturacion.security.repository.UtilidadPrecioRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
 
 import net.sf.jasperreports.engine.JRException;
-import net.sourceforge.barbecue.Barcode;
-import net.sourceforge.barbecue.BarcodeFactory;
-import net.sourceforge.barbecue.BarcodeImageHandler;
 
 
 @Transactional
@@ -258,6 +243,7 @@ public class ProductoController {
 		for(Producto ob:objeto){
 			Producto productos=new Producto();
 			productos.setId(ob.getId());
+			productos.setIva(ob.getIva());
 			productos.setDescripcion(ob.getDescripcion());
 //			productos.getMarca().setDescripcion(ob.getMarca().getDescripcion());
 //			productos.getMarca().setId(ob.getMarca().getId());
@@ -266,8 +252,8 @@ public class ProductoController {
 //			productos.getGrupo().setDescripcion(ob.getGrupo().getDescripcion());
 //			if (ob.getCodoriginal() == null) {productos.setCodoriginal("");
 //			} else {productos.setCodoriginal(ob.getCodoriginal());}
-//			if (ob.getCodbar() == null) {productos.setCodbar("");
-//			} else {productos.setCodbar(ob.getCodbar());}
+			if (ob.getCodbar() == null) {productos.setCodbar("");
+			} else {productos.setCodbar(ob.getCodbar());}
 			productos.setPrecioCosto(ob.getPrecioCosto());
 			productos.setPrecioVenta_1(ob.getPrecioVenta_1());
 			productos.setPrecioVenta_2(ob.getPrecioVenta_2());
@@ -292,6 +278,7 @@ public class ProductoController {
 		for(Producto ob:objeto){
 			Producto productos=new Producto();
 			productos.setId(ob.getId());
+			productos.setIva(ob.getIva());
 			productos.setDescripcion(ob.getDescripcion());
 			productos.getMarca().setDescripcion(ob.getMarca().getDescripcion());
 			productos.getMarca().setId(ob.getMarca().getId());
@@ -313,6 +300,7 @@ public class ProductoController {
 			productos.getGrupo().setDescripcion(ob.getGrupo().getDescripcion());
 			productos.getSubGrupo().setDescripcion(ob.getSubGrupo().getDescripcion());
 			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
+			productos.setStockPresupuesto(ob.getStockPresupuesto());
 			
 			producto.add(productos);
 		}
@@ -339,6 +327,7 @@ public class ProductoController {
 		producto.getMarca().setDescripcion(pro.getMarca().getDescripcion());
 		producto.setNombreImagen(pro.getNombreImagen());
 		producto.setFechaVencimiento(pro.getFechaVencimiento());
+		producto.setStockPresupuesto(pro.getStockPresupuesto());
 		return producto;
 	}
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")
@@ -1194,9 +1183,15 @@ public class ProductoController {
 			ajustes.getFuncionario().getPersona().setApellido(ob.getFuncionario().getPersona().getApellido());
 			ajustes.getProducto().setDescripcion(ob.getProducto().getDescripcion());
 			ajustes.setCantidad(ob.getCantidad());
-			ajustes.setTipo(ob.getTipo());
+			
+			if(Integer.parseInt(ob.getTipo())==1) {ajustes.setTipo("ENTRADA");}
+			if(Integer.parseInt(ob.getTipo())==2) {ajustes.setTipo("ENTRADA");}
+			
+			if(Integer.parseInt(ob.getMotivo())==1) {ajustes.setMotivo("AJUSTE INVENTARIO");}
+			if(Integer.parseInt(ob.getMotivo())==2) {ajustes.setMotivo("VENCIMIENTO");}
+			if(Integer.parseInt(ob.getMotivo())==3) {ajustes.setMotivo("PRODUCTO DAÑADO");}
+
 			ajustes.setFecha(ob.getFecha());
-			ajustes.setMotivo(ob.getMotivo());
 			ajustes.getProducto().setId(ob.getProducto().getId());
 			ajuste.add(ajustes);
 		}

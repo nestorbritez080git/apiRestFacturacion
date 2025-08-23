@@ -99,7 +99,8 @@ public class MovimientoE_SController {
    			if (o[9]==null) {m.getFuncionario().getPersona().setNombre("SIN NOMBRE");}else {m.getFuncionario().getPersona().setNombre(o[9].toString());}
    			if (o[10]==null) {m.getTipoMovimiento().setDescripcion("SIN TIPO");}else {m.getTipoMovimiento().setDescripcion(o[10].toString());}
    			if (o[11]==null) {m.getTipoMovimiento().setDescripcion("SIN TIPO");}else {m.getTipoMovimiento().setId(Integer.parseInt(o[11].toString()));}
-   			
+   			if (o[12]==null) {m.setCostoEntrada(0.0);}else {m.setCostoEntrada(Double.parseDouble(o[12].toString()));}
+
    			lista.add(m);
    		}
    		return lista;

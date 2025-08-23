@@ -2,56 +2,50 @@ package com.bisontecfacturacion.security.controller;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxiliar;
-import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
 import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
-import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.NumerosALetras;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.config.Utilidades;
-import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
 import com.bisontecfacturacion.security.model.DetallePresupuestoServicio;
 import com.bisontecfacturacion.security.model.DetalleProducto;
-import com.bisontecfacturacion.security.model.DetalleServicios;
-import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.Org;
-import com.bisontecfacturacion.security.model.Pedido;
-import com.bisontecfacturacion.security.model.PedidoDetalle;
 import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
+import com.bisontecfacturacion.security.model.ProductoCardex;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
-import com.bisontecfacturacion.security.model.Venta;
+import com.bisontecfacturacion.security.model.Zona;
 import com.bisontecfacturacion.security.repository.AnticipoReferenciaCajaChicaRepository;
-import com.bisontecfacturacion.security.repository.AnticipoReferenciaOperacionCajaRepository;
-import com.bisontecfacturacion.security.repository.ClienteRepository;
-import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.PagosFuncionarioReferenciaOperacionCajaRepository;
@@ -59,12 +53,16 @@ import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoDetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoDetalleServicioRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoRepository;
+import com.bisontecfacturacion.security.repository.ProductoCardexRepository;
 import com.bisontecfacturacion.security.repository.ProductoRepository;
 import com.bisontecfacturacion.security.repository.ReporteConfigRepository;
 import com.bisontecfacturacion.security.repository.ReporteFormatoDatosRepository;
 import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
+import com.bisontecfacturacion.security.repository.ZonaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
+
+import groovyjarjarcommonscli.ParseException;
 
 @Transactional
 @RestController
@@ -76,10 +74,14 @@ public class PresupuestoController {
 
 	@Autowired
 	private ProductoRepository productoRepository;
+	@Autowired
+	private ProductoCardexRepository compuestoRepository;
 
 	@Autowired
 	private PresupuestoDetalleProductoRepository detalleProductoRepository;
 
+	@Autowired
+	private ZonaRepository zonaRepository;
 	@Autowired
 	private ImpresoraRepository impresoraRepository;
 	@Autowired
@@ -117,12 +119,15 @@ public class PresupuestoController {
 		for(Presupuesto p:obj){
 			Presupuesto pre=new Presupuesto();
 			pre.setId(p.getId());
-			pre.getFuncionario().getPersona().setNombre(p.getFuncionario().getPersona().getNombre()+", "+p.getFuncionario().getPersona().getApellido());
-			pre.getCliente().getPersona().setNombre(p.getCliente().getPersona().getNombre()+", "+ p.getCliente().getPersona().getApellido());
+			pre.getFuncionario().getPersona().setNombre(p.getFuncionario().getPersona().getNombre()+" "+p.getFuncionario().getPersona().getApellido());
+			pre.getFuncionario().getPersona().setCedula(p.getFuncionario().getPersona().getCedula());
+			pre.getCliente().getPersona().setNombre(p.getCliente().getPersona().getNombre()+" "+ p.getCliente().getPersona().getApellido());
+			pre.getCliente().getPersona().setCedula(p.getCliente().getPersona().getCedula());
 			pre.setTotal(p.getTotal());
 			pre.setFecha(p.getFecha());
 			pre.setHora(p.getHora());
 			pre.setEstado(p.getEstado());
+			pre.setZona(p.getZona());
 			res.add(pre);
 		}
 		return res;
@@ -133,6 +138,7 @@ public class PresupuestoController {
 		if(filtro==1) { lisRetorno= listar(entityRepository.getPresupuestoAll());}
 		if(filtro==2) { lisRetorno= listar(entityRepository.getPresupuestoActivo());}
 		if(filtro==3) { lisRetorno= listar(entityRepository.getPresupuestoCerrado());}
+		if(filtro==4) { lisRetorno= listar(entityRepository.getPresupuestoFinalizado());}
 
 		return lisRetorno;
 		
@@ -145,8 +151,20 @@ public class PresupuestoController {
 		if(filtro==1) { lisRetorno= listar(entityRepository.getPresupuestoAllDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
 		if(filtro==2) { lisRetorno= listar(entityRepository.getPresupuestoActivoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
 		if(filtro==3) { lisRetorno= listar(entityRepository.getPresupuestoCerradoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
-
+		if(filtro==4) { lisRetorno= listar(entityRepository.getPresupuestoFinalizadoDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));}
 		return lisRetorno;
+	}
+	@RequestMapping(method=RequestMethod.DELETE, value="/eliminarDetalleProducto/{id}")
+	public ResponseEntity<?> eliminarDetallePresupuesotProductoPorId(@PathVariable int id){
+		DetallePresupuestoProducto det = detalleProductoRepository.findById(id).orElse(null);
+		if(det ==null){
+			return new ResponseEntity<>(new CustomerErrorType("ESTE NUMERO DE DETALLE YA NO EXISTE.!"), HttpStatus.CONFLICT);
+		}else {
+			this.actualizarProductoBasePresupuestoDescontar(det.getProducto().getId(), det.getCantidad());
+			detalleProductoRepository.deleteById(id);
+			//return new ResponseEntity<String>("REGISTRO ELIMINADO", HttpStatus.OK); 
+		}
+		return new ResponseEntity<>(HttpStatus.CREATED);
 		
 	}
 	
@@ -158,6 +176,7 @@ public class PresupuestoController {
 				System.out.println("con listado lista");
 				for (DetallePresupuestoProducto de : detalle) {		
 					System.out.println("entroo eliminar PRODUCTO for presu");
+					this.actualizarProductoBasePresupuestoDescontar(de.getProducto().getId(), de.getCantidad());
 					detalleProductoRepository.deleteById(de.getId());
 				}
 			}else {
@@ -205,17 +224,30 @@ public class PresupuestoController {
 		pre.setNroDocumento(v.getNroDocumento());
 		pre.setTotal(v.getTotal());
 		pre.getFuncionario().setId(v.getFuncionario().getId());
+		pre.getFuncionario().getPersona().setNombre(v.getFuncionario().getPersona().getNombre());
+		pre.getFuncionario().getPersona().setApellido(v.getFuncionario().getPersona().getApellido());
+		pre.getFuncionario().getPersona().setTelefono(v.getFuncionario().getPersona().getTelefono());
+		pre.getFuncionario().getPersona().setCedula(v.getFuncionario().getPersona().getCedula());
 		pre.getCliente().setId(v.getCliente().getId());
 		pre.getCliente().getPersona().setNombre(v.getCliente().getPersona().getNombre());
 		pre.getCliente().getPersona().setApellido(v.getCliente().getPersona().getApellido());
-		pre.getFuncionario().getPersona().setNombre(v.getFuncionario().getPersona().getNombre() +", "+ v.getFuncionario().getPersona().getApellido());
+		pre.getCliente().getPersona().setCedula(v.getCliente().getPersona().getCedula());
 		pre.setEstado(v.getEstado());
 		pre.setTotalIvaCinco(v.getTotalIvaCinco());
 		pre.setTotalIvaDies(v.getTotalIvaDies());
 		pre.setTotalIva(v.getTotalIva());
 		pre.setTotalExcenta(v.getTotalExcenta());
 		pre.setTotalLetra(v.getTotalLetra());
+		pre.setZona(v.getZona());
+		System.out.println(v.getDetallePresupuestoProducto().size()+" lista : persuipeusotroter");
 		pre.setObs(v.getObs());
+		List<DetallePresupuestoProducto> detProducto = new ArrayList<>();
+		List<DetallePresupuestoServicio> detServicio = new ArrayList<>();
+		detProducto = getDetalleProducto(detalleProductoRepository.lista(id));
+		detServicio = getDetalleServ(id);
+		pre.setDetallePresupuestoProducto(detProducto);
+		pre.setDetallePresupuestoServicio(detServicio);
+		
 		return pre;
 	}
 
@@ -250,6 +282,7 @@ public class PresupuestoController {
 
 		return detalleProducto;
 	}
+	
 
 	@RequestMapping(method=RequestMethod.GET, value="/detalleServicio/{id}")
 	public List<DetallePresupuestoServicio> getAllIdServicio(@PathVariable int id){
@@ -282,7 +315,7 @@ public class PresupuestoController {
 	}
 	
 	@RequestMapping(method=RequestMethod.GET, value="/actualizarEstado/{id}")
-	public void updateEstado(@PathVariable int id){
+	public void updateEstadoACerrado(@PathVariable int id){
 		try {
 			entityRepository.findByActualizaEstado(id, "CERRADO");
 		} catch (Exception e) {
@@ -291,6 +324,15 @@ public class PresupuestoController {
 		}
 	}
 
+	@RequestMapping(method=RequestMethod.GET, value="/hablitarEstado/{id}/{estado}")
+	public void updateEstado(@PathVariable int id, @PathVariable String estado){
+		try {
+			entityRepository.findByActualizaEstado(id, estado);
+		} catch (Exception e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+	}
 
 	private static String padF(int numero, int size) {
 		Formatter ft= new Formatter();
@@ -308,11 +350,161 @@ public class PresupuestoController {
 		}
 
 	}
+	public void actualizarProductoBasePresupuestoDescontar(int id, double cantidad) {
+	    // Caso 1: Producto compuesto (tiene base)
+	    ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
+	    if (ca != null) {
+	        System.out.println("Presupuesto - tiene compuesto, actualiza base única: " + id);
+	        double cant = cantidad * ca.getCantidadAplicacion();
 
+	        // Stock actual del producto base
+	        Double stockBase = productoRepository.getStockPresupuestoById(ca.getProductoBase().getId());
+	        if (stockBase != null && stockBase > 0) {
+	            double descontar = Math.min(cant, stockBase);
+	            productoRepository.findByActualizarStockPresupuestoD(descontar, ca.getProductoBase().getId());
+	            System.out.println("DESCONTO BASE: " + descontar + " ID: " + ca.getProductoBase().getId());
+	        }
+
+	        // Actualizar compuestos relacionados
+	        List<ProductoCardex> list = compuestoRepository.getBase(ca.getProductoBase().getId());
+	        for (ProductoCardex ob : list) {
+	            double existenciaActual = (cantidad * ca.getCantidadAplicacion()) / ob.getCantidadAplicacion();
+	            Double stockCompuesto = productoRepository.getStockPresupuestoById(ob.getProductoCompuesto().getId());
+	            if (stockCompuesto != null && stockCompuesto > 0) {
+	                double descontar = Math.min(existenciaActual, stockCompuesto);
+	                productoRepository.findByActualizarStockPresupuestoD(descontar, ob.getProductoCompuesto().getId());
+	                System.out.println("DESCONTO COMPUESTO: " + descontar + " ID: " + ob.getProductoCompuesto().getId());
+	            }
+	        }
+
+	    } else {
+	        // Caso 2: Producto base relacionado
+	        ProductoCardex pBase = compuestoRepository.getProductoPorIdBase(id);
+	        if (pBase != null) {
+	            System.out.println("Presupuesto - producto relacionado con base: " + id);
+
+	            Double stockBase = productoRepository.getStockPresupuestoById(id);
+	            if (stockBase != null && stockBase > 0) {
+	                double descontar = Math.min(cantidad, stockBase);
+	                productoRepository.findByActualizarStockPresupuestoD(descontar, id);
+	                System.out.println("DESCONTO BASE RELACIONADO: " + descontar + " ID: " + id);
+	            }
+
+	            // Actualizar compuestos relacionados
+	            List<ProductoCardex> list = compuestoRepository.getBase(id);
+	            for (ProductoCardex ob : list) {
+	                double existenciaActual = cantidad / ob.getCantidadAplicacion();
+	                Double stockCompuesto = productoRepository.getStockPresupuestoById(ob.getProductoCompuesto().getId());
+	                if (stockCompuesto != null && stockCompuesto > 0) {
+	                    double descontar = Math.min(existenciaActual, stockCompuesto);
+	                    productoRepository.findByActualizarStockPresupuestoD(descontar, ob.getProductoCompuesto().getId());
+	                    System.out.println("DESCONTO COMPUESTO RELACIONADO: " + descontar + " ID: " + ob.getProductoCompuesto().getId());
+	                }
+	            }
+
+	        } else {
+	            // Caso 3: Producto unitario
+	            System.out.println("Presupuesto - producto unitario: " + id);
+
+	            Double stockUnitario = productoRepository.getStockPresupuestoById(id);
+	            if (stockUnitario != null && stockUnitario > 0) {
+	                double descontar = Math.min(cantidad, stockUnitario);
+	                productoRepository.findByActualizarStockPresupuestoD(descontar, id);
+	                System.out.println("DESCONTO UNITARIO: " + descontar + " ID: " + id);
+	            }
+	        }
+	    }
+	}
+	
+	public void actualizarProductoBasePresupuestoAumentar(int id, double cantidad) {
+	    // Caso 1: Producto compuesto (tiene base)
+	    ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
+	    if (ca != null) {
+	        System.out.println("Presupuesto - tiene compuesto, actualiza base única: " + id);
+	        double cant = cantidad * ca.getCantidadAplicacion();
+	        // Actualizar stockPresupuesto de producto base
+	        productoRepository.findByActualizarStockPresupuestoA(cant, ca.getProductoBase().getId());
+
+	        // Actualizar stockPresupuesto de compuestos relacionados
+	        List<ProductoCardex> list = compuestoRepository.getBase(ca.getProductoBase().getId());
+	        for (ProductoCardex ob : list) {
+	            Double existenciaActual = (cantidad * ca.getCantidadAplicacion()) / ob.getCantidadAplicacion();
+	            productoRepository.findByActualizarStockPresupuestoA(existenciaActual, ob.getProductoCompuesto().getId());
+	            System.out.println("Presupuesto - actualiza compuesto relacionado: " + ob.getProductoCompuesto().getId());
+	        }
+	    } else {
+	        // Caso 2: Producto base relacionado
+	        ProductoCardex pBase = compuestoRepository.getProductoPorIdBase(id);
+	        if (pBase != null) {
+	            System.out.println("Presupuesto - producto relacionado con base: " + id);
+	            productoRepository.findByActualizarStockPresupuestoA(cantidad, id);
+
+	            // Actualizar compuestos relacionados
+	            List<ProductoCardex> list = compuestoRepository.getBase(id);
+	            for (ProductoCardex ob : list) {
+	                Double existenciaActual = cantidad / ob.getCantidadAplicacion();
+	                productoRepository.findByActualizarStockPresupuestoA(existenciaActual, ob.getProductoCompuesto().getId());
+	                System.out.println("Presupuesto - actualiza compuesto relacionado: " + ob.getProductoCompuesto().getId());
+	            }
+
+	        } else {
+	            // Caso 3: Producto unitario
+	            System.out.println("Presupuesto - producto unitario: " + id);
+	            productoRepository.findByActualizarStockPresupuestoA(cantidad, id);
+	        }
+	    }
+	}
+	
+	@RequestMapping(method=RequestMethod.POST, value="/producto")
+	public ResponseEntity<?> eliminarProducto(@RequestBody List<DetallePresupuestoProducto> detalles){
+		try {
+			if(detalles.size()!=-1) {
+				System.out.println("con listado lista");
+				for (DetallePresupuestoProducto de : detalles) {
+					this.actualizarProductoBasePresupuestoDescontar(de.getProducto().getId(), de.getCantidad());
+					detalleProductoRepository.deleteById(de.getId());
+				}
+				System.out.println("sin lista");
+				return  new  ResponseEntity<String>(HttpStatus.CREATED);
+
+			}else {
+				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
 	@Transactional
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?>  guardar(@RequestBody Presupuesto entity){
 		try {
+			System.out.println(entity.getFecha()+" fecha ess ");
+			System.out.println(entity.getTotalLetra() +"total letras ess ");
+			System.out.println(entity.getEstado() +" estado es  ess ");
+
+			if (zonaRepository.count() == 0) {
+			    return new ResponseEntity<>(
+			        new CustomerErrorType("SE DEBE CARGAR AL MENOS UNA ZONA EN EL SISTEMA"),
+			        HttpStatus.CONFLICT
+			    );
+			}
+
+			// 2. Si no hay zona asignada o id es 0, asignar la primera zona registrada
+			if (entity.getZona() == null || entity.getZona().getId() == 0) {
+			    // Buscar la primera zona (puede ser la de menor ID)
+				System.out.println("entro id 0 o null y asina el primer valor");
+			    Optional<Zona> primeraZonaOpt = zonaRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream().findFirst();
+			    if (!primeraZonaOpt.isPresent()) {
+			        return new ResponseEntity<>(
+			            new CustomerErrorType("ERROR AL ASIGNAR ZONA POR DEFECTO"),
+			            HttpStatus.CONFLICT
+			        );
+			    }
+			    entity.setZona(primeraZonaOpt.get());
+			}
+			
 			if(entity.getFuncionario().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT); 
 			} else if(entity.getCliente().getId() == 0) {
@@ -321,16 +513,26 @@ public class PresupuestoController {
 				return new ResponseEntity<>(new CustomerErrorType("LA GRILLA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getObs() != null){
 				entity.setObs(entity.getObs().toUpperCase());
-			}
+			} else if(entity.getTotalLetra() == null || entity.getTotalLetra().trim().equals("")){
+				entity.setTotalLetra(NumerosALetras.convertirNumeroALetras(entity.getTotal()));
+				System.out.println("nuep total letras: "+ entity.getTotalLetra());
+			} else if(entity.getFecha() == null){
+				entity.setFecha(LocalDateTime.now());
+			} 
+			
 			{
 				for(int ind=0; ind < entity.getDetallePresupuestoProducto().size(); ind++) {
 					DetallePresupuestoProducto pro = entity.getDetallePresupuestoProducto().get(ind);
-					if(pro.getCantidad() == null) {
-						return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL DETALLE PRODUCTO ITEM N°: "+(ind++)+", NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+					if(pro.getCantidad() == null || pro.getCantidad() <=0) {
+						return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL DETALLE PRODUCTO ITEM N°: "+(ind+1)+", NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 					}else if(pro.getDescripcion() == null){
-						return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL DETALLE PRODUCTO ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-					}else if(pro.getPrecio() == null){
-						return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL DETALLE PRODUCTO ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+						return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL DETALLE PRODUCTO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+					}else if(pro.getPrecio() == null || pro.getPrecio() <=0){
+						return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL DETALLE PRODUCTO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+					}else if(pro.getSubTotal() == null || pro.getSubTotal() <=0){
+						return new ResponseEntity<>(new CustomerErrorType("EL SUBTOTAL DEL DETALLE PRODUCTO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+					}else if(pro.getIva()==null || !(pro.getIva().equals("10 %") || pro.getIva().equals("5 %") || pro.getIva().equals("Exenta"))){
+						return new ResponseEntity<>(new CustomerErrorType("EL CAMPO IVA DEL DETALLE N°: "+(ind+1)+" NO TIENE UN FORMATO VALIDO!"), HttpStatus.CONFLICT);
 					}
 				}
 				for(int ind=0; ind < entity.getDetallePresupuestoServicio().size(); ind++) {
@@ -338,39 +540,84 @@ public class PresupuestoController {
 					if(ser.getCantidad() == null) {
 						return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL DETALLE SERVICIO ITEM N°: "+(ind++)+", NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 					}else if(ser.getDescripcion() == null){
-						return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL DETALLE SERVICIO ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+						return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL DETALLE SERVICIO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 					}else if(ser.getPrecio() == null){
-						return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL DETALLE SERVICIO ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+						return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL DETALLE SERVICIO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+					}else if(ser.getIva()==null || !(ser.getIva().equals("10 %") || ser.getIva().equals("5 %") || ser.getIva().equals("Exenta"))){
+						return new ResponseEntity<>(new CustomerErrorType("EL CAMPO IVA DEL DETALLE N°: "+(ind+1)+" NO TIENE UN FORMATO VALIDO!"), HttpStatus.CONFLICT);
 					}
 				}
-
-
 				if(entity.getId() !=0) {
 					entity.setHora(hora());
 					//entityRepository.save(entity);
 					int idVent=entity.getId();
 					double total10=0, total5=0, totalDescuento=0;
-					if(entity.getDetallePresupuestoProducto().size()>0){
+					if (entity.getDetallePresupuestoProducto().size() > 0) {
 
-						for(DetallePresupuestoProducto detalleProducto: entity.getDetallePresupuestoProducto()) {
-							detalleProducto.getPresupuesto().setId(idVent);
-							if(detalleProducto.getIva().equals("10 %")) {
+					    List<DetallePresupuestoProducto> detallesAnteriores =
+					            detalleProductoRepository.getDeallePresupuestoProductoPorIdCabecera(entity.getId());
 
-								total10 = total10 + Utilidades.calcularIvaDies(detalleProducto.getSubTotal()); 
-								detalleProducto.setMontoIva(Utilidades.calcularIvaDies(detalleProducto.getSubTotal()));
-							}
-							if(detalleProducto.getIva().equals("5 %")) {
-								total5 = total5 + Utilidades.calcularIvaCinco(detalleProducto.getSubTotal());
-								detalleProducto.setMontoIva(Utilidades.calcularIvaCinco(detalleProducto.getSubTotal()));
-							}
-							if(detalleProducto.getIva().equals("Exenta")) {
-								detalleProducto.setMontoIva(0.0);
-							}
-							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
-							detalleProductoRepository.save(detalleProducto);	
-						}
+					    for (DetallePresupuestoProducto detalleNuevo : entity.getDetallePresupuestoProducto()) {
 
+					        Optional<DetallePresupuestoProducto> detalleAnteriorOpt = detallesAnteriores.stream()
+					                .filter(d -> Objects.equals(d.getProducto().getId(), detalleNuevo.getProducto().getId()))
+					                .findFirst();
 
+					        double cantidadAnterior = detalleAnteriorOpt.map(DetallePresupuestoProducto::getCantidad).orElse(0.0);
+					        double cantidadNueva = detalleNuevo.getCantidad();
+					        double diferencia = cantidadNueva - cantidadAnterior;
+
+					        if (entity.getEstado().equals("ABIERTO")) {
+					            if (detalleAnteriorOpt.isPresent()) {
+					            	System.out.println("cantidad nueva: "+cantidadNueva+ " cantidad anterior: "+cantidadAnterior);
+					                // Hubo cambio en la cantidad
+					                if (diferencia > 0) {
+					                    this.actualizarProductoBasePresupuestoAumentar(detalleNuevo.getProducto().getId(), diferencia);
+					                } else if (diferencia < 0) {
+					                    this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), Math.abs(diferencia));
+					                }
+					            } else {
+					                // Producto nuevo
+					            	System.out.println("cantidad nueva nuuu: "+cantidadNueva);
+
+					                this.actualizarProductoBasePresupuestoAumentar(detalleNuevo.getProducto().getId(), cantidadNueva);
+					            }
+
+					        } else if ("CERRADO".equals(entity.getEstado())) {
+					            if (detalleAnteriorOpt.isPresent()) {
+					                double cantidadAnterior1 = detalleAnteriorOpt.get().getCantidad();
+
+					                if (cantidadNueva > cantidadAnterior1) {
+					                    // Aumentó → descontar solo la diferencia
+					                    this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadAnterior1);
+					                } else if (cantidadNueva == cantidadAnterior1) {
+					                    // Igual → descontar toda la cantidad
+					                    this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadAnterior1);
+					                } else {
+					                    // Cantidad nueva < anterior → descontar solo lo anterior
+					                    this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadAnterior1);
+					                }
+					            } else {
+					                // Producto nuevo → descontar toda la cantidad nueva
+					                //this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadNueva);
+					            }
+					        }
+
+					        // Calcular IVA
+					        if (detalleNuevo.getIva().equals("10 %")) {
+					            total10 += Utilidades.calcularIvaDies(detalleNuevo.getSubTotal());
+					            detalleNuevo.setMontoIva(Utilidades.calcularIvaDies(detalleNuevo.getSubTotal()));
+					        } else if (detalleNuevo.getIva().equals("5 %")) {
+					            total5 += Utilidades.calcularIvaCinco(detalleNuevo.getSubTotal());
+					            detalleNuevo.setMontoIva(Utilidades.calcularIvaCinco(detalleNuevo.getSubTotal()));
+					        } else if (detalleNuevo.getIva().equals("Exenta")) {
+					            detalleNuevo.setMontoIva(0.0);
+					        }
+
+					        detalleNuevo.setTipoPrecio(validarPrecio(detalleNuevo.getProducto().getId(), detalleNuevo.getPrecio()));
+					        detalleNuevo.getPresupuesto().setId(idVent);
+					        detalleProductoRepository.save(detalleNuevo);
+					    }
 					}
 					if(entity.getDetallePresupuestoServicio().size()>0){
 						for(DetallePresupuestoServicio detalleServicio: entity.getDetallePresupuestoServicio()) {
@@ -421,8 +668,9 @@ public class PresupuestoController {
 							if(detalleProducto.getIva().equals("Exenta")) {
 								detalleProducto.setMontoIva(0.0);
 							}
-							
 							detalleProductoRepository.save(detalleProducto);
+							this.actualizarProductoBasePresupuestoAumentar(detalleProducto.getProducto().getId(), detalleProducto.getCantidad());
+
 						
 						}
 					}
@@ -617,7 +865,8 @@ public class PresupuestoController {
 			detalleProductos.getProducto().setCodbar(ob[16].toString());
 			detalleProductos.getProducto().getMarca().setDescripcion(ob[17].toString());
 			detalleProductos.setMontoIva(Double.parseDouble(ob[18].toString()));
-
+			detalleProductos.getProducto().setExistencia(Double.parseDouble(ob[19].toString()));
+			detalleProductos.getProducto().setStockPresupuesto(Double.parseDouble(ob[20].toString()));
 			detalleProducto.add(detalleProductos);
 		}
 
@@ -683,7 +932,9 @@ public class PresupuestoController {
 			v.getCliente().getPersona().setTelefono(presu.getCliente().getPersona().getTelefono());
 			v.setFecha(presu.getFecha());
 			v.setHora(presu.getHora());
+			v.getFuncionario().setId(presu.getFuncionario().getId());
 			v.getFuncionario().getPersona().setNombre(presu.getFuncionario().getPersona().getNombre()+" "+presu.getFuncionario().getPersona().getApellido());
+			v.getFuncionario().getPersona().setTelefono(presu.getFuncionario().getPersona().getTelefono());
 			v.setTotalIvaCinco(presu.getTotalIvaCinco());
 			v.setTotalIvaDies(presu.getTotalIvaDies());
 			v.setTotal(presu.getTotal());
@@ -694,6 +945,7 @@ public class PresupuestoController {
 			v.setId(presu.getId());
 			v.setEstado(presu.getEstado());
 			v.setObs(presu.getObs());
+			v.setZona(presu.getZona());
 			v.setDetallePresupuestoProducto(detProducto);
 
 
@@ -728,15 +980,11 @@ public class PresupuestoController {
 		pre=entityRepository.getOne(id);
 		List<Presupuesto> listado= new ArrayList<Presupuesto>();
 		listado.add(pre);
-		List<Presupuesto> listadoRetorno= new ArrayList<Presupuesto>();
-
 		for (int i = 0; i < listado.size(); i++) {
 			
 			for (int j = 0; j < listado.get(i).getDetallePresupuestoServicio().size(); j++) {
 				DetallePresupuestoServicio detAux = listado.get(i).getDetallePresupuestoServicio().get(j);
 				DetallePresupuestoProducto detAgregar =new DetallePresupuestoProducto();
-
-				
 				detAgregar.setDescripcion("SER - "+detAux.getDescripcion());
 				detAgregar.getProducto().setCodbar(detAux.getServicio().getId()+"");
 				detAgregar.setCantidad(detAux.getCantidad());
@@ -768,6 +1016,44 @@ public class PresupuestoController {
 			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 		}
 		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value="/reportePresupuestoListado/rango/{id}/{tipo}/{zona}/{fechaI}/{fechaF}")
+	public  List<Presupuesto> getReportePresupuestoClienteRangoListado(OAuth2Authentication authentication,@PathVariable int id, @PathVariable int tipo,@PathVariable int zona, @PathVariable String fechaI, @PathVariable String fechaF) throws IOException, ParseException{
+		List<Presupuesto> lis =new ArrayList<>();
+		List<Presupuesto> listado=new ArrayList<>();
+		String estado="";
+
+		try {
+			Calendar cc= Calendar.getInstance();
+			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+			Date fecI;
+			System.out.println("fecha que viene: "+fechaI+ ", "+fechaF);
+			fecI = formater.parse(fechaI);
+			Date fecF=formater.parse(fechaF);
+			System.out.println(fecF.getDate());
+			fecF.setHours(23);
+			fecF.setSeconds(59);
+			fecI.setHours(0);
+			fecI.setSeconds(1);
+			System.out.println("hora final fechas::: "+fecF+ " hora inicio finbal: "+fecI);
+//			if(tipo == 1 && zona == 1) {
+//				lis= entityRepository.findByPrespuestoPorIdClientesTodoRango(id, fecI, fecF);
+//			}
+//			if(tipo == 1){
+//				
+//			}
+//			if(tipo == 2){
+//				lis= entityRepository.findByCuentaPorIdACobrarRango(id,fecI, fecF);
+//			}
+//			if(tipo == 3){
+//				lis= entityRepository.findByCuentaPorIdCobradoRango(id,fecI, fecF);
+//			}
+//			listado = listadoCargar(lis);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return listado;
 	}
 	
 

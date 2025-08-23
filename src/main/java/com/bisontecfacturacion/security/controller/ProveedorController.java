@@ -91,7 +91,6 @@ public class ProveedorController {
 		        if(entity.getPersona().getTipo()!=null){
 					entity.getPersona().setTipo(entity.getPersona().getTipo().trim().toUpperCase());			
 		        }
-		        
 		        if(entity.getPersona().getId() != 0){
 		               
 		        } else {
@@ -106,14 +105,10 @@ public class ProveedorController {
 		                entityRepository.save(entity);
 		            }
 		        }
-			
-			}
-			  
-	        
+			} 
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-		
 		return  new  ResponseEntity<String>(HttpStatus.CREATED);
 	}
 	

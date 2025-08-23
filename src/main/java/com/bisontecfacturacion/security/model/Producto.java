@@ -28,6 +28,8 @@ public class Producto {
 	private String codoriginal;
 	private String fabricante;
 	private Double existencia;
+	private Double stockPresupuesto;
+
 	private Double stock_minimo;
 	@NotNull
 	private String iva;
@@ -72,6 +74,7 @@ public class Producto {
 		this.id=0;
 		this.existencia=0.0;
 		this.stock_minimo=0.0;
+		this.stockPresupuesto=0.0;
 		this.iva="";
 		this.precioCosto=0.0;
 		this.precioVenta_1=0.0;
@@ -91,6 +94,14 @@ public class Producto {
 		this.estadoCompuesto=true;
 //		this.nombreImagen = "";
 	
+	}
+
+	public Double getStockPresupuesto() {
+		return stockPresupuesto;
+	}
+
+	public void setStockPresupuesto(Double stockPresupuesto) {
+		this.stockPresupuesto = stockPresupuesto;
 	}
 
 	public Boolean getEstadoCompuesto() {

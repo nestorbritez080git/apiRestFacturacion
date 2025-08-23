@@ -53,7 +53,7 @@
 	<field name="numeroDocumento" class="java.lang.String">
 		<fieldDescription><![CDATA[nroDocumento]]></fieldDescription>
 	</field>
-	<field name="fecha" class="java.util.Date">
+	<field name="fecha" class="java.time.LocalDateTime">
 		<fieldDescription><![CDATA[fecha]]></fieldDescription>
 	</field>
 	<field name="total" class="java.lang.Double">

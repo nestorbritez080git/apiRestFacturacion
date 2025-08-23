@@ -1,6 +1,7 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,30 +9,37 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.Presupuesto;
 
 public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serializable>{
 	public abstract Presupuesto findTop1ByOrderByIdDesc();
 	
-	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id order by v.id desc",nativeQuery=true)
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoAll();
 	
-	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id WHERE cp.nombre ilike :des OR cp.apellido ilike :des OR cp.cedula ilike :des order by v.id desc",nativeQuery=true)
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id inner join zona z on z.id=v.zona_id WHERE cp.nombre ilike :des OR cp.apellido ilike :des OR cp.cedula ilike :des order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoAllDescripcion(@Param("des")  String des);
 	
 	
 	
-	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where v.estado='ABIERTO' order by v.id desc",nativeQuery=true)
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='ABIERTO' order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoActivo();
-	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where (v.estado='ABIERTO' and cp.nombre ilike :des) OR (v.estado='ABIERTO' and cp.apellido ilike :des) OR (v.estado='ABIERTO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where (v.estado='ABIERTO' and cp.nombre ilike :des) OR (v.estado='ABIERTO' and cp.apellido ilike :des) OR (v.estado='ABIERTO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoActivoDescripcion(@Param("des")  String des);
 	
 	
-	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where v.estado='CERRADO' order by v.id desc",nativeQuery=true)
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='CERRADO' order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoCerrado();
 	
-	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where (v.estado='CERRADO'and cp.nombre ilike :des) OR (v.estado='CERRADO' and cp.apellido ilike :des)  OR (v.estado='CERRADO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='FINALIZADO' order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoFinalizado();
+	
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where (v.estado='CERRADO' and cp.nombre ilike :des) OR (v.estado='CERRADO' and cp.apellido ilike :des)  OR (v.estado='CERRADO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoCerradoDescripcion(@Param("des")  String des);
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where (v.estado='FINALIZADO' and cp.nombre ilike :des) OR (v.estado='FINALIZADO' and cp.apellido ilike :des)  OR (v.estado='FINALIZADO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoFinalizadoDescripcion(@Param("des")  String des);
+	
 	
 	
 	
@@ -62,4 +70,34 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
     @Query("update Presupuesto set estado=:estado where id=:id")
     public void findByActualizaEstado(@Param("id") int id, @Param("estado") String estado);
 	
+	
+	@Query("SELECT p " + 
+			"    FROM Presupuesto  p " + 
+			"    WHERE p.id = :id")
+	public Presupuesto getPresupuestoIdd(@Param("id") int id);
+	
+	
+	
+	//SERVICES: RPT PRESUPUESTO POR RANGO DE FECHAS Y CON UN CLIENTE SELECCIONADO Y POR TIPO TODOS, Y POR ZONA
+		@Query("select  c from Presupuesto c where cliente_id=:id and (fecha >=:fecIni AND fecha <=:fecFin)  order by id desc")
+		public List<Presupuesto> findByPrespuestoPorIdClientesTodoRango(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin") Date fecFin);
+		
+		@Query("select  c from Presupuesto c where cliente_id=:id and zona_id=:idZona AND estado =:estado AND (fecha >=:fecIni AND fecha <=:fecFin)  order by id desc")
+		public List<Presupuesto> findByPrespuestoPorIdClientesEstadoYZonaRangoFecha(@Param("id") int id, @Param("idZona") int idZona, @Param("estado") String estado,@Param("fecIni") Date fecIni, @Param("fecFin") Date fecFin);
+		
+		
+		@Query("select  c from CuentaCobrarCabecera c where saldo > 0 and cliente_id=:id and (fecha >=:fecIni AND fecha <=:fecFin) order by id desc")
+		public List<CuentaCobrarCabecera> findByCuentaPorIdACobrarRangos(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin")Date fecFin);
+		@Query("select  c from CuentaCobrarCabecera c where saldo = 0 and cliente_id=:id and (fecha >=:fecIni AND fecha <=:fecFin) order by id desc")
+		public List<CuentaCobrarCabecera> findByCuentaPorIdCobradoRangos(@Param("id") int id, @Param("fecIni") Date fecIni, @Param("fecFin")Date fecFin);
+		
+		
+		
+		@Query("select  c from Presupuesto c where zona_id=:id AND c.estado='FINALIZADO' order by id desc")
+		public List<Presupuesto> getPresupuestoPreVentaPorZona(@Param("id") int id);
+		
+		
 }
+
+
+

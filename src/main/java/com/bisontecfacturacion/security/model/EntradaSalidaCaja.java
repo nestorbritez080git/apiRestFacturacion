@@ -17,6 +17,8 @@ public class EntradaSalidaCaja {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
+	
+	@NotNull
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fecha;
 	@ManyToOne

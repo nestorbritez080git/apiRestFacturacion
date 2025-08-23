@@ -25,13 +25,13 @@ public class NotaCredito {
 	@NotNull
 	private Double total;
 	private String totalLetra;
-	
+	private String estado;
 	@ManyToOne
 	private Funcionario funcionario;
 	
 	@ManyToOne
 	private Cliente cliente;
-	
+	private Integer numeroVenta;
 
 	
 	@ManyToOne
@@ -46,6 +46,8 @@ public class NotaCredito {
 		this.funcionario= new Funcionario();
 		this.cliente = new Cliente();
 		this.devolucionVenta = new DevolucionVenta();
+		this.estado="ABIERTO";
+		this.numeroVenta=0;
 		
 		
 	}
@@ -99,4 +101,25 @@ public class NotaCredito {
 	public void setDevolucionVenta(DevolucionVenta devolucionVenta) {
 		this.devolucionVenta = devolucionVenta;
 	}
+
+
+	public String getEstado() {
+		return estado;
+	}
+
+
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
+
+
+	public int getNumeroVenta() {
+		return numeroVenta;
+	}
+
+
+	public void setNumeroVenta(int numeroVenta) {
+		this.numeroVenta = numeroVenta;
+	}
+	
 }

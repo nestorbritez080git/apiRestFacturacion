@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
+import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Venta;
 
 public interface ReservacionCabeceraRepository extends JpaRepository<ReservacionCabecera, Serializable> {
@@ -93,7 +94,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join persona cp on cl.persona_id=cp.id \r\n" + 
 			"inner join documento doc on doc.id=v.documento_id \r\n" + 
 			"where v.estado='PRE-RESERVADO'   order by v.id desc ",nativeQuery=true)
-	List<ReservacionCabecera> getReservacionesAllPreReservado (@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
+	List<ReservacionCabecera> getReservacionesAllPreReservado ();
 	
 	@Query(value = "select  cab.descripcion_combo as des, perFin.nombre || ' ' || perFin.apellido as funFin, perCli.nombre || ' ' || perCli.apellido as perCli, cab.entrega as entrega, cab.precio as precio, cab.total_producto as totalProd, cab.total_habitacion as total, cab.fecha_registro as fecReg, cab.hora as horaReg, cab.fecha_factura as fecFin, cab.hora_finalizacion as horFin, cab.estadia as estadia, cab.total as totales \r\n" + 
 			"from reservacion_cabecera  cab \r\n" + 
@@ -145,4 +146,60 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
     @Transactional(readOnly=false)
     @Query("update ReservacionCabecera set estado=:est where id=:id")
     public void findByActualizaEstado(@Param("id") int id, @Param("est") String est);
+	
+	
+	
+	@Query("SELECT c FROM ReservacionCabecera c ORDER BY c.id desc")
+	List<ReservacionCabecera> getReservacionAll();
+	@Query("SELECT c FROM ReservacionCabecera c " +
+		       "INNER JOIN c.cliente cl " +
+		       "INNER JOIN cl.persona pcli " +
+		       "WHERE LOWER(pcli.nombre) LIKE LOWER(CONCAT('%', :des, '%')) " +
+		       "OR LOWER(pcli.apellido) LIKE LOWER(CONCAT('%', :des, '%')) " +
+		       "OR LOWER(pcli.cedula) LIKE LOWER(CONCAT('%', :des, '%')) " +
+		       "ORDER BY c.id DESC")
+	List<ReservacionCabecera> getReservacionAllDescripcion(@Param("des")  String des);
+	
+	@Query("SELECT c FROM ReservacionCabecera c WHERE c.estado='RESERVADO' ORDER BY c.id desc")
+	List<ReservacionCabecera> getReservacionActivo();
+	@Query("SELECT c FROM ReservacionCabecera c " +
+		       "INNER JOIN c.cliente cl " +
+		       "INNER JOIN cl.persona pcli " +
+		       "WHERE c.estado = 'RESERVADO' AND (" +
+		       "LOWER(pcli.nombre) LIKE LOWER(CONCAT('%', :des, '%')) OR " +
+		       "LOWER(pcli.apellido) LIKE LOWER(CONCAT('%', :des, '%')) OR " +
+		       "LOWER(pcli.cedula) LIKE LOWER(CONCAT('%', :des, '%'))" +
+		       ") " +
+		       "ORDER BY c.id DESC")
+	List<ReservacionCabecera> getReservacionActivoDescripcion(@Param("des")  String des);
+	
+	
+	@Query("SELECT c FROM ReservacionCabecera c WHERE c.estado='FINALIZADO' ORDER BY c.id desc")
+	List<ReservacionCabecera> getReservacionFinalizado();
+	@Query("SELECT c FROM ReservacionCabecera c " +
+		       "INNER JOIN c.cliente cl " +
+		       "INNER JOIN cl.persona pcli " +
+		       "WHERE c.estado = 'FINALIZADO' AND (" +
+		       "LOWER(pcli.nombre) LIKE LOWER(CONCAT('%', :des, '%')) OR " +
+		       "LOWER(pcli.apellido) LIKE LOWER(CONCAT('%', :des, '%')) OR " +
+		       "LOWER(pcli.cedula) LIKE LOWER(CONCAT('%', :des, '%'))" +
+		       ") " +
+		       "ORDER BY c.id DESC")
+	List<ReservacionCabecera> getReservacionFinalizadoDescripcion(@Param("des")  String des);
+	
+	
+	
+	@Query("SELECT c FROM ReservacionCabecera c WHERE c.estado='PRE-RESERVADO' ORDER BY c.id desc")
+	List<ReservacionCabecera> getReservacionPreReservado();
+	@Query("SELECT c FROM ReservacionCabecera c " +
+		       "INNER JOIN c.cliente cl " +
+		       "INNER JOIN cl.persona pcli " +
+		       "WHERE c.estado = 'PRE-RESERVADO' AND (" +
+		       "LOWER(pcli.nombre) LIKE LOWER(CONCAT('%', :des, '%')) OR " +
+		       "LOWER(pcli.apellido) LIKE LOWER(CONCAT('%', :des, '%')) OR " +
+		       "LOWER(pcli.cedula) LIKE LOWER(CONCAT('%', :des, '%'))" +
+		       ") " +
+		       "ORDER BY c.id DESC")
+	List<ReservacionCabecera> getReservacionPreReservadoDescripcion(@Param("des")  String des);
+	
 }

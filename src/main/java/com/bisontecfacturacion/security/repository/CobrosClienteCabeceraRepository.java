@@ -23,7 +23,7 @@ public interface CobrosClienteCabeceraRepository extends JpaRepository<CobrosCli
 
 	
 	@Query("select  c from CobrosClienteCabecera c where cliente_id=:id order by id desc")
-	public List<CobrosClienteCabecera> findByCuentaPorIdCliente(@Param("id") int id);
+	public List<CobrosClienteCabecera> findByCobrosCabeceraPorIdCliente(@Param("id") int id);
 	@Query("select  ccc from CobrosClienteCabecera ccc INNER JOIN ccc.cliente cli INNER JOIN ccc.funcionario fun   where cli.id=:id and ((ccc.fecha >=:fecha_inicio) and (ccc.fecha<=:fecha_fin)) order by ccc.id desc")
 	public List<CobrosClienteCabecera> findByCobrosClientePorRango(@Param("id") int id, @Param("fecha_inicio") Date fecInicio, @Param("fecha_fin") Date fecFin );
 //	SELECT cpc FROM CuentaPagarCabecera cpc  INNER JOIN cpc.compra com INNER JOIN cpc.proveedor pro INNER JOIN cpc.funcionario fun WHERE pro.id = :id order by cpc.id desc

@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 @Entity
 public class DetallePresupuestoProducto {
@@ -33,6 +35,8 @@ public class DetallePresupuestoProducto {
 		private String tipoPrecio;
 
 		private Double montoIva;
+		
+		@JsonIgnoreProperties("presupuesto")
 		@ManyToOne
 		private Presupuesto presupuesto;
 		
@@ -49,6 +53,7 @@ public class DetallePresupuestoProducto {
 			this.isBalanza=false;
 			this.tipoPrecio="";
 			this.montoIva=0.0;
+			this.descripcion="";
 		}
 
 

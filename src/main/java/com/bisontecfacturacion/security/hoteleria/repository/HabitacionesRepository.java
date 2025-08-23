@@ -19,6 +19,10 @@ public interface HabitacionesRepository extends JpaRepository<Habitaciones, Seri
     @Query("update Habitaciones set estadoDisponibilidad=:estadoDispo, estadoReservacion=:estadoReser where id=:id")
     public void findByActualizaEstadoDisponilidadReservacion(@Param("id") int id, @Param("estadoDispo") Boolean estadoDispo, @Param("estadoReser") Boolean estadoReser);
 	
+	@Modifying
+    @Transactional(readOnly=false)
+    @Query("update Habitaciones set estadoReservacion=:estadoReser where id=:id")
+    public void findByActualizaEstadoPreReservacion(@Param("id") int id, @Param("estadoReser") Boolean estadoReser);
 	
 	
 }

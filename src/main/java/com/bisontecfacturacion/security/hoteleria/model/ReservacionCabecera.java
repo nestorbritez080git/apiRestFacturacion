@@ -31,6 +31,11 @@ public class ReservacionCabecera {
 	private LocalDateTime fechaFactura;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
 	private LocalDateTime fechaRegistro;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
+	private LocalDateTime fechaEntrada;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY")
+	private LocalDate fechaReservacion;
 	@ManyToOne
 	private Funcionario funcionarioRegistro;
 	@ManyToOne
@@ -95,6 +100,15 @@ public class ReservacionCabecera {
 	}
 	
 	
+	public LocalDateTime getFechaEntrada() {
+		return fechaEntrada;
+	}
+
+
+	public void setFechaEntrada(LocalDateTime fechaEntrada) {
+		this.fechaEntrada = fechaEntrada;
+	}
+
 	public Double getTotal() {
 		return total;
 	}
@@ -271,6 +285,18 @@ public class ReservacionCabecera {
 	public LocalDateTime getFechaRegistro() {
 		return fechaRegistro;
 	}
+	
+
+	public LocalDate getFechaReservacion() {
+		return fechaReservacion;
+	}
+
+
+	public void setFechaReservacion(LocalDate fechaReservacion) {
+		this.fechaReservacion = fechaReservacion;
+	}
+
+
 	public void setFechaRegistro(LocalDateTime fechaRegistro) {
 		this.fechaRegistro = fechaRegistro;
 	}

@@ -37,7 +37,10 @@
 	<field name="vendedorTelefono" class="java.lang.Object">
 		<fieldDescription><![CDATA[funcionario.persona.telefono]]></fieldDescription>
 	</field>
-	<field name="fecha" class="java.util.Date">
+	<field name="vendedorApellido" class="java.lang.Object">
+		<fieldDescription><![CDATA[funcionario.persona.nombre]]></fieldDescription>
+	</field>
+	<field name="fecha" class="java.time.LocalDateTime">
 		<fieldDescription><![CDATA[fecha]]></fieldDescription>
 	</field>
 	<field name="total" class="java.lang.Double">
@@ -76,7 +79,7 @@
 	<title>
 		<band height="105" splitType="Stretch">
 			<textField>
-				<reportElement x="406" y="79" width="63" height="12" uuid="fdea581e-9fd5-4c9a-89bc-543014d8d815"/>
+				<reportElement x="410" y="79" width="153" height="12" uuid="fdea581e-9fd5-4c9a-89bc-543014d8d815"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
@@ -160,7 +163,7 @@
 				<text><![CDATA[TEL.:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="73" y="45" width="132" height="12" uuid="13a5537f-719f-48ff-a3ff-c2b02a84f828">
+				<reportElement x="73" y="45" width="187" height="12" uuid="13a5537f-719f-48ff-a3ff-c2b02a84f828">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -169,7 +172,7 @@
 				<textFieldExpression><![CDATA[$F{clienteNombre}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="73" y="55" width="132" height="12" uuid="3d043537-fa23-4f68-ac8e-85ad5504b9af">
+				<reportElement x="73" y="55" width="187" height="12" uuid="3d043537-fa23-4f68-ac8e-85ad5504b9af">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -178,18 +181,18 @@
 				<textFieldExpression><![CDATA[$F{clienteRuc}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="410" y="56" width="125" height="12" uuid="a74fb33d-ca8e-488a-9dec-bb413f39cd1f"/>
+				<reportElement x="410" y="56" width="153" height="12" uuid="a74fb33d-ca8e-488a-9dec-bb413f39cd1f"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{vendedorTelefono}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="410" y="45" width="125" height="12" uuid="67284a32-2e6b-4862-82a6-1b3837606bbd"/>
+				<reportElement x="410" y="45" width="153" height="12" uuid="67284a32-2e6b-4862-82a6-1b3837606bbd"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{vendedorNombre}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{vendedorNombre}+" "+$F{vendedorApellido}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="-1" y="55" width="71" height="12" uuid="82b82528-3b93-473f-a31a-6bb39a05a050"/>
@@ -208,7 +211,7 @@
 				<text><![CDATA[CLIENTE:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="341" y="45" width="66" height="12" uuid="8444fb79-2af3-40b7-8d9e-0291241f7c5f">
+				<reportElement x="340" y="45" width="66" height="12" uuid="8444fb79-2af3-40b7-8d9e-0291241f7c5f">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -217,7 +220,7 @@
 				<text><![CDATA[VENDEDOR:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="73" y="67" width="131" height="12" uuid="3904f3d6-d107-4696-84fe-80c620b7c829">
+				<reportElement x="73" y="67" width="186" height="12" uuid="3904f3d6-d107-4696-84fe-80c620b7c829">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -235,7 +238,7 @@
 				<text><![CDATA[TEL.:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="73" y="80" width="131" height="12" uuid="2a929039-c198-4bf0-bf92-ab8f0e864ac8"/>
+				<reportElement x="73" y="80" width="186" height="12" uuid="2a929039-c198-4bf0-bf92-ab8f0e864ac8"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
@@ -260,7 +263,7 @@
 				<text><![CDATA[FECHA:]]></text>
 			</staticText>
 			<textField pattern="MM/dd/yyyy">
-				<reportElement x="406" y="68" width="65" height="12" uuid="064bc0a9-cda1-4200-a7dd-b73739da3a67"/>
+				<reportElement x="410" y="68" width="153" height="12" uuid="064bc0a9-cda1-4200-a7dd-b73739da3a67"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>

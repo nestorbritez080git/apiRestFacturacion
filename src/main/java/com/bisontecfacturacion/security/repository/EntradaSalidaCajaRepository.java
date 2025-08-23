@@ -1,6 +1,7 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.EntradaSalidaCaja;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
@@ -33,5 +35,11 @@ public interface EntradaSalidaCajaRepository extends JpaRepository<EntradaSalida
     @Transactional(readOnly=false)
     @Query("update EntradaSalidaCaja set referencia=:refere where id=:id")
     public void findByActualizaReferencia(@Param("refere") String refere ,@Param("id") int id);
-
+	//SERVICES: RPT CUENTA CLIENTE POR RANGO DE FECHAS Y CON UN CLIENTE SELECCIONADO Y POR TIPO TODOS, A COBRAR Y COBRADO
+	@Query("select  c from EntradaSalidaCaja c where (fecha >=:fecIni AND fecha <=:fecFin)  order by id desc")
+	public List<EntradaSalidaCaja> getReporteEntradaSalida(@Param("fecIni") Date fecIni, @Param("fecFin") Date fecFin);
+	
+	@Query("select  c from EntradaSalidaCaja c where tipo_movimiento_id = :idTipo AND (fecha >=:fecIni AND fecha <=:fecFin)  order by id desc")
+	public List<EntradaSalidaCaja> getReporteEntradaSalidaPorTipoMov(@Param("idTipo") int idTipo, @Param("fecIni") Date fecIni, @Param("fecFin") Date fecFin);
+	
 }
