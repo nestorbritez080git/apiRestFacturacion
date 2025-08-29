@@ -28,8 +28,7 @@ public class EmpaqueCabecera {
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fechaEntrega;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
-	private Date fechaArreglo;
+	
 	@ManyToOne
 	private Funcionario funcionarioRegistro;
 	@ManyToOne
@@ -45,7 +44,7 @@ public class EmpaqueCabecera {
 	private Double totalDevolucion;
 	@OneToMany(mappedBy="empaqueCabecera")
 	@JsonIgnoreProperties("empaqueCabecera")
-	private List<EmpaqueDetalle> empaqueDetalles;
+	private List<EmpaqueDetalle> empaqueDetalle;
 	private int itemsPedido;
 
 	
@@ -89,12 +88,7 @@ public class EmpaqueCabecera {
 	public void setFechaEntrega(Date fechaEntrega) {
 		this.fechaEntrega = fechaEntrega;
 	}
-	public Date getFechaArreglo() {
-		return fechaArreglo;
-	}
-	public void setFechaArreglo(Date fechaArreglo) {
-		this.fechaArreglo = fechaArreglo;
-	}
+	
 	public Funcionario getFuncionarioRegistro() {
 		return funcionarioRegistro;
 	}
@@ -143,11 +137,13 @@ public class EmpaqueCabecera {
 	public void setTotalDevolucion(Double totalDevolucion) {
 		this.totalDevolucion = totalDevolucion;
 	}
-	public List<EmpaqueDetalle> getEmpaqueDetalles() {
-		return empaqueDetalles;
+
+	public List<EmpaqueDetalle> getEmpaqueDetalle() {
+		return empaqueDetalle;
 	}
-	public void setEmpaqueDetalles(List<EmpaqueDetalle> empaqueDetalles) {
-		this.empaqueDetalles = empaqueDetalles;
+
+	public void setEmpaqueDetalle(List<EmpaqueDetalle> empaqueDetalle) {
+		this.empaqueDetalle = empaqueDetalle;
 	}
 	
 	

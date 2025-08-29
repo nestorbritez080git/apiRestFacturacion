@@ -20,6 +20,10 @@ public class AutoImpresor {
 	private int id;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
 	private LocalDateTime fecha;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
+	private LocalDateTime fechaInicioVigencia;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
+	private LocalDateTime fechaFinVigencia;
 	@NotNull
 	private String timbrado;
 	@NotNull
@@ -40,6 +44,12 @@ public class AutoImpresor {
 	private int numeroTerminal;
 	@NotNull
 	private boolean estado;
+	private String ruc;
+	private String selloDigital;
+	@ManyToOne
+	@NotNull
+	private AutoImpresorTipoRemision autoImpresorTipoRemision;
+	
 	@ManyToOne
 	private Funcionario funcionario;
 	public AutoImpresor() {
@@ -47,8 +57,51 @@ public class AutoImpresor {
 		this.fecha= LocalDateTime.now();
 		this.id=0;
 		this.estado=false;
+		this.ruc="";
+		this.selloDigital="";
+		this.autoImpresorTipoRemision= new AutoImpresorTipoRemision();
 	}
 	
+	public LocalDateTime getFechaInicioVigencia() {
+		return fechaInicioVigencia;
+	}
+
+	public void setFechaInicioVigencia(LocalDateTime fechaInicioVigencia) {
+		this.fechaInicioVigencia = fechaInicioVigencia;
+	}
+
+	public LocalDateTime getFechaFinVigencia() {
+		return fechaFinVigencia;
+	}
+
+	public void setFechaFinVigencia(LocalDateTime fechaFinVigencia) {
+		this.fechaFinVigencia = fechaFinVigencia;
+	}
+
+	public String getRuc() {
+		return ruc;
+	}
+
+	public void setRuc(String ruc) {
+		this.ruc = ruc;
+	}
+
+	public String getSelloDigital() {
+		return selloDigital;
+	}
+
+	public void setSelloDigital(String selloDigital) {
+		this.selloDigital = selloDigital;
+	}
+
+	public AutoImpresorTipoRemision getAutoImpresorTipoRemision() {
+		return autoImpresorTipoRemision;
+	}
+
+	public void setAutoImpresorTipoRemision(AutoImpresorTipoRemision autoImpresorTipoRemision) {
+		this.autoImpresorTipoRemision = autoImpresorTipoRemision;
+	}
+
 	public boolean isEstado() {
 		return estado;
 	}

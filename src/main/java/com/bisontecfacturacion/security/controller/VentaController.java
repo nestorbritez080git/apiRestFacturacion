@@ -510,6 +510,76 @@ public class VentaController {
 		ft.format("%0"+size+"d", numer);
 		return ft.toString();
 	}
+	private Map<String, Object> generarDocumentoUnificado(int idDocumento, int numeroTerminal, int idVenta) {
+	    Map<String, Object> resultado = new HashMap<>();
+	    String idDoc = String.valueOf(idDocumento);
+
+	    TerminalConfigImpresora terminal = terminalRepository.consultarTerminal(numeroTerminal);
+
+	    NroDocumento nroDoc = getNroLoteDocumento().stream()
+	            .filter(n -> n.getDescripcion().equals(idDoc))
+	            .findFirst()
+	            .orElseThrow(() -> new RuntimeException("No existe NroDocumento para id: " + idDoc));
+
+	    // Si AutoImpresor activo
+	    if (terminal.getEstadoAutoImpresor() != null && terminal.getEstadoAutoImpresor()) {
+	        AutoImpresor auto = autoImpresorRepository.consultarAutoImpresorTerminal(numeroTerminal);
+	        if (auto == null) {
+	            throw new RuntimeException("No existe AutoImpresor para la terminal " + numeroTerminal);
+	        }
+
+	        // Registrar detalle de venta
+	        AutoImpresorDetalleVenta detalleAuto = new AutoImpresorDetalleVenta();
+	        detalleAuto.setAutoImpresor(auto);
+
+	        Venta venta = new Venta();
+	        venta.setId(idVenta);
+	        detalleAuto.setVenta(venta);
+
+	        detalleAuto.setFecha(LocalDateTime.now());
+
+	        // Generar número de documento
+	        String nroFactura = auto.getCodigoEstablecimiento() + "-" + auto.getPuntoExpedicion() + "-" +
+	                padFAutoFactura(auto.getNumeroActual() + 1, 7);
+
+	        detalleAuto.setNumeroFactura(nroFactura);
+	        autoImpresorDetalleVentaRepository.save(detalleAuto);
+
+	        // Actualizar número actual del autoimpresor
+	        auto.setNumeroActual(auto.getNumeroActual() + 1);
+	        autoImpresorRepository.save(auto);
+
+	        // Map de retorno
+	        resultado.put("Númerofactura", nroFactura);
+	        resultado.put("numeroAutorizacionAutoimpresor", auto.getNumeroAutorizacion());
+	        resultado.put("timbrado", auto.getTimbrado());
+	        resultado.put("fechaInicioVigencia", auto.get);
+	        resultado.put("fechaFinVigencia", auto.getFechaFinVigencia());
+
+	    } else {
+	        // AutoImpresor inactivo -> actualizar lote según tipo de documento
+	        String nro = nroDoc.getNro();
+	        switch (idDoc) {
+	            case "1":
+	                loteFacturaRepository.actualizarSeriaActual(nro, 1);
+	                break;
+	            case "2":
+	                loteBoletaRepository.actualizarNumeroActual(nro, 1);
+	                break;
+	            case "3":
+	                loteTicketRepository.actualizarNumeroActual(nro, 1);
+	                break;
+	        }
+
+	        resultado.put("Número de factura", nro);
+	        resultado.put("numeroAutorizacionAutoimpresor", null);
+	        resultado.put("timbrado", null);
+	        resultado.put("fechaInicioVigencia", null);
+	        resultado.put("fechaFinVigencia", null);
+	    }
+
+	    return resultado;
+	}
 
 	public List<NroDocumento> getNroLoteDocumento(){
 		List<NroDocumento> lista = new ArrayList<>();
@@ -670,7 +740,8 @@ public class VentaController {
 
 		AutoImpresor autoImpresor = new AutoImpresor();
 		autoImpresor = autoImpresorRepository.consultarAutoImpresorTerminal(numeroTerminal);
-		TerminalConfigImpresora terminal = terminalRepository.consultarTerminal(numeroTerminal);
+		TerminalConfigImpresora terminal = new TerminalConfigImpresora();
+		terminal = terminalRepository.consultarTerminal(numeroTerminal);
 		System.out.println(terminal.getImpresora().equals("ticket"));
 		System.out.println(terminal.getEstadoAutoImpresor());
 		System.out.println(entity.getDocumento().getId());
@@ -711,7 +782,23 @@ public class VentaController {
 			    }
 			    entity.setZona(primeraZonaOpt.get());
 			}
-			
+			if(entity.getDocumento().getId()==1) {
+				if (terminal !=null && terminal.getEstadoAutoImpresor()==true) {
+					if(autoImpresor !=null) {
+						if (!autoImpresor.isEstado()) {
+							return new ResponseEntity<>(new CustomerErrorType("EL DOCUMENTO DEL AUTO IMPRESOR NO ESTA HABILITADO"), HttpStatus.CONFLICT);
+					    }
+					    if (autoImpresor.getNumeroActual() < autoImpresor.getRangoInicio() || autoImpresor.getNumeroActual() > autoImpresor.getRangoFin()) {
+							return new ResponseEntity<>(new CustomerErrorType("LA NUMERACIÓN DEL AUTO IMPRESOR ESTA FUERA DE RANGO"), HttpStatus.CONFLICT);
+					    }
+					    if (autoImpresor.getTimbrado() == null || autoImpresor.getTimbrado().isEmpty()) {
+							return new ResponseEntity<>(new CustomerErrorType("EL AUTOIMPRESOR NO TIENE TIMBRADO VALIDO"), HttpStatus.CONFLICT);
+					    }
+					}else {
+						return new ResponseEntity<>(new CustomerErrorType("ESTA TERMINAL TIENE CONFIGURADO VIENE COMO EMISOR DE AUTOIMPRESOR FACTURA Y ACTUALMENTE FACLTA CONFIGRACIÓN DEL DOCUMENTO AUTOIMPRESOR"), HttpStatus.CONFLICT);
+					}
+				}
+			}
 			if(entity.getFuncionario().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(entity.getFuncionarioV().getId() == 0) {
@@ -740,13 +827,7 @@ public class VentaController {
 			}else if(entity.getTipo().equals("3") || entity.getTipo().equals("Nota Credito") || entity.getTipo().equals("NOTA CREDITO")){
 				entity.setTipo("3");
 				System.out.println("entro validacion tipo venta nota cr o 3");
-			} if(terminal.getImpresora().equals("ticket") & terminal.getEstadoAutoImpresor()==true & entity.getDocumento().getId()==1){
-				if(autoImpresor.getNumeroActual()>=autoImpresor.getRangoFin()) {
-					autoImpresor= null;
-					return new ResponseEntity<>(new CustomerErrorType("CANTIDAD DE EXPEDICIÓN SOBREPASADA DEL AUTO IMPRESOR PARA ESTA TERMINAL.!"), HttpStatus.CONFLICT);
-
-				}
-			} else if(entity.getObs() != null){
+			}else if(entity.getObs() != null){
 				entity.setObs(entity.getObs().toUpperCase());
 			}
 

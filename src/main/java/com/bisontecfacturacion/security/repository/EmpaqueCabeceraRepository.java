@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.Anticipo;
 import com.bisontecfacturacion.security.model.CuentaPagarCabecera;
+import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
 import com.bisontecfacturacion.security.model.EmpaqueCabecera;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Presupuesto;
@@ -21,7 +22,7 @@ public interface EmpaqueCabeceraRepository extends JpaRepository<EmpaqueCabecera
 	@Modifying 
 	@Transactional(readOnly=false)
 	@Query("update EmpaqueCabecera set estado=:estado where id=:id")
-	public void CambiarEstadoEmpaque(@Param("id") int id, @Param("estado") String estado);
+	public void cambiarEstadoEmpaque(@Param("id") int id, @Param("estado") String estado);
 	
 	
 	@Query(value="select * from empaque_cabecera v INNER JOIN funcionario f on v.funcionario_registro_id=f.id INNER JOIN persona pr on f.persona_id=pr.id INNER JOIN funcionario fe ON v.funcionario_empaque_id=fe.id INNER JOIN persona pe on f.persona_id=pe.id  inner join zona z on z.id=v.zona_id order by v.id desc",nativeQuery=true)
@@ -43,5 +44,17 @@ public interface EmpaqueCabeceraRepository extends JpaRepository<EmpaqueCabecera
 	@Query(value="select * from empaque_cabecera v INNER JOIN funcionario f on v.funcionario_registro_id=f.id INNER JOIN persona pr on f.persona_id=pr.id INNER JOIN funcionario fe ON v.funcionario_empaque_id=fe.id INNER JOIN persona pe on f.persona_id=pe.id  inner join zona z on z.id=v.zona_id WHERE (v.estado='CERRADO' and pr.nombre ilike :des) OR (v.estado='CERRADO' and pr.apellido ilike :des) OR (v.estado='CERRADO' and pr.cedula ilike :des) OR (v.estado='CERRADO' and pe.nombre ilike :des) OR (v.estado='CERRADO' and pe.apellido ilike :des) OR (v.estado='CERRADO' and pe.cedula ilike :des) OR (v.estado='CERRADO' and z.descripcion ilike :des)",nativeQuery=true)
 	List<EmpaqueCabecera> getEmpaqueCerradoDescripcion(@Param("des")  String des);
 	
+	
+	@Query("SELECT  c FROM EmpaqueCabecera c where c.id=:id")
+	public EmpaqueCabecera getEmpaque(@Param("id") int id);
+	
+	@Query("SELECT dpp.producto.id AS productoId, dpp.producto.descripcion AS proDescripcion, mp.descripcion as desMarca, SUM(dpp.cantidad) AS totalCantidad " +
+		       "FROM EmpaqueCabecera ec " +
+		       "JOIN ec.empaqueDetalle ed " +
+		       "JOIN ed.presupuesto p " +
+		       "JOIN p.detallePresupuestoProducto dpp JOIN dpp.producto pro JOIN pro.marca mp " +
+		       "WHERE ec.id = :id " +
+		       "GROUP BY dpp.producto.id, dpp.producto.descripcion, mp.descripcion")
+	List<Object[]> getResumenProductosPorEmpaque(@Param("id") int id);
 	
 }

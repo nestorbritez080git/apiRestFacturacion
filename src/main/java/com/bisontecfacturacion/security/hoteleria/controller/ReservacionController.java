@@ -278,6 +278,7 @@ public class ReservacionController {
 		r.setFechaReservacion(ob.getFechaReservacion());
 		r.setFechaEntrada(ob.getFechaEntrada());
 		r.setFechaFactura(ob.getFechaFactura());
+		r.setReferenciaOperacion(ob.getReferenciaOperacion());
 		
 		return r;
 
@@ -315,6 +316,7 @@ public class ReservacionController {
 			r.setFechaReservacion(ob.getFechaReservacion());
 			r.setFechaEntrada(ob.getFechaEntrada());
 			r.setFechaFactura(ob.getFechaFactura());
+			r.setReferenciaOperacion(ob.getReferenciaOperacion());
 
 			res.add(r);
 		}

@@ -64,8 +64,10 @@ public class OperacionCajaController {
 	private VentaRepository ventaRepositoty;
 	@Autowired
 	private ReservacionCabeceraRepository reservacionRepositoty;
+	
 	@Autowired
 	private AperturaCajaRepository aperturaRepository;
+	
 	@Autowired
 	private ConceptoRepository conceptoRepository;
 	@Autowired
@@ -423,7 +425,7 @@ public class OperacionCajaController {
 			System.out.println("vneta id: "+vv.getId());
 			op.setMotivo(c.getDescripcion()+": "+vv.getDescripcionCombo()+ " Ref.:"+vv.getId());
 			entityRepository.save(op);
-			reservacionRepositoty.findByActualizarReservacionOperacion(vv.getId(),op.getId());
+			reservacionRepositoty.findByActualizarReservacionOperacionEntrega(vv.getId(),op.getId());
 			
 		}
 		
@@ -502,7 +504,7 @@ public class OperacionCajaController {
 							
 							Concepto c= new Concepto();
 							c= conceptoRepository.findById(23).get();
-							operacionActual.setMotivo(c.getDescripcion()+" REF.: "+operacionActual.getId());
+							operacionActual.setMotivo(c.getDescripcion()+" REF. APERTURA: "+operacionActual.getAperturaCaja().getId());
 							operacionActual.setTipo("SALIDA");
 							TransferenciaAperturaCaja t = new TransferenciaAperturaCaja();
 							if(entity.getTipoOperacion().getId() == 1) {
@@ -516,7 +518,7 @@ public class OperacionCajaController {
 								opeAux.setMonto(entity.getMonto());
 								entityRepository.save(opeAux);
 								OperacionCaja opeAuxActualizar=entityRepository.findTop1ByOrderByIdDesc();
-								opeAuxActualizar.setMotivo(c.getDescripcion()+" REF.: "+opeAuxActualizar.getId());
+								opeAuxActualizar.setMotivo(c.getDescripcion()+" REF. APERTURA: "+operacionActual.getAperturaCaja().getId()+", CAJERO/A: "+operacionActual.getAperturaCaja().getFuncionario().getPersona().getNombre());
 								entityRepository.save(opeAuxActualizar);
 								t.setReferencia(entity.getReferenciaTipoOperacion());
 								t.setMonto(entity.getMonto());
@@ -532,7 +534,8 @@ public class OperacionCajaController {
 								opeAux.setMonto(entity.getMonto());
 								entityRepository.save(opeAux);
 								OperacionCaja opeAuxActualizar=entityRepository.findTop1ByOrderByIdDesc();
-								opeAuxActualizar.setMotivo(c.getDescripcion()+" REF.: "+opeAuxActualizar.getId());
+								opeAuxActualizar.setMotivo(c.getDescripcion()+" REF. APERTURA: "+operacionActual.getAperturaCaja().getId()+", CAJERO/A: "+operacionActual.getAperturaCaja().getFuncionario().getPersona().getNombre());
+
 								entityRepository.save(opeAuxActualizar);
 								t.setReferencia(entity.getReferenciaTipoOperacion());
 								t.setMontoCheque(entity.getMonto());
@@ -548,7 +551,7 @@ public class OperacionCajaController {
 								opeAux.setMonto(entity.getMonto());
 								entityRepository.save(opeAux);
 								OperacionCaja opeAuxActualizar=entityRepository.findTop1ByOrderByIdDesc();
-								opeAuxActualizar.setMotivo(c.getDescripcion()+" REF.: "+opeAuxActualizar.getId());
+								opeAuxActualizar.setMotivo(c.getDescripcion()+" REF. APERTURA: "+operacionActual.getAperturaCaja().getId()+", CAJERO/A: "+operacionActual.getAperturaCaja().getFuncionario().getPersona().getNombre());
 								entityRepository.save(opeAuxActualizar);
 								t.setReferencia(entity.getReferenciaTipoOperacion());
 								t.setMontoTarjeta(entity.getMonto());

@@ -66,6 +66,8 @@ public class ReservacionCabecera {
 	private String hora;
 	private String horaFinalizacion;
 	private String obs;
+	private String referenciaOperacion;
+
 	private int estadia;
 	@OneToMany(mappedBy="reservacionCabecera")
 	private List<ReservacionDetalle> reservacionDetalles; 
@@ -97,9 +99,20 @@ public class ReservacionCabecera {
 		this.obs="";
 		this.precio=0.0;
 		this.estadia=0;
+		this.referenciaOperacion="";
 	}
 	
 	
+	public String getReferenciaOperacion() {
+		return referenciaOperacion;
+	}
+
+
+	public void setReferenciaOperacion(String referenciaOperacion) {
+		this.referenciaOperacion = referenciaOperacion;
+	}
+
+
 	public LocalDateTime getFechaEntrada() {
 		return fechaEntrada;
 	}

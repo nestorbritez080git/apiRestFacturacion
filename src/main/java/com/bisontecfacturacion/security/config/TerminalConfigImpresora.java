@@ -7,6 +7,9 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.bisontecfacturacion.security.model.AutoImpresor;
+import com.bisontecfacturacion.security.model.AutoImpresorTipoRemision;
+
 @Entity
 public class TerminalConfigImpresora {
 	@Id
@@ -25,7 +28,8 @@ public class TerminalConfigImpresora {
 	private Boolean estadoAdicionArtVarios;
 	private Boolean estadoEdicionZona;
 		
-	
+	@NotNull
+	private AutoImpresor autoImpresor;
 	public TerminalConfigImpresora() {
 		// TODO Auto-generated constructor stub
 		this.id=0;
@@ -35,8 +39,17 @@ public class TerminalConfigImpresora {
 		this.estadoAutoImpresor=false;
 		this.estadoAdicionArtVarios=false;
 		this.estadoEdicionZona= false;
+		this.autoImpresor = new AutoImpresor();
 	}
 	
+	public AutoImpresor getAutoImpresor() {
+		return autoImpresor;
+	}
+
+	public void setAutoImpresor(AutoImpresor autoImpresor) {
+		this.autoImpresor = autoImpresor;
+	}
+
 	public Boolean getEstadoEdicionZona() {
 		return estadoEdicionZona;
 	}

@@ -39,12 +39,12 @@ public class HabitacionesController {
 	public List<HabitacionesCategoriaCombo> getAllHabitacionesCombo(){
 		 return listHabitacionCombo(comboRepository.getAll());
 	}
-	@RequestMapping(method = RequestMethod.GET, value = "/combo/disponilidad")
+	@RequestMapping(method = RequestMethod.GET, value = "/combo/disponibilidad")
 	public List<HabitacionesCategoriaCombo> getAllHabitacionesComboDisponibilidad(){
 		 return listHabitacionCombo(comboRepository.getAllComboDisponilidadHabitacion());
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/combo/buscar/disponilidad/{descripcion}")
+	@RequestMapping(method=RequestMethod.GET, value="/combo/buscar/disponibilidad/{descripcion}")
 	public List<HabitacionesCategoriaCombo> consultarComboDisponilidadPorDescripcion(@PathVariable String descripcion){
 		return listHabitacionCombo(comboRepository.getAllDescripcionDisponilidad("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));
 	}

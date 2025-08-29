@@ -68,7 +68,7 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
 	@Modifying
     @Transactional(readOnly=false)
     @Query("update Presupuesto set estado=:estado where id=:id")
-    public void findByActualizaEstado(@Param("id") int id, @Param("estado") String estado);
+    public void cambiarEstado(@Param("id") int id, @Param("estado") String estado);
 	
 	
 	@Query("SELECT p " + 

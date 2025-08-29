@@ -176,7 +176,10 @@ public class PresupuestoController {
 				System.out.println("con listado lista");
 				for (DetallePresupuestoProducto de : detalle) {		
 					System.out.println("entroo eliminar PRODUCTO for presu");
-					this.actualizarProductoBasePresupuestoDescontar(de.getProducto().getId(), de.getCantidad());
+					if (de.getPresupuesto().getEstado().equals("FINALIZADO")) {
+						System.out.println("ELIMINAR PRESUPUESOT FINALIZADO DESCUENTO STOCK PRESUPUESTO");
+						this.actualizarProductoBasePresupuestoDescontar(de.getProducto().getId(), de.getCantidad());
+					}
 					detalleProductoRepository.deleteById(de.getId());
 				}
 			}else {
@@ -317,7 +320,7 @@ public class PresupuestoController {
 	@RequestMapping(method=RequestMethod.GET, value="/actualizarEstado/{id}")
 	public void updateEstadoACerrado(@PathVariable int id){
 		try {
-			entityRepository.findByActualizaEstado(id, "CERRADO");
+			entityRepository.cambiarEstado(id, "CERRADO");
 		} catch (Exception e) {
 			e.printStackTrace();
 			// TODO: handle exception
@@ -327,7 +330,12 @@ public class PresupuestoController {
 	@RequestMapping(method=RequestMethod.GET, value="/hablitarEstado/{id}/{estado}")
 	public void updateEstado(@PathVariable int id, @PathVariable String estado){
 		try {
-			entityRepository.findByActualizaEstado(id, estado);
+			List<DetallePresupuestoProducto> det =detalleProductoRepository.getDeallePresupuestoProductoPorIdCabecera(id);
+			for (int i = 0; i < det.size(); i++) {
+				DetallePresupuestoProducto detNuevo = det.get(i);
+                this.actualizarProductoBasePresupuestoDescontar(detNuevo.getProducto().getId(), detNuevo.getCantidad());
+			}
+			entityRepository.cambiarEstado(id, estado);
 		} catch (Exception e) {
 			e.printStackTrace();
 			// TODO: handle exception
@@ -549,75 +557,65 @@ public class PresupuestoController {
 				}
 				if(entity.getId() !=0) {
 					entity.setHora(hora());
-					//entityRepository.save(entity);
 					int idVent=entity.getId();
 					double total10=0, total5=0, totalDescuento=0;
 					if (entity.getDetallePresupuestoProducto().size() > 0) {
-
-					    List<DetallePresupuestoProducto> detallesAnteriores =
+						List<DetallePresupuestoProducto> detallesAnteriores =
 					            detalleProductoRepository.getDeallePresupuestoProductoPorIdCabecera(entity.getId());
+						for (DetallePresupuestoProducto detalleNuevo : entity.getDetallePresupuestoProducto()) {
 
-					    for (DetallePresupuestoProducto detalleNuevo : entity.getDetallePresupuestoProducto()) {
+						    Optional<DetallePresupuestoProducto> detalleAnteriorOpt = detallesAnteriores.stream()
+						            .filter(d -> Objects.equals(d.getProducto().getId(), detalleNuevo.getProducto().getId()))
+						            .findFirst();
 
-					        Optional<DetallePresupuestoProducto> detalleAnteriorOpt = detallesAnteriores.stream()
-					                .filter(d -> Objects.equals(d.getProducto().getId(), detalleNuevo.getProducto().getId()))
-					                .findFirst();
+						    double cantidadNueva = detalleNuevo.getCantidad();
 
-					        double cantidadAnterior = detalleAnteriorOpt.map(DetallePresupuestoProducto::getCantidad).orElse(0.0);
-					        double cantidadNueva = detalleNuevo.getCantidad();
-					        double diferencia = cantidadNueva - cantidadAnterior;
+						    if (detalleAnteriorOpt.isPresent()) {
+						        DetallePresupuestoProducto detalleAnterior = detalleAnteriorOpt.get();
+						        double cantidadAnterior = detalleAnterior.getCantidad();
+						        String estadoAnterior = detalleAnterior.getPresupuesto().getEstado(); // asumimos que cada detalle tiene un campo estado
+						        System.out.println("ESTADOO ANTERIOR : "+estadoAnterior);
+						        
+						        if ("FINALIZADO".equals(entity.getEstado())) {
+						            System.out.println("finalizado edit detalle");
+						            double diferencia = cantidadNueva - cantidadAnterior;
+						            this.actualizarProductoBasePresupuestoAumentar(detalleNuevo.getProducto().getId(), cantidadNueva);
+						           
+						        }else if("CERRADO".equals(entity.getEstado())) {
+						            System.out.println("cerrado edit detalle");  
+						        	this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadAnterior);
+						            
+						        }else if("ABIERTO".equals(entity.getEstado())) {
+						        	
+						        }
 
-					        if (entity.getEstado().equals("ABIERTO")) {
-					            if (detalleAnteriorOpt.isPresent()) {
-					            	System.out.println("cantidad nueva: "+cantidadNueva+ " cantidad anterior: "+cantidadAnterior);
-					                // Hubo cambio en la cantidad
-					                if (diferencia > 0) {
-					                    this.actualizarProductoBasePresupuestoAumentar(detalleNuevo.getProducto().getId(), diferencia);
-					                } else if (diferencia < 0) {
-					                    this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), Math.abs(diferencia));
-					                }
-					            } else {
-					                // Producto nuevo
-					            	System.out.println("cantidad nueva nuuu: "+cantidadNueva);
+						    } else {
+						    	    if ("FINALIZADO".equals(entity.getEstado())) {
+							        	System.out.println("finalizado nuevo detalle");
+						    	        this.actualizarProductoBasePresupuestoAumentar(detalleNuevo.getProducto().getId(), cantidadNueva);
+						    	    }else if("CERRADO".equals(entity.getEstado())) {
+							        	System.out.println("CERRADO nuevo detalle");
 
-					                this.actualizarProductoBasePresupuestoAumentar(detalleNuevo.getProducto().getId(), cantidadNueva);
-					            }
+						    	    }else if("ABIERTO".equals(entity.getEstado())) {
+							        	System.out.println("ABIERTO nuevo detalle");
+						    	    }
+						    }
 
-					        } else if ("CERRADO".equals(entity.getEstado())) {
-					            if (detalleAnteriorOpt.isPresent()) {
-					                double cantidadAnterior1 = detalleAnteriorOpt.get().getCantidad();
+						    // Resto de lógica: IVA, tipo precio, guardado
+						    if ("10 %".equals(detalleNuevo.getIva())) {
+						        total10 += Utilidades.calcularIvaDies(detalleNuevo.getSubTotal());
+						        detalleNuevo.setMontoIva(Utilidades.calcularIvaDies(detalleNuevo.getSubTotal()));
+						    } else if ("5 %".equals(detalleNuevo.getIva())) {
+						        total5 += Utilidades.calcularIvaCinco(detalleNuevo.getSubTotal());
+						        detalleNuevo.setMontoIva(Utilidades.calcularIvaCinco(detalleNuevo.getSubTotal()));
+						    } else {
+						        detalleNuevo.setMontoIva(0.0);
+						    }
 
-					                if (cantidadNueva > cantidadAnterior1) {
-					                    // Aumentó → descontar solo la diferencia
-					                    this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadAnterior1);
-					                } else if (cantidadNueva == cantidadAnterior1) {
-					                    // Igual → descontar toda la cantidad
-					                    this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadAnterior1);
-					                } else {
-					                    // Cantidad nueva < anterior → descontar solo lo anterior
-					                    this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadAnterior1);
-					                }
-					            } else {
-					                // Producto nuevo → descontar toda la cantidad nueva
-					                //this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadNueva);
-					            }
-					        }
-
-					        // Calcular IVA
-					        if (detalleNuevo.getIva().equals("10 %")) {
-					            total10 += Utilidades.calcularIvaDies(detalleNuevo.getSubTotal());
-					            detalleNuevo.setMontoIva(Utilidades.calcularIvaDies(detalleNuevo.getSubTotal()));
-					        } else if (detalleNuevo.getIva().equals("5 %")) {
-					            total5 += Utilidades.calcularIvaCinco(detalleNuevo.getSubTotal());
-					            detalleNuevo.setMontoIva(Utilidades.calcularIvaCinco(detalleNuevo.getSubTotal()));
-					        } else if (detalleNuevo.getIva().equals("Exenta")) {
-					            detalleNuevo.setMontoIva(0.0);
-					        }
-
-					        detalleNuevo.setTipoPrecio(validarPrecio(detalleNuevo.getProducto().getId(), detalleNuevo.getPrecio()));
-					        detalleNuevo.getPresupuesto().setId(idVent);
-					        detalleProductoRepository.save(detalleNuevo);
-					    }
+						    detalleNuevo.setTipoPrecio(validarPrecio(detalleNuevo.getProducto().getId(), detalleNuevo.getPrecio()));
+						    detalleNuevo.getPresupuesto().setId(idVent);
+						    detalleProductoRepository.save(detalleNuevo);
+						}
 					}
 					if(entity.getDetallePresupuestoServicio().size()>0){
 						for(DetallePresupuestoServicio detalleServicio: entity.getDetallePresupuestoServicio()) {
@@ -653,26 +651,62 @@ public class PresupuestoController {
 					//eliminarDetallePorCabecera(entity.getId());
 					double total10=0, total5=0, totalDescuento=0;
 					if(entity.getDetallePresupuestoProducto().size()>0){
-						//	actualizarLoteDocumento(entity.getDocumento().getId(), entity.getNroDocumento());
-						for(DetallePresupuestoProducto detalleProducto: entity.getDetallePresupuestoProducto()) {
-							detalleProducto.getPresupuesto().setId(idVent);
-							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
-							if(detalleProducto.getIva().equals("10 %")) {
-								total10 = total10 + Utilidades.calcularIvaDies(detalleProducto.getSubTotal()); 
-								detalleProducto.setMontoIva(Utilidades.calcularIvaDies(detalleProducto.getSubTotal()));
-							}
-							if(detalleProducto.getIva().equals("5 %")) {
-								total5 = total5 + Utilidades.calcularIvaCinco(detalleProducto.getSubTotal());
-								detalleProducto.setMontoIva(Utilidades.calcularIvaCinco(detalleProducto.getSubTotal()));
-							}
-							if(detalleProducto.getIva().equals("Exenta")) {
-								detalleProducto.setMontoIva(0.0);
-							}
-							detalleProductoRepository.save(detalleProducto);
-							this.actualizarProductoBasePresupuestoAumentar(detalleProducto.getProducto().getId(), detalleProducto.getCantidad());
+						List<DetallePresupuestoProducto> detallesAnteriores =
+					            detalleProductoRepository.getDeallePresupuestoProductoPorIdCabecera(entity.getId());
+					    for (DetallePresupuestoProducto detalleNuevo : entity.getDetallePresupuestoProducto()) {
 
-						
-						}
+						    Optional<DetallePresupuestoProducto> detalleAnteriorOpt = detallesAnteriores.stream()
+						            .filter(d -> Objects.equals(d.getProducto().getId(), detalleNuevo.getProducto().getId()))
+						            .findFirst();
+
+						    double cantidadNueva = detalleNuevo.getCantidad();
+
+						    if (detalleAnteriorOpt.isPresent()) {
+						        DetallePresupuestoProducto detalleAnterior = detalleAnteriorOpt.get();
+						        double cantidadAnterior = detalleAnterior.getCantidad();
+						        String estadoAnterior = detalleAnterior.getPresupuesto().getEstado(); // asumimos que cada detalle tiene un campo estado
+						        System.out.println("ESTADOO ANTERIOR : "+estadoAnterior);
+						        
+						        if ("FINALIZADO".equals(entity.getEstado())) {
+						            System.out.println("finalizado edit detalle");
+						            double diferencia = cantidadNueva - cantidadAnterior;
+						            this.actualizarProductoBasePresupuestoAumentar(detalleNuevo.getProducto().getId(), cantidadNueva);
+						           
+						        }else if("CERRADO".equals(entity.getEstado())) {
+						            System.out.println("cerrado edit detalle");  
+						        	this.actualizarProductoBasePresupuestoDescontar(detalleNuevo.getProducto().getId(), cantidadAnterior);
+						            
+						        }else if("ABIERTO".equals(entity.getEstado())) {
+						        	
+						        }
+
+						    } else {
+						    	    if ("FINALIZADO".equals(entity.getEstado())) {
+							        	System.out.println("finalizado nuevo detalle");
+						    	        this.actualizarProductoBasePresupuestoAumentar(detalleNuevo.getProducto().getId(), cantidadNueva);
+						    	    }else if("CERRADO".equals(entity.getEstado())) {
+							        	System.out.println("CERRADO nuevo detalle");
+
+						    	    }else if("ABIERTO".equals(entity.getEstado())) {
+							        	System.out.println("ABIERTO nuevo detalle");
+						    	    }
+						    }
+
+						    // Resto de lógica: IVA, tipo precio, guardado
+						    if ("10 %".equals(detalleNuevo.getIva())) {
+						        total10 += Utilidades.calcularIvaDies(detalleNuevo.getSubTotal());
+						        detalleNuevo.setMontoIva(Utilidades.calcularIvaDies(detalleNuevo.getSubTotal()));
+						    } else if ("5 %".equals(detalleNuevo.getIva())) {
+						        total5 += Utilidades.calcularIvaCinco(detalleNuevo.getSubTotal());
+						        detalleNuevo.setMontoIva(Utilidades.calcularIvaCinco(detalleNuevo.getSubTotal()));
+						    } else {
+						        detalleNuevo.setMontoIva(0.0);
+						    }
+
+						    detalleNuevo.setTipoPrecio(validarPrecio(detalleNuevo.getProducto().getId(), detalleNuevo.getPrecio()));
+						    detalleNuevo.getPresupuesto().setId(idVent);
+						    detalleProductoRepository.save(detalleNuevo);
+					    }
 					}
 
 					if(entity.getDetallePresupuestoServicio().size()>0){

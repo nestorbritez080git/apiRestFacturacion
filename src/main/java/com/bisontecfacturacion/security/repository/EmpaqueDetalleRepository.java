@@ -18,5 +18,7 @@ import com.bisontecfacturacion.security.model.Producto;
 
 public interface EmpaqueDetalleRepository extends JpaRepository<EmpaqueDetalle, Serializable>{
 	public abstract EmpaqueDetalle findTop1ByOrderByIdDesc();
+	
+	
 
 }

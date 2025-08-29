@@ -27,15 +27,29 @@ public class EmpaqueDetalle {
 	private Presupuesto presupuesto;
 	private Double subtotalPresupuesto;
 	private int itemsPedidoDetalle;
+	private int ventaReferencia;
 	public EmpaqueDetalle() {
 		this.id=0;
 		this.presupuesto= new Presupuesto();
 		this.empaqueCabecera = new EmpaqueCabecera();
 		this.subtotalPresupuesto =0.0;
 		this.itemsPedidoDetalle=0;
+		this.ventaReferencia=0;
 	}
 
 	
+
+	public int getVentaReferencia() {
+		return ventaReferencia;
+	}
+
+
+
+	public void setVentaReferencia(int ventaReferencia) {
+		this.ventaReferencia = ventaReferencia;
+	}
+
+
 
 	public int getItemsPedidoDetalle() {
 		return itemsPedidoDetalle;

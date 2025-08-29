@@ -25,7 +25,7 @@ public class OperacionCaja {
 	@NotNull
 	private double monto;
 	@NotNull
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fecha;
 	@ManyToOne
 	private Concepto concepto;
