@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.bisontecfacturacion.security.model.Anticipo;
 import com.bisontecfacturacion.security.model.PlanillaSalarioFuncionarioDetalle;
 
 public interface PlanillaSalarioFuncionarioDetalleRepository extends JpaRepository<PlanillaSalarioFuncionarioDetalle, Serializable>{

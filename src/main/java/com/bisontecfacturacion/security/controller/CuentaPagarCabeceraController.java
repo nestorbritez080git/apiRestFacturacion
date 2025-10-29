@@ -25,18 +25,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Reporte;
-import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.Compra;
-import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
-import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.CuentaPagarCabecera;
 import com.bisontecfacturacion.security.model.CuentaPagarDetalle;
 import com.bisontecfacturacion.security.model.DetalleCompra;
-import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.PagosProveedorCabecera;
 import com.bisontecfacturacion.security.model.Usuario;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.CompraRepository;
 import com.bisontecfacturacion.security.repository.CuentaPagarCabeceraRepository;
 import com.bisontecfacturacion.security.repository.CuentaPagarDetalleRepository;
@@ -290,6 +285,7 @@ public class CuentaPagarCabeceraController {
 			cuenta.getProveedor().getPersona().setNombre(cue[3].toString()+" "+ cue[4].toString());
 			cuenta.getProveedor().setId(Integer.parseInt(cue[5].toString()));
 			cuenta.getProveedor().getPersona().setCedula(cue[6].toString());
+			cuenta.getProveedor().getPersona().setTelefono(cue[7].toString());
 			listadoRetorno.add(cuenta);
 		}
 		return listadoRetorno;
@@ -326,8 +322,8 @@ public class CuentaPagarCabeceraController {
 			cuenta.getProveedor().getPersona().setNombre(cue[3].toString()+" "+ cue[4].toString());
 			cuenta.getProveedor().setId(Integer.parseInt(cue[5].toString()));
 			cuenta.getProveedor().getPersona().setCedula(cue[6].toString());
-			cuenta.getProveedor().getPersona().setTelefono(cue[7].toString());
-			cuenta.getProveedor().getPersona().setDireccion(cue[8].toString());
+			cuenta.getProveedor().getPersona().setDireccion(cue[7].toString());
+			cuenta.getProveedor().getPersona().setTelefono(cue[8].toString());
 			cuenta.getProveedor().setNumeroCuenta(cue[9].toString());
 			listadoRetorno.add(cuenta);
 		}
@@ -378,6 +374,10 @@ public class CuentaPagarCabeceraController {
 			cuenta.getCompra().setFecha(cue.getCompra().getFecha());
 			cuenta.getCompra().setFechaFactura(cue.getCompra().getFechaFactura());
 			cuenta.getCompra().setId(cue.getCompra().getId());
+			cuenta.getCompra().setEntrega(cue.getCompra().getEntrega());
+			cuenta.setEntrega(cue.getEntrega());
+			cuenta.getCompra().setTotal(cue.getCompra().getTotal());
+			cuenta.getCompra().getDocumento().setDescripcion(cue.getCompra().getDocumento().getDescripcion());
 //			cuenta.getCompra().setFecha(sumarDia(cue.getFecha(), (24 * cue.getTipoPlazo().getValor())));
 			cuenta.getTipoPlazo().setValor(validarDiaAtraso(cuenta.getCompra().getFecha()));
 			System.out.println("Cuneta dia atraso:  "+cuenta.getTipoPlazo().getValor());
@@ -418,6 +418,9 @@ public class CuentaPagarCabeceraController {
 			cuenta.setPagado(Double.parseDouble(cue[4].toString()));
 			cuenta.setSaldo(Double.parseDouble(cue[5].toString()));
 			cuenta.setFecha(FechaUtil.convertirFechaStringADateUtil(cue[8].toString()));
+			cuenta.getProveedor().getPersona().setCedula(cue[9].toString());
+			cuenta.getProveedor().getPersona().setTelefono(cue[10].toString());
+
 			listadoRetorno.add(cuenta);
 		}
 		return listadoRetorno;
@@ -460,6 +463,34 @@ public class CuentaPagarCabeceraController {
 		
 		return retorno;
 	}
+	
+	
+	@RequestMapping(method = RequestMethod.GET, value="/buscarCuentaCompra/{id}")
+	public CuentaPagarCabecera getCuentaPorCompraId(@PathVariable int id){
+		CuentaPagarCabecera c = entityRepository.buscarCuentaPagarPorCompraId(id);
+		CuentaPagarCabecera retorno= null;
+		if (c!=null) {
+			retorno = new CuentaPagarCabecera();
+			retorno.setId(c.getId());
+			retorno.setTotal(c.getTotal()); 
+			retorno.setPagado(c.getPagado());
+			retorno.setSaldo(c.getSaldo());
+			retorno.setEntrega(c.getEntrega());
+			retorno.setFecha(c.getFecha());
+			retorno.setCompra(c.getCompra());
+			retorno.setTipoPlazo(c.getTipoPlazo());
+			retorno.setProveedor(c.getProveedor());
+			retorno.setFuncionario(c.getFuncionario());
+			retorno.setFraccionCuota(c.getFraccionCuota());
+			retorno.setFecha(c.getFecha());
+			//retorno.getCompra().setFecha(sumarDia(c.getFecha(), (24 * c.getTipoPlazo().getValor())));
+			retorno.getTipoPlazo().setValor(validarDiaAtraso(c.getCompra().getFecha()));
+					System.out.println("Cuneta dia atraso:  "+c.getTipoPlazo().getValor());
+		}
+		
+		return retorno;
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, value="/listado/{idProveedor}/{tipo}")
 	public List<CuentaPagarCabecera> getCuentaCabeceraPorProveedor(@PathVariable int idProveedor, @PathVariable int tipo){
 		List<Object []> lis = new ArrayList<>();
@@ -528,11 +559,16 @@ public class CuentaPagarCabeceraController {
 
 	@RequestMapping(method=RequestMethod.GET, value="/id/{id}")
 	public CuentaPagarCabecera  getCuentaCobrarID(@PathVariable int id){
-		CuentaPagarCabecera c=entityRepository.findById(id).get();
+		CuentaPagarCabecera c=entityRepository.buscarCuentaPagarPorCabeceraId(id);
 		CuentaPagarCabecera cuenta=new CuentaPagarCabecera();
 		cuenta.setId(c.getId());
+		cuenta.setEntrega(c.getEntrega());
+		cuenta.setFecha(c.getFecha());
+		cuenta.setFuncionario(c.getFuncionario());
+		cuenta.setCompra(c.getCompra());
 		System.out.println("iiid  proveeedoorroror :   "+c.getProveedor().getId());
 		cuenta.getProveedor().setId(c.getProveedor().getId());
+		cuenta.getProveedor().getPersona().setCedula(c.getProveedor().getPersona().getCedula());
 		cuenta.getProveedor().getPersona().setNombre(c.getProveedor().getPersona().getNombre());
 		cuenta.getProveedor().getPersona().setApellido(c.getProveedor().getPersona().getApellido());
 		cuenta.setTotal(c.getTotal());

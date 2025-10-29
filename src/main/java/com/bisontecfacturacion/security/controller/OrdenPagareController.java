@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.OrdenPagare;
-import com.bisontecfacturacion.security.repository.CuentaAcobrarRepository;
 import com.bisontecfacturacion.security.repository.OrdenPagareRepository;
 
 @EnableAsync

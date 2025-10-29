@@ -64,7 +64,7 @@ public interface DevolucionVentaRepository extends JpaRepository<DevolucionVenta
 	@Modifying
     @Transactional(readOnly=false)
     @Query("update DetalleProducto set cantidad_devolucion = cantidad_devolucion +:cantidad where id=:id")
-    public void findeByCantidadDevolucionDetalleProducto(@Param("id")int id, @Param("cantidad") Double cantidad);
+    public void findeByCantidadDevolucionDetalleProductosss(@Param("id")int id, @Param("cantidad") Double cantidad);
 	
 	
 	@Query(value = "select v.id as idVenta, pc.nombre || ' ' || pc.apellido as cliente, v.total as totalVenta, dv.id as idDev, dv.fecha as fecDev, dv.total as totalDev, tp.descripcion as tipoDev, tp.id as idTipo  from devolucion_venta dv inner join venta v on dv.venta_id=v.id inner join cliente cl on cl.id=v.cliente_id inner join persona pc on pc.id=cl.persona_id inner join tipo_devolucion tp on tp.id=dv.tipo_devolucion_id where dv.id=:id", nativeQuery = true)

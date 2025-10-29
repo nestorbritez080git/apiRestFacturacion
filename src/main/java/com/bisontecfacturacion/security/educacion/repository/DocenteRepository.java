@@ -8,10 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.educacion.model.Alumno;
-import com.bisontecfacturacion.security.educacion.model.Carrera;
 import com.bisontecfacturacion.security.educacion.model.Docente;
-import com.bisontecfacturacion.security.educacion.model.TipoCarrera;
-import com.bisontecfacturacion.security.hoteleria.model.CategoriaHabitaciones;
 
 public interface DocenteRepository extends JpaRepository<Docente, Serializable> {
 	@Query("select f from  Docente f")

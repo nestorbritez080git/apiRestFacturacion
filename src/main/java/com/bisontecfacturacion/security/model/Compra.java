@@ -31,6 +31,8 @@ public class Compra {
 	private Date fechaFactura;
 	
 	private String hora;
+	private double entrega;
+
 	private double total;
 	private String nroDocumento;
 	private String estado;
@@ -56,6 +58,8 @@ public class Compra {
 	
 	@ManyToOne
 	private Documento documento;
+	private int operacionCaja;
+
 
 	public Compra() {
 		super();
@@ -66,6 +70,7 @@ public class Compra {
 		this.fecha=new Date();
 		this.estado="FACTURAR";
 		this.total=0.0;
+		this.entrega=0.0;
 		this.hora="";
 		this.proveedor=new Proveedor();
 		this.funcionario=new Funcionario();
@@ -76,6 +81,26 @@ public class Compra {
 		this.totalExcenta=0.0;
 		this.totalLetra="";
 		this.valorCotizacion=0.0;
+		this.operacionCaja=0;
+	}
+	
+
+	public double getEntrega() {
+		return entrega;
+	}
+
+
+	public void setEntrega(double entrega) {
+		this.entrega = entrega;
+	}
+
+
+	public int getOperacionCaja() {
+		return operacionCaja;
+	}
+
+	public void setOperacionCaja(int operacionCaja) {
+		this.operacionCaja = operacionCaja;
 	}
 
 	public String getTotalLetra() {

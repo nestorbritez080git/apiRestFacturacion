@@ -17,7 +17,7 @@ public class DetallePresupuestoProducto {
 		@Id
 		@GeneratedValue(generator = "increment")
 		@GenericGenerator(name = "increment", strategy = "increment")
-		private int id;
+		private Integer id;
 		
 		@ManyToOne
 		private Producto producto;
@@ -67,12 +67,12 @@ public class DetallePresupuestoProducto {
 		}
 
 
-		public int getId() {
+		public Integer getId() {
 			return id;
 		}
 
 
-		public void setId(int id) {
+		public void setId(Integer id) {
 			this.id = id;
 		}
 

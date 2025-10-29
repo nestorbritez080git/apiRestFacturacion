@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 public class DetallePresupuestoServicio {
 	
@@ -36,6 +38,7 @@ public class DetallePresupuestoServicio {
 		private String obs;
 		@ManyToOne
 		private Funcionario funcionario;
+		@JsonIgnoreProperties("presupuesto")
 		@ManyToOne
 		private Presupuesto presupuesto;
 

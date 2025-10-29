@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,13 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.CuentaProveedor;
 import com.bisontecfacturacion.security.model.AperturaCaja;
-import com.bisontecfacturacion.security.model.CobrosCliente;
-import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.Concepto;
-import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.CuentaPagarCabecera;
 import com.bisontecfacturacion.security.model.CuentaPagarDetalle;
-import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.PagosProveedor;
 import com.bisontecfacturacion.security.model.PagosProveedorCabecera;

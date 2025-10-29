@@ -17,5 +17,8 @@ public interface PresupuestoDetalleProductoRepository extends JpaRepository<Deta
 	List<DetallePresupuestoProducto> getDeallePresupuestoProductoPorIdCabecera(@Param("id") int id);
 	@Query("SELECT c FROM DetallePresupuestoServicio c WHERE presupuesto_id=:id")
 	List<DetallePresupuestoServicio> getDeallePresupuestoServicioPorIdCabecera(@Param("id") int id);
-	
+	@Query("SELECT d FROM DetallePresupuestoProducto d " +
+		       "JOIN FETCH d.presupuesto p " +
+		       "WHERE d.id = :id")
+	DetallePresupuestoProducto getDetalleConPresupuestoCabecera(@Param("id") int id);
 }

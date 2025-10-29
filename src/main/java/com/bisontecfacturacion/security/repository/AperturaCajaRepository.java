@@ -20,10 +20,10 @@ public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Seri
 	@Query("select a from AperturaCaja a INNER JOIN a.funcionario as fun where a.estado = true and a.estadoAnulacion = false AND fun.id<>:idDistinto")
 	public List<AperturaCaja> getAperturaCajaActivoIdDistinto(@Param("idDistinto")int idDistinto);
 
-	@Query("select a from AperturaCaja a where funcionario_id=:idFuncionario order by id desc")
+	@Query(value = "select * from apertura_caja a where a.funcionario_id=:idFuncionario order by a.id desc limit 20", nativeQuery = true)
 	public List<AperturaCaja> getAperturaCajaPorFuncionario(@Param("idFuncionario")int idFuncionario);
 	
-	public abstract List<AperturaCaja>findTop100ByOrderByIdDesc();
+	public abstract List<AperturaCaja>findTop20ByOrderByIdDesc();
 	
 	@Query(value = "select * from apertura_caja v inner join caja c on c.id= v.caja_id inner join funcionario fp on fp.id= v.funcionario_id inner join persona pf on pf.id = fp.persona_id where extract(year from cast(v.fecha as Date))=:anho AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia  order by v.id desc", nativeQuery = true)
 	List<AperturaCaja>getAperturaPorFecha(@Param("anho") int ano, @Param("mes") int mes, @Param("dia") int dia); 
@@ -120,12 +120,16 @@ public interface AperturaCajaRepository extends JpaRepository<AperturaCaja, Seri
 	
 	
    
-	@Query("select c from AperturaCaja c where id=:id")
+	@Query("select c from AperturaCaja c where c.id=:id")
 	AperturaCaja getAperturaCajaPorIdCaja(@Param("id") int id);
 	
 	
 	@Query(value="select v.id from apertura_caja v order by v.id desc limit 1", nativeQuery = true)
 	int getUltimaAperturaCaja();
+	
+	
+	@Query(value="select * from apertura_caja aper inner join funcionario fun on fun.id=aper.funcionario_id inner join persona pf on pf.id=fun.persona_id where pf.nombre ilike :descripcion or pf.apellido ilike :descripcion or pf.cedula ilike :descripcion or cast(aper.id AS VARCHAR)   ilike :descripcion   order by aper.id desc  limit 50",nativeQuery=true)
+	List<AperturaCaja>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
 	
 	
 }

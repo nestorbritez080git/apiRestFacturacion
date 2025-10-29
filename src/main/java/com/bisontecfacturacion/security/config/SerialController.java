@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.aspectj.weaver.patterns.PerSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -221,27 +220,24 @@ public class SerialController {
 
 
 	private boolean validacionFechaRegsitro() {
-		Serial serial= entityRepository.findById(1).orElse(null);
-		Long fechaUltt= Long.parseLong(serial.getUltRegistro()); 
-		Date fe= new Date();
-		SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
-		String fechass = formater.format(fe);
+	    Serial serial = entityRepository.findById(1).orElse(null);
+	    if (serial == null || serial.getUltRegistro() == null) {
+	        return false;
+	    }
 
-		//Long fechRegActual = FechaUtil.convertirFechaStringADateUtil(fechass).getTime();
-		Calendar ca = Calendar.getInstance();
-		Date fecUlt = new Date(fechaUltt);
-		ca.setTime(fecUlt);
-		ca.set(Calendar.HOUR_OF_DAY, 0);
-		ca.set(Calendar.MINUTE, 0);
-		ca.set(Calendar.SECOND, 0);
-		System.out.println(fecUlt+ " fecha ult reg");
-		System.out.println(fe+ " feca actual");
+	    Long fechaUltt = Long.parseLong(serial.getUltRegistro()); 
+	    Date fecUlt = new Date(fechaUltt);
 
-		if(fe.getTime() >= ca.getTimeInMillis()) {
-			return true;
-		}else {
-			return false;
-		}
+	    // Formato para comparar solo fecha
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	    String fechaUltStr = sdf.format(fecUlt);
+	    String fechaActualStr = sdf.format(new Date());
+
+	    System.out.println("Ult Registro: " + fechaUltStr);
+	    System.out.println("Fecha Actual: " + fechaActualStr);
+
+	    // Si la fecha actual es >= a la última registrada, ok
+	    return !(fechaActualStr.compareTo(fechaUltStr) < 0);
 	}
 
 

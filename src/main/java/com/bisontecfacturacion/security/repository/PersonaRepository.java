@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bisontecfacturacion.security.model.Persona;
-import com.bisontecfacturacion.security.model.Venta;
 @Repository
 public interface PersonaRepository extends JpaRepository<Persona, Serializable>{
 	

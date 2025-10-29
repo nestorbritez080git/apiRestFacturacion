@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bisontecfacturacion.security.model.InteresCuota;
 import com.bisontecfacturacion.security.model.LimitesRegistroLista;
 import com.bisontecfacturacion.security.repository.LimitesRegistroListaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;

@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bisontecfacturacion.security.model.AjusteInventario;
-import com.bisontecfacturacion.security.model.DevolucionVenta;
 @Repository
 public interface AjusteInventarioRepository extends JpaRepository<AjusteInventario, Serializable>{
 	

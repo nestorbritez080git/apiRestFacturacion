@@ -14,7 +14,6 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -75,10 +74,18 @@ public class Venta {
 	private Double entrega;
 	
 	private Double totalDescuento;
+	
 	private Double totalIvaCinco;
+	private Double grabadoIvaCinco;
+
+	private Double grabadoIvaDies;
 	private Double totalIvaDies;
-	private String totalLetra;
+
+	private Double grabadoExcenta;
 	private Double totalExcenta;
+
+	private String totalLetra;
+
 	private Double totalIva;
 	private Double totalDevolucion;
 
@@ -113,8 +120,41 @@ public class Venta {
 		this.totalLetra="";
 		this.entrega=0.0;
 		this.obs="";
+		this.grabadoIvaDies=0.0;
+		this.grabadoIvaCinco=0.0;
+		this.grabadoExcenta=0.0;
 	}
 	
+
+	public Double getGrabadoIvaCinco() {
+		return grabadoIvaCinco;
+	}
+
+
+	public void setGrabadoIvaCinco(Double grabadoIvaCinco) {
+		this.grabadoIvaCinco = grabadoIvaCinco;
+	}
+
+
+	public Double getGrabadoIvaDies() {
+		return grabadoIvaDies;
+	}
+
+
+	public void setGrabadoIvaDies(Double grabadoIvaDies) {
+		this.grabadoIvaDies = grabadoIvaDies;
+	}
+
+
+	public Double getGrabadoExcenta() {
+		return grabadoExcenta;
+	}
+
+
+	public void setGrabadoExcenta(Double grabadoExcenta) {
+		this.grabadoExcenta = grabadoExcenta;
+	}
+
 
 	public Zona getZona() {
 		return zona;

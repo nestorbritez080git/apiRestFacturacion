@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
-import com.bisontecfacturacion.security.model.Venta;
 @Transactional(readOnly=true)
 @Repository
 public interface GastoConsumicionesCabeceraRepository extends JpaRepository<GastoConsumicionesCabecera, Serializable> {

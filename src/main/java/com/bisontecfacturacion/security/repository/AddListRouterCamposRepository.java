@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.auxiliar.AddListRouterCampos;
-import com.bisontecfacturacion.security.model.Venta;
 
 public interface AddListRouterCamposRepository extends JpaRepository<AddListRouterCampos, Serializable> {
 	@Query(value="select * from add_list_router_campos det inner join add_list_router cab on cab.id=det.add_list_router_id where cab.id=:id", nativeQuery=true)

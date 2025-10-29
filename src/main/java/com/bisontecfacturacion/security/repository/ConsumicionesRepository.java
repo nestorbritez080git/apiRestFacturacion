@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.model.Consumiciones;
-import com.bisontecfacturacion.security.model.Grupo;
 
 public interface ConsumicionesRepository extends JpaRepository<Consumiciones, Serializable> {
 	@Query("select d from Consumiciones d where d.descripcion like :descripcion")

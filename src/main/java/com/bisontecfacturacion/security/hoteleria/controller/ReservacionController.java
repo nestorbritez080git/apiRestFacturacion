@@ -3,9 +3,7 @@ package com.bisontecfacturacion.security.hoteleria.controller;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +32,6 @@ import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.config.Utilidades;
-import com.bisontecfacturacion.security.hoteleria.model.Habitaciones;
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionAnulada;
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionDetalle;
@@ -43,25 +40,18 @@ import com.bisontecfacturacion.security.hoteleria.repository.ReservacionAnuladaR
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionCabeceraRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionDetalleRepository;
 import com.bisontecfacturacion.security.model.Cliente;
-import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Concepto;
-import com.bisontecfacturacion.security.model.DetalleProducto;
-import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
-import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Org;
-import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
-import com.bisontecfacturacion.security.repository.DetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
@@ -74,7 +64,6 @@ import com.bisontecfacturacion.security.repository.ReporteFormatoDatosRepository
 import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
-import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 
 @RestController
 @RequestMapping("reservacion")
@@ -160,19 +149,7 @@ public class ReservacionController {
 			
 		return listar(entityRepository.getReservacionesAllPreReservado());
 	}
-	@RequestMapping(method = RequestMethod.GET, value = "/aumentarEstadia/{id}")
-	public  ResponseEntity<?> getAumentarEstadia(@PathVariable int  id){
-		try {
-			ReservacionCabecera f = entityRepository.getOne(id);
-			f.setTotalHabitacion((f.getEstadia()+1)*f.getPrecio());
-			f.setTotal(((f.getEstadia()+1)*f.getPrecio())+(f.getTotalProducto()));
-			f.setEstadia(f.getEstadia()+1);
-			entityRepository.save(f);
-			return  new  ResponseEntity<String>(HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR AUMENTAR LA ESTADIA"), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/anularPreReservacion/{idPreReservacion}")
 	public  ResponseEntity<?> getAnularPreReservacion(@PathVariable int idPreReservacion){
 		try {
@@ -209,7 +186,7 @@ public class ReservacionController {
 				f.setTotalHabitacion((f.getEstadia()-1)*f.getPrecio());
 				f.setTotal(((f.getEstadia()-1)*f.getPrecio())+(f.getTotalProducto()));
 				f.setEstadia(f.getEstadia()-1);
-				entityRepository.save(f);
+				entityRepository.actualizarEstadiaModificacionDiaria(f.getTotal(),f.getTotalHabitacion(), f.getEstadia(), id);
 				return  new  ResponseEntity<String>(HttpStatus.CREATED);
 			}
 
@@ -217,8 +194,20 @@ public class ReservacionController {
 			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR DISMINUIR LA ESTADIA"), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	@RequestMapping(method = RequestMethod.GET, value = "/aumentarEstadia/{id}")
+	public  ResponseEntity<?> getSumarEstadia(@PathVariable int  id){
+		try {
+			ReservacionCabecera f = entityRepository.getOne(id);
+			f.setTotalHabitacion((f.getEstadia()+1)*f.getPrecio());
+			f.setTotal(((f.getEstadia()+1)*f.getPrecio())+(f.getTotalProducto()));
+			f.setEstadia(f.getEstadia()+1);
+			entityRepository.actualizarEstadiaModificacionDiaria(f.getTotal(),f.getTotalHabitacion(), f.getEstadia(), id);
+			return  new  ResponseEntity<String>(HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR AUMENTAR LA ESTADIA"), HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 
-
+	}
 
 	@RequestMapping(method=RequestMethod.POST, value="/detalleReservaciones")
 	public ResponseEntity<?> eliminarProducto(@RequestBody List<ReservacionDetalle> detalles){
@@ -247,7 +236,7 @@ public class ReservacionController {
 	}
 	@RequestMapping(method = RequestMethod.GET, value = "/buscarId/{id}")
 	public ReservacionCabecera getPorIdCabecera(@PathVariable int id){
-		ReservacionCabecera ob = entityRepository.findById(id).orElse(null);
+		ReservacionCabecera ob = entityRepository.getPorId(id);
 		ReservacionCabecera r=new ReservacionCabecera();
 		r.setId(ob.getId());
 		r.getFuncionarioRegistro().setId(ob.getFuncionarioRegistro().getId());
@@ -260,6 +249,7 @@ public class ReservacionController {
 		r.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
 		r.setEntrega(ob.getEntrega());
 		r.setEstado(ob.getEstado());
+		System.out.println("ressss : "+ob.getHabitacionesCategoriaCombo().getHabitaciones().getDescripcion());
 		r.setTipo(ob.getTipo());
 		r.setTotalHabitacion(ob.getTotalHabitacion());
 		r.setTotalProducto(ob.getTotalProducto());
@@ -279,6 +269,7 @@ public class ReservacionController {
 		r.setFechaEntrada(ob.getFechaEntrada());
 		r.setFechaFactura(ob.getFechaFactura());
 		r.setReferenciaOperacion(ob.getReferenciaOperacion());
+		r.setHabitacionesCategoriaCombo(ob.getHabitacionesCategoriaCombo());
 		
 		return r;
 
@@ -363,6 +354,7 @@ public class ReservacionController {
 	@RequestMapping(method = RequestMethod.POST, value = "/{numeroTerminal}/{idAper}")
 	public ResponseEntity<?> guardar(@RequestBody ReservacionCabecera entity, @PathVariable int numeroTerminal,  @PathVariable int idAper){
 		try {
+			Double totalGeneral =0.0;
 			
 			if(entity.getFuncionarioRegistro().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
@@ -383,6 +375,7 @@ public class ReservacionController {
 			} else if (entity.getEstadia()<=0){
 				return new ResponseEntity<>(new CustomerErrorType("EL NÚMERO DE ESTADIA DEBE SER MAYOR A CERO!"), HttpStatus.CONFLICT);
 			} else{
+				totalGeneral = totalGeneral + (entity.getEstadia()*entity.getPrecio());
 				for(int ind=0; ind < entity.getReservacionDetalles().size(); ind++) {
 					ReservacionDetalle pro = entity.getReservacionDetalles().get(ind);
 					if(pro.getCantidad() == null) {
@@ -392,6 +385,7 @@ public class ReservacionController {
 					}else if(pro.getPrecio() == null){
 						return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL DETALLE PRODUCTO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 					}
+					totalGeneral = (totalGeneral + (pro.getPrecio()* pro.getCantidad()- pro.getDescuento()));
 				}
 
 
@@ -588,7 +582,7 @@ public class ReservacionController {
 		if(venta.get(0).getDocumento().getId()==1) {
 			Reporte report = new Reporte();
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminal(numeroTerminal);
+			t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
@@ -634,7 +628,7 @@ public class ReservacionController {
 			if(siImpresion.equals("true")) {
 				Reporte report = new Reporte();
 				TerminalConfigImpresora t = new TerminalConfigImpresora();
-				t= terminalRepository.consultarTerminal(numeroTerminal);
+				t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
 				if (t==null) {
 					System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 				}else {

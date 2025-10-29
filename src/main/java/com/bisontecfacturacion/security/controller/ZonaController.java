@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
-import com.bisontecfacturacion.security.model.Persona;
 import com.bisontecfacturacion.security.model.Zona;
 import com.bisontecfacturacion.security.repository.ZonaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;

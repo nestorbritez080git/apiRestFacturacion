@@ -1,14 +1,15 @@
 package com.bisontecfacturacion.security.config;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
 import com.bisontecfacturacion.security.model.AutoImpresor;
-import com.bisontecfacturacion.security.model.AutoImpresorTipoRemision;
 
 @Entity
 public class TerminalConfigImpresora {
@@ -18,17 +19,18 @@ public class TerminalConfigImpresora {
 	private int id;
 	
 	@NotNull
+	@Column(unique = true) // 🔹 Esto ya asegura que sea único en la tabla
 	private int numeroTerminal;
 	@NotNull
 	private String impresora;
 	@NotNull
 	private String nombreImpresora;
 
-	private Boolean estadoAutoImpresor;
+	private Boolean estadoEmisionFactura;
 	private Boolean estadoAdicionArtVarios;
 	private Boolean estadoEdicionZona;
 		
-	@NotNull
+	@ManyToOne
 	private AutoImpresor autoImpresor;
 	public TerminalConfigImpresora() {
 		// TODO Auto-generated constructor stub
@@ -36,7 +38,7 @@ public class TerminalConfigImpresora {
 		this.numeroTerminal=0;
 		this.impresora="";
 		this.nombreImpresora="";
-		this.estadoAutoImpresor=false;
+		this.estadoEmisionFactura=false;
 		this.estadoAdicionArtVarios=false;
 		this.estadoEdicionZona= false;
 		this.autoImpresor = new AutoImpresor();
@@ -58,12 +60,13 @@ public class TerminalConfigImpresora {
 		this.estadoEdicionZona = estadoEdicionZona;
 	}
 
-	public Boolean getEstadoAutoImpresor() {
-		return estadoAutoImpresor;
+	
+	public Boolean getEstadoEmisionFactura() {
+		return estadoEmisionFactura;
 	}
 
-	public void setEstadoAutoImpresor(Boolean estadoAutoImpresor) {
-		this.estadoAutoImpresor = estadoAutoImpresor;
+	public void setEstadoEmisionFactura(Boolean estadoEmisionFactura) {
+		this.estadoEmisionFactura = estadoEmisionFactura;
 	}
 
 	public String getNombreImpresora() {

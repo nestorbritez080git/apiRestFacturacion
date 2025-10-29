@@ -11,8 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.model.NotaCredito;
-import com.bisontecfacturacion.security.model.Producto;
-import com.bisontecfacturacion.security.model.Venta;
 
 public interface NotaCreditoRepository extends JpaRepository<NotaCredito, Serializable>{
 	@Query(value="select * from nota_credito nota inner join cliente cli on cli.id=nota.cliente_id inner join persona pc on pc.id=cli.persona_id inner join funcionario fun on fun.id=nota.funcionario_id inner join persona pf on pf.id=fun.persona_id where nota.estado = 'ABIERTO' order by nota.id desc  limit 50",nativeQuery=true)

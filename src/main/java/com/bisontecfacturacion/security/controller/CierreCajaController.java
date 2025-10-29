@@ -11,7 +11,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.hssf.record.ObjRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +25,6 @@ import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxili
 import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
-import com.bisontecfacturacion.security.model.AperturaCaja;
 // import com.bisontecfacturacion.security.JwtTokenUtil;
 // import com.bisontecfacturacion.security.JwtUser;
 import com.bisontecfacturacion.security.model.CierreCaja;
@@ -46,7 +44,6 @@ import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.TesoreriaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
-import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 
 
 @RestController
@@ -91,7 +88,7 @@ public class CierreCajaController {
 		
 		List<CierreCaja> list= new ArrayList<>();
 		if(usuario.getAdministrador() == true) {
-			list = entityRepository.findTop100ByOrderByIdDesc();
+			list = entityRepository.findTop20ByOrderByIdDesc();
 		}
 		else{
 			list = entityRepository.getCierreCajaPorFuncionario(usuario.getFuncionario().getId());

@@ -6,16 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.bisontecfacturacion.security.model.CobrosCliente;
-import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
-import com.bisontecfacturacion.security.model.CuentaPagarCabecera;
-import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
-import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.PagosProveedor;
 
 

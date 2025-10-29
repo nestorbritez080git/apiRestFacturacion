@@ -1,13 +1,11 @@
 package com.bisontecfacturacion.security.hoteleria.controller;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.poi.ss.formula.functions.Now;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.hoteleria.model.CuentaCobrarCabeceraReservaciones;
 import com.bisontecfacturacion.security.hoteleria.model.CuentaCobrarDetalleReservaciones;
-import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
 import com.bisontecfacturacion.security.hoteleria.repository.CuentaCobrarCabeceraReservacionesRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.CuentaCobrarDetalleReservacionesRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionCabeceraRepository;
-import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
-import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 

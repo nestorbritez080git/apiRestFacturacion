@@ -24,9 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Reporte;
-import com.bisontecfacturacion.security.model.Anticipo;
-import com.bisontecfacturacion.security.model.AnticipoReferenciaCajaChica;
-import com.bisontecfacturacion.security.model.AnticipoReferenciaOperacionCaja;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CajaChica;
 import com.bisontecfacturacion.security.model.Concepto;

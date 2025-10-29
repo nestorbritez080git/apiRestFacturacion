@@ -2,7 +2,10 @@ package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
 
+import javax.persistence.LockModeType;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,7 +19,9 @@ public interface LoteBoletaRepository extends JpaRepository<LoteBoleta, Serializ
 	 public abstract LoteBoleta findTop1ByOrderByIdAsc();
 	 @Modifying
 	 @Transactional(readOnly=false)
-	 @Query("update LoteBoleta set numeroActual=:numeroActual where id=:id")
+	 @Query("update LoteBoleta lb set lb.numeroActual = :numeroActual where lb.id = :id")
 	 public void actualizarNumeroActual(@Param("numeroActual") String numeroActual,@Param("id") int id);
-
+	 @Query("SELECT l FROM LoteBoleta l ORDER BY l.id DESC")
+	 @Lock(LockModeType.PESSIMISTIC_WRITE)
+	 LoteBoleta findTop1ByOrderByIdDescForUpdate();
 }

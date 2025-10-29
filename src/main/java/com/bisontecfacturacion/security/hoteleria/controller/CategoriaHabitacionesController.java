@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.hoteleria.model.CategoriaHabitaciones;
 import com.bisontecfacturacion.security.hoteleria.repository.CategoriaHabitacionesRepository;
-import com.bisontecfacturacion.security.model.Anticipo;
-import com.bisontecfacturacion.security.model.Servicio;
-import com.bisontecfacturacion.security.repository.AnticipoRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 @RestController
 @RequestMapping("categoriaHabitaciones")
@@ -56,6 +53,7 @@ public class CategoriaHabitacionesController {
 		List<CategoriaHabitaciones> objeto=entityRepository.getBuscarPorDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
 		return listSer(objeto);
 	}
+	
 	public List<CategoriaHabitaciones> listSer(List<CategoriaHabitaciones> objeto) {
 		List<CategoriaHabitaciones> servi=new ArrayList<>();
 		for(CategoriaHabitaciones ob:objeto){

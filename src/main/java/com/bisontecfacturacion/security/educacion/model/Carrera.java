@@ -8,8 +8,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import com.bisontecfacturacion.security.hoteleria.model.Habitaciones;
-
 @Entity
 public class Carrera {
 	@Id

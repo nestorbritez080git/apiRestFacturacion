@@ -20,16 +20,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Reporte;
-import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
-import com.bisontecfacturacion.security.model.DetalleProducto;
-import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.LiquidacionAnticipo;
 import com.bisontecfacturacion.security.model.LiquidacionAnticipoDetalle;
-import com.bisontecfacturacion.security.model.LiquidacionServicioDetalle;
 import com.bisontecfacturacion.security.model.Org;
-import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Usuario;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AnticipoRepository;
 import com.bisontecfacturacion.security.repository.LiquidacionAnticipoDetalleRepository;
 import com.bisontecfacturacion.security.repository.LiquidacionAnticipoRepository;

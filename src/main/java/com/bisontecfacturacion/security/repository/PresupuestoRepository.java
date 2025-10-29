@@ -3,6 +3,7 @@ package com.bisontecfacturacion.security.repository;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -43,7 +44,7 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
 	
 	
 	
-	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.presupuesto_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca from detalle_presupuesto_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.presupuesto_id=:id ORDER BY dp.id DESC",nativeQuery=true)
+	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.presupuesto_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, p.precio_costo as costo from detalle_presupuesto_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.presupuesto_id=:id ORDER BY dp.id DESC",nativeQuery=true)
 	List<Object[]> listaDetallePresupuestoProducto(@Param("id") int id);
 	
 	@Query(value="select dp.servicio_id as idServ, "
@@ -70,6 +71,10 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
     @Query("update Presupuesto set estado=:estado where id=:id")
     public void cambiarEstado(@Param("id") int id, @Param("estado") String estado);
 	
+	@Modifying
+    @Transactional(readOnly=false)
+    @Query("update Presupuesto set total= total -:totalDescuento where id=:id")
+    public void actualizarTotalDescpuesDeEliminarDetalle(@Param("id") int id, @Param("totalDescuento") Double totalDescuento);
 	
 	@Query("SELECT p " + 
 			"    FROM Presupuesto  p " + 
@@ -93,8 +98,8 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
 		
 		
 		
-		@Query("select  c from Presupuesto c where zona_id=:id AND c.estado='FINALIZADO' order by id desc")
-		public List<Presupuesto> getPresupuestoPreVentaPorZona(@Param("id") int id);
+		@Query("select  c from Presupuesto c INNER JOIN c.cliente cli INNER JOIN cli.persona pCli  where zona_id=:id AND c.estado='FINALIZADO' order by c.id ASC")
+		public List<Presupuesto> getPresupuestoPreVentaPorZonas(@Param("id") int id);
 		
 		
 }

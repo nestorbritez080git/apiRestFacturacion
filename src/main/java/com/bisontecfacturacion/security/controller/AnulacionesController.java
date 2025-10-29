@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.FechaUtil;
-import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.model.AnulacionesVenta;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AnulacionesVentaRepository;
 
 @Transactional()

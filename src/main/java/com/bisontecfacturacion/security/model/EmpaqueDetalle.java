@@ -1,17 +1,13 @@
 package com.bisontecfacturacion.security.model;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -26,8 +22,20 @@ public class EmpaqueDetalle {
 	@ManyToOne
 	private Presupuesto presupuesto;
 	private Double subtotalPresupuesto;
+	private Double subtotalVenta;
+	private Integer itemsVentaDetalle;
+
 	private int itemsPedidoDetalle;
+
 	private int ventaReferencia;
+	private String condicion;
+	private String estado;
+	@ManyToOne
+	private Documento documento;
+
+	@ManyToOne(optional = true)   // 👈 permite null
+	@JoinColumn(name = "venta_id", nullable = true)
+	private Venta venta;
 	public EmpaqueDetalle() {
 		this.id=0;
 		this.presupuesto= new Presupuesto();
@@ -35,9 +43,89 @@ public class EmpaqueDetalle {
 		this.subtotalPresupuesto =0.0;
 		this.itemsPedidoDetalle=0;
 		this.ventaReferencia=0;
+		this.condicion="1";
+		this.estado="PENDIENTE";
+		this.documento = new Documento();
+		this.subtotalVenta=0.0;
+		this.itemsVentaDetalle=0;
+	}
+	
+	
+	public Double getSubtotalVenta() {
+		return subtotalVenta;
 	}
 
-	
+
+	public void setSubtotalVenta(Double subtotalVenta) {
+		this.subtotalVenta = subtotalVenta;
+	}
+
+
+
+
+	public Integer getItemsVentaDetalle() {
+		return itemsVentaDetalle;
+	}
+
+
+	public void setItemsVentaDetalle(Integer itemsVentaDetalle) {
+		this.itemsVentaDetalle = itemsVentaDetalle;
+	}
+
+
+	public Documento getDocumento() {
+		return documento;
+	}
+	public void setDocumento(Documento documento) {
+		this.documento = documento;
+	}
+	public String getEstado() {
+		return estado;
+	}
+
+
+
+
+
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
+
+
+
+
+
+	public String getCondicion() {
+		return condicion;
+	}
+
+
+
+
+
+	public void setCondicion(String condicion) {
+		this.condicion = condicion;
+	}
+
+
+
+
+
+	public Venta getVenta() {
+		return venta;
+	}
+
+
+
+
+
+	public void setVenta(Venta venta) {
+		this.venta = venta;
+	}
+
+
+
+
 
 	public int getVentaReferencia() {
 		return ventaReferencia;

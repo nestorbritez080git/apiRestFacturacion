@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.config.Utilidades;
 // import com.bisontecfacturacion.security.JwtTokenUtil;
 // import com.bisontecfacturacion.security.JwtUser;
 import com.bisontecfacturacion.security.model.AperturaCaja;
-import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.TransferenciaAperturaCaja;
@@ -34,7 +34,6 @@ import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaAperturaCajaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
-import com.sun.javafx.beans.IDProperty;
 
 @Transactional()
 @RestController
@@ -75,7 +74,7 @@ public class AperturaCajaController {
 	
 		List<AperturaCaja> list= new ArrayList<>();
 		if(usuario.getAdministrador() == true){
-			list = entityRepository.findTop100ByOrderByIdDesc();
+			list = entityRepository.findTop20ByOrderByIdDesc();
 		}
 		else{
 			list = entityRepository.getAperturaCajaPorFuncionario(usuario.getFuncionario().getId());
@@ -368,4 +367,54 @@ public class AperturaCajaController {
 	public String hora() {
 		return new SimpleDateFormat("HH:mm:ss a", Locale.US).format(new Date());
 	}
+	
+	
+	@RequestMapping(method=RequestMethod.POST, value = "/buscar/filtro")
+	public List<AperturaCaja> getAperturaCajaFiltro(OAuth2Authentication authentication, @RequestBody String descripcion){
+		
+		List<AperturaCaja> objeto= new ArrayList<>();
+		
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		if(usuario.getAdministrador() == true){
+			//list = entityRepository.findTop20ByOrderByIdDesc();
+			if (descripcion.equals("9999999999")) {
+				objeto=entityRepository.findTop20ByOrderByIdDesc();
+				//return product(objeto);
+			} else {
+				 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+				 System.out.println("FILTRO: "+filtro);
+				 objeto=entityRepository.getBuscarPorDescripcion(filtro);
+			}
+		}else{
+			objeto = entityRepository.getAperturaCajaPorFuncionario(usuario.getFuncionario().getId());
+			//list = entityRepository.getAperturaCajaPorFuncionario(usuario.getFuncionario().getId());
+		}
+			
+		
+		return product(objeto);
+	}
+
+	public List<AperturaCaja> product(List<AperturaCaja> objeto) {
+		List<AperturaCaja> producto=new ArrayList<>();
+		for(AperturaCaja ob:objeto){
+			AperturaCaja pp=new AperturaCaja();
+			pp.setId(ob.getId());
+			pp.setFuncionario(ob.getFuncionario());
+			pp.getFuncionario().setPersona(ob.getFuncionario().getPersona());
+			pp.setFecha(ob.getFecha());
+			pp.setEstado(ob.isEstado());
+			pp.setEstadoAnulacion(ob.isEstadoAnulacion());
+			pp.setHora(ob.getHora());
+			pp.setCaja(ob.getCaja());
+			pp.setSaldoInicial(ob.getSaldoInicial());
+			pp.setSaldoInicialCheque(ob.getSaldoInicialCheque());
+			pp.setSaldoInicialTarjeta(ob.getSaldoInicialTarjeta());
+			producto.add(pp);
+		}
+
+
+		return producto;
+	}
+
+	
 }

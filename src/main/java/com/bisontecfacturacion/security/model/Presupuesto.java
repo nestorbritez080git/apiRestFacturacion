@@ -1,7 +1,6 @@
 package com.bisontecfacturacion.security.model;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -36,6 +35,7 @@ public class Presupuesto {
 	private List<DetallePresupuestoProducto> detallePresupuestoProducto; 
 	
 	@OneToMany(mappedBy="presupuesto")
+	@JsonIgnoreProperties("presupuesto")
 	private List<DetallePresupuestoServicio> detallePresupuestoServicio; 
 	
 	

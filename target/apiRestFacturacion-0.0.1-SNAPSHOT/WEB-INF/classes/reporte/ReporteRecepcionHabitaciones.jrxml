@@ -205,14 +205,14 @@
 				</textElement>
 				<text><![CDATA[HASTA:]]></text>
 			</staticText>
-			<textField pattern="dd/MM/yyyy">
+			<textField pattern="dd/MM/yyyy hh:mm">
 				<reportElement x="1" y="89" width="99" height="11" uuid="410b76c7-a00e-47b9-a19c-7d390f608f89"/>
 				<textElement>
 					<font size="7"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{desde}]]></textFieldExpression>
 			</textField>
-			<textField pattern="dd/MM/yyyy">
+			<textField pattern="dd/MM/yyyy hh:mm">
 				<reportElement x="103" y="90" width="125" height="10" uuid="471a39b6-591f-442c-b5ed-ddaedc1a3236"/>
 				<textElement>
 					<font size="7"/>
@@ -402,7 +402,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{entrega})]]></textFieldExpression>
 			</textField>
-			<textField pattern="M/d/yy">
+			<textField pattern="dd/MM/yyyy hh:mm">
 				<reportElement x="123" y="0" width="60" height="9" uuid="bd9980ed-8fe4-4ea2-93e8-72086e6b079d">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
@@ -411,7 +411,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
 			</textField>
-			<textField pattern="M/d/yy">
+			<textField pattern="dd/MM/yyyy hh:mm">
 				<reportElement x="184" y="0" width="66" height="9" uuid="dbd69caf-143a-4eb5-93d0-036b5e6397c7">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>

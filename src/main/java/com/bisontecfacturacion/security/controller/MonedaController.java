@@ -1,5 +1,7 @@
 package com.bisontecfacturacion.security.controller;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
+import com.bisontecfacturacion.security.config.CotizacionesDTO;
 import com.bisontecfacturacion.security.model.Moneda;
 import com.bisontecfacturacion.security.repository.MonedaRepsitory;
 
@@ -18,6 +22,8 @@ import com.bisontecfacturacion.security.repository.MonedaRepsitory;
 @RestController
 @RequestMapping("moneda")
 public class MonedaController {
+    private final RestTemplate restTemplate = new RestTemplate();
+
 	@Autowired
 	private MonedaRepsitory entityRepository;
 	
@@ -37,4 +43,18 @@ public class MonedaController {
 		}
 		return new ResponseEntity<String>(HttpStatus.CREATED);
 	}
+	public List<CotizacionesDTO> obtenerCotizacionDelDia() {
+        String url = "https://www.bcp.gov.py/webapps/web/cotizacion/monedas";
+        ResponseEntity<CotizacionesDTO[]> response =
+                restTemplate.getForEntity(url, CotizacionesDTO[].class);
+        CotizacionesDTO[] cotizaciones = response.getBody();
+        if (cotizaciones != null) {
+        	 for (CotizacionesDTO dto : cotizaciones) {
+                 LocalDate fecha = LocalDate.parse(dto.getFecha(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                 System.out.println("det: compra venta: "+dto.getCompra()+ ", venta:"+dto.getVenta());
+        	 }
+        }
+       
+        throw new RuntimeException("No se pudo obtener la cotización del día");
+    }
 }

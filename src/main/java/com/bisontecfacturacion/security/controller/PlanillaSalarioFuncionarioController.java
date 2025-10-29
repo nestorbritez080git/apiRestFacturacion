@@ -15,10 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.AnticipoAuxiliar;
 import com.bisontecfacturacion.security.auxiliar.AnticipoDetalleAuxiliar;
-import com.bisontecfacturacion.security.model.Anticipo;
 import com.bisontecfacturacion.security.model.PlanillaSalarioFuncionario;
 import com.bisontecfacturacion.security.model.PlanillaSalarioFuncionarioDetalle;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.PlanillaSalarioFuncionarioDetalleRepository;
 import com.bisontecfacturacion.security.repository.PlanillaSalarioFuncionarioRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;

@@ -2,7 +2,6 @@ package com.bisontecfacturacion.security.hoteleria.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -10,13 +9,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
 import com.bisontecfacturacion.security.model.Cliente;
-import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.Documento;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.fasterxml.jackson.annotation.JsonFormat;

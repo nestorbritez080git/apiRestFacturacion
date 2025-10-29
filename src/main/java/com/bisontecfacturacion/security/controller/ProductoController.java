@@ -128,9 +128,41 @@ public class ProductoController {
 		}
 	}
 	
+	@RequestMapping(method=RequestMethod.GET, value = "/lista/compra")
+	public List<Producto> getAllListaCompra(){
+		List<Producto> objeto= new ArrayList<Producto>();
+		objeto=entityRepository.lista();
+		return product(objeto);
+		
+	}
+	@RequestMapping(method=RequestMethod.POST, value = "/lista/compra/{difuzze}")
+	public List<Producto> getAllListaCompraFiltro(@RequestBody String descripcion, @PathVariable Boolean difuzze){
+		List<Producto> objeto= new ArrayList<>();
+		if(difuzze == true) {
+			System.out.println("F-ALGORITMO-DIFUZZE");
+			if (descripcion.equals("")) {
+				objeto=entityRepository.listasLimites();
+				return product(objeto);
+			} else {
+				 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+				 System.out.println("FILTRO: "+filtro);
+				objeto=entityRepository.buscarPorDescripcionSimilar(filtro);
+				return product(objeto);
+			}
+		}else {
+			  System.out.println("FILTRO NORMAL: ");
+			if (descripcion.equals("")) {
+				objeto=entityRepository.listasLimites();
+				return product(objeto);
+			} else {
+				 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+				objeto=entityRepository.getBuscarPorDescripcion(filtro);
+				return product(objeto);
+			}
+		}
+	}
 	@RequestMapping(method=RequestMethod.GET, value = "/traerTodo")
 	public List<Producto> getAllListado(){
-		Impresora conf=repository.findById(2).get();
 		List<Producto> objeto= new ArrayList<Producto>();
 		objeto=entityRepository.listadoCompleto();
 		return productTraerTodo(objeto);

@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,11 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.CuentaCliente;
 import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
-import com.bisontecfacturacion.security.config.NumerosALetras;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.contabilidad.controller.AsientoContableServices;
-import com.bisontecfacturacion.security.contabilidad.model.AsientoContable;
 import com.bisontecfacturacion.security.contabilidad.model.AsientoContableDTO;
 import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.CobrosCliente;
@@ -39,19 +36,13 @@ import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
-import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
-import com.bisontecfacturacion.security.model.DetalleProducto;
-import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.Grupo;
 import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Org;
-import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.CobrosClienteCabeceraRepository;
@@ -70,7 +61,6 @@ import com.bisontecfacturacion.security.repository.TerminalConfigImpresoraReposi
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.FechaUtil;
 import com.bisontecfacturacion.security.service.IUsuarioService;
-import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 
 @Transactional
 @RestController
@@ -458,7 +448,7 @@ public class CobrosClienteController {
 
 		String tipoPago="";
 		System.out.println("Entro 1*******************");
-		Object[][] obResult = new Object[cuentas.size()][12];
+		Object[][] obResult = new Object[cuentas.size()][14];
 		int contador = 0;
 		List<Object[][]> listRes = new ArrayList<>();
 		Funcionario f = funcionarioRepository.getIdFuncionario(idUser);
@@ -532,6 +522,8 @@ public class CobrosClienteController {
 				obResult[i][9] = coACt.getId();
 				obResult[i][10] = coACt.getTotal();
 				obResult[i][11] = f.getId();
+				obResult[i][12] = cue.getVenta().getDocumento().getDescripcion();
+				obResult[i][13] = cue.getVenta().getNroDocumento();
 
 				System.out.println(obResult[i][0] + "" + obResult[i][1] + obResult[i][2] + obResult[i][3]);
 			} else {
@@ -646,6 +638,9 @@ public class CobrosClienteController {
 					obResult[i][9] = coAc.getId();
 					obResult[i][10] = operacioActualziar.getMonto();	
 					obResult[i][11] = f.getId();
+					obResult[i][12] = cue.getVenta().getDocumento().getDescripcion();
+					obResult[i][13] = cue.getVenta().getNroDocumento();
+
 					
 					System.out.println(obResult[i][0] + "" + obResult[i][1] + obResult[i][2] + obResult[i][3]);
 				}
@@ -660,7 +655,7 @@ public class CobrosClienteController {
 			}
 		}
 		System.out.println("Contador de lam matriz nueva " + contador);
-		Object[][] obResultadoNuevo = new Object[contador][12];
+		Object[][] obResultadoNuevo = new Object[contador][14];
 		List<Object[][]> listResNuevo = new ArrayList<>();
 		for (int i = 0; i < obResult.length; i++) {
 			if (obResult[i][0] != null) {
@@ -676,6 +671,8 @@ public class CobrosClienteController {
 				obResultadoNuevo[i][9] = obResult[i][9];
 				obResultadoNuevo[i][10] = obResult[i][10];
 				obResultadoNuevo[i][11] = obResult[i][11];
+				obResultadoNuevo[i][12] = obResult[i][12];
+				obResultadoNuevo[i][13] = obResult[i][13];
 
 			}
 		}
@@ -809,7 +806,7 @@ public class CobrosClienteController {
 			cobros.get(0).setFecha(new Date());
 			System.out.println("D-: "+cobros.get(0).getOperacionCaja().getTipoOperacion().getDescripcion());
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminal(numeroTerminal);
+			t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
@@ -888,7 +885,7 @@ public class CobrosClienteController {
 		ReporteConfig reportConfig = reporteConfigRepository.getOne(1);
 		List<CobrosCliente> venta = getLista(idVenta);
 		TerminalConfigImpresora t = new TerminalConfigImpresora();
-		t= terminalRepository.consultarTerminal(numeroterminal);
+		t= terminalRepository.consultarTerminalPorNumero(numeroterminal);
 		Map<String, Object> map = new HashMap<>();
 		System.out.println("entroooo imprimir "+ tipoImpresora);
 		

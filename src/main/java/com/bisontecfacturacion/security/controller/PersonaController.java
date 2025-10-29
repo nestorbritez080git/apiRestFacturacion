@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
-import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.Persona;
-import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.repository.PersonaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 
@@ -39,6 +37,10 @@ public class PersonaController {
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")
 	public Persona getPorId(@PathVariable int id){
 		return entityRepository.findById(id).get();
+	}
+	@RequestMapping(method=RequestMethod.GET,value="/buscarRucCedula/{ruc}")
+	public Persona getRucCEdulaPersona(@PathVariable String ruc){
+		return entityRepository.findByCedula(ruc);
 	}
 	
 	@RequestMapping(method=RequestMethod.POST)

@@ -1,6 +1,6 @@
 package com.bisontecflete;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.net.URL;
 

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.model.Deposito;
-import com.bisontecfacturacion.security.model.Grupo;
 
 public interface DepositoRepository extends JpaRepository<Deposito, Serializable>{
 	

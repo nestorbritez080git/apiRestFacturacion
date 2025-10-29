@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.educacion.model.Alumno;
-import com.bisontecfacturacion.security.educacion.model.Carrera;
 
 public interface AlumnoRepository extends JpaRepository<Alumno, Serializable> {
 

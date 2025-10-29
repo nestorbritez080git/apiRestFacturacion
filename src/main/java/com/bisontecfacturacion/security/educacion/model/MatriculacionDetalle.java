@@ -2,25 +2,17 @@ package com.bisontecfacturacion.security.educacion.model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
 
-import org.apache.poi.ss.formula.functions.Now;
 import org.hibernate.annotations.GenericGenerator;
 
-import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.Persona;
-import com.bisontecfacturacion.security.model.Venta;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

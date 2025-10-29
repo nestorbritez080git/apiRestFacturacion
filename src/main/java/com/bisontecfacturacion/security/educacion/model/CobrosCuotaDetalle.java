@@ -1,21 +1,11 @@
 package com.bisontecfacturacion.security.educacion.model;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
-
-import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.OperacionCaja;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class CobrosCuotaDetalle {

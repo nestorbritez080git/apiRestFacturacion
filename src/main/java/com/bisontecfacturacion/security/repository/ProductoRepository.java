@@ -1,7 +1,6 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -47,6 +46,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 	public abstract Producto findByDescripcion(String descripcion);
 	public abstract Producto findByCodbar(String codBar);
 	public abstract Producto findTop1ByOrderByIdDesc();
+	
+	@Query("SELECT p.existencia FROM Producto p WHERE p.id = :productoId")
+	Double getStockActual(@Param("productoId") int productoId);
 	
 	@Query(value="select * from producto where codbar=:codbar AND id <> :id limit 1", nativeQuery = true)
 	Producto verificarCodbarNuevo(@Param("codbar") String codbar, @Param("id") int id);

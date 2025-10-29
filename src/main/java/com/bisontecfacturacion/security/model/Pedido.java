@@ -1,6 +1,5 @@
 package com.bisontecfacturacion.security.model;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 

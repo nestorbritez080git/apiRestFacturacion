@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -18,7 +17,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.Timer;
 
 import javax.swing.filechooser.FileSystemView;
@@ -143,7 +141,7 @@ public static void main(String[] args) {
 		  ZonedDateTime ahora = ZonedDateTime.now(ZoneId.of("America/Asuncion"));
 	        System.out.println("Hora actual Asunción: " + ahora);
 	}
-	 @Scheduled(fixedDelay = 30000) // Cada 60 segundos
+	 //@Scheduled(fixedDelay = 30000) // Cada 60 segundos
 	    public void revisarHorarioBackup() {
 	        try {
 	            ConfigCopiaSeguridad config = configCopiaSeguridadRepository.findById(1).orElse(null);
@@ -200,12 +198,12 @@ public static void main(String[] args) {
 	            e.printStackTrace();
 	        }
 	    }
-	 @Scheduled(cron = "0 0 0 * * *") // A las 00:00 todos los días
+	 //@Scheduled(cron = "0 0 0 * * *") // A las 00:00 todos los días
 	    public void resetearEjecuciones() {
 	        backupsEjecutadosHoy.clear();
 	        System.out.println("Reseteo de registros de backups ejecutados");
 	 }
-	@Scheduled(cron = "0 59 2 * * *")
+	//@Scheduled(cron = "0 59 2 * * *")
 	public void crearCopiaAutomaticoo() {
 		try {
 	    	ConfigCopiaSeguridad copia = configCopiaSeguridadRepository.findById(1).orElse(null);
@@ -292,10 +290,8 @@ public static void main(String[] args) {
                 e.printStackTrace();
             }
         });
-
         stdoutThread.start();
         stderrThread.start();
-
         // Esperar que termine el proceso
         int exitCode = process.waitFor();
 

@@ -10,8 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.model.CobrosCliente;
 import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
-import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
-import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
 
 public interface CobrosClienteCabeceraRepository extends JpaRepository<CobrosClienteCabecera, Serializable>{
 	@Query(value="select * from cobros_cliente_cabecera v order by v.id desc limit 1", nativeQuery = true)

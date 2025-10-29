@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
-import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.Caja;
 import com.bisontecfacturacion.security.model.CajaChica;
 import com.bisontecfacturacion.security.model.Funcionario;
@@ -23,8 +22,6 @@ import com.bisontecfacturacion.security.repository.CajaChicaRepository;
 import com.bisontecfacturacion.security.repository.CajaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
-
-import groovyjarjarasm.asm.commons.Method;
 
 @RestController
 @RequestMapping("caja")

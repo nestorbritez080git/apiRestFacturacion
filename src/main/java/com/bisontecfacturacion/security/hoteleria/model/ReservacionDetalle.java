@@ -9,7 +9,6 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.bisontecfacturacion.security.model.Producto;
-import com.bisontecfacturacion.security.model.Venta;
 
 @Entity
 public class ReservacionDetalle {

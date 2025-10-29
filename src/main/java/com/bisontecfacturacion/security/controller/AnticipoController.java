@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Email;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,26 +28,16 @@ import com.bisontecfacturacion.security.model.Anticipo;
 import com.bisontecfacturacion.security.model.AnticipoReferenciaCajaChica;
 import com.bisontecfacturacion.security.model.AnticipoReferenciaOperacionCaja;
 import com.bisontecfacturacion.security.model.AnulacionesAnticipo;
-import com.bisontecfacturacion.security.model.AnulacionesVenta;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CajaChica;
 import com.bisontecfacturacion.security.model.Concepto;
-import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
-import com.bisontecfacturacion.security.model.DetalleProducto;
-import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.GastoConsumicionesReferenciaCajaChica;
-import com.bisontecfacturacion.security.model.GastoConsumicionesReferenciaOperacionCaja;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Org;
-import com.bisontecfacturacion.security.model.Periodo;
-import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.TransferenciaAnticipo;
-import com.bisontecfacturacion.security.model.TransferenciaGastos;
 import com.bisontecfacturacion.security.model.Usuario;
-import com.bisontecfacturacion.security.model.Venta;
-import com.bisontecfacturacion.security.repository.AnticipoReferenciaOperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.AnticipoReferenciaCajaChicaRepository;
+import com.bisontecfacturacion.security.repository.AnticipoReferenciaOperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.AnticipoRepository;
 import com.bisontecfacturacion.security.repository.AnulacionesAnticipoRepository;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
@@ -69,7 +58,6 @@ public class AnticipoController {
 	private Reporte report;
 	@Autowired
 	private AnticipoRepository entityRepository;
-	
 	@Autowired
 	private AnulacionesAnticipoRepository anulacionAnticipoRepository;
 	
@@ -101,18 +89,12 @@ public class AnticipoController {
 	private ConceptoRepository conceptoRepository;
 	@Autowired
 	private OperacionCajaRepository operacionCajaRepository;
-
-	
-	
 	@Autowired
 	private TransferenciaAnticipoRepository transferenciaAnticipoRepository;
-	
-	
 	@RequestMapping(method = RequestMethod.GET)
 	public List<Anticipo> getAnticipo(){
 		return cargarListado(entityRepository.consultarTodo());
 	}
-	
 	@RequestMapping(method = RequestMethod.GET, value = "/consultarId/{id}")
 	public Anticipo getId(@PathVariable int id){
 		return entityRepository.findById(id).get();

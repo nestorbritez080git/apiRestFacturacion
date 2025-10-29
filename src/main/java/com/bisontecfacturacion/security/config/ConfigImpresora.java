@@ -9,7 +9,6 @@ import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,9 +81,20 @@ public class ConfigImpresora {
 	public Impresora getAll(@PathVariable int id){
 		return repository.findById(id).get();
 	}
+	@RequestMapping(method=RequestMethod.GET, value="/terminalAutoImpresor/{numeroTerminal}")
+	public TerminalConfigImpresora getTerminalAutoImpresorPorNumeroTerminal(@PathVariable int numeroTerminal){
+		return terminalRepository.consultarTerminalEmisonFacturaPorTerminales(numeroTerminal);
+	}
+	
 	@RequestMapping(method=RequestMethod.GET, value="/terminal/{numeroTerminal}")
-	public TerminalConfigImpresora getTerminalConfigImpresoraPorNumneroTerminal(@PathVariable int numeroTerminal){
-		return terminalRepository.consultarTerminal(numeroTerminal);
+	public TerminalConfigImpresora getTerminalPorNumnero(@PathVariable int numeroTerminal){
+		return terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+	}
+	
+	
+	@RequestMapping(method=RequestMethod.GET, value="/terminal")
+	public List<TerminalConfigImpresora> getAllTerminal(){
+		return terminalRepository.getAllTerminal();
 	}
 	
 	@RequestMapping(method=RequestMethod.PUT, value="/terminal")

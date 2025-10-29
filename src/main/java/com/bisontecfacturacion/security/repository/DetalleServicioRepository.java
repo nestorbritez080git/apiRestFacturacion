@@ -54,5 +54,9 @@ public interface DetalleServicioRepository extends JpaRepository<DetalleServicio
 			+ "where v.estado='FACTURADO' AND  ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <= :fecha_fin ))", nativeQuery = true)
     Object [][] getResumenVentaServicioRagoFecha( @Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
     
+    
+    @Query(value = "SELECT c FROM DetalleServicios c where venta_id =:idVenta")
+	public List<DetalleServicios> getDetallePorCabecera(@Param("idVenta") int idVenta );
+
 
 }

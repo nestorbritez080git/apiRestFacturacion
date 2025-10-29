@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
-import com.bisontecfacturacion.security.hoteleria.model.CategoriaHabitaciones;
 import com.bisontecfacturacion.security.hoteleria.model.Habitaciones;
 import com.bisontecfacturacion.security.hoteleria.model.HabitacionesCategoriaCombo;
-import com.bisontecfacturacion.security.hoteleria.repository.CategoriaHabitacionesRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.HabitacionesCategoriaComboRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.HabitacionesRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
@@ -48,6 +46,11 @@ public class HabitacionesController {
 	public List<HabitacionesCategoriaCombo> consultarComboDisponilidadPorDescripcion(@PathVariable String descripcion){
 		return listHabitacionCombo(comboRepository.getAllDescripcionDisponilidad("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%"));
 	}
+	@RequestMapping(method=RequestMethod.GET, value="/combo/consultarPorIdHabitacion/{id}")
+	public List<HabitacionesCategoriaCombo> consultarComboPorIdHabitacion(@PathVariable int id){
+		return listHabitacionComboModel(comboRepository.consultarComboPorIdCabecera(id));
+	}
+	
 	
 	@Transactional
 	@RequestMapping(method = RequestMethod.POST)
@@ -144,6 +147,25 @@ public class HabitacionesController {
 			return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL ACTUALIZAR ESTADO HABITACIÓN"), HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	public List<HabitacionesCategoriaCombo> listHabitacionComboModel(List<HabitacionesCategoriaCombo> obj) {
+		List<HabitacionesCategoriaCombo> servi=new ArrayList<>();
+		for(HabitacionesCategoriaCombo ob: obj){
+			HabitacionesCategoriaCombo s=new HabitacionesCategoriaCombo();
+			s.setId(ob.getId());
+			s.setAplicacion(ob.getAplicacion());
+			s.setPrecioMinimo(ob.getPrecioMinimo());
+			s.setPrecioNormal(ob.getPrecioNormal());
+			s.getHabitaciones().setId(ob.getHabitaciones().getId());
+			s.getHabitaciones().setDescripcion(ob.getHabitaciones().getDescripcion());
+			s.getCategoriaHabitaciones().setId(ob.getCategoriaHabitaciones().getId());
+			s.getCategoriaHabitaciones().setDescripcion(ob.getCategoriaHabitaciones().getDescripcion());
+			s.getHabitaciones().setEstadoDisponibilidad(ob.getHabitaciones().isEstadoDisponibilidad());
+			s.getHabitaciones().setEstadoReservacion(ob.getHabitaciones().isEstadoReservacion());
+			servi.add(s);
+		}
+
+		return servi;
 	}
 	public List<HabitacionesCategoriaCombo> listHabitacionCombo(List<Object[]> objeto) {
 		List<HabitacionesCategoriaCombo> servi=new ArrayList<>();

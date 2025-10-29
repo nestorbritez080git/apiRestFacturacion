@@ -6,7 +6,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
-import org.bouncycastle.crypto.tls.PRFAlgorithm;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity

@@ -14,11 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.model.Cliente;
-import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.ModeloRuc;
 import com.bisontecfacturacion.security.model.Persona;
-import com.bisontecfacturacion.security.model.Producto;
-import com.bisontecfacturacion.security.model.Proveedor;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.ModeloRucRepository;
 import com.bisontecfacturacion.security.repository.PersonaRepository;
@@ -179,6 +176,7 @@ public class ClienteController {
 	public ModeloRuc  consultarPorDescripcion(@PathVariable int ruc, @PathVariable int dv ){
 		return modeloRepository.getModeloRucDv(ruc, dv);
 	}
+	
 	/*
 @RequestMapping(value="/clientePDF", method=RequestMethod.GET)
 public @ResponseBody void clientePDF() throws IOException{

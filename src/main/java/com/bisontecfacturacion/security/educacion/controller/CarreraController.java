@@ -15,18 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.educacion.model.Carrera;
-import com.bisontecfacturacion.security.educacion.model.Procedencia;
-import com.bisontecfacturacion.security.educacion.model.TipoCarrera;
-import com.bisontecfacturacion.security.educacion.model.Turno;
 import com.bisontecfacturacion.security.educacion.repository.CarreraRepository;
-import com.bisontecfacturacion.security.educacion.repository.ProcedenciaRepository;
-import com.bisontecfacturacion.security.educacion.repository.TipoCarreraRepository;
-import com.bisontecfacturacion.security.educacion.repository.TurnoRepository;
-import com.bisontecfacturacion.security.hoteleria.model.CategoriaHabitaciones;
-import com.bisontecfacturacion.security.hoteleria.repository.CategoriaHabitacionesRepository;
-import com.bisontecfacturacion.security.model.Anticipo;
-import com.bisontecfacturacion.security.model.Servicio;
-import com.bisontecfacturacion.security.repository.AnticipoRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 @RestController
 @RequestMapping("carrera")

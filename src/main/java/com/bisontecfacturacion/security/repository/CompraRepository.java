@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +72,13 @@ public interface CompraRepository extends JpaRepository<Compra,  Serializable>{
     @Query("SELECT c FROM Compra c WHERE c.proveedor.id = :idproveedor AND c.nroDocumento = :docNumero")
     Optional<Compra> findByProveedorAndNumeroFactura(@Param("idproveedor") Integer idproveedor,
                                                       @Param("docNumero") String docNumero);
+    
+    
+    @Modifying
+	@Transactional(readOnly=false)
+	@Query("update Compra set operacionCaja =:operacionCaja where id=:id")
+	public void findByActualizarCompraOperacion(@Param("id") int id, @Param("operacionCaja") int operacionCaja);
+
     
     
     

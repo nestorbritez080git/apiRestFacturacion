@@ -7,11 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.bisontecfacturacion.security.contabilidad.model.AsientoContable;
 import com.bisontecfacturacion.security.contabilidad.model.AsientoContableDetalle;
-import com.bisontecfacturacion.security.educacion.model.Alumno;
-import com.bisontecfacturacion.security.educacion.model.Carrera;
-import com.bisontecfacturacion.security.educacion.model.MatriculacionDetalle;
 
 public interface AsientoContableDetalleRepositor extends JpaRepository<AsientoContableDetalle, Serializable> {
 

@@ -1,16 +1,23 @@
 package com.bisontecfacturacion.security.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class AutoImpresor {
@@ -20,10 +27,10 @@ public class AutoImpresor {
 	private int id;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
 	private LocalDateTime fecha;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
-	private LocalDateTime fechaInicioVigencia;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
-	private LocalDateTime fechaFinVigencia;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
+	private LocalDate fechaInicioVigencia;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
+	private LocalDate fechaFinVigencia;
 	@NotNull
 	private String timbrado;
 	@NotNull
@@ -40,15 +47,18 @@ public class AutoImpresor {
 	private int rangoFin;
 	@NotNull
 	private int numeroActual;
-	@NotNull
-	private int numeroTerminal;
+	
 	@NotNull
 	private boolean estado;
 	private String ruc;
 	private String selloDigital;
 	@ManyToOne
-	@NotNull
 	private AutoImpresorTipoRemision autoImpresorTipoRemision;
+	
+	@OneToMany(mappedBy = "autoImpresor", fetch = FetchType.LAZY)
+	@JsonIgnoreProperties("autoImpresor")
+	@OrderBy("id DESC")
+	private List<AutoImpresorDetalleVenta> autoImpresorDetalleVentas; 
 	
 	@ManyToOne
 	private Funcionario funcionario;
@@ -60,21 +70,30 @@ public class AutoImpresor {
 		this.ruc="";
 		this.selloDigital="";
 		this.autoImpresorTipoRemision= new AutoImpresorTipoRemision();
+		this.autoImpresorDetalleVentas = new ArrayList<AutoImpresorDetalleVenta>();
 	}
 	
-	public LocalDateTime getFechaInicioVigencia() {
+	public List<AutoImpresorDetalleVenta> getAutoImpresorDetalleVentas() {
+		return autoImpresorDetalleVentas;
+	}
+
+	public void setAutoImpresorDetalleVentas(List<AutoImpresorDetalleVenta> autoImpresorDetalleVentas) {
+		this.autoImpresorDetalleVentas = autoImpresorDetalleVentas;
+	}
+
+	public LocalDate getFechaInicioVigencia() {
 		return fechaInicioVigencia;
 	}
 
-	public void setFechaInicioVigencia(LocalDateTime fechaInicioVigencia) {
+	public void setFechaInicioVigencia(LocalDate fechaInicioVigencia) {
 		this.fechaInicioVigencia = fechaInicioVigencia;
 	}
 
-	public LocalDateTime getFechaFinVigencia() {
+	public LocalDate getFechaFinVigencia() {
 		return fechaFinVigencia;
 	}
 
-	public void setFechaFinVigencia(LocalDateTime fechaFinVigencia) {
+	public void setFechaFinVigencia(LocalDate fechaFinVigencia) {
 		this.fechaFinVigencia = fechaFinVigencia;
 	}
 
@@ -176,11 +195,6 @@ public class AutoImpresor {
 	public void setFuncionario(Funcionario funcionario) {
 		this.funcionario = funcionario;
 	}
-	public int getNumeroTerminal() {
-		return numeroTerminal;
-	}
-	public void setNumeroTerminal(int numeroTerminal) {
-		this.numeroTerminal = numeroTerminal;
-	}
+	
 	
 }

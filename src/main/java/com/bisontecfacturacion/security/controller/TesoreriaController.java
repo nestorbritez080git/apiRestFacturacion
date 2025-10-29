@@ -25,14 +25,18 @@ import com.bisontecfacturacion.security.auxiliar.ResumenEntradaSalidaTipoOperaci
 import com.bisontecfacturacion.security.auxiliar.ResumenTesoreriaPorConceptoUtilidad;
 import com.bisontecfacturacion.security.auxiliar.ResumenTesoreriaUtilidad;
 import com.bisontecfacturacion.security.config.FechaUtil;
+import com.bisontecfacturacion.security.config.Utilidades;
+import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CajaMayor;
-import com.bisontecfacturacion.security.model.CierreCaja;
-import com.bisontecfacturacion.security.model.DetalleProducto;
+import com.bisontecfacturacion.security.model.Concepto;
+import com.bisontecfacturacion.security.model.Funcionario;
+import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Tesoreria;
 import com.bisontecfacturacion.security.model.TransferenciaAnticipo;
-import com.bisontecfacturacion.security.model.TransferenciaAperturaCaja;
+import com.bisontecfacturacion.security.model.TransferenciaCajaActivaCajaMayor;
 import com.bisontecfacturacion.security.model.TransferenciaCajaChica;
 import com.bisontecfacturacion.security.model.TransferenciaCajaMayor;
+import com.bisontecfacturacion.security.model.TransferenciaCajaMayorCajaActiva;
 import com.bisontecfacturacion.security.model.TransferenciaGastos;
 import com.bisontecfacturacion.security.model.TransferenciaPagosProveedor;
 import com.bisontecfacturacion.security.model.TransferenciaTesoreria;
@@ -40,12 +44,16 @@ import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CajaMayorRepository;
 import com.bisontecfacturacion.security.repository.CierreCajaRepository;
+import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.DetalleProductoRepository;
+import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.TesoreriaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaAnticipoRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaAperturaCajaRepository;
+import com.bisontecfacturacion.security.repository.TransferenciaCajaActivaCajaMayorRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaCajaChicaRepository;
+import com.bisontecfacturacion.security.repository.TransferenciaCajaMayorCajaActivaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaCajaMayorRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaGastoRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaPagosProveedorRepository;
@@ -69,6 +77,17 @@ public class TesoreriaController {
 	@Autowired
 	private TransferenciaCajaMayorRepository transferenciaCajaMayorRepository;
 
+	
+	@Autowired
+	private TransferenciaCajaMayorCajaActivaRepository transferenciaCajaMayorCajaActivaRepository;
+
+	@Autowired
+	private TransferenciaCajaActivaCajaMayorRepository transferenciaCajaActivaCajaMayorRepository;
+
+	@Autowired
+	private ConceptoRepository conceptoRepository;
+	
+	
 	@Autowired
 	private TransferenciaAnticipoRepository transferenciaAnticipoRepository;
 
@@ -85,6 +104,8 @@ public class TesoreriaController {
 
 	@Autowired
 	private CajaMayorRepository cajaMayorRepository;
+	@Autowired
+	private FuncionarioRepository funcionarioRepository;
 
 	@Autowired
 	private DetalleProductoRepository detalleRepository;
@@ -106,7 +127,7 @@ public class TesoreriaController {
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Tesoreria> getAllTopCien(){
-		return entityRepository.findTop100ByOrderByIdDesc();
+		return entityRepository.findTop20ByOrderByIdDesc();
 	}
 	@RequestMapping(method=RequestMethod.GET, value = "/all")
 	public List<Tesoreria> getAll(){
@@ -241,7 +262,7 @@ public class TesoreriaController {
 			v.setTotalComision(comi);
 		} catch (Exception e) {
 			// TODO: handle exception
-
+			
 		}	
 		return v;
 	}
@@ -282,6 +303,56 @@ public class TesoreriaController {
 			tf.setMonto(Double.parseDouble(ob[5].toString()));
 			tf.setMontoCheque(Double.parseDouble(ob[6].toString()));
 			tf.setMontoTarjeta(Double.parseDouble(ob[7].toString()));
+			listRetorno.add(tf);
+		}
+
+		return listRetorno;
+	}
+	
+	@RequestMapping(method=RequestMethod.GET, value = "/transferenciaCajaMayorCajaActiva/consultaTodo")
+	public List<TransferenciaCajaMayorCajaActiva> consultarTransferenciaCajaMayorCajaActiva() {
+		List<Object []> lisObj= transferenciaCajaMayorCajaActivaRepository.consultarDetalleTransferenciaCajaMayorCajaActiva();
+		List<TransferenciaCajaMayorCajaActiva> listRetorno= new ArrayList<TransferenciaCajaMayorCajaActiva>();
+		for(Object [] ob :lisObj) {
+			TransferenciaCajaMayorCajaActiva tf= new TransferenciaCajaMayorCajaActiva();
+			tf.setId(Integer.parseInt(ob[0].toString()));
+			tf.setFecha(FechaUtil.convertirFechaStringADateUtil(ob[1].toString()));
+			tf.getFuncionario().getPersona().setNombre(ob[2].toString());
+			tf.getFuncionario().getPersona().setApellido(ob[3].toString());
+			tf.getCajaMayor().setId(Integer.parseInt(ob[4].toString()));
+			tf.getCajaMayor().setDescripcion(ob[5].toString());
+			tf.getAperturaCaja().setId(Integer.parseInt(ob[6].toString()));
+			tf.getAperturaCaja().getFuncionario().getPersona().setNombre(ob[7].toString());;
+			tf.getAperturaCaja().getFuncionario().getPersona().setApellido(ob[8].toString());;
+			tf.setMonto(Double.parseDouble(ob[9].toString()));
+			tf.setMontoCheque(Double.parseDouble(ob[10].toString()));
+			tf.setMontoTarjeta(Double.parseDouble(ob[11].toString()));
+			listRetorno.add(tf);
+		}
+
+		return listRetorno;
+	}
+	
+	
+	
+	@RequestMapping(method=RequestMethod.GET, value = "/transferenciaCajaActivaCajaMayor/consultaTodo")
+	public List<TransferenciaCajaActivaCajaMayor> consultarTransferenciaCajaActivaCajaMayor() {
+		List<Object []> lisObj= transferenciaCajaActivaCajaMayorRepository.consultarDetalleTransferenciaCajaActivaCajaMayor();
+		List<TransferenciaCajaActivaCajaMayor> listRetorno= new ArrayList<TransferenciaCajaActivaCajaMayor>();
+		for(Object [] ob :lisObj) {
+			TransferenciaCajaActivaCajaMayor tf= new TransferenciaCajaActivaCajaMayor();
+			tf.setId(Integer.parseInt(ob[0].toString()));
+			tf.setFecha(FechaUtil.convertirFechaStringADateUtil(ob[1].toString()));
+			tf.getFuncionario().getPersona().setNombre(ob[2].toString());
+			tf.getFuncionario().getPersona().setApellido(ob[3].toString());
+			tf.getCajaMayor().setId(Integer.parseInt(ob[4].toString()));
+			tf.getCajaMayor().setDescripcion(ob[5].toString());
+			tf.getAperturaCaja().setId(Integer.parseInt(ob[6].toString()));
+			tf.getAperturaCaja().getFuncionario().getPersona().setNombre(ob[7].toString());;
+			tf.getAperturaCaja().getFuncionario().getPersona().setApellido(ob[8].toString());;
+			tf.setMonto(Double.parseDouble(ob[9].toString()));
+			tf.setMontoCheque(Double.parseDouble(ob[10].toString()));
+			tf.setMontoTarjeta(Double.parseDouble(ob[11].toString()));
 			listRetorno.add(tf);
 		}
 
@@ -582,5 +653,254 @@ public class TesoreriaController {
 		return listRetorno;
 	}
 
+	
+	@RequestMapping(method=RequestMethod.POST, value = "/transferenciaCajaMayorCajaActiva")
+	public ResponseEntity<?> guardarTransferenciaCajaMayorCajaActiva(@RequestBody TransferenciaCajaMayorCajaActiva entity){
+
+		AperturaCaja cajaDestino = aperturaCajaRepository.getAperturaCajaPorIdCaja(entity.getAperturaCaja().getId());
+		CajaMayor cajaOrigen = cajaMayorRepository.findById(entity.getCajaMayor().getId()).orElse(null);
+
+		// Validaciones básicas
+		if (entity.getFuncionario() == null || entity.getFuncionario().getId() == 0) {
+		    return new ResponseEntity<>(new CustomerErrorType("El funcionario no debe quedar vacío."), HttpStatus.CONFLICT);
+		}
+
+		if (cajaDestino == null || cajaDestino.getId() <= 0) {
+		    return new ResponseEntity<>(new CustomerErrorType("La apertura de caja destino debe estar habilitada para poder transferir."), HttpStatus.CONFLICT);
+		}
+
+		if ((entity.getMonto() <= 0) && (entity.getMontoCheque() <= 0) && (entity.getMontoTarjeta() <= 0)) {
+		    return new ResponseEntity<>(new CustomerErrorType("Debe transferir al menos un monto mayor a cero (efectivo, cheque o transferencia)."), HttpStatus.CONFLICT);
+		}
+
+		if (cajaOrigen == null | cajaOrigen.getId()==0) {
+		    return new ResponseEntity<>(new CustomerErrorType("No se encontró la caja mayor de origen."), HttpStatus.CONFLICT);
+		}
+
+		// Validaciones de montos disponibles
+		if (entity.getMonto() > cajaOrigen.getMonto()) {
+		    System.out.println("Monto en efectivo supera el disponible");
+		    return new ResponseEntity<>(new CustomerErrorType("El monto en efectivo a transferir supera el disponible en caja mayor."), HttpStatus.CONFLICT);
+		}
+
+		if (entity.getMontoCheque() > cajaOrigen.getMontoCheque()) {
+		    System.out.println("Monto en cheque supera el disponible");
+		    return new ResponseEntity<>(new CustomerErrorType("El monto en cheque a transferir supera el disponible en caja mayor."), HttpStatus.CONFLICT);
+		}
+
+		if (entity.getMontoTarjeta() > cajaOrigen.getMontoTarjeta()) {
+		    System.out.println("Monto en transferencia/QR supera el disponible");
+		    return new ResponseEntity<>(new CustomerErrorType("El monto en transferencia/QR a transferir supera el disponible en caja mayor."), HttpStatus.CONFLICT);
+		}
+		
+		//		
+		try {
+			TransferenciaCajaMayorCajaActiva cvt = transferenciaCajaMayorCajaActivaRepository.save(entity);
+			Funcionario ff= funcionarioRepository.getIdFuncionario(cvt.getFuncionario().getId());
+			cajaMayorRepository.findByActualizaCajaMayorNegativo(entity.getCajaMayor().getId(), entity.getMonto(), entity.getMontoCheque(), entity.getMontoTarjeta());
+			Concepto c= new Concepto();
+			//33 conepto corresponde a transferencia de caja mayor a  caja apertura
+			c= conceptoRepository.findById(33).get();
+			
+			if(entity.getMonto()>0) {
+				OperacionCaja op = new OperacionCaja();
+				op.setFecha(new Date());
+				op.getAperturaCaja().setId(cajaDestino.getId());
+				op.getConcepto().setId(33);	
+				op.setEfectivo(0.0);
+				op.setMonto(entity.getMonto());
+				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setTipo("ENTRADA");
+				op.getTipoOperacion().setId(1);
+				if (op.getTipoOperacion().getId() == 1) {
+					aperturaCajaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
+				}
+				operacionCajaRepository.save(op);
+				
+			}
+			if(entity.getMontoCheque()>0) {
+				OperacionCaja op = new OperacionCaja();
+				op.setFecha(new Date());
+				op.getAperturaCaja().setId(cajaDestino.getId());
+				op.getConcepto().setId(33);	
+				op.setEfectivo(0.0);
+				op.setMonto(entity.getMontoCheque());
+				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setTipo("ENTRADA");
+				op.getTipoOperacion().setId(2);
+				if (op.getTipoOperacion().getId() == 2) {
+					aperturaCajaRepository.findByActualizarAperturaSaldoCheque(entity.getAperturaCaja().getId(), entity.getMontoCheque());
+				}
+				operacionCajaRepository.save(op);
+				
+			}
+			if(entity.getMontoTarjeta()>0) {
+				OperacionCaja op = new OperacionCaja();
+				op.setFecha(new Date());
+				op.getAperturaCaja().setId(cajaDestino.getId());
+				op.getConcepto().setId(33);	
+				op.setEfectivo(0.0);
+				op.setMonto(entity.getMontoTarjeta());
+				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setTipo("ENTRADA");
+				op.getTipoOperacion().setId(3);
+				if(op.getTipoOperacion().getId() == 3) {
+					aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(entity.getAperturaCaja().getId(), entity.getMontoTarjeta());
+				}
+				operacionCajaRepository.save(op);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new CustomerErrorType("ERROR:"+e.getMessage()), HttpStatus.CONFLICT);
+		}
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+	@RequestMapping(method=RequestMethod.POST, value = "/transferenciaCajaActivaCajaMayor")
+	public ResponseEntity<?> guardarTransferenciaCajaActivaCajaMayor(@RequestBody TransferenciaCajaActivaCajaMayor entity){
+
+		AperturaCaja cajaOrigen = aperturaCajaRepository.getAperturaCajaPorIdCaja(entity.getAperturaCaja().getId());
+		CajaMayor cajaDestino = cajaMayorRepository.findById(entity.getCajaMayor().getId()).orElse(null);
+
+		// Validaciones básicas
+		if (entity.getFuncionario() == null || entity.getFuncionario().getId() == 0) {
+		    return new ResponseEntity<>(new CustomerErrorType("El funcionario no debe quedar vacío."), HttpStatus.CONFLICT);
+		}
+
+		if (cajaDestino == null || cajaDestino.getId() <= 0) {
+		    return new ResponseEntity<>(new CustomerErrorType("La apertura de caja origen debe estar habilitada para poder transferir."), HttpStatus.CONFLICT);
+		}
+
+		if ((entity.getMonto() <= 0) && (entity.getMontoCheque() <= 0) && (entity.getMontoTarjeta() <= 0)) {
+		    return new ResponseEntity<>(new CustomerErrorType("Debe transferir al menos un monto mayor a cero (efectivo, cheque o transferencia)."), HttpStatus.CONFLICT);
+		}
+
+		if (cajaOrigen == null | cajaOrigen.getId()==0) {
+		    return new ResponseEntity<>(new CustomerErrorType("No se encontró la caja mayor de destino."), HttpStatus.CONFLICT);
+		}
+
+		// Validaciones de montos disponibles
+		if (entity.getMonto() > cajaOrigen.getSaldoActual()) {
+		    System.out.println("Monto en efectivo supera el disponible");
+		    return new ResponseEntity<>(new CustomerErrorType("El monto en efectivo a transferir supera el disponible en caja apertura."), HttpStatus.CONFLICT);
+		}
+
+		if (entity.getMontoCheque() > cajaOrigen.getSaldoActualCheque()) {
+		    System.out.println("Monto en cheque supera el disponible");
+		    return new ResponseEntity<>(new CustomerErrorType("El monto en cheque a transferir supera el disponible en caja apertura."), HttpStatus.CONFLICT);
+		}
+
+		if (entity.getMontoTarjeta() > cajaOrigen.getSaldoActualTarjeta()) {
+		    System.out.println("Monto en transferencia/QR supera el disponible");
+		    return new ResponseEntity<>(new CustomerErrorType("El monto en transferencia/QR a transferir supera el disponible en caja apertura."), HttpStatus.CONFLICT);
+		}
+		//		
+		try {
+			TransferenciaCajaActivaCajaMayor cvt = transferenciaCajaActivaCajaMayorRepository.save(entity);
+			Funcionario ff= funcionarioRepository.getIdFuncionario(cvt.getFuncionario().getId());
+			cajaMayorRepository.findByActualizaCajaMayor(entity.getCajaMayor().getId(), entity.getMonto(), entity.getMontoCheque(), entity.getMontoTarjeta());
+			Concepto c= new Concepto();
+			//33 conepto corresponde a transferencia de caja mayor a  caja apertura
+			c= conceptoRepository.findById(34).get();
+			
+			if(entity.getMonto()>0) {
+				OperacionCaja op = new OperacionCaja();
+				op.setFecha(new Date());
+				op.getAperturaCaja().setId(cajaOrigen.getId());
+				op.getConcepto().setId(34);	
+				op.setEfectivo(0.0);
+				op.setMonto(entity.getMonto());
+				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setTipo("SALIDA");
+				op.getTipoOperacion().setId(1);
+				if (op.getTipoOperacion().getId() == 1) {
+					aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(entity.getAperturaCaja().getId(), entity.getMonto());
+				}
+				operacionCajaRepository.save(op);
+				
+			}
+			if(entity.getMontoCheque()>0) {
+				OperacionCaja op = new OperacionCaja();
+				op.setFecha(new Date());
+				op.getAperturaCaja().setId(cajaOrigen.getId());
+				op.getConcepto().setId(34);	
+				op.setEfectivo(0.0);
+				op.setMonto(entity.getMontoCheque());
+				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setTipo("SALIDA");
+				op.getTipoOperacion().setId(2);
+				if (op.getTipoOperacion().getId() == 2) {
+					aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(entity.getAperturaCaja().getId(), entity.getMontoCheque());
+				}
+				operacionCajaRepository.save(op);
+				
+			}
+			if(entity.getMontoTarjeta()>0) {
+				OperacionCaja op = new OperacionCaja();
+				op.setFecha(new Date());
+				op.getAperturaCaja().setId(cajaOrigen.getId());
+				op.getConcepto().setId(34);	
+				op.setEfectivo(0.0);
+				op.setMonto(entity.getMontoTarjeta());
+				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setTipo("SALIDA");
+				op.getTipoOperacion().setId(3);
+				if(op.getTipoOperacion().getId() == 3) {
+					aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(entity.getAperturaCaja().getId(), entity.getMontoTarjeta());
+				}
+				operacionCajaRepository.save(op);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new CustomerErrorType("ERROR:"+e.getMessage()), HttpStatus.CONFLICT);
+		}
+		return new ResponseEntity<>(HttpStatus.CREATED);
+
+	}
+	
+	@RequestMapping(method=RequestMethod.POST, value = "/buscar/filtro")
+	public List<Tesoreria> getAperturaCajaFiltro(@RequestBody String descripcion){
+		
+		List<Tesoreria> objeto= new ArrayList<>();
+		
+			//list = entityRepository.findTop20ByOrderByIdDesc();
+			if (descripcion.equals("9999999999")) {
+				objeto=entityRepository.findTop20ByOrderByIdDesc();
+				//return product(objeto);
+			} else {
+				 String filtro = "%" + Utilidades.eliminaCaracterIzqDer(descripcion.trim().toLowerCase()) + "%";
+				 System.out.println("FILTRO: "+filtro);
+				 objeto=entityRepository.getBuscarPorDescripcion(filtro);
+				
+			}
+		
+		
+		return cargarTesoria(objeto);
+	}
+
+	public List<Tesoreria> cargarTesoria(List<Tesoreria> objeto) {
+		List<Tesoreria> producto=new ArrayList<>();
+		for(Tesoreria ob:objeto){
+			Tesoreria pp=new Tesoreria();
+			pp.setId(ob.getId());
+			pp.setImporte(ob.getImporte());
+			pp.setImporteCheque(ob.getImporteCheque());
+			pp.setImporteTarjeta(ob.getImporteTarjeta());
+			pp.setFuncionario(ob.getFuncionario());
+			pp.getFuncionario().setPersona(ob.getFuncionario().getPersona());
+			pp.setFecha(ob.getFecha());
+			pp.setEstado(ob.isEstado());
+			pp.setEstadoAnulacion(ob.isEstadoAnulacion());
+			pp.setHora(ob.getHora());
+			pp.setCierreCaja(ob.getCierreCaja());
+			pp.getCierreCaja().setFuncionario(ob.getCierreCaja().getFuncionario());
+			pp.getCierreCaja().getFuncionario().setPersona(ob.getCierreCaja().getFuncionario().getPersona());
+			pp.getCierreCaja().setAperturaCaja(ob.getCierreCaja().getAperturaCaja());
+			
+			producto.add(pp);
+		}
+
+
+		return producto;
+	}
 
 }

@@ -10,10 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.contabilidad.model.AsientoContable;
 import com.bisontecfacturacion.security.contabilidad.model.ResumenCuentaDTO;
-import com.bisontecfacturacion.security.contabilidad.model.ResumenCuentaPorConceptoDTO;
-import com.bisontecfacturacion.security.educacion.model.Alumno;
-import com.bisontecfacturacion.security.educacion.model.Carrera;
-import com.bisontecfacturacion.security.model.Venta;
 
 public interface AsientoContableRepository extends JpaRepository<AsientoContable, Serializable> {
 

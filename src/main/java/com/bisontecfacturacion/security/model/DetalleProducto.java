@@ -1,6 +1,5 @@
 package com.bisontecfacturacion.security.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -18,7 +17,7 @@ public class DetalleProducto {
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
-	private int id;
+	private Integer  id;
 	
 	@ManyToOne
 	private Producto producto;
@@ -96,13 +95,12 @@ public class DetalleProducto {
 	}
 
 
-	public int getId() {
-		return id;
+	public Integer getId() {
+	    return id;
 	}
 
-
-	public void setId(int id) {
-		this.id = id;
+	public void setId(Integer id) {
+	    this.id = id;
 	}
 
 

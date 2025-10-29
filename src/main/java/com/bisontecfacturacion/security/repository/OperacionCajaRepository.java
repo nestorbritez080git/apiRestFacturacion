@@ -1,7 +1,6 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,6 +29,10 @@ public interface OperacionCajaRepository extends JpaRepository<OperacionCaja, Se
 	@Query(value = "DELETE FROM operacion_caja where apertura_caja_id=:idApertura AND concepto_id=:idConcepto", nativeQuery = true)
 	public void borraDatosSalidaCapital(@Param("idApertura") int idApertura, @Param("idConcepto") int idConcepto);
 		
+	@Modifying
+	@Query(value = "DELETE FROM operacion_caja where monto=monto-:mon WHERE id=:idOperacion", nativeQuery = true)
+	public void descontarMontoOperacionCajaPorAnulacionVenta(@Param("idOperacion") int idOperacion, @Param("mon") Double mon);
+	
 	@Query(value = "SELECT sum(op.monto), c.descripcion, op.tipo  FROM operacion_caja op inner join concepto c on c.id=op.concepto_id  where op.apertura_caja_id=:id group by c.id, op.tipo ", nativeQuery = true)
     List<Object []> getResumenConceptoPorApertura( @Param("id") int id);
     

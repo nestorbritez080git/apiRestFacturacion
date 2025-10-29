@@ -10,9 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import javax.print.DocFlavor.READER;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
@@ -33,18 +30,13 @@ import com.bisontecfacturacion.security.config.NumerosALetras;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.model.Cliente;
-import com.bisontecfacturacion.security.model.CobrosCliente;
-import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
-import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.OrdenPagare;
 import com.bisontecfacturacion.security.model.Org;
-import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
@@ -69,8 +61,6 @@ import com.bisontecfacturacion.security.repository.VentaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.FechaUtil;
 import com.bisontecfacturacion.security.service.IUsuarioService;
-
-import net.sf.jasperreports.engine.JRException;
 
 @EnableAsync
 @Transactional
@@ -691,6 +681,8 @@ public List<CuentaCobrarCabecera> listadoCargarCuenta(List<CuentaCobrarCabecera>
 		CuentaCobrarCabecera cuenta= new CuentaCobrarCabecera();
 		cuenta.setId(x.getId());
 		cuenta.setTotal(x.getTotal()); 
+		cuenta.getVenta().getDocumento().setDescripcion(x.getVenta().getDocumento().getDescripcion());
+		cuenta.getVenta().setNroDocumento(x.getVenta().getNroDocumento());
 		cuenta.setPagado(x.getPagado());
 		cuenta.setSaldo(x.getSaldo());
 		cuenta.setTotalDevolucion(x.getTotalDevolucion());
@@ -1136,7 +1128,7 @@ public void reImprimirMatricial(@PathVariable int id, @PathVariable int numeroTe
 
 	Reporte report = new Reporte();
 	TerminalConfigImpresora t = new TerminalConfigImpresora();
-	t= terminalRepository.consultarTerminal(numeroTerminal);
+	t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
 	if (t==null) {
 		System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 	}else {

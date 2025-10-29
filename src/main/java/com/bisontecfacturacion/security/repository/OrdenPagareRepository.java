@@ -1,7 +1,6 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.OrdenPagare;
-import com.bisontecfacturacion.security.model.Pedido;
-import com.bisontecfacturacion.security.model.Venta;
 
 @Repository
 public interface OrdenPagareRepository extends JpaRepository<OrdenPagare, Serializable>{

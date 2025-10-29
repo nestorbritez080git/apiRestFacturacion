@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.PagosProveedorCompra;
 
 public interface PagosProveedorCompraRepository extends JpaRepository<PagosProveedorCompra, Serializable> {

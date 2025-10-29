@@ -9,13 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bisontecfacturacion.security.educacion.model.Carrera;
-import com.bisontecfacturacion.security.educacion.model.Matriculacion;
 import com.bisontecfacturacion.security.educacion.model.MatriculacionDetalle;
-import com.bisontecfacturacion.security.educacion.model.TipoCarrera;
-import com.bisontecfacturacion.security.hoteleria.model.CategoriaHabitaciones;
-import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
-import com.bisontecfacturacion.security.model.Venta;
 
 public interface MatriculacionDetalleRepository extends JpaRepository<MatriculacionDetalle, Serializable> {
 //	@Query(value="select * from categoria_habitaciones p where p.descripcion like :descripcion order by p.id desc",nativeQuery=true)

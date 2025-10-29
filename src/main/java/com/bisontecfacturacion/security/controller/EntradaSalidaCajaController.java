@@ -28,19 +28,13 @@ import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.Concepto;
-import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
-import com.bisontecfacturacion.security.model.DetalleProducto;
-import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.EntradaSalidaCaja;
-import com.bisontecfacturacion.security.model.EntregaProduccion;
-import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.EntradaSalidaCajaRepository;
-import com.bisontecfacturacion.security.repository.EntregaProduccionRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
@@ -92,7 +86,7 @@ public class EntradaSalidaCajaController {
 		}else if(entity.getTipoMovimiento().getId()==2 && XX.getSaldoActualCheque() < entity.getMonto()&& entity.getTipoOperacion().getId()==2){
 			System.out.println("entrooo monto superaod che");
 			return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-		}else if(entity.getTipoMovimiento().getId()==2 && XX.getSaldoInicialTarjeta() < entity.getMonto() && entity.getTipoOperacion().getId()==3){
+		}else if(entity.getTipoMovimiento().getId()==2 && XX.getSaldoActualTarjeta() < entity.getMonto() && entity.getTipoOperacion().getId()==3){
 			System.out.println("entrooo monto superaod tarj");
 			return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA CHICA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
 		}

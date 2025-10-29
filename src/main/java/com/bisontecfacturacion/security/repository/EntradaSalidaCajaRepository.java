@@ -11,11 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.EntradaSalidaCaja;
-import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
-import com.bisontecfacturacion.security.model.OperacionCaja;
 
 @Transactional(readOnly=true)
 @Repository

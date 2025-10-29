@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.bisontecfacturacion.security.model.AperturaCaja;
-import com.bisontecfacturacion.security.model.Caja;
 import com.bisontecfacturacion.security.model.CajaChica;
 
 public interface CajaChicaRepository extends JpaRepository<CajaChica, Serializable> {

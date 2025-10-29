@@ -1,8 +1,5 @@
 package com.bisontecfacturacion;
 
-import java.util.TimeZone;
-
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
 import org.springframework.boot.SpringApplication;

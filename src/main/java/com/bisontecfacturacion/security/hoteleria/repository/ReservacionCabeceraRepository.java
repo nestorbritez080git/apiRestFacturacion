@@ -12,8 +12,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
-import com.bisontecfacturacion.security.model.Presupuesto;
-import com.bisontecfacturacion.security.model.Venta;
 
 public interface ReservacionCabeceraRepository extends JpaRepository<ReservacionCabecera, Serializable> {
 	@Query(value="select * from reservacion_cabecera v \r\n" + 
@@ -24,7 +22,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join cliente cl on v.cliente_id=cl.id \r\n" + 
 			"inner join persona cp on cl.persona_id=cp.id \r\n" + 
 			"inner join documento doc on doc.id=v.documento_id \r\n" + 
-			"where (v.estado='FINALIZADO') AND extract(year from cast(v.fecha_registro as Date))=:ano AND extract(month from cast(v.fecha_registro as Date))=:mes AND extract(day from cast(v.fecha_registro as Date))=:dia  order by v.id desc ",nativeQuery=true)
+			"where (v.estado='FINALIZADO') AND extract(year from cast(v.fecha_entrada as Date))=:ano AND extract(month from cast(v.fecha_entrada as Date))=:mes AND extract(day from cast(v.fecha_entrada as Date))=:dia  order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesFinalizadaRengoFechaAll (@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
 	
 	@Query(value="select * from reservacion_cabecera v \r\n" + 
@@ -46,7 +44,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join cliente cl on v.cliente_id=cl.id \r\n" + 
 			"inner join persona cp on cl.persona_id=cp.id \r\n" + 
 			"inner join documento doc on doc.id=v.documento_id \r\n" + 
-			"where (v.estado='RESERVADO') AND extract(year from cast(v.fecha_registro as Date))=:ano AND extract(month from cast(v.fecha_registro as Date))=:mes AND extract(day from cast(v.fecha_registro as Date))=:dia  order by v.id desc ",nativeQuery=true)
+			"where (v.estado='RESERVADO') AND extract(year from cast(v.fecha_entrada as Date))=:ano AND extract(month from cast(v.fecha_entrada as Date))=:mes AND extract(day from cast(v.fecha_entrada as Date))=:dia  order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesActivoRangoFechaAll(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
 
 	@Query(value="select * from reservacion_cabecera v \r\n" + 
@@ -68,7 +66,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join cliente cl on v.cliente_id=cl.id \r\n" + 
 			"inner join persona cp on cl.persona_id=cp.id \r\n" + 
 			"inner join documento doc on doc.id=v.documento_id \r\n" + 
-			"where (v.estado= 'RESERVADO' OR v.estado='FINALIZADO') AND extract(year from cast(v.fecha_registro as Date))=:ano AND extract(month from cast(v.fecha_registro as Date))=:mes AND extract(day from cast(v.fecha_registro as Date))=:dia  order by v.id desc ",nativeQuery=true)
+			"where (v.estado= 'RESERVADO' OR v.estado='FINALIZADO') AND extract(year from cast(v.fecha_entrada as Date))=:ano AND extract(month from cast(v.fecha_entrada as Date))=:mes AND extract(day from cast(v.fecha_entrada as Date))=:dia  order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesRangoFechaAll(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
 	
 	@Query(value="select * from reservacion_cabecera v \r\n" + 
@@ -96,7 +94,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"where v.estado='PRE-RESERVADO'   order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesAllPreReservado ();
 	
-	@Query(value = "select  cab.descripcion_combo as des, perFin.nombre || ' ' || perFin.apellido as funFin, perCli.nombre || ' ' || perCli.apellido as perCli, cab.entrega as entrega, cab.precio as precio, cab.total_producto as totalProd, cab.total_habitacion as total, cab.fecha_registro as fecReg, cab.hora as horaReg, cab.fecha_factura as fecFin, cab.hora_finalizacion as horFin, cab.estadia as estadia, cab.total as totales \r\n" + 
+	@Query(value = "select  cab.descripcion_combo as des, perFin.nombre || ' ' || perFin.apellido as funFin, perCli.nombre || ' ' || perCli.apellido as perCli, cab.entrega as entrega, cab.precio as precio, cab.total_producto as totalProd, cab.total_habitacion as total, cab.fecha_entrada as fecReg, cab.hora as horaReg, cab.fecha_factura as fecFin, cab.hora_finalizacion as horFin, cab.estadia as estadia, cab.total as totales \r\n" + 
 			"from reservacion_cabecera  cab \r\n" + 
 			"inner join funcionario funReg on funReg.id=cab.funcionario_registro_id\r\n" + 
 			"inner join persona perReg ON perReg.id=funReg.persona_id\r\n" + 
@@ -107,7 +105,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"where cab.estado='FINALIZADO' AND  ((cab.fecha_registro >= :fecha_inicio) AND (cab.fecha_registro <= :fecha_fin ))", nativeQuery = true)
     List<Object []> getResumenRecepcionesRagoFecha( @Param("fecha_inicio") LocalDateTime fecha_inicio, @Param("fecha_fin") LocalDateTime fecha_fin);
     
-    @Query(value = "select  cab.descripcion_combo as des, perFin.nombre || ' ' || perFin.apellido as funFin, perCli.nombre || ' ' || perCli.apellido as perCli, cab.entrega as entrega, cab.precio as precio, cab.total_producto as totalProd, cab.total_habitacion as total, cab.fecha_registro as fecReg, cab.hora as horaReg, cab.fecha_factura as fecFin, cab.hora_finalizacion as horFin, cab.estadia as estadia, cab.total as totales \r\n" + 
+    @Query(value = "select  cab.descripcion_combo as des, perFin.nombre || ' ' || perFin.apellido as funFin, perCli.nombre || ' ' || perCli.apellido as perCli, cab.entrega as entrega, cab.precio as precio, cab.total_producto as totalProd, cab.total_habitacion as total, cab.fecha_entrada as fecReg, cab.hora as horaReg, cab.fecha_factura as fecFin, cab.hora_finalizacion as horFin, cab.estadia as estadia, cab.total as totales \r\n" + 
 			"from reservacion_cabecera  cab \r\n" + 
 			"inner join funcionario funReg on funReg.id=cab.funcionario_registro_id\r\n" + 
 			"inner join persona perReg ON perReg.id=funReg.persona_id\r\n" + 
@@ -147,6 +145,16 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
     @Query("update ReservacionCabecera set estado=:est where id=:id")
     public void findByActualizaEstado(@Param("id") int id, @Param("est") String est);
 	
+	
+	@Modifying
+	@Transactional
+	@Query("UPDATE ReservacionCabecera r SET r.total = :tot, r.totalHabitacion = :totHab, r.estadia = :esta WHERE r.id = :id")
+	void actualizarEstadiaModificacionDiaria(
+	    @Param("tot") Double tot,  
+	    @Param("totHab") Double totHab, 
+	    @Param("esta") Integer esta, 
+	    @Param("id") int id
+	);
 	
 	
 	@Query("SELECT c FROM ReservacionCabecera c ORDER BY c.id desc")
@@ -202,4 +210,15 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 		       "ORDER BY c.id DESC")
 	List<ReservacionCabecera> getReservacionPreReservadoDescripcion(@Param("des")  String des);
 	
+	@Query(value = "SELECT r.* " +
+            "FROM reservacion_cabecera r " +
+            "LEFT JOIN funcionario fr ON r.funcionario_registro_id = fr.id INNER JOIN persona pf ON  pf.id=fr.persona_id " +
+            "LEFT JOIN funcionario ff ON r.funcionario_finalizacion_id = ff.id INNER JOIN persona pff ON  pff.id=ff.persona_id " +
+            "LEFT JOIN cliente c ON r.cliente_id = c.id INNER JOIN persona pc ON  pc.id=c.persona_id " +
+            "LEFT JOIN documento d ON r.documento_id = d.id " +
+            "LEFT JOIN habitaciones_categoria_combo hcc ON r.habitaciones_categoria_combo_id = hcc.id "+
+            "LEFT JOIN habitaciones hba ON hba.id=hcc.habitaciones_id " +
+            "WHERE r.id = :param", 
+	    nativeQuery = true)
+	ReservacionCabecera getPorId(@Param("param") int id);
 }

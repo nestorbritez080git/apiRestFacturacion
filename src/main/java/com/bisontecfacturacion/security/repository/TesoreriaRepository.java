@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.Tesoreria;
 
 @Repository
@@ -19,7 +20,7 @@ public interface TesoreriaRepository extends JpaRepository<Tesoreria, Serializab
 //	@Query("select c from caja d where c.descripcion like :descripcion%")
 //	List<Caja> findByTop100DescripcionLike(@Param("descripcion") String descripcion);
 //	public abstract Caja findByDescripcion(String descripcion);
-	public abstract List<Tesoreria>findTop100ByOrderByIdDesc();
+	public abstract List<Tesoreria>findTop20ByOrderByIdDesc();
 //	@Query(value="UPDATE cierre_caja SET estado_recibido=? WHERE id=? ",nativeQuery=true)
 	@Modifying
     @Transactional(readOnly=false)
@@ -73,7 +74,8 @@ public interface TesoreriaRepository extends JpaRepository<Tesoreria, Serializab
 	@Query(value="select tp.descripcion as des, sum(op.monto) from venta v inner join operacion_caja op on op.id=v.operacion_caja inner join concepto c on c.id=op.concepto_id inner join tipo_operacion  tp on tp.id=op.tipo_operacion_id where v.estado='FACTURADO' AND v.tipo='1' AND tp.id=1 AND (v.fecha_factura >= :fecha_inicio AND v.fecha_factura <= :fecha_fin) group by tp.id ",nativeQuery=true)
 	Object[][] getResumenEntradaSalidaCajaTipoOperacionVentaContadoEfectivo(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);
 	
-	
+	@Query(value="select * from tesoreria teso INNER JOIN cierre_caja cierre ON cierre.id=teso.cierre_caja_id INNER JOIN funcionario fun ON fun.id=cierre.funcionario_id INNER JOIN persona pf on pf.id=fun.persona_id  where pf.nombre ilike :descripcion or pf.apellido ilike :descripcion or pf.cedula ilike :descripcion or cast(cierre.id AS VARCHAR)   ilike :descripcion   order by cierre.id desc  limit 50",nativeQuery=true)
+	List<Tesoreria>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
 	
 	
 	

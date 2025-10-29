@@ -14,12 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.educacion.model.Alumno;
-import com.bisontecfacturacion.security.educacion.model.Carrera;
 import com.bisontecfacturacion.security.educacion.repository.AlumnoRepository;
-import com.bisontecfacturacion.security.model.Cliente;
-import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.Persona;
-import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 @RestController
 @RequestMapping("alumno")

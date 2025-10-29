@@ -1,7 +1,6 @@
 package com.bisontecfacturacion.security.controller;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,23 +35,18 @@ import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.DetalleProducto;
-import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.DevolucionVenta;
 import com.bisontecfacturacion.security.model.DevolucionVentaDetalle;
 import com.bisontecfacturacion.security.model.Funcionario;
-import com.bisontecfacturacion.security.model.InteresCuota;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.NotaCredito;
 import com.bisontecfacturacion.security.model.OperacionCaja;
 import com.bisontecfacturacion.security.model.Org;
-import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
-import com.bisontecfacturacion.security.model.TipoPlazo;
 import com.bisontecfacturacion.security.model.Usuario;
-import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CierreCajaRepository;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
@@ -79,8 +72,6 @@ import com.bisontecfacturacion.security.repository.TesoreriaRepository;
 import com.bisontecfacturacion.security.repository.TipoPlazoRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
-
-import sun.util.logging.resources.logging;
 
 
 @Transactional
@@ -361,120 +352,145 @@ public class DevoluconVentaController {
 	@Transactional
 	@RequestMapping(method=RequestMethod.POST, value = "/confirmar/{id}/{tpDevol}/{idAper}/{tpCaja}/{tComp}/{tEfe}/{tNota}/{terminal}/{imp}")
 	public ResponseEntity<?> pruebaConfirmarDevolucion (
-			@RequestBody List<CuentaCobrarCabecera> cue, 
-			@PathVariable int id, 
-			@PathVariable int tpDevol,
-			@PathVariable int idAper,
-			@PathVariable String tpCaja,
-			@PathVariable Double tComp, 
-			@PathVariable Double tEfe, 
-			@PathVariable Double tNota,
-			@PathVariable int terminal, @PathVariable String  imp){
-		AperturaCaja ape= aperturaCajaRepository.getAperturaCajaPorIdCaja(idAper);
-		if(tEfe > 0 && ape.getSaldoActual() < tEfe) {
-			return new ResponseEntity<>(new CustomerErrorType("EL MONTO DEVOLUCION ES MAYOR AL MONTO DISPONIBLE EN CAJA"), HttpStatus.CONFLICT);
-		}
-		try {
+	        @RequestBody List<CuentaCobrarCabecera> cue,
+	        @PathVariable int id,
+	        @PathVariable int tpDevol,
+	        @PathVariable int idAper,
+	        @PathVariable String tpCaja,
+	        @PathVariable Double tComp,
+	        @PathVariable Double tEfe,
+	        @PathVariable Double tNota,
+	        @PathVariable int terminal,
+	        @PathVariable String imp) {
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		DevolucionVenta ccc = new DevolucionVenta();
-		ccc= entityRepository.getDevolucionPorId(id);
-		System.out.println("*-*- "+ccc.getDevolucionVentaDetalle().size());
-		for (int i = 0; i < ccc.getDevolucionVentaDetalle().size(); i++) {
-			System.out.println("ID DETALLE : "+ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getId());
-			entityRepository.findeByCantidadDevolucionDetalleProducto(ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getId(),ccc.getDevolucionVentaDetalle().get(i).getCantidad() );
-			   // podés obtener los demás datos desde el detalle, producto o calculados:
-			int idProducto = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getId();
-			 double cantidadDevuelta = ccc.getDevolucionVentaDetalle().get(i).getCantidad();
-			Double costo = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getCosto(); // o como corresponda
-		    double subtotal = costo * cantidadDevuelta;
+	    AperturaCaja ape = aperturaCajaRepository.getAperturaCajaPorIdCaja(idAper);
+	    if (tEfe > 0 && ape.getSaldoActual() < tEfe) {
+	        return new ResponseEntity<>(new CustomerErrorType("EL MONTO DEVOLUCIÓN ES MAYOR AL MONTO DISPONIBLE EN CAJA"), HttpStatus.CONFLICT);
+	    }
 
-		    double precioVenta1 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_1(); // o como corresponda
-		    double precioVenta2 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_2();
-		    double precioVenta3 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_3();
-		    double precioVenta4 = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getPrecioVenta_4();
-		    int idFuncionario = ccc.getFuncionario().getId(); // o quien confirmó la devolución
-		    String marca = ccc.getDevolucionVentaDetalle().get(i).getDetalleProducto().getProducto().getMarca().getDescripcion(); // o código
+	    try {
+	        DevolucionVenta ccc = entityRepository.getDevolucionPorId(id);
 
-		    actualizarProductoBaseAumentarCorregido(
-		        idProducto,
-		        cantidadDevuelta,
-		        costo,
-		        subtotal,
-		        precioVenta1,
-		        precioVenta2,
-		        precioVenta3,
-		        precioVenta4,
-		        idFuncionario,
-		        marca,
-		        "DEVOLUCION ", // podés pasar un tipo más explícito si querés
-		        ccc.getId()); // ID de la devolución para referencia
-		}
-		System.out.println("ID VENTA: "+ccc.getVenta().getId()+" TOTAL: " + ccc.getTotal());
-		//primero confirmar la devolucion
-		entityRepository.confirmarDevolucion(id, tpDevol);
-		//segundo actualizar venta
-		entityRepository.findeByTotalDevolucionVenta(ccc.getVenta().getId(), ccc.getTotal());
-		//tercero aplicar conmpensacion en la cuenta descontar el saldo si que viene cuenta afectada
-		for (int i = 0; i < cue.size(); i++) {
-			CuentaCobrarCabecera cuentaReferencia = new CuentaCobrarCabecera();
-			cuentaReferencia = cue.get(i);
-			Double resto = cuentaReferencia.getTotalDevolucion();
-			cuentaCobrarRepository.findByActualizarTotalDevolucionCuenta(cuentaReferencia.getId(), cuentaReferencia.getTotalDevolucion());
-			List<CuentaCobrarDetalle> det = cuentaCobrarDetalleRepository.getCuentaCobrarDetalle(cuentaReferencia.getId());
-			for (CuentaCobrarDetalle detalle : det) {
-				if (resto <= 0) {
-					break; // ya se aplicó todo el monto
-				}
-				Double saldoDisponible = detalle.getSubTotal()- detalle.getImporte();
-				Double montoAplicado = 0.0;
-				if (saldoDisponible > 0) {
-					if (saldoDisponible.compareTo(resto) >= 0) {
-						montoAplicado = resto;
-					} else {
-						montoAplicado = saldoDisponible;
-					}
-				}
-				// Aplicar el monto al detalle
-				cuentaCobrarDetalleRepository.actualizarImporteAplciado(detalle.getId(), montoAplicado);
-				resto = resto - montoAplicado;
-			}
-		}
-		if (tComp > 0) {
-			
-		}
-		if (tEfe > 0) {
-			OperacionCaja ope= new OperacionCaja();
-			ope.getAperturaCaja().setId(idAper);
-			ope.setMonto(tEfe);
-			ope.getConcepto().setId(6);//devolucionVenta ;
-			ope.setFecha(new Date());
-			ope.setTipo("SALIDA");
-			ope.setMotivo("DEVOLUCION VENTA REF.: "+ccc.getId());
-			System.out.println(tpCaja+ " tp caja");
-			if(tpCaja.equals("EFECTIVO")) {ope.getTipoOperacion().setId(1);}
-			if(tpCaja.equals("CHEQUE")) {ope.getTipoOperacion().setId(2);}
-			if(tpCaja.equals("TARJETA")) {ope.getTipoOperacion().setId(3);}
-			operacionCajaRepository.save(ope);
-			if(tpCaja.equals("EFECTIVO")) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idAper, tEfe);}
-			if(tpCaja.equals("CHEQUE")) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idAper, tEfe);}
-			if(tpCaja.equals("TARJETA")) {aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idAper, tEfe);}
-		}
-		if (tNota > 0) {
-			NotaCredito nota = new NotaCredito();
-			nota.setCliente(ccc.getVenta().getCliente());
-			nota.setDevolucionVenta(ccc);
-			nota.setTotal(tNota);
-			nota.setHora(hora());
-			nota.setTotalLetra(NumerosALetras.convertirNumeroALetras(ccc.getTotal()));
-			nota.setFecha(new Date());
-			nota.getFuncionario().setId(2);
-			notaCreditoRepository.save(nota);
-		}
-		printimpMatricial(id, terminal, imp);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+	        // 🔹 Validación previa de cantidades
+	        for (DevolucionVentaDetalle det : ccc.getDevolucionVentaDetalle()) {
+	            int idDetalle = det.getDetalleProducto().getId();
+	            double cantidadSolicitada = det.getCantidad();
+
+	            // Cantidad ya devuelta previamente en otras devoluciones confirmadas
+	            Double cantidadYaDevuelta = detalleRepository.cantidadDevueltaConfirmada(idDetalle);
+	            if (cantidadYaDevuelta == null) cantidadYaDevuelta = 0.0;
+
+	            // Cantidad vendida en ese detalle
+	            double cantidadVendida = det.getDetalleProducto().getCantidad();
+
+	            // Disponible para devolver
+	            double disponible = cantidadVendida - cantidadYaDevuelta;
+	            String msg="";
+	            if(disponible<=0) {
+	            	  msg= "El producto: "+det.getDescripcion()+ ", ya se devolvió la totalidad en otra devolución anterior";
+	            }else if(cantidadSolicitada> disponible) {
+	            	  msg = "La cantidad a devolver (" + cantidadSolicitada + 
+	                             ") supera lo disponible (" + disponible + 
+	                             ") en el detalle producto ID " + idDetalle;
+	            }
+	            if (!msg.isEmpty()) {
+	                return new ResponseEntity<>(new CustomerErrorType(msg), HttpStatus.CONFLICT);
+	            }
+
+	        }
+
+	        // 🔹 Si todo bien, procesar devolución
+	        for (DevolucionVentaDetalle det : ccc.getDevolucionVentaDetalle()) {
+	            int idProducto = det.getDetalleProducto().getProducto().getId();
+	            double cantidadDevuelta = det.getCantidad();
+	            Double costo = det.getDetalleProducto().getCosto();
+	            double subtotal = costo * cantidadDevuelta;
+
+	            actualizarProductoBaseAumentarCorregido(
+	                idProducto,
+	                cantidadDevuelta,
+	                costo,
+	                subtotal,
+	                det.getDetalleProducto().getProducto().getPrecioVenta_1(),
+	                det.getDetalleProducto().getProducto().getPrecioVenta_2(),
+	                det.getDetalleProducto().getProducto().getPrecioVenta_3(),
+	                det.getDetalleProducto().getProducto().getPrecioVenta_4(),
+	                ccc.getFuncionario().getId(),
+	                det.getDetalleProducto().getProducto().getMarca().getDescripcion(),
+	                "DEVOLUCION ",
+	                ccc.getId()
+	            );
+	            this.detalleProductoRepository.actualizarCantidadDevolvida(det.getDetalleProducto().getId(), cantidadDevuelta);
+	        }
+
+	        // 🔹 Confirmar devolución
+	        entityRepository.confirmarDevolucion(id, tpDevol);
+
+	        // 🔹 Actualizar venta
+	        entityRepository.findeByTotalDevolucionVenta(ccc.getVenta().getId(), ccc.getTotal());
+
+	        // 🔹 Aplicar compensación a cuentas por cobrar
+	        for (CuentaCobrarCabecera cuentaReferencia : cue) {
+	            Double resto = cuentaReferencia.getTotalDevolucion();
+	            cuentaCobrarRepository.findByActualizarTotalDevolucionCuenta(cuentaReferencia.getId(), cuentaReferencia.getTotalDevolucion());
+
+	            List<CuentaCobrarDetalle> dets = cuentaCobrarDetalleRepository.getCuentaCobrarDetalle(cuentaReferencia.getId());
+	            for (CuentaCobrarDetalle detalle : dets) {
+	                if (resto <= 0) break;
+
+	                Double saldoDisponible = detalle.getSubTotal() - detalle.getImporte();
+	                Double montoAplicado = Math.min(saldoDisponible, resto);
+
+	                if (montoAplicado > 0) {
+	                    cuentaCobrarDetalleRepository.actualizarImporteAplciado(detalle.getId(), montoAplicado);
+	                    resto -= montoAplicado;
+	                }
+	            }
+	        }
+
+	        // 🔹 Operaciones de caja (efectivo/cheque/tarjeta)
+	        if (tEfe > 0) {
+	            OperacionCaja ope = new OperacionCaja();
+	            ope.getAperturaCaja().setId(idAper);
+	            ope.setMonto(tEfe);
+	            ope.getConcepto().setId(6); // devolucionVenta
+	            ope.setFecha(new Date());
+	            ope.setTipo("SALIDA");
+	            ope.setMotivo("DEVOLUCION VENTA REF.: " + ccc.getId());
+
+	            if (tpCaja.equals("EFECTIVO")) ope.getTipoOperacion().setId(1);
+	            if (tpCaja.equals("CHEQUE")) ope.getTipoOperacion().setId(2);
+	            if (tpCaja.equals("TARJETA")) ope.getTipoOperacion().setId(3);
+
+	            operacionCajaRepository.save(ope);
+
+	            if (tpCaja.equals("EFECTIVO")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idAper, tEfe);
+	            if (tpCaja.equals("CHEQUE")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idAper, tEfe);
+	            if (tpCaja.equals("TARJETA")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idAper, tEfe);
+	        }
+
+	        // 🔹 Nota de crédito
+	        if (tNota > 0) {
+	            NotaCredito nota = new NotaCredito();
+	            nota.setCliente(ccc.getVenta().getCliente());
+	            nota.setDevolucionVenta(ccc);
+	            nota.setTotal(tNota);
+	            nota.setHora(hora());
+	            nota.setTotalLetra(NumerosALetras.convertirNumeroALetras(ccc.getTotal()));
+	            nota.setFecha(new Date());
+	            nota.getFuncionario().setId(2);
+	            notaCreditoRepository.save(nota);
+	        }
+
+	        // 🔹 Imprimir
+	        printimpMatricial(id, terminal, imp);
+
+	        return new ResponseEntity<>(HttpStatus.CREATED);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return new ResponseEntity<>(new CustomerErrorType("Error al confirmar la devolución: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
 
 	public void actualizarProductoBaseAumentarCorregido(int id , double cantidad, double costo, double subtotal, double preVen1, double preVen2, double preVen3, double preVen4, int idfuncio, String marca, String tipo, int idDevolucion) {
@@ -992,7 +1008,7 @@ public class DevoluconVentaController {
 			System.out.println(numeroTerminal);
 			Reporte report = new Reporte();
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminal(numeroTerminal);
+			t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {

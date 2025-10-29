@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.model.Consumiciones;
-import com.bisontecfacturacion.security.model.Grupo;
-import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.repository.ConsumicionesRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 

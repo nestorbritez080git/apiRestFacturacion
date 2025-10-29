@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.bisontecfacturacion.security.hoteleria.model.Habitaciones;
 import com.bisontecfacturacion.security.hoteleria.model.HabitacionesCategoriaCombo;
 
 public interface HabitacionesCategoriaComboRepository extends JpaRepository<HabitacionesCategoriaCombo, Serializable> {
@@ -32,4 +31,7 @@ public interface HabitacionesCategoriaComboRepository extends JpaRepository<Habi
 	
 	@Query(value="select c.id as id, c.aplicacion as apl, c.precio_minimo as min, c.precio_normal as normal, h.id as idHab, h.descripcion as desHab, cta.id as idCta, cta.descripcion as desCta, h.estado_disponibilidad as dispo, h.estado_reservacion as reserv from habitaciones_categoria_combo c inner join habitaciones h ON h.id=c.habitaciones_id inner join categoria_habitaciones cta ON cta.id=c.categoria_habitaciones_id where h.descripcion ilike :descripcion OR cta.descripcion ilike :descripcion order by h.id ASC",nativeQuery=true)
 	List<Object[]>  getAllDescripcionDisponilidad(@Param("descripcion") String descripcion);
+	
+	@Query(value="SELECT c FROM HabitacionesCategoriaCombo c INNER JOIN c.habitaciones hab where hab.id=:id")
+	List<HabitacionesCategoriaCombo>  consultarComboPorIdCabecera(@Param("id") int id);
 }

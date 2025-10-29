@@ -1,15 +1,25 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
-import com.bisontecfacturacion.security.model.Concepto;
 
 public interface TerminalConfigImpresoraRepository  extends JpaRepository<TerminalConfigImpresora, Serializable> {
-	@Query(value = "select * from terminal_config_impresora f where numero_terminal=:id ", nativeQuery = true )
-	public TerminalConfigImpresora consultarTerminal(@Param("id") int id);
+//	@Query(value = "select * from terminal_config_impresora f where numero_terminal=:id ", nativeQuery = true )
+//	public TerminalConfigImpresora consultarTerminal(@Param("id") int id);
+//	
+	@Query("SELECT c FROM TerminalConfigImpresora c LEFT JOIN FETCH c.autoImpresor WHERE c.numeroTerminal = :idTerminal")
+	public TerminalConfigImpresora consultarTerminalEmisonFacturaPorTerminales(@Param("idTerminal") int idTerminal);
+	@Query("SELECT c FROM TerminalConfigImpresora c WHERE c.numeroTerminal = :idTerminal")
+	public TerminalConfigImpresora consultarTerminalPorNumero(@Param("idTerminal") int idTerminal);
+
+	
+	@Query("SELECT c FROM TerminalConfigImpresora c LEFT JOIN FETCH c.autoImpresor")
+	public List<TerminalConfigImpresora> getAllTerminal();
+
 }

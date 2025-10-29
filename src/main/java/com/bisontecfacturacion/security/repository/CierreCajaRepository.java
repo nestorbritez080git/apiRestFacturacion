@@ -1,7 +1,6 @@
 package com.bisontecfacturacion.security.repository;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,8 +16,8 @@ public interface CierreCajaRepository extends JpaRepository<CierreCaja, Serializ
 	
 //	List<Caja> findByTop100DescripcionLike(@Param("descripcion") String descripcion);
 //	public abstract Caja findByDescripcion(String descripcion);
-	public abstract List<CierreCaja>findTop100ByOrderByIdDesc();
-	@Query("select a from CierreCaja a where funcionario_id=:idFuncionario order by id desc")
+	public abstract List<CierreCaja>findTop20ByOrderByIdDesc();
+	@Query(value =  "select * from cierre_caja a where a.funcionario_id=:idFuncionario order by a.id desc limit 20", nativeQuery = true)
 	public List<CierreCaja> getCierreCajaPorFuncionario(@Param("idFuncionario")int idFuncionario);
 
 	@Query("update Caja set estado=true where id=:id")

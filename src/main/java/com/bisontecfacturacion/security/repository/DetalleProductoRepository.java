@@ -5,8 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.DetalleProducto;
 
@@ -24,6 +26,9 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 	
 	@Query(value = "DELETE FROM DetalleProducto where venta_id =:idVenta")
 	public void eliminarDetallePorVentaId(@Param("idVenta") int idVenta );
+	
+	@Query(value = "SELECT c FROM DetalleProducto c where venta_id =:idVenta")
+	public List<DetalleProducto> getDetallePorCabecera(@Param("idVenta") int idVenta );
 
 	@Query(value="select detalle_producto.descripcion as desc,"
 	+ "marca.descripcion as descriMarca ,"
@@ -108,6 +113,11 @@ public interface DetalleProductoRepository extends JpaRepository<DetalleProducto
 	
 	@Query(value="SELECT sum(det.costo)as costoTotal, sum(det.sub_total)as subtotal, sum(det.sub_total - det.costo) as utilidad  from detalle_producto det  inner join venta v on v.id=det.venta_id inner join operacion_caja op on op.id=v.operacion_caja inner join apertura_caja ap on ap.id=op.apertura_caja_id where ap.id=:id and v.tipo='1' and v.estado='FACTURADO'",nativeQuery=true)
 	Object[][] getResumenUtilidad(@Param("id") int id);
+	
+	@Modifying
+    @Transactional(readOnly=false)
+    @Query("update DetalleProducto set cantidadDevolucion = cantidadDevolucion + :monto WHERE id=:id")
+    public void actualizarCantidadDevolvida(@Param("id") Integer detId, @Param("monto") Double monto);
 	
 	
 }

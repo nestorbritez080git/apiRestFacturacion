@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
-import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.Servicio;
 import com.bisontecfacturacion.security.repository.ServicioRepository;
 

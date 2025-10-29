@@ -27,12 +27,45 @@ public class AutoImpresorDetalleVenta {
 	private AutoImpresor autoImpresor;
 	@NotNull
 	private String numeroFactura;
+	private Integer terminalGrabado;
+	private String estado;
+	private String estadoSincronizacion;
 	public AutoImpresorDetalleVenta() {
 		this.id=0;
 		this.fecha= LocalDateTime.now();
 		this.autoImpresor= new AutoImpresor();
 		this.venta= new Venta();
-		
+		this.numeroFactura="";
+		this.terminalGrabado=0;
+		this.estado="ACTIVO";
+		this.estadoSincronizacion="PENDIENTE";
+	}
+	
+
+
+	public String getEstadoSincronizacion() {
+		return estadoSincronizacion;
+	}
+
+
+
+	public void setEstadoSincronizacion(String estadoSincronizacion) {
+		this.estadoSincronizacion = estadoSincronizacion;
+	}
+
+
+
+	public String getEstado() {
+		return estado;
+	}
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
+	public Integer getTerminalGrabado() {
+		return terminalGrabado;
+	}
+	public void setTerminalGrabado(Integer terminalGrabado) {
+		this.terminalGrabado = terminalGrabado;
 	}
 	public int getId() {
 		return id;
@@ -64,6 +97,4 @@ public class AutoImpresorDetalleVenta {
 	public void setNumeroFactura(String numeroFactura) {
 		this.numeroFactura = numeroFactura;
 	}
-	
-	
 }
