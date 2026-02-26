@@ -300,6 +300,7 @@ public class CierreCajaController {
 			}
 			
 			
+			
 			Tesoreria tesoreria= new Tesoreria();
 			tesoreria.getCierreCaja().setId(entityRepository.findTop1ByOrderByIdDesc().getId());
 			tesoreria.setImporte(entity.getMonto());
@@ -312,9 +313,9 @@ public class CierreCajaController {
 			funcionarioRepository.findByActualizarFuncionario(idFun, false);
 			aperturaCajaRepository.findByActualizarFuncionario(idape, false);
 			cajaRepository.findByActualizaEstado(entity.getAperturaCaja().getCaja().getId(), false);
-		}else {
-			return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO QUE ESTA TRATANDO DE CERRAR LA PAERTURA DE LA CAJA NO CONICIDE CON EL FUNCIONARIO QUE DIO APERTURA A LA CAJA SELECCIONADA"), HttpStatus.CONFLICT);
-		}
+			}else {
+				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO QUE ESTA TRATANDO DE CERRAR LA PAERTURA DE LA CAJA NO CONICIDE CON EL FUNCIONARIO QUE DIO APERTURA A LA CAJA SELECCIONADA"), HttpStatus.CONFLICT);
+			}
 		}
 	
 		

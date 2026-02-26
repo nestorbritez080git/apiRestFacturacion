@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -32,6 +33,7 @@ public class Funcionario {
 	}
 
 	@ManyToOne
+	@JoinColumn(name = "persona_id", unique = true)
     private Persona persona;
 	
 	@OneToMany(mappedBy="funcionario")

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -15,6 +16,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
 @Entity
@@ -30,14 +32,15 @@ public class OrdenProduccion {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fechaEntrega;
 	private String hora;
-	private String codigoInternoProduccion;
 	@NotNull
 	private Double cantidad;
 	@NotNull
 	private Double cantidadEntregada;
+	private Double costoTotalProduccion;
 	
 	@NotNull
-	private Boolean estado;
+	@Column(name = "estado")
+	private String estado;
 	
 	@ManyToOne
 	private ProduccionCostoCabecera produccionCostoCabecera;
@@ -47,8 +50,10 @@ public class OrdenProduccion {
 	
 	@ManyToOne
 	private Funcionario funcionarioA;
+	
+	
 	@OneToMany(mappedBy="ordenProduccion")
-	@JsonBackReference
+	@JsonIgnoreProperties("ordenProduccion")
 	private List<OrdenProduccionDetalle> ordenProduccionDetalles;
 	
 	public OrdenProduccion() {
@@ -57,6 +62,8 @@ public class OrdenProduccion {
 		this.funcionario= new Funcionario();
 		this.funcionarioA= new Funcionario();
 		this.ordenProduccionDetalles = new ArrayList<OrdenProduccionDetalle>();
+		this.costoTotalProduccion = 0.0;
+		this.estado = "PENDIENTE";
 	}
 
 	
@@ -102,13 +109,16 @@ public class OrdenProduccion {
 		this.hora = hora;
 	}
 
-	public String getCodigoInternoProduccion() {
-		return codigoInternoProduccion;
+	
+	public Double getCostoTotalProduccion() {
+		return costoTotalProduccion;
 	}
 
-	public void setCodigoInternoProduccion(String codigoInternoProduccion) {
-		this.codigoInternoProduccion = codigoInternoProduccion;
+
+	public void setCostoTotalProduccion(Double costoTotalProduccion) {
+		this.costoTotalProduccion = costoTotalProduccion;
 	}
+
 
 	public Double getCantidad() {
 		return cantidad;
@@ -126,13 +136,16 @@ public class OrdenProduccion {
 		this.cantidadEntregada = cantidadEntregada;
 	}
 
-	public Boolean getEstado() {
+
+	public String getEstado() {
 		return estado;
 	}
 
-	public void setEstado(Boolean estado) {
+
+	public void setEstado(String estado) {
 		this.estado = estado;
 	}
+
 
 	public ProduccionCostoCabecera getProduccionCostoCabecera() {
 		return produccionCostoCabecera;

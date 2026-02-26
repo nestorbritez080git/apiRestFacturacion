@@ -8,5 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.bisontecfacturacion.security.model.Moneda;
 
 public interface MonedaRepsitory extends JpaRepository<Moneda, Serializable>{
-	public abstract List<Moneda> findByOrderByIdAsc(); 
+	public abstract List<Moneda> findByOrderByIdAsc();
+	public abstract List<Moneda> findByOrderByIdDesc();
 }

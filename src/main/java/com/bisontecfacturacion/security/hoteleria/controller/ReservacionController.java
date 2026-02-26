@@ -582,7 +582,7 @@ public class ReservacionController {
 		if(venta.get(0).getDocumento().getId()==1) {
 			Reporte report = new Reporte();
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+			t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
@@ -628,7 +628,7 @@ public class ReservacionController {
 			if(siImpresion.equals("true")) {
 				Reporte report = new Reporte();
 				TerminalConfigImpresora t = new TerminalConfigImpresora();
-				t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+				t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 				if (t==null) {
 					System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 				}else {
@@ -1035,10 +1035,12 @@ public class ReservacionController {
 				d.setTotalHabitacion(Double.parseDouble(ob[6].toString()));
 				d.setFechaRegistro(FechaUtil.convertirStrinfALocalDateTim(ob[7].toString()));
 				d.setHora(ob[8].toString());
-				d.setFechaFactura(FechaUtil.convertirStrinfALocalDateTim(ob[9].toString()));
+				if(ob[9] == null) {d.setFechaFactura(null);}else {d.setFechaFactura(FechaUtil.convertirStrinfALocalDateTim(ob[9].toString()));}
 				d.setHoraFinalizacion(ob[10].toString());
 				d.setEstadia(Integer.parseInt(ob[11].toString()));
 				d.setTotal(Double.parseDouble(ob[12].toString()));
+				d.setId(Integer.parseInt(ob[13].toString()));
+				d.setEstado(ob[14].toString());
 				det.add(d);
 			}
 			Map<String, Object> map = new HashMap<>();

@@ -38,7 +38,7 @@ public class DetalleProducto {
 	private Double montoIva;
 
 	@ManyToOne
-	@JsonIgnoreProperties("venta")
+	@JsonIgnoreProperties
 	private Venta venta;
 	
 	private Double costo;

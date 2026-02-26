@@ -52,64 +52,93 @@ public class ProveedorController {
 	
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?> guardar(@RequestBody Proveedor entity){
+		System.out.println("entr ocomo para guardar proveedor");
+		if(entity.getPersona().getId() != null) {
+	        // Persona ya existe → buscarla y adjuntarla
+	        Persona pExistente = personaRepository.findById(entity.getPersona().getId())
+	            .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
+	        entity.setPersona(pExistente);
+	    } else {
+	        // Persona nueva → se guarda automáticamente si usas cascade = CascadeType.ALL
+	    }
+		
 		try {
-			if (siExistePersona(entity.getPersona())== true) {
-				return new ResponseEntity<>(new CustomerErrorType("Esta Persona ya posee credenciales como Proveedor dentro del sistema.!\nSi persiste el inconveniente consulte con el administrador  "), HttpStatus.CONFLICT);
+			if(entity.getPersona().getId()==0){
+				return new ResponseEntity<>(new CustomerErrorType("La persona no debe quedar vacio"), HttpStatus.CONFLICT);		
+			}else if (siExistePersona(entity.getPersona())== true) {
+				return new ResponseEntity<>(new CustomerErrorType("Esta Persona ya posee credenciales como Cliente dentro del sistema.!\nSi persiste el inconveniente consulte con el administrador  "), HttpStatus.CONFLICT);
 //					return new ResponseEntity<>("Esta Persona ya posee credenciales como funcionario dentro del sistema.!\nSi persiste el inconvenientes consulte con administrador  ", HttpStatus.CONFLICT);
 			}else {
 				entityRepository.save(entity);
 				return  new  ResponseEntity<String>(HttpStatus.CREATED);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+		}
 	}
 	
 	@RequestMapping(method=RequestMethod.POST, value = "/compra")
 	public ResponseEntity<?> guardarNuevoCompra(@RequestBody Proveedor entity){
-		try {
-			if(entity.getPersona().getCedula()==null || entity.getPersona().getCedula().equals("")) {
-				 return new ResponseEntity<>(new CustomerErrorType("El N° DE CEDULA Y/O RUC NO DEBE QUEDAR VACIO"),HttpStatus.CONFLICT);	
-			}else if(entity.getPersona().getNombre()== null || entity.getPersona().getNombre().equals("")) {
-				 return new ResponseEntity<>(new CustomerErrorType("El NOMBRE NO DEBE QUEDAR VACIO"),HttpStatus.CONFLICT);	
-			}else {
-				if(entity.getPersona().getNombre()!=null){
-					entity.getPersona().setNombre(Utilidades.eliminaCaracterIzqDer(entity.getPersona().getNombre().trim().toUpperCase()));			
+		 try {
+		        if (entity.getPersona() == null) {
+		            return new ResponseEntity<>(
+		                new CustomerErrorType("La persona no puede ser nula"),
+		                HttpStatus.CONFLICT
+		            );
 		        }
-		        if(entity.getPersona().getApellido()!=null){
-					entity.getPersona().setApellido(Utilidades.eliminaCaracterIzqDer(entity.getPersona().getApellido().trim().toUpperCase()));			
+
+		        // 🔒 VALIDACIONES
+		        if (entity.getPersona().getCedula() == null || entity.getPersona().getCedula().isEmpty()) {
+		            return new ResponseEntity<>(
+		                new CustomerErrorType("El N° DE CEDULA Y/O RUC NO DEBE QUEDAR VACIO"),
+		                HttpStatus.CONFLICT
+		            );
 		        }
-		        if(entity.getPersona().getCedula()!=null){
-					entity.getPersona().setCedula(Utilidades.eliminaCaracterIzqDer(entity.getPersona().getCedula().trim().toUpperCase()));			
+
+		        if (entity.getPersona().getNombre() == null || entity.getPersona().getNombre().isEmpty()) {
+		            return new ResponseEntity<>(
+		                new CustomerErrorType("EL NOMBRE NO DEBE QUEDAR VACIO"),
+		                HttpStatus.CONFLICT
+		            );
 		        }
-		        if(entity.getPersona().getDireccion()!=null){
-					entity.getPersona().setDireccion(Utilidades.eliminaCaracterIzqDer(entity.getPersona().getDireccion().trim().toUpperCase()));			
+
+		        // 🧹 NORMALIZACIÓN
+		        Persona p = entity.getPersona();
+		        p.setNombre(Utilidades.eliminaCaracterIzqDer(p.getNombre().trim().toUpperCase()));
+		        if (p.getApellido() != null)
+		            p.setApellido(Utilidades.eliminaCaracterIzqDer(p.getApellido().trim().toUpperCase()));
+		        if (p.getDireccion() != null)
+		            p.setDireccion(Utilidades.eliminaCaracterIzqDer(p.getDireccion().trim().toUpperCase()));
+		        if (p.getEmail() != null)
+		            p.setEmail(p.getEmail().trim().toUpperCase());
+		        if (p.getTipo() != null)
+		            p.setTipo(p.getTipo().trim().toUpperCase());
+
+		        // 🚨 CLAVE: fuerza entidad nueva
+		        p.setId(null);
+		        entity.setId(null);
+
+		        // 🔍 VALIDAR DUPLICADO
+		        if (siExiste(p)) {
+		            return new ResponseEntity<>(
+		                new CustomerErrorType("El N° DE CEDULA " + p.getCedula() + " YA EXISTE."),
+		                HttpStatus.CONFLICT
+		            );
 		        }
-		        if(entity.getPersona().getEmail()!=null){
-					entity.getPersona().setEmail(entity.getPersona().getEmail().trim().toUpperCase());			
-		        }
-		        if(entity.getPersona().getTipo()!=null){
-					entity.getPersona().setTipo(entity.getPersona().getTipo().trim().toUpperCase());			
-		        }
-		        if(entity.getPersona().getId() != 0){
-		               
-		        } else {
-		            if (siExiste(entity.getPersona())) {
-		                return new ResponseEntity<>(new CustomerErrorType("El N° DE CEDULA " + entity.getPersona().getCedula() + " YA EXISTE."),
-		                        HttpStatus.CONFLICT);
-		            }else {
-		                personaRepository.save(entity.getPersona());
-		                Persona p = new Persona();
-		                p=personaRepository.findTop1ByOrderByIdDesc();
-		                entity.getPersona().setId(p.getId());
-		                entityRepository.save(entity);
-		            }
-		        }
-			} 
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-		return  new  ResponseEntity<String>(HttpStatus.CREATED);
+
+		        // 💾 UN SOLO SAVE
+		        entityRepository.save(entity);
+
+		        return new ResponseEntity<>(HttpStatus.CREATED);
+
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return new ResponseEntity<>(
+		            new CustomerErrorType(e.getMessage()),
+		            HttpStatus.INTERNAL_SERVER_ERROR
+		        );
+		    }
 	}
 	
 	public boolean siExiste(Persona entity){
@@ -141,6 +170,7 @@ public class ProveedorController {
 				return  new  ResponseEntity<String>(HttpStatus.CREATED);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	}

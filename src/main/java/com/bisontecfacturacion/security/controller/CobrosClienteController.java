@@ -239,7 +239,27 @@ public class CobrosClienteController {
 
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/buscarCabecera/detalleCobros/{idDetalleCobros}")
+	public ResponseEntity<?> getCobrosCabceraPorDetalleCobrosId(@PathVariable int idDetalleCobros) {
+		try {
+	        // Llamada al repositorio
+			CobrosClienteCabecera cabeceraReturn = null;
+	        CobrosClienteCabecera cabecera = entityRepository.getCabeceraCobrosPorCobrosDetalle(idDetalleCobros);
 
+	        if (cabecera == null) {
+	            return ResponseEntity.status(404).body("Cabecera no encontrada para el detalle de cobro ID: " + idDetalleCobros);
+	        }else {
+				cabeceraReturn = new CobrosClienteCabecera();
+				cabeceraReturn.setId(cabecera.getId());
+			}
+	        
+			return new ResponseEntity<>(cabeceraReturn, HttpStatus.OK);
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        // Manejo de error
+			return new ResponseEntity<>(new CustomerErrorType("Ocurrió un error al buscar la cabecera: "+e.getMessage()), HttpStatus.CONFLICT);
+	    }
+	}
 	@RequestMapping(method = RequestMethod.GET, value = "/buscarCobros/{idCuenta}")
 	public ResponseEntity<?> getCobrosPorIdCuenta(@PathVariable int idCuenta) {
 		List<CobrosCliente> listado = entityRepository.getCobrosPorIdCuenta(idCuenta);
@@ -486,6 +506,7 @@ public class CobrosClienteController {
 
 				Concepto c = new Concepto();
 				c = conceptoRepository.findById(operacioActualziar.getConcepto().getId()).get();
+				operacioActualziar.setReferenciaOperacion(cobros.getId());
 				operacioActualziar.setMotivo(c.getDescripcion() + " REF.: " + cobros.getId());
 				operacioActualziar.setTipo("ENTRADA");
 				if (operacioActualziar.getTipoOperacion().getId() == 1) {
@@ -601,6 +622,7 @@ public class CobrosClienteController {
 					cuentaCobrarRepository.findByActualizarPagadoCuenta(cobros.getCuentaCobrarCabecera().getId(), op.getMonto());
 					Concepto c = new Concepto();
 					c = conceptoRepository.findById(operacioActualziar.getConcepto().getId()).get();
+					operacioActualziar.setReferenciaOperacion(cobros.getId());
 					operacioActualziar.setMotivo(c.getDescripcion() + " REF.: " + cobros.getId());
 					operacioActualziar.setTipo("ENTRADA");
 					if (operacioActualziar.getTipoOperacion().getId() == 1) {
@@ -806,7 +828,7 @@ public class CobrosClienteController {
 			cobros.get(0).setFecha(new Date());
 			System.out.println("D-: "+cobros.get(0).getOperacionCaja().getTipoOperacion().getDescripcion());
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+			t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
@@ -858,16 +880,13 @@ public class CobrosClienteController {
 					map.put("direccionReporte", f.getDireccion());
 					map.put("telefonoReporte", f.getTelefono());
 					try {
-						
 						ParametroTipoHoja p = parametroTipoHoja.getOne(1);
 						if(p.getDescripcion().equals("A4")) {
 			        		report.reportPDFImprimirA4(listaVentaImpresion, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
 		        		}
 		        		if(p.getDescripcion().equals("CORTE")) {
 			        		report.reportPDFImprimirLibreCorte(listaVentaImpresion, map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
-
 		        		}
-						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -885,7 +904,7 @@ public class CobrosClienteController {
 		ReporteConfig reportConfig = reporteConfigRepository.getOne(1);
 		List<CobrosCliente> venta = getLista(idVenta);
 		TerminalConfigImpresora t = new TerminalConfigImpresora();
-		t= terminalRepository.consultarTerminalPorNumero(numeroterminal);
+		t= terminalRepository.consultarTerminalPorNumeros(numeroterminal);
 		Map<String, Object> map = new HashMap<>();
 		System.out.println("entroooo imprimir "+ tipoImpresora);
 		

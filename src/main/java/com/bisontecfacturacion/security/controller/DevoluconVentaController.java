@@ -37,6 +37,8 @@ import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DevolucionVenta;
 import com.bisontecfacturacion.security.model.DevolucionVentaDetalle;
+import com.bisontecfacturacion.security.model.EmpaqueCabecera;
+import com.bisontecfacturacion.security.model.EmpaqueDetalle;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.NotaCredito;
@@ -56,6 +58,8 @@ import com.bisontecfacturacion.security.repository.CuentaAcobrarRepository;
 import com.bisontecfacturacion.security.repository.DetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.DevolucionVentaDetalleRepository;
 import com.bisontecfacturacion.security.repository.DevolucionVentaRepository;
+import com.bisontecfacturacion.security.repository.EmpaqueCabeceraRepository;
+import com.bisontecfacturacion.security.repository.EmpaqueDetalleRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.InteresCuotaRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
@@ -92,6 +96,10 @@ public class DevoluconVentaController {
 	@Autowired
 	private DetalleProductoRepository detalleProductoRepository;
 
+	@Autowired
+	private EmpaqueCabeceraRepository empaqueRepository;
+	@Autowired
+	private EmpaqueDetalleRepository empaqueDetalleRepository;
 
 	@Autowired
 	private ClienteRepository clienteRepository; 
@@ -422,13 +430,15 @@ public class DevoluconVentaController {
 	            );
 	            this.detalleProductoRepository.actualizarCantidadDevolvida(det.getDetalleProducto().getId(), cantidadDevuelta);
 	        }
-
+		
 	        // 🔹 Confirmar devolución
 	        entityRepository.confirmarDevolucion(id, tpDevol);
-
+	        
 	        // 🔹 Actualizar venta
 	        entityRepository.findeByTotalDevolucionVenta(ccc.getVenta().getId(), ccc.getTotal());
-
+	        
+	     
+	        
 	        // 🔹 Aplicar compensación a cuentas por cobrar
 	        for (CuentaCobrarCabecera cuentaReferencia : cue) {
 	            Double resto = cuentaReferencia.getTotalDevolucion();
@@ -447,7 +457,48 @@ public class DevoluconVentaController {
 	                }
 	            }
 	        }
+	        //aplicar descuento por empaque
+	    	EmpaqueCabecera emp= empaqueRepository.getEmpaquePorVentaCabecerass(ccc.getVenta().getId()); 
+	      //verifica si se vendio por lote empaque
+			if (emp != null) {
+				// Buscar el detalle de empaque que corresponde a esta venta
+				EmpaqueDetalle detalleEmpaque = emp.getEmpaqueDetalle().stream()
+						.filter(d -> d.getVenta() != null && d.getVenta().getId() == ccc.getVenta().getId())
+						.findFirst()
+						.orElse(null);
 
+				if (detalleEmpaque != null) {
+					// Descontar el subtotal de la devolcuioin  del total del empaque
+					double nuevoTotalEmpaqueFinalizado = emp.getTotalFinalizado() - ccc.getTotal();
+					//emp.setTotalFinalizado(nuevoTotalEmpaqueFinalizado);
+					// Reducir la cantidad de items en el empaque
+//					int nuevoItems = emp.getItemsPedido() - 1;
+//					emp.setItemsPedido(Math.max(nuevoItems, 0)); // evitar negativos
+
+					// Actualizar total en letras
+					//emp.setTotalLetras(NumerosALetras.convertirNumeroALetras(nuevoTotalEmpaque));
+
+					// Cambiar estado si no hay más ventas
+					boolean quedanVentas = emp.getEmpaqueDetalle().stream()
+							.anyMatch(d -> d.getVenta() != null && !"ANULADO".equalsIgnoreCase(d.getVenta().getEstado()));
+					if (!quedanVentas) {
+						emp.setEstado("ANULADO"); // o el estado que corresponda
+					}
+
+					// Guardar cambios
+					empaqueRepository.save(emp);
+					// También podés actualizar el detalle de empaque directamente
+					//detalleEmpaque.setSubtotalPresupuesto(0.0);
+					//detalleEmpaque.setItemsPedidoDetalle(0);
+					   //  Actualizar EmpaqueCabecera con el totalDevolucion
+			        empaqueRepository.findeByTotalDevolucionVenta(emp.getId(), ccc.getTotal());
+
+
+					empaqueDetalleRepository.save(detalleEmpaque);
+				}
+			}else {
+				System.out.println("no tiene empaque asociada");
+			}
 	        // 🔹 Operaciones de caja (efectivo/cheque/tarjeta)
 	        if (tEfe > 0) {
 	            OperacionCaja ope = new OperacionCaja();
@@ -1008,7 +1059,7 @@ public class DevoluconVentaController {
 			System.out.println(numeroTerminal);
 			Reporte report = new Reporte();
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+			t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {

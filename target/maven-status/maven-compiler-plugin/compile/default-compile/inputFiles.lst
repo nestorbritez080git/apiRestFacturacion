@@ -143,6 +143,7 @@ C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestF
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\AutoImpresor.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\contabilidad\repository\AsientoContableDetalleRepositor.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AnticipoReferenciaOperacionCajaRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\TransferenciaCajaMayorCajaAperturaInicialCajeroRepository.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Consumiciones.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\LimitesRegistroLista.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DepositoRepository.java
@@ -309,6 +310,7 @@ C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestF
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\hoteleria\controller\EstadiaSheluderServices.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\controller\VentaController.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\EmpaqueDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\TransferenciaCajaMayorCajaAperturaInicialCajero.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\FuncionarioRepository.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\contabilidad\repository\CuentaContableRepository.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\DetalleProductoRepository.java
@@ -318,6 +320,7 @@ C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestF
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\hoteleria\repository\CuentaCobrarDetalleReservacionesRepository.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PagosProveedorReferenciaCajaChicaRepository.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\InventarioDetalleRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\AppConfig.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\RucFormato.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\hoteleria\model\ReservacionDetalle.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\CuentaPagarDetalleRepository.java
@@ -415,6 +418,7 @@ C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestF
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Temporizador.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UbicacionPermisoRepository.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\AddListRouterRepository.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\InformeHistoricoMovimiento.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Funcionario.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\model\Role.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\PresupuestoDetalleProductoRepository.java
@@ -446,6 +450,7 @@ C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestF
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\config\Reporte.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\contabilidad\controller\CuentaContableController.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\contabilidad\model\ConceptoCuentaContable.java
+C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\auxiliar\InformeCierreEmpaqueAuxiliar.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\educacion\controller\CarreraController.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\SerialDetalleRepository.java
 C:\Users\Nestor\Documents\Developer\proyecto-bisontec\Bisontec Software\apiRestFacturacion\src\main\java\com\bisontecfacturacion\security\repository\UnidadMedidaRepository.java

@@ -37,6 +37,7 @@ import com.bisontecfacturacion.security.model.TransferenciaCajaActivaCajaMayor;
 import com.bisontecfacturacion.security.model.TransferenciaCajaChica;
 import com.bisontecfacturacion.security.model.TransferenciaCajaMayor;
 import com.bisontecfacturacion.security.model.TransferenciaCajaMayorCajaActiva;
+import com.bisontecfacturacion.security.model.TransferenciaCajaMayorCajaAperturaInicialCajero;
 import com.bisontecfacturacion.security.model.TransferenciaGastos;
 import com.bisontecfacturacion.security.model.TransferenciaPagosProveedor;
 import com.bisontecfacturacion.security.model.TransferenciaTesoreria;
@@ -54,6 +55,7 @@ import com.bisontecfacturacion.security.repository.TransferenciaAperturaCajaRepo
 import com.bisontecfacturacion.security.repository.TransferenciaCajaActivaCajaMayorRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaCajaChicaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaCajaMayorCajaActivaRepository;
+import com.bisontecfacturacion.security.repository.TransferenciaCajaMayorCajaAperturaInicialCajeroRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaCajaMayorRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaGastoRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaPagosProveedorRepository;
@@ -81,6 +83,10 @@ public class TesoreriaController {
 	@Autowired
 	private TransferenciaCajaMayorCajaActivaRepository transferenciaCajaMayorCajaActivaRepository;
 
+	@Autowired
+	private TransferenciaCajaMayorCajaAperturaInicialCajeroRepository transferenciaCajaMayorCajaAperturaInicialCajeroRepository;
+
+	
 	@Autowired
 	private TransferenciaCajaActivaCajaMayorRepository transferenciaCajaActivaCajaMayorRepository;
 
@@ -303,6 +309,29 @@ public class TesoreriaController {
 			tf.setMonto(Double.parseDouble(ob[5].toString()));
 			tf.setMontoCheque(Double.parseDouble(ob[6].toString()));
 			tf.setMontoTarjeta(Double.parseDouble(ob[7].toString()));
+			listRetorno.add(tf);
+		}
+
+		return listRetorno;
+	}
+	@RequestMapping(method=RequestMethod.GET, value = "/transferenciaCajaMayorCajaAperturaInicialCajero/consultaTodo")
+	public List<TransferenciaCajaMayorCajaAperturaInicialCajero> consultarTransferenciaCajaMayorCajaAperturainicialCajero() {
+		List<Object []> lisObj= transferenciaCajaMayorCajaAperturaInicialCajeroRepository.consultarDetalleTransferenciaCajaMayorCajaActiva();
+		List<TransferenciaCajaMayorCajaAperturaInicialCajero> listRetorno= new ArrayList<TransferenciaCajaMayorCajaAperturaInicialCajero>();
+		for(Object [] ob :lisObj) {
+			TransferenciaCajaMayorCajaAperturaInicialCajero tf= new TransferenciaCajaMayorCajaAperturaInicialCajero();
+			tf.setId(Integer.parseInt(ob[0].toString()));
+			tf.setFecha(FechaUtil.convertirFechaStringADateUtil(ob[1].toString()));
+			tf.getFuncionario().getPersona().setNombre(ob[2].toString());
+			tf.getFuncionario().getPersona().setApellido(ob[3].toString());
+			tf.getCajaMayor().setId(Integer.parseInt(ob[4].toString()));
+			tf.getCajaMayor().setDescripcion(ob[5].toString());
+			tf.getAperturaCaja().setId(Integer.parseInt(ob[6].toString()));
+			tf.getAperturaCaja().getFuncionario().getPersona().setNombre(ob[7].toString());;
+			tf.getAperturaCaja().getFuncionario().getPersona().setApellido(ob[8].toString());;
+			tf.setMonto(Double.parseDouble(ob[9].toString()));
+			tf.setMontoCheque(Double.parseDouble(ob[10].toString()));
+			tf.setMontoTarjeta(Double.parseDouble(ob[11].toString()));
 			listRetorno.add(tf);
 		}
 
@@ -810,6 +839,7 @@ public class TesoreriaController {
 				op.setEfectivo(0.0);
 				op.setMonto(entity.getMonto());
 				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setReferenciaOperacion(cvt.getId());
 				op.setTipo("SALIDA");
 				op.getTipoOperacion().setId(1);
 				if (op.getTipoOperacion().getId() == 1) {
@@ -826,6 +856,7 @@ public class TesoreriaController {
 				op.setEfectivo(0.0);
 				op.setMonto(entity.getMontoCheque());
 				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setReferenciaOperacion(cvt.getId());
 				op.setTipo("SALIDA");
 				op.getTipoOperacion().setId(2);
 				if (op.getTipoOperacion().getId() == 2) {
@@ -842,6 +873,7 @@ public class TesoreriaController {
 				op.setEfectivo(0.0);
 				op.setMonto(entity.getMontoTarjeta());
 				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
+				op.setReferenciaOperacion(cvt.getId());
 				op.setTipo("SALIDA");
 				op.getTipoOperacion().setId(3);
 				if(op.getTipoOperacion().getId() == 3) {
@@ -855,6 +887,17 @@ public class TesoreriaController {
 		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
 
+	}
+	
+	
+	@RequestMapping(method=RequestMethod.POST, value = "/detalleOperacion/{idConcepto}")
+	public List<Tesoreria> getAperturaCajaFiltro(@PathVariable Integer idConcepto){
+		
+		List<Tesoreria> objeto= new ArrayList<>();
+		
+		
+		
+		return cargarTesoria(objeto);
 	}
 	
 	@RequestMapping(method=RequestMethod.POST, value = "/buscar/filtro")
@@ -902,5 +945,28 @@ public class TesoreriaController {
 
 		return producto;
 	}
+	
+	@RequestMapping(method=RequestMethod.GET, value = "/transferenciaCajaActivaCajaMayor/{id}")
+	public TransferenciaCajaActivaCajaMayor consultarTransferenciaCajaActivaCajaMayorPorIdTransferncia(@PathVariable int id) {
+		TransferenciaCajaActivaCajaMayor obRetorno= new TransferenciaCajaActivaCajaMayor();
+		TransferenciaCajaActivaCajaMayor ob = transferenciaCajaActivaCajaMayorRepository.TransferenciaCajaActivaCajaMayor(id);
+//			TransferenciaCajaActivaCajaMayor tf= new TransferenciaCajaActivaCajaMayor();
+//			tf.setId(Integer.parseInt(ob[0].toString()));
+//			tf.setFecha(FechaUtil.convertirFechaStringADateUtil(ob[1].toString()));
+//			tf.getFuncionario().getPersona().setNombre(ob[2].toString());
+//			tf.getFuncionario().getPersona().setApellido(ob[3].toString());
+//			tf.getCajaMayor().setId(Integer.parseInt(ob[4].toString()));
+//			tf.getCajaMayor().setDescripcion(ob[5].toString());
+//			tf.getAperturaCaja().setId(Integer.parseInt(ob[6].toString()));
+//			tf.getAperturaCaja().getFuncionario().getPersona().setNombre(ob[7].toString());;
+//			tf.getAperturaCaja().getFuncionario().getPersona().setApellido(ob[8].toString());;
+//			tf.setMonto(Double.parseDouble(ob[9].toString()));
+//			tf.setMontoCheque(Double.parseDouble(ob[10].toString()));
+//			tf.setMontoTarjeta(Double.parseDouble(ob[11].toString()));
+//		
+
+		return ob;
+	}
+
 
 }

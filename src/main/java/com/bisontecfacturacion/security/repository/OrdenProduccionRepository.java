@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bisontecfacturacion.security.model.EmpaqueCabecera;
 import com.bisontecfacturacion.security.model.OrdenProduccion;
 
 @Repository
@@ -24,5 +25,42 @@ public interface OrdenProduccionRepository extends JpaRepository<OrdenProduccion
     @Transactional(readOnly=false)
     @Query("update OrdenProduccion set estado=:estado, cantidadEntregada=:cantidadEntrega where id=:id")
     public void actualizarEstadoEntrega(@Param("id") int id, @Param("estado")Boolean estado, @Param("cantidadEntrega")Double cantidadEntrega);
+	
+	
+	
+	@Query(value="select * from orden_produccion v INNER JOIN funcionario f on v.funcionario_id=f.id INNER JOIN persona pr on f.persona_id=pr.id INNER JOIN funcionario fe ON v.funcionarioa_id=fe.id INNER JOIN persona pe on fe.persona_id=pe.id  order by v.id desc",nativeQuery=true)
+	List<OrdenProduccion> getOrdenProduccionAll();
+	@Query(value="select * from orden_produccion v INNER JOIN funcionario f on v.funcionario_id=f.id INNER JOIN persona pr on f.persona_id=pr.id INNER JOIN funcionario fe ON v.funcionarioa_id=fe.id INNER JOIN persona pe on fe.persona_id=pe.id  WHERE pr.nombre ilike :des OR pr.apellido ilike :des OR pr.cedula ilike :des OR pe.nombre ilike :des OR pe.apellido ilike :des OR pe.cedula ilike :des order by v.id desc",nativeQuery=true)
+	List<OrdenProduccion> getOrdenProduccionAllDescripcion(@Param("des")  String des);
+	
+	
+	
+	
+	@Query(value="select * from orden_produccion v INNER JOIN funcionario f on v.funcionario_id=f.id INNER JOIN persona pr on f.persona_id=pr.id INNER JOIN funcionario fe ON v.funcionarioa_id=fe.id INNER JOIN persona pe on fe.persona_id=pe.id  WHERE v.estado= 'PENDIENTE' order by v.id desc",nativeQuery=true)
+	List<OrdenProduccion> getOrdenProduccionAllPendiente();
+	@Query(value="select * from orden_produccion v INNER JOIN funcionario f on v.funcionario_id=f.id INNER JOIN persona pr on f.persona_id=pr.id INNER JOIN funcionario fe ON v.funcionarioa_id=fe.id INNER JOIN persona pe on fe.persona_id=pe.id  WHERE (v.estado='PENDIENTE' and pr.nombre ilike :des) OR (v.estado='PENDIENTE' and pr.apellido ilike :des) OR (v.estado='PENDIENTE' and pr.cedula ilike :des) OR (v.estado='PENDIENTE' and pe.nombre ilike :des) OR (v.estado='PENDIENTE' and pe.apellido ilike :des) OR (v.estado='PENDIENTE' and pe.cedula ilike :des)",nativeQuery=true)
+	List<OrdenProduccion> getOrdenProduccionPendienteDescripcion(@Param("des")  String des);
+	
+	
+	
+	@Query(value="select * from orden_produccion v INNER JOIN funcionario f on v.funcionario_id=f.id INNER JOIN persona pr on f.persona_id=pr.id INNER JOIN funcionario fe ON v.funcionarioa_id=fe.id INNER JOIN persona pe on fe.persona_id=pe.id WHERE v.estado= 'ENTREGADO' order by v.id desc",nativeQuery=true)
+	List<OrdenProduccion> getOrdenProduccionAllEntregado();
+	@Query(value="select * from orden_produccion v INNER JOIN funcionario f on v.funcionario_id=f.id INNER JOIN persona pr on f.persona_id=pr.id INNER JOIN funcionario fe ON v.funcionarioa_id=fe.id INNER JOIN persona pe on fe.persona_id=pe.id WHERE (v.estado='ENTREGADO' and pr.nombre ilike :des) OR (v.estado='ENTREGADO' and pr.apellido ilike :des) OR (v.estado='ENTREGADO' and pr.cedula ilike :des) OR (v.estado='ENTREGADO' and pe.nombre ilike :des) OR (v.estado='ENTREGADO' and pe.apellido ilike :des) OR (v.estado='ENTREGADO' and pe.cedula ilike :des)",nativeQuery=true)
+	List<OrdenProduccion> getOrdenProduccionEntregadoDescripcion(@Param("des")  String des);
+	
+	
+	
+
+    @Query("SELECT DISTINCT o FROM OrdenProduccion o " +
+           "INNER JOIN FETCH o.ordenProduccionDetalles det " +
+           "LEFT JOIN FETCH o.produccionCostoCabecera pcc " +
+           "LEFT JOIN FETCH o.funcionario fun " +
+           "LEFT JOIN FETCH fun.persona perFun " +
+           "LEFT JOIN FETCH o.funcionarioA funA " +
+           "LEFT JOIN FETCH funA.persona perFunA " +
+           "WHERE o.id = :id AND (o.estado = 'PENDIENTE' OR o.estado = 'ENTREGADO' OR o.estado = 'ANULADO') " +
+           "ORDER BY det.id ASC")
+    OrdenProduccion getOrdenProduccionPorId(@Param("id") int id);
+	
 	
 }

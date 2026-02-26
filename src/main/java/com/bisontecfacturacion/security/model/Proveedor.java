@@ -2,9 +2,12 @@ package com.bisontecfacturacion.security.model;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -15,13 +18,13 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 @Entity
 public class Proveedor {
 	@Id
-	@GeneratedValue(generator = "increment")
-	@GenericGenerator(name = "increment", strategy = "increment")
-	private int id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 	private String numeroCuenta;
 
 	
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "persona_id", unique = true)
     private Persona persona;
 
 	@OneToMany(mappedBy="proveedor")
@@ -32,13 +35,12 @@ public class Proveedor {
 		super();
 		id=0;
 		numeroCuenta="";
-
 		persona=new Persona();
 	}
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public String getNumeroCuenta() {

@@ -493,6 +493,7 @@ public class PresupuestoController {
 			System.out.println(entity.getTotalLetra() +"total letras ess ");
 			System.out.println(entity.getEstado() +" estado es  ess ");
 			Double totalGenerales=0.0;
+			Double totalDescuento=0.0;
 
 			if (zonaRepository.count() == 0) {
 			    return new ResponseEntity<>(
@@ -543,7 +544,12 @@ public class PresupuestoController {
 					}else if(pro.getIva()==null || !(pro.getIva().equals("10 %") || pro.getIva().equals("5 %") || pro.getIva().equals("Exenta"))){
 						return new ResponseEntity<>(new CustomerErrorType("EL CAMPO IVA DEL DETALLE N°: "+(ind+1)+" NO TIENE UN FORMATO VALIDO!"), HttpStatus.CONFLICT);
 					}
-					totalGenerales = totalGenerales + pro.getPrecio() * pro.getCantidad();
+					totalGenerales = totalGenerales + (pro.getPrecio()*pro.getCantidad());
+					totalDescuento = totalDescuento + (pro.getDescuento()*pro.getCantidad());
+					System.out.println("TOTAL RECIBIDO: "+entity.getTotal());
+					System.out.println("TOTAL RE-CALCULADO: "+entity.getTotal());
+					System.out.println("TOTAL RE-CALCULADO: "+totalDescuento);
+
 				}
 				for(int ind=0; ind < entity.getDetallePresupuestoServicio().size(); ind++) {
 					DetallePresupuestoServicio ser=entity.getDetallePresupuestoServicio().get(ind);
@@ -556,18 +562,17 @@ public class PresupuestoController {
 					}else if(ser.getIva()==null || !(ser.getIva().equals("10 %") || ser.getIva().equals("5 %") || ser.getIva().equals("Exenta"))){
 						return new ResponseEntity<>(new CustomerErrorType("EL CAMPO IVA DEL DETALLE N°: "+(ind+1)+" NO TIENE UN FORMATO VALIDO!"), HttpStatus.CONFLICT);
 					}
-					totalGenerales = totalGenerales + ser.getPrecio() * ser.getCantidad();
-
+					totalGenerales = totalGenerales + (ser.getPrecio() * ser.getCantidad());
 				}
 				if(entity.getId() !=0) {
 					entity.setHora(hora());
 					int idVent=entity.getId();
-					double total10=0, total5=0, totalDescuento=0;
+					double total10=0, total5=0;
 					if (entity.getDetallePresupuestoProducto().size() > 0) {
 						List<DetallePresupuestoProducto> detallesAnteriores =
 					            detalleProductoRepository.getDeallePresupuestoProductoPorIdCabecera(entity.getId());
 						for (DetallePresupuestoProducto detalleNuevo : entity.getDetallePresupuestoProducto()) {
-
+						
 						    Optional<DetallePresupuestoProducto> detalleAnteriorOpt = detallesAnteriores.stream()
 						            .filter(d -> Objects.equals(d.getProducto().getId(), detalleNuevo.getProducto().getId()))
 						            .findFirst();
@@ -640,12 +645,11 @@ public class PresupuestoController {
 							detalleServicioRepository.save(detalleServicio);
 						}
 					}
-					entity.setTotal(totalGenerales);
-					entity.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalGenerales));
+					entity.setTotal(totalGenerales - totalDescuento);
+					entity.setTotalLetra(NumerosALetras.convertirNumeroALetras((totalGenerales - totalDescuento)));
 					entity.setTotalIvaDies(total10);
 					entity.setTotalIvaCinco(total5);
 					entity.setTotalIva(total10+total5);
-					
 					entity = entityRepository.save(entity);
 					System.out.println("entro udpate edit");
 				}else {
@@ -656,7 +660,7 @@ public class PresupuestoController {
 					int idVent=0;
 					if(id == null){idVent=1;}else{idVent=id.getId();}
 					//eliminarDetallePorCabecera(entity.getId());
-					double total10=0, total5=0, totalDescuento=0;
+					double total10=0, total5=0;
 					if(entity.getDetallePresupuestoProducto().size()>0){
 						List<DetallePresupuestoProducto> detallesAnteriores =
 					            detalleProductoRepository.getDeallePresupuestoProductoPorIdCabecera(entity.getId());
@@ -734,20 +738,14 @@ public class PresupuestoController {
 						}
 
 					}
-					entity.setTotal(totalGenerales);
-					entity.setTotalLetra(NumerosALetras.convertirNumeroALetras(totalGenerales));
+					entity.setTotal(totalGenerales - totalDescuento);
+					entity.setTotalLetra(NumerosALetras.convertirNumeroALetras((totalGenerales - totalDescuento)));
 					entity.setTotalIvaDies(total10);
 					entity.setTotalIvaCinco(total5);
 					entity.setTotalIva(total10+total5);
 					entity = entityRepository.save(entity);
 					System.out.println("entro insert nuevo");	
-				//  pdfPrintPresupuesto(idVent);
 				}
-			
-			/*
-		entityRepository.save(entity);
-		this.estado=entity.getEstado();
-			 */
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -781,7 +779,7 @@ public class PresupuestoController {
 		
 		Reporte report = new Reporte();
 		TerminalConfigImpresora t = new TerminalConfigImpresora();
-		t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+		t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 		if (t==null) {
 			System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 		}else {

@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -22,7 +23,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
 //    	
-        http.authorizeRequests().antMatchers(HttpMethod.GET,"/controlSerial/**", "/imagen/**", "/**").permitAll()
+        http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/ruc/**","/controlSerial/**", "/imagen/**", "/**").permitAll()
         .anyRequest().authenticated().and().cors().configurationSource(corsConfigurationSource());
        
     }
@@ -47,5 +48,4 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 		return bean;
 	}
 
-    
 }

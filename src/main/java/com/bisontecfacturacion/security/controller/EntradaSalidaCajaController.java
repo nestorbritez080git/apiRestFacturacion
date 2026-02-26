@@ -111,6 +111,7 @@ public class EntradaSalidaCajaController {
 			op.getConcepto().setId(10);
 			c= conceptoRepository.findById(10).get();
 			op.setMotivo(c.getDescripcion()+" REF.: "+ entity.getId());
+			op.setReferenciaOperacion(entity.getId());
 			op.setTipo("ENTRADA");
 			System.out.println("Entrada");
 			if (op.getTipoOperacion().getId() == 1) {
@@ -128,6 +129,7 @@ public class EntradaSalidaCajaController {
 			op.getConcepto().setId(11);
 			c= conceptoRepository.findById(11).get();
 			op.setMotivo(c.getDescripcion()+" REF.: "+ entity.getId());
+			op.setReferenciaOperacion(entity.getId());
 			op.setTipo("SALIDA");
 			if (op.getTipoOperacion().getId() == 1) {
 				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idApe, entity.getMonto());
@@ -153,6 +155,7 @@ public class EntradaSalidaCajaController {
 			opera.getConcepto().setId(10);
 			cc= conceptoRepository.findById(10).get();
 			opera.setMotivo(cc.getDescripcion()+" REF.: "+ entSalCaja.getId());
+			opera.setReferenciaOperacion(entSalCaja.getId());
 			opera.setTipo("ENTRADA");
 			System.out.println("Entrada");
 			
@@ -162,6 +165,7 @@ public class EntradaSalidaCajaController {
 			opera.getConcepto().setId(11);
 			cc= conceptoRepository.findById(11).get();
 			opera.setMotivo(cc.getDescripcion()+" REF.: "+ entSalCaja.getId());
+			opera.setReferenciaOperacion(entSalCaja.getId());
 			opera.setTipo("SALIDA");
 			
 		}

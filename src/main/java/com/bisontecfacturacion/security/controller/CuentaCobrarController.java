@@ -821,6 +821,7 @@ public CuentaCobrarCabecera  getCuentaCobrarID(@PathVariable int id){
 	cuenta.setSaldo(c.getSaldo());
 	cuenta.getVenta().setTotalDevolucion(c.getVenta().getTotalDevolucion());
 	cuenta.setFecha(c.getFecha());
+	cuenta.setFechaVencimiento(c.getFechaVencimiento());
 	
 	cuenta.getVenta().setTotal(c.getVenta().getTotal());
 	cuenta.setEntrega(c.getEntrega());
@@ -1128,7 +1129,7 @@ public void reImprimirMatricial(@PathVariable int id, @PathVariable int numeroTe
 
 	Reporte report = new Reporte();
 	TerminalConfigImpresora t = new TerminalConfigImpresora();
-	t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+	t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 	if (t==null) {
 		System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 	}else {

@@ -54,24 +54,22 @@ public class FechaUtil {
 		 return fecha;
 	}
 	public static Date setFechaHoraInicial(String fecInicial) {
-		
-		Date fecI = new Date();
-		try {
-			Calendar cc= Calendar.getInstance();
-			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
-			
-			//System.out.println("fecha que viene: "+fechaI+ ", "+fechaF);
-			fecI = formater.parse(fecInicial);
-			//Date fecF=formater.parse(fechaF);
-			//System.out.println(fecF.getDate());
-			//fecF.setHours(23);
-			fecI.setHours(1);
-			System.out.println("hora final fechas:::hora inicio finbal: "+fecI);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return fecI;
+	    try {
+	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	        Date fecha = sdf.parse(fecInicial);
+
+	        Calendar cal = Calendar.getInstance();
+	        cal.setTime(fecha);
+	        cal.set(Calendar.HOUR_OF_DAY, 0);
+	        cal.set(Calendar.MINUTE, 0);
+	        cal.set(Calendar.SECOND, 0);
+	        cal.set(Calendar.MILLISECOND, 0);
+
+	        return cal.getTime();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
 	public static LocalDate convertirFechaFormato(String fe) {
 		String dateString = fe;
@@ -123,24 +121,23 @@ public class FechaUtil {
 		
 		return fecI;
 	}
-	public static Date setFechaHoraFinal(String fecInicial) {
-		Date fecI = new Date();
-		try {
-			Calendar cc= Calendar.getInstance();
-			SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
-			
-			//System.out.println("fecha que viene: "+fechaI+ ", "+fechaF);
-			fecI = formater.parse(fecInicial);
-			//Date fecF=formater.parse(fechaF);
-			//System.out.println(fecF.getDate());
-			//fecF.setHours(23);
-			fecI.setHours(23);
-			System.out.println("hora final fechas:::hora inicio finbal: "+fecI);
-		} catch (Exception e) {
-			e.printStackTrace();
-			// TODO: handle exception
-		}
-		
-		return fecI;
+	
+	public static Date setFechaHoraFinal(String fecFinal) {
+	    try {
+	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	        Date fecha = sdf.parse(fecFinal);
+
+	        Calendar cal = Calendar.getInstance();
+	        cal.setTime(fecha);
+	        cal.set(Calendar.HOUR_OF_DAY, 23);
+	        cal.set(Calendar.MINUTE, 59);
+	        cal.set(Calendar.SECOND, 59);
+	        cal.set(Calendar.MILLISECOND, 999);
+
+	        return cal.getTime();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
 }

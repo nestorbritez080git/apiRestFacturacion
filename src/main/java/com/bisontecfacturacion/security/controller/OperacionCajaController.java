@@ -1,13 +1,21 @@
 package com.bisontecfacturacion.security.controller;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.InformeHistoricoMovimiento;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionCabeceraRepository;
@@ -22,6 +31,8 @@ import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CobrosCliente;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.Org;
+import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CobrosClienteRepository;
@@ -82,7 +93,9 @@ public class OperacionCajaController {
 			opCaja.setTipo(ob[4].toString());
 			opCaja.getTipoOperacion().setDescripcion(ob[5].toString());
 			opCaja.getTipoOperacion().setId(Integer.parseInt(ob[6].toString()));
-			
+			opCaja.getConcepto().setId(Integer.parseInt(ob[7].toString()));
+			opCaja.setReferenciaOperacion(Integer.parseInt(ob[8].toString()));
+			opCaja.getAperturaCaja().setId(Integer.parseInt(ob[9].toString()));
 			lisOperacion.add(opCaja);
 		}
 		return  lisOperacion;
@@ -362,6 +375,7 @@ public class OperacionCajaController {
 			Concepto c= new Concepto();
 			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
 			entity.setMotivo(c.getDescripcion()+": "+v.getDescripcionCombo()+ " Ref.:"+v.getId());
+			entity.setReferenciaOperacion(v.getId());
 			entity.setTipo("ENTRADA");
 			if (entity.getTipoOperacion().getId() == 1) {
 				aperturaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
@@ -392,6 +406,7 @@ public class OperacionCajaController {
 			Concepto c= new Concepto();
 			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
 			entity.setMotivo(c.getDescripcion()+": "+v.getDescripcionCombo()+ " Ref.:"+v.getId());
+			entity.setReferenciaOperacion(v.getId());
 			entity.setTipo("ENTRADA");
 			if (entity.getTipoOperacion().getId() == 1) {
 				aperturaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
@@ -515,8 +530,9 @@ public class OperacionCajaController {
 								opOrigenEfectivo.setTipo("SALIDA");
 								opOrigenEfectivo.getTipoOperacion().setId(1);//efectivo
 								opOrigenEfectivo.setMotivo(c.getDescripcion()+" REF. DESTINO(#): "+cDestino.getId()+ ", CAJERO/A: " +cDestino.getFuncionario().getPersona().getNombre()+ " "+cDestino.getFuncionario().getPersona().getApellido());
+								//opOrigenEfectivo.setReferenciaOperacion(cDestino.getId());
 								opOrigenEfectivo.setReferenciaTipoOperacion("");
-								entityRepository.save(opOrigenEfectivo);
+								OperacionCaja opSaveOrigenEfectivo = entityRepository.save(opOrigenEfectivo);
 								aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(cOrigen.getId(), monto);
 
 								OperacionCaja opDestinoEfectivo= new OperacionCaja();
@@ -527,9 +543,14 @@ public class OperacionCajaController {
 								opDestinoEfectivo.setTipo("ENTRADA");
 								opDestinoEfectivo.getTipoOperacion().setId(1);//efectivo
 								opDestinoEfectivo.setMotivo(c.getDescripcion()+" REF. ORIGEN(#): "+cOrigen.getId()+ ", CAJERO/A: " +cOrigen.getFuncionario().getPersona().getNombre()+ " "+cOrigen.getFuncionario().getPersona().getApellido());
+								//opDestinoEfectivo.setReferenciaOperacion(cOrigen.getId());
 								opDestinoEfectivo.setReferenciaTipoOperacion("");
-								entityRepository.save(opDestinoEfectivo);
+								OperacionCaja opSaveDestinoEfectivo = entityRepository.save(opDestinoEfectivo);
 								aperturaRepository.findByActualizarAperturaSaldo(cDestino.getId(), monto);
+								opSaveOrigenEfectivo.setReferenciaOperacion(opSaveDestinoEfectivo.getId());
+								opSaveDestinoEfectivo.setReferenciaOperacion(opSaveOrigenEfectivo.getId());
+								entityRepository.save(opSaveOrigenEfectivo);
+								entityRepository.save(opSaveDestinoEfectivo);
 							}
 							if (montoCheque > 0) {
 								System.out.println("ENTRO IFFF MONTO che");
@@ -541,8 +562,9 @@ public class OperacionCajaController {
 								opOrigenCheque.setTipo("SALIDA");
 								opOrigenCheque.getTipoOperacion().setId(2);//cheque
 								opOrigenCheque.setMotivo(c.getDescripcion()+" REF. DESTINO(#): "+cDestino.getId()+ ", CAJERO/A: " +cDestino.getFuncionario().getPersona().getNombre()+ " "+cDestino.getFuncionario().getPersona().getApellido());
+								opOrigenCheque.setReferenciaOperacion(cDestino.getId());
 								opOrigenCheque.setReferenciaTipoOperacion("");
-								entityRepository.save(opOrigenCheque);
+								OperacionCaja opSaveOrigenCheque = entityRepository.save(opOrigenCheque);
 								aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(cOrigen.getId(), montoCheque);
 
 								OperacionCaja opDestinoCheque= new OperacionCaja();
@@ -553,9 +575,15 @@ public class OperacionCajaController {
 								opDestinoCheque.setTipo("ENTRADA");
 								opDestinoCheque.getTipoOperacion().setId(2);//efectivo
 								opDestinoCheque.setMotivo(c.getDescripcion()+" REF. ORIGEN(#): "+cOrigen.getId()+ ", CAJERO/A: " +cOrigen.getFuncionario().getPersona().getNombre()+ " "+cOrigen.getFuncionario().getPersona().getApellido());
+								opDestinoCheque.setReferenciaOperacion(cOrigen.getId());
 								opDestinoCheque.setReferenciaTipoOperacion("");
-								entityRepository.save(opDestinoCheque);
+								OperacionCaja opSaveDestinoCheque = entityRepository.save(opDestinoCheque);
 								aperturaRepository.findByActualizarAperturaSaldoCheque(cDestino.getId(), montoCheque);
+								opSaveOrigenCheque.setReferenciaOperacion(opSaveDestinoCheque.getId());
+								opSaveDestinoCheque.setReferenciaOperacion(opSaveOrigenCheque.getId());
+								entityRepository.save(opSaveOrigenCheque);
+								entityRepository.save(opSaveDestinoCheque);
+							
 							}
 							if (montoTarjeta>0) {
 								System.out.println("ENTRO IFFF MONTO tar");
@@ -567,8 +595,9 @@ public class OperacionCajaController {
 								opOrigenTarjeta.setTipo("SALIDA");
 								opOrigenTarjeta.getTipoOperacion().setId(3);//tarjeta
 								opOrigenTarjeta.setMotivo(c.getDescripcion()+" REF. DESTINO(#): "+cDestino.getId()+ ", CAJERO/A: " +cDestino.getFuncionario().getPersona().getNombre()+ " "+cDestino.getFuncionario().getPersona().getApellido());
+								opOrigenTarjeta.setReferenciaOperacion(cDestino.getId());
 								opOrigenTarjeta.setReferenciaTipoOperacion("");
-								entityRepository.save(opOrigenTarjeta);
+								OperacionCaja opSaveOrigenTarjeta = entityRepository.save(opOrigenTarjeta);
 								aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(cOrigen.getId(), montoTarjeta);
 
 								OperacionCaja opDestinoTarjeta= new OperacionCaja();
@@ -579,10 +608,14 @@ public class OperacionCajaController {
 								opDestinoTarjeta.setTipo("ENTRADA");
 								opDestinoTarjeta.getTipoOperacion().setId(3);//efectivo
 								opDestinoTarjeta.setMotivo(c.getDescripcion()+" REF. ORIGEN(#): "+cOrigen.getId()+ ", CAJERO/A: " +cOrigen.getFuncionario().getPersona().getNombre()+ " "+cOrigen.getFuncionario().getPersona().getApellido());
+								opDestinoTarjeta.setReferenciaOperacion(cOrigen.getId());
 								opDestinoTarjeta.setReferenciaTipoOperacion("");
-								entityRepository.save(opDestinoTarjeta);
+								OperacionCaja opSaveDestinoTarjeta = entityRepository.save(opDestinoTarjeta);
 								aperturaRepository.findByActualizarAperturaSaldoTarjeta(cDestino.getId(), montoTarjeta);
-				
+								opSaveOrigenTarjeta.setReferenciaOperacion(opSaveDestinoTarjeta.getId());
+								opSaveDestinoTarjeta.setReferenciaOperacion(opSaveOrigenTarjeta.getId());
+								entityRepository.save(opSaveOrigenTarjeta);
+								entityRepository.save(opSaveDestinoTarjeta);
 							}
 							
 						}else {
@@ -688,21 +721,18 @@ public class OperacionCajaController {
 			Concepto c= new Concepto();
 			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
 			entity.setMotivo(c.getDescripcion()+" REF.: "+v.getId());
+			entity.setReferenciaOperacion(v.getId());
 			entity.setTipo("ENTRADA");
 		
 			if (entity.getTipoOperacion().getId() == 1) {
 				aperturaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
 			}
-			
 			if (entity.getTipoOperacion().getId() == 2) {
 				aperturaRepository.findByActualizarAperturaSaldoCheque(entity.getAperturaCaja().getId(), entity.getMonto());
 			}
-			
 			if (entity.getTipoOperacion().getId() == 3) {
 				aperturaRepository.findByActualizarAperturaSaldoTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
 			}
-			
-			
 			entityRepository.save(entity);
 			OperacionCaja op=  entityRepository.findTop1ByOrderByIdDesc();
 			ventaRepositoty.findByActualizarVentaOperacion(v.getId(),op.getId());
@@ -733,6 +763,7 @@ public class OperacionCajaController {
 		
 			System.out.println("vneta id: "+vv.getId());
 			op.setMotivo(c.getDescripcion()+" POR EMPAQUE REF.: "+vv.getId());
+			op.setReferenciaOperacion(vv.getId());
 			entityRepository.save(op);
 			vv.setEstado("FACTURADO");
 			ventaRepositoty.findByActualizarVentaOperacion(vv.getId(),op.getId());
@@ -866,7 +897,49 @@ public class OperacionCajaController {
 		
 	}
 	*/
-	
+	@RequestMapping(value="/resumenHistorico/rango/{fechaInicio}/{fechaFin}", method=RequestMethod.GET)
+	public List<InformeHistoricoMovimiento>  resumenServicioRangoFecha(@PathVariable String fechaInicio, @PathVariable String fechaFin) throws IOException {
+		List<InformeHistoricoMovimiento> detRetorno=new ArrayList<>();
+
+		try {
+			LocalDate inicio = LocalDate.parse(fechaInicio);
+		    LocalDate fin    = LocalDate.parse(fechaFin);
+
+		    LocalDateTime fechaInicioDT = inicio.atStartOfDay();          // 00:00:00
+		    LocalDateTime fechaFinDT    = fin.atTime(23, 59, 59, 999_000_000);
+			List<Object []> obb =entityRepository.getResumenHistoricoAperturaCaja(fechaInicioDT, fechaFinDT);
+
+			for(Object[] ob: obb) {
+				InformeHistoricoMovimiento d = new  InformeHistoricoMovimiento();
+				d.setClienteNombre(ob[0].toString());
+				d.setAperturaId(Integer.parseInt(ob[1].toString()));
+				d.setFechaApertura(com.bisontecfacturacion.security.config.FechaUtil.convertirStrinfALocalDateTim(ob[2].toString()));
+				d.setHoraApertura(ob[3].toString());
+				d.setSaldoInicialEfe(Double.parseDouble(ob[4].toString()));
+				d.setSaldoInicialChe(Double.parseDouble(ob[5].toString()));
+				d.setSaldoInicialTar(Double.parseDouble(ob[6].toString()));
+				
+				d.setTotalEntradaEfe(Double.parseDouble(ob[7].toString()));
+				d.setTotalEntradaChe(Double.parseDouble(ob[8].toString()));
+				d.setTotalEntradaTar(Double.parseDouble(ob[9].toString()));
+				
+				d.setTotalSalidaEfe(Double.parseDouble(ob[10].toString()));
+				d.setTotalSalidaChe(Double.parseDouble(ob[11].toString()));
+				d.setTotalSalidaTar(Double.parseDouble(ob[12].toString()));
+				
+				d.setSaldoFinalEfe(Double.parseDouble(ob[13].toString()));
+				d.setSaldoFinalChe(Double.parseDouble(ob[14].toString()));
+				d.setSaldoFinalTar(Double.parseDouble(ob[15].toString()));
+				detRetorno.add(d);
+			}
+			System.out.println("lista size: "+detRetorno.size());
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return  detRetorno;
+	}
 	
 
 }

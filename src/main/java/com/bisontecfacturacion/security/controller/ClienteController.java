@@ -46,7 +46,7 @@ public class ClienteController {
 		for(Cliente c: lista) {
 			Cliente clientes=new Cliente();
 			clientes.setId(c.getId());
-			clientes.getPersona().setId(c.getId());
+			clientes.getPersona().setId(c.getPersona().getId());
 			clientes.getPersona().setNombre(c.getPersona().getNombre());
 			clientes.getPersona().setApellido(c.getPersona().getApellido());
 			clientes.getPersona().setCedula(c.getPersona().getCedula());
@@ -125,6 +125,7 @@ public class ClienteController {
 				return  new  ResponseEntity<String>(HttpStatus.CREATED);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -196,54 +197,88 @@ public @ResponseBody void clientePDF() throws IOException{
 */
 	
 	
-	@RequestMapping(method=RequestMethod.POST, value = "/venta")
-	public ResponseEntity<?> guardarNuevoCompra(@RequestBody Cliente entity){
-		try {
-			if(entity.getPersona().getCedula()==null || entity.getPersona().getCedula().equals("")) {
-				 return new ResponseEntity<>(new CustomerErrorType("El N° DE CEDULA Y/O RUC NO DEBE QUEDAR VACIO"),HttpStatus.CONFLICT);	
-			}else if(entity.getPersona().getNombre()== null || entity.getPersona().getNombre().equals("")) {
-				 return new ResponseEntity<>(new CustomerErrorType("El NOMBRE NO DEBE QUEDAR VACIO"),HttpStatus.CONFLICT);	
-			}else {
-				if(entity.getPersona().getNombre()!=null){
-					entity.getPersona().setNombre(Utilidades.eliminaCaracterIzqDer(entity.getPersona().getNombre().trim().toUpperCase()));			
-		        }
-		        if(entity.getPersona().getApellido()!=null){
-					entity.getPersona().setApellido(Utilidades.eliminaCaracterIzqDer(entity.getPersona().getApellido().trim().toUpperCase()));			
-		        }
-		        if(entity.getPersona().getCedula()!=null){
-					entity.getPersona().setCedula(Utilidades.eliminaCaracterIzqDer(entity.getPersona().getCedula().trim().toUpperCase()));			
-		        }
-		        if(entity.getPersona().getDireccion()!=null){
-					entity.getPersona().setDireccion(Utilidades.eliminaCaracterIzqDer(entity.getPersona().getDireccion().trim().toUpperCase()));			
-		        }
-		        if(entity.getPersona().getEmail()!=null){
-					entity.getPersona().setEmail(entity.getPersona().getEmail().trim().toUpperCase());			
-		        }
-		        if(entity.getPersona().getTipo()!=null){
-					entity.getPersona().setTipo(entity.getPersona().getTipo().trim().toUpperCase());			
-		        }
-		        if(entity.getPersona().getId() != 0){
-		               
-		        } else {
-		            if (siExiste(entity.getPersona())) {
-		                return new ResponseEntity<>(new CustomerErrorType("El N° DE CEDULA " + entity.getPersona().getCedula() + " YA EXISTE."),
-		                        HttpStatus.CONFLICT);
-		            }else {
-		                personaRepository.save(entity.getPersona());
-		                Persona p = new Persona();
-		                p=personaRepository.findTop1ByOrderByIdDesc();
-		                entity.getPersona().setId(p.getId());
-		                entityRepository.save(entity);
-		            }
-		        }
-			} 
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-		return  new  ResponseEntity<String>(HttpStatus.CREATED);
-	}
-	public boolean siExiste(Persona entity){
-		return personaRepository.findByCedula(entity.getCedula())!=null;
-	}
+	@RequestMapping(method = RequestMethod.POST, value = "/venta")
+	public ResponseEntity<?> guardarNuevoCompra(@RequestBody Cliente entity) {
 
-}
+	    try {
+	        if (entity.getPersona() == null) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("La persona no puede ser nula"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+
+	        // 🔒 VALIDACIONES
+	        if (entity.getPersona().getCedula() == null || entity.getPersona().getCedula().isEmpty()) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("El N° DE CEDULA Y/O RUC NO DEBE QUEDAR VACIO"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+
+	        if (entity.getPersona().getNombre() == null || entity.getPersona().getNombre().isEmpty()) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("EL NOMBRE NO DEBE QUEDAR VACIO"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+
+	        // 🧹 NORMALIZACIÓN
+	        Persona p = entity.getPersona();
+	        p.setNombre(Utilidades.eliminaCaracterIzqDer(p.getNombre().trim().toUpperCase()));
+	        if (p.getApellido() != null)
+	            p.setApellido(Utilidades.eliminaCaracterIzqDer(p.getApellido().trim().toUpperCase()));
+	        if (p.getDireccion() != null)
+	            p.setDireccion(Utilidades.eliminaCaracterIzqDer(p.getDireccion().trim().toUpperCase()));
+	        if (p.getEmail() != null)
+	            p.setEmail(p.getEmail().trim().toUpperCase());
+	        if (p.getTipo() != null)
+	            p.setTipo(p.getTipo().trim().toUpperCase());
+
+	        // 🚨 CLAVE: fuerza entidad nueva
+	        p.setId(null);
+	        entity.setId(null);
+	        String cedulaOriginal = p.getCedula();
+	        String cedulaNormalizada = normalizar(cedulaOriginal);
+	        p.setCedula(cedulaNormalizada);
+
+	        // 🔍 VALIDAR DUPLICADO
+	        if (siExiste(p)) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("El N° DE CEDULA " + p.getCedula() + " YA EXISTE."),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+
+	        // 💾 UN SOLO SAVE
+	        entityRepository.save(entity);
+
+	        return new ResponseEntity<>(HttpStatus.CREATED);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return new ResponseEntity<>(
+	            new CustomerErrorType(e.getMessage()),
+	            HttpStatus.INTERNAL_SERVER_ERROR
+	        );
+	    }
+	}
+	public boolean siExiste(Persona p){
+	    String cedulaNormalizada = normalizar(p.getCedula());
+	    System.out.println(cedulaNormalizada);
+		return personaRepository.findByCedula(cedulaNormalizada)!=null;
+	}
+	
+	 public static String normalizar(String valor) {
+	        if (valor == null) return null;
+
+	        // quitar todo lo que no sea número
+	        String limpio = valor.replaceAll("[^0-9]", "");
+
+	        // si tiene más de 7 dígitos, asumimos que el último es DV
+	        if (limpio.length() > 7) {
+	            return limpio.substring(0, limpio.length() - 1);
+	        }
+
+	        return limpio;
+	    }}

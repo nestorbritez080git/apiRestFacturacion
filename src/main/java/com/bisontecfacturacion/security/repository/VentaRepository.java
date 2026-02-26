@@ -55,8 +55,8 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 	@Query("update Venta set operacionCaja =:operacionCaja where id=:id")
 	public void findByActualizarVentaOperacion(@Param("id") int id, @Param("operacionCaja") int operacionCaja);
 
-	@Query("select v from Venta v where v.id= :operacionCaja")
-	public Venta getVentaPorCabeceraId(@Param("operacionCaja") int operacionCaja);
+	@Query("select v from Venta v where v.id= :idVenta")
+	public Venta getVentaPorCabeceraId(@Param("idVenta") int idVenta);
 	
 	@Query("select ccc from Venta ccc where ccc.id=:id AND ccc.estado='FACTURADO'")
 	public Venta getVentaIdFacturado(@Param("id") int id);

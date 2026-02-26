@@ -29,6 +29,7 @@ public class TerminalConfigImpresora {
 	private Boolean estadoEmisionFactura;
 	private Boolean estadoAdicionArtVarios;
 	private Boolean estadoEdicionZona;
+	private Boolean estadoListadoGrigImagen;
 		
 	@ManyToOne
 	private AutoImpresor autoImpresor;
@@ -42,6 +43,7 @@ public class TerminalConfigImpresora {
 		this.estadoAdicionArtVarios=false;
 		this.estadoEdicionZona= false;
 		this.autoImpresor = new AutoImpresor();
+		this.estadoListadoGrigImagen=false;
 	}
 	
 	public AutoImpresor getAutoImpresor() {
@@ -102,6 +104,14 @@ public class TerminalConfigImpresora {
 
 	public void setEstadoAdicionArtVarios(Boolean estadoAdicionArtVarios) {
 		this.estadoAdicionArtVarios = estadoAdicionArtVarios;
+	}
+
+	public Boolean getEstadoListadoGrigImagen() {
+		return estadoListadoGrigImagen;
+	}
+
+	public void setEstadoListadoGrigImagen(Boolean estadoListadoGrigImagen) {
+		this.estadoListadoGrigImagen = estadoListadoGrigImagen;
 	}
 	
 	

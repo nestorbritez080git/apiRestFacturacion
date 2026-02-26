@@ -64,6 +64,9 @@ public interface CobrosClienteRepository extends JpaRepository<CobrosCliente, Se
 	@Query(value = "SELECT * FROM cobros_cliente cc inner join cuenta_cobrar_cabecera ccc on cc.cuenta_cobrar_cabecera_id=ccc.id inner join cliente c on ccc.cliente_id=c.id inner join persona p on c.persona_id=p.id where ccc.cliente_id=:id and ccc.saldo > 0 order by cc.fecha desc limit 1",nativeQuery=true)
 	public CobrosCliente getCabeceraCuentaClienteIdDeta(@Param("id") int id);
 	
+	@Query("SELECT c.cobrosClienteCabecera FROM CobrosCliente c WHERE c.id = :idCobDetalle")
+	CobrosClienteCabecera getCabeceraCobrosPorCobrosDetalle(@Param("idCobDetalle") int idCobDetalle);
+	
 	@Query(value = "SELECT * FROM cobros_cliente cc inner join cuenta_cobrar_cabecera ccc on cc.cuenta_cobrar_cabecera_id=ccc.id where ccc.id=:id",nativeQuery=true)
 	public CobrosCliente getCobroPorCuentaId(@Param("id") int id);
 	

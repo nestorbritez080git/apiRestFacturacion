@@ -333,6 +333,7 @@ public class ProductoController {
 			productos.getSubGrupo().setDescripcion(ob.getSubGrupo().getDescripcion());
 			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
 			productos.setStockPresupuesto(ob.getStockPresupuesto());
+			productos.setNombreImagen(ob.getNombreImagen());
 			
 			producto.add(productos);
 		}
@@ -555,36 +556,47 @@ public class ProductoController {
 
 	}
 
-
+	private boolean esCodigoBalanza(String codbar) {
+	    // Ejemplo: códigos de balanza comienzan con 20 o 25 y tienen 12 o 13 dígitos
+	    if (codbar == null) return false;
+	    return (codbar.startsWith("20") || codbar.startsWith("25")) && codbar.length() >= 12;
+	}
+	private String extraerCodigoProducto(String codbar) {
+	    // ejemplo: prefijo(2) + codigo(5) + peso(5)
+	    return codbar.substring(2, 7); // desde la posición 2 hasta la 6 (5 dígitos)
+	}
 	@SuppressWarnings("unused")
 	@RequestMapping(method=RequestMethod.GET, value="/codbar/{codbar}")
 	public ResponseEntity<?> buscarCodigoBarra(@PathVariable String codbar){
-		Producto producto=new Producto();
-		producto=entityRepository.findByCodbar(codbar);
-		if(producto==null){
-			if(codbar.length() < 8) {
-				return new ResponseEntity<>(new CustomerErrorType("El tipo de código barra : "+codbar+" no permitido."), HttpStatus.CONFLICT);	
-			} else {
-				String codigo = codbar.substring(1, 7);
-				Producto p = new Producto();
-				p=entityRepository.findById(Integer.parseInt(codigo)).orElse(null);
-				if (p==null) {
-					return new ResponseEntity<>(new CustomerErrorType("El código barra: "+codbar+" no existe."), HttpStatus.CONFLICT);	
-				} else {
-					producto = p;
-				}
-			}
-			if(producto !=null) {
-				if(producto.getIsBalanza() == true) {
-					return new ResponseEntity<>(cargarProductoModelo(producto), HttpStatus.OK);
-				}
-			} else {
-				return new ResponseEntity<>(new CustomerErrorType("El código barra: "+codbar+" no existe."), HttpStatus.CONFLICT);	
-			}
-		}
 
-		return new ResponseEntity<>(cargarProductoModelo(producto), HttpStatus.OK);
+		 try {
+		        Producto producto = null;
+		        // 🔹 Primero, intentar coincidencia exacta (productos normales)
+		        producto = entityRepository.findByCodbar(codbar);
 
+		        // 🔹 Si no lo encuentra, verificar si es de balanza
+		        if (producto == null && esCodigoBalanza(codbar)) {
+		            String codigoProducto = extraerCodigoProducto(codbar);
+		            producto = entityRepository.findById(Integer.parseInt(codigoProducto)).orElse(null);
+
+		            if (producto != null) {
+		                // Puedes agregar aquí la lógica para calcular el peso o precio desde el código
+		                // Ejemplo: double peso = Double.parseDouble(codbar.substring(7, 12)) / 1000.0;
+		                // producto.setPesoLeido(peso);
+		                return new ResponseEntity<>(cargarProductoModelo(producto), HttpStatus.OK);
+		            }
+		        }
+
+		        if (producto == null) {
+		            return new ResponseEntity<>(new CustomerErrorType("El código de barra " + codbar + " no existe."), HttpStatus.CONFLICT);
+		        }
+
+		        return new ResponseEntity<>(cargarProductoModelo(producto), HttpStatus.OK);
+
+		    } catch (Exception e) {
+		        return new ResponseEntity<>(new CustomerErrorType("Error procesando código: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
+		
 	}
 
 

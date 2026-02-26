@@ -244,6 +244,7 @@ public class GastoConsumicionesCabeceraController {
 									Concepto c = new Concepto();
 									c = conceptoRepository.findById(9).get();
 									op.setMotivo(c.getDescripcion() + " REF.: " + entity.getId());
+									op.setReferenciaOperacion(entity.getId());
 									operacionCajaRepository.save(op);
 									if (op.getTipoOperacion().getId() == 1) {
 										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(op.getAperturaCaja().getId(), entity.getTotal());

@@ -21,7 +21,11 @@ public class OrdenProduccionDetalle {
 	@NotNull
 	private Double cantidad;
 	@NotNull
+	private Double cantidadBase;
+	@NotNull
 	private Double subTotal;
+	@NotNull
+	private Double subTotalBase;
 	@NotNull
 	private String descripcionIngrediente;
 	@NotNull
@@ -43,6 +47,25 @@ public class OrdenProduccionDetalle {
 		this.unidadMedida= new UnidadMedida();
 		
 		this.producto = new  Producto();
+		this.cantidad=0.0;
+		this.cantidadBase=0.0;
+		this.subTotalBase=0.0;
+	}
+
+	public Double getCantidadBase() {
+		return cantidadBase;
+	}
+
+	public void setCantidadBase(Double cantidadBase) {
+		this.cantidadBase = cantidadBase;
+	}
+
+	public Double getSubTotalBase() {
+		return subTotalBase;
+	}
+
+	public void setSubTotalBase(Double subTotalBase) {
+		this.subTotalBase = subTotalBase;
 	}
 
 	public int getId() {

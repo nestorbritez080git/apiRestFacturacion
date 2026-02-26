@@ -77,6 +77,18 @@ public interface TesoreriaRepository extends JpaRepository<Tesoreria, Serializab
 	@Query(value="select * from tesoreria teso INNER JOIN cierre_caja cierre ON cierre.id=teso.cierre_caja_id INNER JOIN funcionario fun ON fun.id=cierre.funcionario_id INNER JOIN persona pf on pf.id=fun.persona_id  where pf.nombre ilike :descripcion or pf.apellido ilike :descripcion or pf.cedula ilike :descripcion or cast(cierre.id AS VARCHAR)   ilike :descripcion   order by cierre.id desc  limit 50",nativeQuery=true)
 	List<Tesoreria>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
 	
+//	
+//	@Query(value = "", nativeQuery = true)
+//	List<Object[]> obtenerResumenTesoreriaVentaContado(@Param("conceptoId") Integer conceptoId);
+//	@Query(value = "", nativeQuery = true)
+//	List<Object[]> obtenerResumenTesoreriaVentaCredito(@Param("conceptoId") Integer conceptoId);
+//	@Query(value = "", nativeQuery = true)
+//	List<Object[]> obtenerResumenTesoreriaCobrosCliente(@Param("conceptoId") Integer conceptoId);
+//	@Query(value = "", nativeQuery = true)
+//	List<Object[]> obtenerResumenTesoreriaCompraContado(@Param("conceptoId") Integer conceptoId);
+//	@Query(value = "", nativeQuery = true)
+//	List<Object[]> obtenerResumenTesoreriaCompraCredito(@Param("conceptoId") Integer conceptoId);
+//	
 	
 	
 }

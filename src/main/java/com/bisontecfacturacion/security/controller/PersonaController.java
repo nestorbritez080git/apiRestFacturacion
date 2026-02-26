@@ -43,52 +43,61 @@ public class PersonaController {
 		return entityRepository.findByCedula(ruc);
 	}
 	
-	@RequestMapping(method=RequestMethod.POST)
-	public ResponseEntity<?> guardar(@RequestBody Persona entity){
-		   if(entity.getNombre()!=null){
-				entity.setNombre(Utilidades.eliminaCaracterIzqDer(entity.getNombre().trim().toUpperCase()));			
+	@RequestMapping(method = RequestMethod.POST)
+	public ResponseEntity<?> guardar(@RequestBody Persona entity) {
+	    try {
+	        // Normalizar campos
+	        if(entity.getNombre() != null){
+	            entity.setNombre(Utilidades.eliminaCaracterIzqDer(entity.getNombre().trim().toUpperCase()));
 	        }
-	        if(entity.getApellido()!=null){
-				entity.setApellido(Utilidades.eliminaCaracterIzqDer(entity.getApellido().trim().toUpperCase()));			
+	        if(entity.getApellido() != null){
+	            entity.setApellido(Utilidades.eliminaCaracterIzqDer(entity.getApellido().trim().toUpperCase()));
 	        }
-	        if(entity.getCedula()!=null){
-				entity.setCedula(Utilidades.eliminaCaracterIzqDer(entity.getCedula().trim().toUpperCase()));			
+	        if(entity.getCedula() != null){
+	            entity.setCedula(Utilidades.eliminaCaracterIzqDer(entity.getCedula().trim().toUpperCase()));
 	        }
-	        if(entity.getDireccion()!=null){
-				entity.setDireccion(Utilidades.eliminaCaracterIzqDer(entity.getDireccion().trim().toUpperCase()));			
+	        if(entity.getDireccion() != null){
+	            entity.setDireccion(Utilidades.eliminaCaracterIzqDer(entity.getDireccion().trim().toUpperCase()));
 	        }
-	        if(entity.getEmail()!=null){
-				entity.setEmail(entity.getEmail().trim().toUpperCase());			
+	        if(entity.getEmail() != null){
+	            entity.setEmail(entity.getEmail().trim().toUpperCase());
 	        }
-	        if(entity.getTipo()!=null){
-				entity.setTipo(entity.getTipo().trim().toUpperCase());			
+	        if(entity.getTipo() != null){
+	            entity.setTipo(entity.getTipo().trim().toUpperCase());
 	        }
 
-	        if(entity.getId() != 0){
-	                Persona p = new Persona();
-	                p = siExisteEditar(entity);
-	                if (p!=null) {
-	                    if(entity.getId()==p.getId()){
-	                            entityRepository.save(entity);
-	                       // entityRepository.save(entity);
-	                    }else {
-	                        return new ResponseEntity<>(new CustomerErrorType("EL N° DE CEDULA : "+entity.getCedula()+", PERTENECE A UNA PERSONA YA REGISTRADO ANTERIORMENTE"), HttpStatus.CONFLICT);
-	                    }
-	                }else {
-	                    entityRepository.save(entity);
-	                }
-	            
+	        // ID autogenerado, usamos null para nueva Persona
+	        if(entity.getId() != null) {
+	            // Persona existente: verificar si no hay conflicto de cédula
+	            Persona existente = siExisteEditar(entity); // tu función que busca por cedula
+	            if(existente != null && !existente.getId().equals(entity.getId())) {
+	                return new ResponseEntity<>(
+	                    new CustomerErrorType("El N° DE CEDULA : " + entity.getCedula() + 
+	                                          ", PERTENECE A UNA PERSONA YA REGISTRADA"),
+	                    HttpStatus.CONFLICT
+	                );
+	            }
+	            // Guardar actualización
+	            entityRepository.save(entity);
 
 	        } else {
-	            if (siExiste(entity)) {
-	                return new ResponseEntity<>(new CustomerErrorType("El N° DE CEDULA " + entity.getCedula() + " YA EXISTE."),
-	                        HttpStatus.CONFLICT);
-	            }else {
-	                entityRepository.save(entity);
+	            // Persona nueva: verificar cédula duplicada
+	            if(siExiste(entity)) {
+	                return new ResponseEntity<>(
+	                    new CustomerErrorType("El N° DE CEDULA " + entity.getCedula() + " YA EXISTE."),
+	                    HttpStatus.CONFLICT
+	                );
 	            }
+	            // Guardar nueva Persona
+	            entityRepository.save(entity);
 	        }
-		
-		return  new  ResponseEntity<String>(HttpStatus.CREATED);
+
+	        return new ResponseEntity<>(HttpStatus.CREATED);
+
+	    } catch(Exception e) {
+	        e.printStackTrace();
+	        return new ResponseEntity<>(new CustomerErrorType(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
 
 	public boolean siExiste(Persona entity){

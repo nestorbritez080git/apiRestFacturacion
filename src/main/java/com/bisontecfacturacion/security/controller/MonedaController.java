@@ -31,6 +31,10 @@ public class MonedaController {
 	public List<Moneda> getAll(){
 		return entityRepository.findByOrderByIdAsc();
 	}
+	@RequestMapping(method=RequestMethod.GET, value = "/ordenDesc")
+	public List<Moneda> getAllOrdenByDesc(){
+		return entityRepository.findByOrderByIdDesc();
+	}
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?> guardar(@RequestBody List<Moneda> LisyEntity){
 		try {

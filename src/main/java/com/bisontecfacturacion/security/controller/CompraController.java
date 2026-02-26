@@ -176,7 +176,8 @@ public class CompraController {
 			ventas.setEstado(ob.getEstado());
 			ventas.setTipo(ob.getTipo());
 			ventas.setHora(ob.getHora());
-			//ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
 			venta.add(ventas);
 			System.out.println(ventas.getProveedor().getPersona().getNombre());
 		}
@@ -202,7 +203,8 @@ public class CompraController {
 			ventas.setEstado(ob.getEstado());
 			ventas.setTipo(ob.getTipo());
 			ventas.setHora(ob.getHora());
-			//ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
 			venta.add(ventas);
 			System.out.println(ventas.getProveedor().getPersona().getNombre());
 		}
@@ -230,7 +232,8 @@ public class CompraController {
 			ventas.setEstado(ob.getEstado());
 			ventas.setTipo(ob.getTipo());
 			ventas.setHora(ob.getHora());
-			//ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
 			listaRetorno.add(ventas);
 			System.out.println(ventas.getProveedor().getPersona().getNombre());
 		}
@@ -258,7 +261,8 @@ public class CompraController {
 			ventas.setEstado(ob.getEstado());
 			ventas.setTipo(ob.getTipo());
 			ventas.setHora(ob.getHora());
-			//ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setId(ob.getDocumento().getId());
+			ventas.getDocumento().setDescripcion(ob.getDocumento().getDescripcion());
 			listaRetorno.add(ventas);
 			System.out.println(ventas.getProveedor().getPersona().getNombre());
 		}
@@ -426,11 +430,11 @@ public class CompraController {
                if(det.getNumeroCuota() <=0 ) {
                    return error("EL NÚMERO DE CUOTA DEL DETALLE ITEM N°: "+(ind++)+", NO DEBE QUEDAR VACIO!");
                }else if(det.getMonto() <= 0){
-                   return error("EL MONTO DE LA CUOTA DEL DETALLE FLETE ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!");
+                   return error("EL MONTO DE LA CUOTA DEL DETALLE ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!");
                }else if(det.getSubTotal() <= 0){
-                   return error("EL SUBTOTAL DEL DETALLE FLETE ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!");
+                   return error("EL SUBTOTAL DEL DETALLE ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!");
                }else if(det.getFechaVencimiento() == null) {
-                   return error("LA FECHA DEL DETALLE FLETE ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!");  
+                   return error("LA FECHA DEL DETALLE ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!");  
                }
            }
       
@@ -489,6 +493,7 @@ public class CompraController {
 			Concepto c= new Concepto();
 			c= conceptoRepository.findById(ope.getConcepto().getId()).get();//compra contado
 			ope.setMotivo(c.getDescripcion()+" REF.: "+ent.getId());
+			ope.setReferenciaOperacion(ent.getId());
 			ope.getAperturaCaja().setId(ope.getAperturaCaja().getId());//id aperturarecibido desdecliente
 			ope.setTipo("SALIDA");
 			//ope.setMonto(ent.getEntrega());
@@ -562,11 +567,12 @@ public class CompraController {
 			enti.setTotalIvaDies(total10);
 			enti.setTotalIvaCinco(total5);
 			//entityRepository.save(savedCompra);
+			enti.setHora(hora());
 			return entityRepository.save(enti);
 		}else {
 		    Compra savedCompra = entityRepository.save(enti);
 			
-			double total10=0, total5=0, totalDescuento=0, totalExcenta=0;
+			double total10=0, total5=0;
 			if(savedCompra.getDetalleCompra().size()>0){
 				if (savedCompra.getEstado().equals("FACTURADO")) {
 					savedCompra.setFecha(new Date());
@@ -607,7 +613,8 @@ public class CompraController {
 						detalleRepository.save(detalleProducto);
 					}
 				}
-			}	
+			}
+			savedCompra.setHora(hora());
 			savedCompra.setTotalIvaDies(total10);
 			savedCompra.setTotalIvaCinco(total5);
 			return entityRepository.save(savedCompra);
@@ -619,7 +626,6 @@ public class CompraController {
 	        @RequestPart("compra") Compra compra,
 	        @RequestPart("operacionCaja") OperacionCaja operacionCaja,
 	        @RequestPart("cuentaPagar") CuentaPagarCabecera cuentaPagarCabecera) {
-
 	    try {
 	        // 1. Validar compra y detalles
 	        ResponseEntity<?> validacionCompra = validarCompra(compra);

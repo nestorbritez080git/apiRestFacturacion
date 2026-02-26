@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.InformeCierreEmpaqueAuxiliar;
 import com.bisontecfacturacion.security.auxiliar.ResumenEmpaqueDetalle;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.NumerosALetras;
@@ -558,14 +559,13 @@ public class EmpaqueController {
 	                dp.setDescripcion(detPresupuesto.getDescripcion());
 	                dp.setCosto(detPresupuesto.getProducto().getPrecioCosto());
 	                dp.setCostoPromedio(detPresupuesto.getProducto().getPrecioCosto());
-	                dp.setSubTotal(cantidadAFacturar * detPresupuesto.getPrecio());
+	                dp.setSubTotal((cantidadAFacturar * detPresupuesto.getPrecio())-(detPresupuesto.getDescuento()*cantidadAFacturar));
 	                dp.setDescuento(detPresupuesto.getDescuento());
 	                dp.setIsBalanza(detPresupuesto.getIsBalanza());
 	                dp.setIva(detPresupuesto.getIva());
 	                dp.setPrecio(detPresupuesto.getPrecio());
 	                dp.setMontoIva(detPresupuesto.getMontoIva());
 	                dp.setTipoPrecio(detPresupuesto.getTipoPrecio());
-
 	                subTotalDetalleFacturados += dp.getSubTotal();
 	                cantidadItemsDetalles++;
 	                dpRetorno.add(dp);
@@ -1052,5 +1052,66 @@ public class EmpaqueController {
 	}
 	
 	
+	@RequestMapping(value="/descargarPdfCierreEmpaque/{id}", method=RequestMethod.GET)
+	public ResponseEntity<?>  descargarCierreEmpaque(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
+		Usuario usuario = usuarioService.findByUsername(authentication.getName());
+		Org org = orgRepository.findById(1).get();
+		ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
+			try {
 
+				List<Object[]> rows = entityRepository.getReporteResumenEmpaqueRaw(id);
+				if (rows == null || rows.isEmpty()) {
+					return  new ResponseEntity<>(new CustomerErrorType("No se encontró información para el empaque " + id), HttpStatus.CONFLICT);
+
+				}
+
+				Object[] r = rows.get(0); // 👈 LA FILA REAL
+				InformeCierreEmpaqueAuxiliar dto = new InformeCierreEmpaqueAuxiliar();
+
+				dto.setIdEmpaque(((Number) r[0]).intValue());
+				dto.setFechaEntrega((Date) r[1]);
+				dto.setZona((String) r[3]);
+
+				dto.setFuncionarioEncargado((String) r[4]);
+				dto.setFuncionarioRepartidor((String) r[5]);
+
+				dto.setItemPedido(((Number) r[6]).intValue());
+				dto.setItemVenta(((Number) r[7]).intValue());
+
+				dto.setVentaContado(((Number) r[8]).doubleValue());
+				dto.setVentaCredito(((Number) r[9]).doubleValue());
+				dto.setTotalDevolucion(((Number) r[10]).doubleValue());
+
+				dto.setTotalEfectivo(((Number) r[11]).doubleValue());
+				dto.setTotalCheque(((Number) r[12]).doubleValue());
+				dto.setTotalTarjeta(((Number) r[13]).doubleValue());
+
+				dto.setTotalPedido(((Number) r[14]).doubleValue());
+				dto.setTotalVenta(((Number) r[15]).doubleValue());
+
+      			Map<String, Object> map = new HashMap<>();
+				map.put("tituloReporte", f.getTitulo());
+				map.put("razonSocialReporte", f.getRazonSocial());
+				map.put("descripcionMovimiento", f.getDescripcion());
+				map.put("direccionReporte", f.getDireccion());
+				map.put("telefonoReporte", f.getTelefono());
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+			  
+				report = new Reporte();
+				report.reportPDFDescarga(Arrays.asList(dto), map, "ReporteCierreEmpaque", response);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+
+		
+		return  new  ResponseEntity<String>(HttpStatus.OK);
+	}
 }

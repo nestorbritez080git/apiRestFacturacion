@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.config.Utilidades;
+import com.bisontecfacturacion.security.model.Impresora;
 import com.bisontecfacturacion.security.model.ProduccionCostoCabecera;
 import com.bisontecfacturacion.security.model.ProduccionMateriaPrima;
 import com.bisontecfacturacion.security.model.Producto;
@@ -49,9 +50,7 @@ public class ProduccionCostoCabeceraController {
 			return new ResponseEntity<>(new CustomerErrorType("EL CAMPO   NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 		}else if(entity.getCantidadProduccion() == null || entity.getCantidadProduccion() <=0 ) {
 			return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DE PRODUCCIÓN NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(entity.getCodigoInterno()== null) {
-			return new ResponseEntity<>(new CustomerErrorType("EL CODIGO INTERNO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(entity.getProduccionMateriaPrimas().size()<=0){
+		}else if(entity.getProduccionMateriaPrimas().size()<=0){
 			return new ResponseEntity<>(new CustomerErrorType("DEBES AGREGAR POR LO MENO UN DETALLE DE MATERIA PRIMAS PARA GUARDAR PRODUCCION INGREDIENTES!"), HttpStatus.CONFLICT);
 		}else {
 			for(int ind=0; ind < entity.getProduccionMateriaPrimas().size(); ind++) {
@@ -150,6 +149,9 @@ public class ProduccionCostoCabeceraController {
 			pro.setCantidadProduccion(p.getCantidadProduccion());
 			pro.setCostoTotalMateriaPrima(p.getCostoTotalMateriaPrima());
 			pro.setCodigoInterno(p.getCodigoInterno());
+			pro.getFuncionario().setPersona(p.getFuncionario().getPersona());
+			pro.getFuncionario().setId(p.getFuncionario().getId());
+			pro.setProducto(p.getProducto());
 			lista.add(pro);
 		}
 		return lista;
@@ -217,4 +219,11 @@ public class ProduccionCostoCabeceraController {
 				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	@RequestMapping(method=RequestMethod.POST, value="/buscar/filtro")
+	public List<ProduccionCostoCabecera> consultarPorDescripcion(@RequestBody String descripcion){
+		List<ProduccionCostoCabecera>objeto = new ArrayList<>();
+		objeto=entityRepository.getBuscarProductoProduccionPorDescripcion("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+		return listado(objeto);
+	}
+	
 }

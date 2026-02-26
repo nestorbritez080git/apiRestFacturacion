@@ -27,15 +27,15 @@ import com.bisontecfacturacion.security.repository.UtilidadPrecioRepository;
 @RestController
 @RequestMapping("config")
 public class ConfigImpresora {
-	
+
 	@Autowired
 	private ImpresoraRepository repository;
 	@Autowired
 	private UtilidadPrecioRepository utilidadPreciorepository;
-	
+
 	@Autowired
 	private TerminalConfigImpresoraRepository terminalRepository;
-	
+
 	@Autowired
 	private ReporteConfigRepository reporteConfigRepository;
 	/*
@@ -50,13 +50,13 @@ public class ConfigImpresora {
 		}
 		return lista;
 	}
-	*/
-	
+	 */
+
 	@RequestMapping(method=RequestMethod.GET, value="/test/api")
-    public String ping() {
-        return "pong";
-    }
-	
+	public String ping() {
+		return "pong";
+	}
+
 	@RequestMapping(method=RequestMethod.GET, value="/listImpresora")
 	public List<Impresora> getAllImpresora(){
 		Impresora impre=repository.findById(8).get();
@@ -85,36 +85,76 @@ public class ConfigImpresora {
 	public TerminalConfigImpresora getTerminalAutoImpresorPorNumeroTerminal(@PathVariable int numeroTerminal){
 		return terminalRepository.consultarTerminalEmisonFacturaPorTerminales(numeroTerminal);
 	}
-	
+
 	@RequestMapping(method=RequestMethod.GET, value="/terminal/{numeroTerminal}")
 	public TerminalConfigImpresora getTerminalPorNumnero(@PathVariable int numeroTerminal){
-		return terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+		TerminalConfigImpresora ter = terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
+		TerminalConfigImpresora dto = new TerminalConfigImpresora();
+
+		if (ter == null) {
+			dto= null;
+		}else {
+			// ⚙️ Construir el DTO solo con los campos que necesitás
+			dto.setId(ter.getId());
+			dto.setNumeroTerminal(ter.getNumeroTerminal());;
+			dto.setEstadoAdicionArtVarios(ter.getEstadoAdicionArtVarios());
+			dto.setEstadoEdicionZona(ter.getEstadoEdicionZona());
+			dto.setEstadoEmisionFactura(ter.getEstadoEmisionFactura());
+			dto.getAutoImpresor().setId(ter.getAutoImpresor().getId());
+			dto.setEstadoListadoGrigImagen(ter.getEstadoListadoGrigImagen());
+			dto.setImpresora(ter.getImpresora());
+		}
+		System.out.println("*/*/*/: "+dto.getImpresora());
+		return dto;
+
 	}
-	
-	
+	@RequestMapping(method=RequestMethod.GET, value="/terminal/sql/{numeroTerminal}")
+	public TerminalConfigImpresora getTerminalPorNumeroSql(@PathVariable int numeroTerminal){
+		TerminalConfigImpresora ter = terminalRepository.consultarTerminalPorNumeroTerminalSql(numeroTerminal);
+		TerminalConfigImpresora dto = new TerminalConfigImpresora();
+
+		if (ter == null) {
+			dto= null;
+		}else {
+			// ⚙️ Construir el DTO solo con los campos que necesitás
+			dto.setId(ter.getId());
+			dto.setNumeroTerminal(ter.getNumeroTerminal());;
+			dto.setEstadoAdicionArtVarios(ter.getEstadoAdicionArtVarios());
+			dto.setEstadoEdicionZona(ter.getEstadoEdicionZona());
+			dto.setEstadoEmisionFactura(ter.getEstadoEmisionFactura());
+			dto.getAutoImpresor().setId(ter.getAutoImpresor().getId());
+			dto.setEstadoListadoGrigImagen(ter.getEstadoListadoGrigImagen());
+			dto.setImpresora(ter.getImpresora());
+		}
+		System.out.println("*/*/*/: "+dto.getImpresora());
+		return dto;
+
+	}
+
+
 	@RequestMapping(method=RequestMethod.GET, value="/terminal")
 	public List<TerminalConfigImpresora> getAllTerminal(){
 		return terminalRepository.getAllTerminal();
 	}
-	
+
 	@RequestMapping(method=RequestMethod.PUT, value="/terminal")
 	public TerminalConfigImpresora guardarTerminalConfigImpresora(@RequestBody TerminalConfigImpresora imp){
 		return terminalRepository.save(imp);
 	}
-	
+
 	@RequestMapping(method=RequestMethod.GET, value="/impresora_activo")
 	public Impresora getImpresoraActivo(){
 		return repository.findTop1ByOrderByIdAsc();
 	}
-	
+
 	@RequestMapping(method=RequestMethod.PUT, value="/actualizar")
 	public Impresora editar(@RequestBody Impresora entity){
 		return repository.save(entity);
 	}
-	
+
 	@RequestMapping(method=RequestMethod.POST, value="/actualizarReporteConfig")
 	public ReporteConfig asdf(@RequestBody ReporteConfig entity){
-		
+
 		if(entity.getNombreReporte() != null){
 			String [] datos1= entity.getNombreReporte().split(Pattern.quote("."));
 			entity.setNombreReporte(datos1 [0]);
@@ -127,19 +167,19 @@ public class ConfigImpresora {
 			String [] datos1= entity.getNombreSubReporte2().split(Pattern.quote("."));
 			entity.setNombreSubReporte2(datos1[0]);
 		}
-		
+
 		return reporteConfigRepository.save(entity);
 	}
-	
+
 	@RequestMapping(method=RequestMethod.GET, value="/getReporteConfig")
 	public List<ReporteConfig> getReporteConfig(){
 
 		return reporteConfigRepository.findByOrderByIdAsc();
 	}
-	
+
 	private List<Impresora> listaNombreReporte(String dir) {
 		List<Impresora> lista=new ArrayList<>();
-		
+
 		File f = new File(dir);
 		File [] fiche= f.listFiles();		
 		for (int i = 0; i < fiche.length; i++) {
@@ -150,14 +190,14 @@ public class ConfigImpresora {
 		}
 		return lista;
 	}
-	
+
 	@RequestMapping(method=RequestMethod.GET, value="/listaNombreReporte")
 	public List<Impresora> listReporteNombre(){
 		List<Impresora> lista=new ArrayList<>();
 		String path = new File("").getAbsolutePath();
 		String dir = path+"\\src\\main\\java\\reporte";
 		String dir2 = path+"\\webapps\\apiRestFacturacion\\WEB-INF\\classes\\reporte";
-		
+
 		File f = new File(dir);
 		if (f.exists()) {
 			lista = listaNombreReporte(dir);
@@ -165,9 +205,9 @@ public class ConfigImpresora {
 			lista = listaNombreReporte(dir2);
 		}
 		return lista;
-	
+
 	}
-	
+
 	/*
 public void PrintReportToPrinter(JasperPrint jasperPrint, String tipo) throws JRException {
 	//Consigue los nombres de las impresoras.
@@ -218,5 +258,5 @@ public void PrintReportToPrinter(JasperPrint jasperPrint, String tipo) throws JR
 	}else{
 	System.out.println("JasperReport Error: Printer not found!");
 	}}
-*/
+	 */
 }

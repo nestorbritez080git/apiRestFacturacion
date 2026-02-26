@@ -94,15 +94,17 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"where v.estado='PRE-RESERVADO'   order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesAllPreReservado ();
 	
-	@Query(value = "select  cab.descripcion_combo as des, perFin.nombre || ' ' || perFin.apellido as funFin, perCli.nombre || ' ' || perCli.apellido as perCli, cab.entrega as entrega, cab.precio as precio, cab.total_producto as totalProd, cab.total_habitacion as total, cab.fecha_entrada as fecReg, cab.hora as horaReg, cab.fecha_factura as fecFin, cab.hora_finalizacion as horFin, cab.estadia as estadia, cab.total as totales \r\n" + 
-			"from reservacion_cabecera  cab \r\n" + 
-			"inner join funcionario funReg on funReg.id=cab.funcionario_registro_id\r\n" + 
-			"inner join persona perReg ON perReg.id=funReg.persona_id\r\n" + 
-			"inner join funcionario funFin on funFin.id=cab.funcionario_finalizacion_id\r\n" + 
-			"inner join persona perFin on perFin.id=funFin.persona_id\r\n" + 
-			"inner join cliente cli on cli.id=cab.cliente_id \r\n" + 
-			"inner join persona perCli on perCli.id=cli.persona_id\r\n" + 
-			"where cab.estado='FINALIZADO' AND  ((cab.fecha_registro >= :fecha_inicio) AND (cab.fecha_registro <= :fecha_fin ))", nativeQuery = true)
+	@Query(value = "select  cab.descripcion_combo as des, perFin.nombre || ' ' || perFin.apellido as funFin, perCli.nombre || ' ' || perCli.apellido as perCli, cab.entrega as entrega, cab.precio as precio, cab.total_producto as totalProd, cab.total_habitacion as total, cab.fecha_entrada as fecReg, cab.hora as horaReg, cab.fecha_factura as fecFin, cab.hora_finalizacion as horFin, cab.estadia as estadia, cab.total as totales, cab.id as idRecepciones, cab.estado as esttado " + 
+			"from reservacion_cabecera  cab " + 
+			"inner join funcionario funReg on funReg.id=cab.funcionario_registro_id " + 
+			"inner join persona perReg ON perReg.id=funReg.persona_id " + 
+			"inner join funcionario funFin on funFin.id=cab.funcionario_finalizacion_id " + 
+			"inner join persona perFin on perFin.id=funFin.persona_id " + 
+			"inner join cliente cli on cli.id=cab.cliente_id  " + 
+			"inner join persona perCli on perCli.id=cli.persona_id " + 
+			"where  (cab.estado='FINALIZADO' OR cab.estado='RESERVADO') " + 
+			"AND (cab.fecha_registro >= :fecha_inicio) " + 
+			"AND (cab.fecha_registro <= :fecha_fin) ORDER BY cab.id DESC ", nativeQuery = true)
     List<Object []> getResumenRecepcionesRagoFecha( @Param("fecha_inicio") LocalDateTime fecha_inicio, @Param("fecha_fin") LocalDateTime fecha_fin);
     
     @Query(value = "select  cab.descripcion_combo as des, perFin.nombre || ' ' || perFin.apellido as funFin, perCli.nombre || ' ' || perCli.apellido as perCli, cab.entrega as entrega, cab.precio as precio, cab.total_producto as totalProd, cab.total_habitacion as total, cab.fecha_entrada as fecReg, cab.hora as horaReg, cab.fecha_factura as fecFin, cab.hora_finalizacion as horFin, cab.estadia as estadia, cab.total as totales \r\n" + 

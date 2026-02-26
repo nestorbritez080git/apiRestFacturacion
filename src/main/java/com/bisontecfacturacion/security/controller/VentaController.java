@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -57,8 +58,12 @@ import com.bisontecfacturacion.security.model.AutoImpresor;
 import com.bisontecfacturacion.security.model.AutoImpresorDetalleVenta;
 import com.bisontecfacturacion.security.model.CajaChica;
 import com.bisontecfacturacion.security.model.Cliente;
+import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
+import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
+import com.bisontecfacturacion.security.model.CuentaPagarCabecera;
+import com.bisontecfacturacion.security.model.CuentaPagarDetalle;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.EmpaqueCabecera;
@@ -70,7 +75,9 @@ import com.bisontecfacturacion.security.model.LoteBoleta;
 import com.bisontecfacturacion.security.model.LoteFactura;
 import com.bisontecfacturacion.security.model.LoteTicket;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
+import com.bisontecfacturacion.security.model.NotaCredito;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OrdenPagare;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.Producto;
@@ -100,6 +107,7 @@ import com.bisontecfacturacion.security.repository.LoteBoletaRepository;
 import com.bisontecfacturacion.security.repository.LoteFacturaRepository;
 import com.bisontecfacturacion.security.repository.LoteTicketRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
+import com.bisontecfacturacion.security.repository.NotaCreditoRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrdenPagareRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
@@ -114,6 +122,7 @@ import com.bisontecfacturacion.security.repository.VentaRepository;
 import com.bisontecfacturacion.security.repository.ZonaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 import com.bisontecfacturacion.security.service.IUsuarioService;
+import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 
 @Transactional
 @RestController
@@ -198,6 +207,10 @@ public class VentaController {
 	@Autowired
 	private AperturaCajaRepository aperturaCajaRepository;
 
+	
+	@Autowired
+	private NotaCreditoRepository notaCreditoRepository;
+	
 	@Autowired
 	private CierreCajaRepository cierreCajaRepository;
 
@@ -569,7 +582,7 @@ public class VentaController {
 
 					numeroCompleto = auto.getCodigoEstablecimiento() + "-" +
 							auto.getPuntoExpedicion() + "-" +
-							padFAutoFactura(auto.getNumeroActual(), 8);
+							padFAutoFactura(auto.getNumeroActual(), 7);
 
 					AutoImpresorDetalleVenta detalleAuto = new AutoImpresorDetalleVenta();
 					detalleAuto.getAutoImpresor().setId(auto.getId());
@@ -865,9 +878,1029 @@ public class VentaController {
 
 		return false;
 	}
+	private ResponseEntity<?> validarCuentaCobrar(CuentaCobrarCabecera entity) {
+		 if(entity.getConcepto().getId() == 0) {
+	            return error("EL CONCEPTO DE LA CUENTA NO DEBE QUEDAR VACIO!");
+	     } else if(entity.getFuncionario().getId() == 0) {
+		            return error("EL FUNCIONARIO NO DEBE QUEDAR VACIO!");
+	     } else if(entity.getTipoPlazo().getId() == 0) {
+	            return error("EL TIPO PLAZO NO DEBE QUEDAR VACIO!");
+	     } else if(entity.getCliente().getId()==0) {
+	    	  	return error("EL PROVEEDOR NO DEBE QUEDAR VACIO!");
+	     } else if(entity.getTotal() <=0 ) {
+	    	 	return error("EL TOTAL DE LA CUENTA DEBE SER MAYOR A CERO!");
+	     } else if(entity.getFraccionCuota() <=0) {
+	    	 	return error("EL NÚMERO DE CUOTA O FRACCIÓN DEBE SER MAYOR A CERO!");
+	     } else if(entity.getCuentaCobrarDetalle().size() <=0){
+             return error("DEBES AGREGAR POR LO MENO UN DETALLE DE CUENTA A PAGAR!");
+	     } 
+		 System.out.println("cabece fecha vencimii: "+entity.getFechaVencimiento());
+     	  for(int ind=0; ind < entity.getCuentaCobrarDetalle().size(); ind++) {
+               CuentaCobrarDetalle det = entity.getCuentaCobrarDetalle().get(ind);
+               System.out.println("fecha  vencim:  "+det.getFechaVencimiento());
+               if(det.getNumeroCuota() <=0 ) {
+                   return error("EL NÚMERO DE CUOTA DEL DETALLE ITEM N°: "+(ind+1)+", NO DEBE QUEDAR VACIO!");
+               }else if(det.getMonto() <= 0){
+                   return error("EL MONTO DE LA CUOTA DEL DETALLE ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!");
+               }else if(det.getSubTotal() <= 0){
+                   return error("EL SUBTOTAL DEL DETALLE ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!");
+               }else if(det.getFechaVencimiento() == null) {
+                   return error("LA FECHA DEL DETALLE ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!");  
+               }
+           }
+      
+	    // más validaciones...
+	    return null;
+	}
+	
+	private ResponseEntity<?> validarVenta(Venta entity) {
+		
+		if(entity.getFuncionario().getId() == 0) {
+	        return error("EL FUNCIONARIO NO DEBE QUEDAR VACIO!");
+		} else if(entity.getFuncionarioV().getId() == 0) {
+	        return error("EL FUNCIONARIO VENDEDOR NO DEBE QUEDAR VACIO!");
+		} else if(entity.getFuncionarioR().getId()==0) {
+	        return error("EL FUNCIONARIO REPARTIDOR NO DEBE QUEDAR VACIO!");
+		} else if(entity.getDocumento().getId() == 0) {
+	        return error("EL DOCUMENTO NO DEBE QUEDAR VACIO!");
+		} else if(entity.getCliente().getId() == 0) {
+	        return error("EL CLIENTE NO DEBE QUEDAR VACIO!");
+		} else if(entity.getDetalleProducto().size() == 0 && entity.getDetalleServicio().size() == 0) {
+	        return error("LA GRILLA NO DEBE QUEDAR VACIO!");
+		} else if(entity.getTotal() <=0 || entity.getTotal()==null) {
+	        return error("EL TOTAL DE LA VENTA DEBE SER MAYOR A CERO!");
+		} else if(entity.getTotalLetra().equals("") || entity.getTotalLetra()==null) {
+	        return error("EL TOTAL MONTO EN LETRA NO DEBE QUEDAR VACIO!");
+		} else if(estadoClienteBloqueo(entity.getCliente().getId(), entity.getTotal())==true && entity.getTipo().equals("2") && entity.getEstado().equals("FACTURADO")) {
+	        return error("NO SE PUEDE FACTURAR VENTAS, CLIENTE BLOQUEADO POR EXCEDER LINEA DE CREDITO!");
+		}
+
+		
+		// 🔹 Validar coherencia de total de la venta
+				Double	 sumaDetalles = 0.0;
+				Double descuento=0.0;
+				int index = 1;
+
+				// sumar productos
+				for (DetalleProducto d : entity.getDetalleProducto()) {
+					if (d.getCantidad() == null || d.getCantidad() <= 0) {
+						 return error("LA CANTIDAD DEL PRODUCTO ITEM N° " + (index + 1) + " NO DEBE SER <= 0!");
+					}
+					if (d.getDescripcion() == null || d.getDescripcion().trim().isEmpty()) {
+						 return error("LA DESCRIPCIÓN DEL PRODUCTO ITEM N° " + (index + 1) + " NO DEBE QUEDAR VACÍA!");
+					}
+					if (d.getPrecio() == null || d.getPrecio() <= 0) {
+						 return error("EL PRECIO DEL PRODUCTO ITEM N° " + (index + 1) + " NO DEBE SER <= 0!");
+					}
+					if (d.getSubTotal() == null || d.getSubTotal() <= 0) {
+						 return error("EL SUBTOTAL DEL PRODUCTO ITEM N° " + (index + 1)+ " NO DEBE SER <= 0!");
+					}
+					sumaDetalles += d.getSubTotal();
+					descuento += d.getDescuento();
+					index++;
+				}
+
+				// sumar servicios
+				for (DetalleServicios d : entity.getDetalleServicio()) {
+					if (d.getCantidad() == null || d.getCantidad() <= 0) {
+						 return error("LA CANTIDAD DEL SERVICIO ITEM N° " + index + " NO DEBE SER <= 0!");
+					}
+					if (d.getDescripcion() == null || d.getDescripcion().trim().isEmpty()) {
+						 return error("LA DESCRIPCIÓN DEL SERVICIO ITEM N° " + index + " NO DEBE QUEDAR VACÍA!");
+					}
+					if (d.getPrecio() == null || d.getPrecio() <= 0) {
+						 return error("EL PRECIO DEL SERVICIO ITEM N° " + index + " NO DEBE SER <= 0!");
+					}
+					if (d.getSubTotal() == null || d.getSubTotal() <= 0) {
+						 return error("EL SUBTOTAL DEL SERVICIO ITEM N° " + index + " NO DEBE SER <= 0!");
+					}
+					sumaDetalles += d.getSubTotal();
+					index++;
+				}
+
+				// validar total contra suma
+				if (entity.getTotal() == null || entity.getTotal() <= 0) {
+					return new ResponseEntity<>(new CustomerErrorType("EL TOTAL DE LA VENTA NO DEBE SER <= 0!"), HttpStatus.CONFLICT);
+				}
+				double total = Math.round(entity.getTotal());
+				double detalle = Math.round(sumaDetalles);
+				System.out.println("SUMA DE DETALLE: "+sumaDetalles+ " DESCU: "+descuento);
+				
+				if (Math.abs(total - detalle) > 1) {
+				    return error("EL TOTAL DE LA VENTA (" + total + ") NO COINCIDE CON LA SUMA DE LOS DETALLES (" + detalle + ")");
+				}
+				return null;
+		
+	}
+	@Transactional
+	@RequestMapping(method=RequestMethod.POST, value = "/{ter}")
+	public ResponseEntity<?> guardarRefactorizado(
+	        @RequestPart("venta") Venta venta,
+	        @RequestPart("operacionCaja") OperacionCaja operacionCaja,
+	        @RequestPart("cuentaCobrar") CuentaCobrarCabecera cuentaCobrarCabecera,
+	        @RequestPart("notaCredito") NotaCredito notaCredito, 
+	        @PathVariable int ter) {
+		Venta savedRetotno = null;
+		OperacionCaja opRetotno = null;
+        CuentaCobrarCabecera cuRetotno= null;
+        OrdenPagare orRetotno = null;
+    	List<CuentaCobrarCabecera> listRetorno= new ArrayList<>();
+		try {
+			 	
+			if(venta.getTipo().equals("CONTADO")|| venta.getTipo().equals("1")) {
+				System.out.println("VINO ESTE EL TIPO VENTA: "+venta.getTipo());
+				venta.setTipo("1");
+			}
+			if(venta.getTipo().equals("CREDITO")|| venta.getTipo().equals("2")) {
+				System.out.println("VINO ESTE EL TIPO VENTA: "+venta.getTipo());
+				venta.setTipo("2");
+			}
+			if(venta.getTipo().equals("NOTA CREDITO")|| venta.getTipo().equals("3")) {
+				System.out.println("VINO ESTE EL TIPO VENTA: "+venta.getTipo());
+				venta.setTipo("3");
+			}
+			// 1. Validar si hay al menos una zona registrada
+			TerminalConfigImpresora terminal= terminalRepository.consultarTerminalEmisonFacturaPorTerminales(ter);
+
+			if (zonaRepository.count() == 0) {
+				return new ResponseEntity<>(
+						new CustomerErrorType("SE DEBE CARGAR AL MENOS UNA ZONA EN EL SISTEMA"),
+						HttpStatus.CONFLICT);
+			}
+			// 2. Si no hay zona asignada o id es 0, asignar la primera zona registrada
+			if (venta.getZona() == null || venta.getZona().getId() == 0) {
+				// Buscar la primera zona (puede ser la de menor ID)
+				System.out.println("entro id 0 o null y asina el primer valor");
+				Optional<Zona> primeraZonaOpt = zonaRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream().findFirst();
+				if (!primeraZonaOpt.isPresent()) {
+					return new ResponseEntity<>(
+							new CustomerErrorType("ERROR AL ASIGNAR ZONA POR DEFECTO"),
+							HttpStatus.CONFLICT
+							);
+				}
+				venta.setZona(primeraZonaOpt.get());
+			}
+			if (terminal != null && venta.getDocumento().getId() == 1) {
+				// Validar que tenga autoimpresor asignado
+				if (terminal.getEstadoEmisionFactura() == false) {
+					return new ResponseEntity<>(
+							new CustomerErrorType("Esta terminal no está hablitado para emitir factura"),
+							HttpStatus.CONFLICT
+							);
+				}
+
+				// Validar que el autoimpresor esté activo
+				if (!terminal.getAutoImpresor().isEstado()) {
+					return new ResponseEntity<>(
+							new CustomerErrorType("La autorización del timbrado esta desabilitado"),
+							HttpStatus.CONFLICT
+							);
+				}
+
+				// Validar rango de numeración
+				if (terminal.getAutoImpresor().getNumeroActual() < terminal.getAutoImpresor().getRangoInicio() ) {
+					return new ResponseEntity<>(
+							new CustomerErrorType("La numeración actual del timbrado está fuera de rango inicial"),
+							HttpStatus.CONFLICT
+							);
+				}
+				if(terminal.getAutoImpresor().getNumeroActual() > terminal.getAutoImpresor().getRangoFin()) {
+					// Ya no se puede emitir más facturas
+					return new ResponseEntity<>(new CustomerErrorType(
+							"La numeración actual del timbrado está fuera de rango final o ya alcanzo cantidad para emitir"
+							), HttpStatus.CONFLICT);
+				}
+
+				// Validar timbrado
+				if (terminal.getAutoImpresor().getTimbrado() == null || terminal.getAutoImpresor().getTimbrado().isEmpty()) {
+					return new ResponseEntity<>(
+							new CustomerErrorType("El auto impresor no tiene un timbrado válido"),
+							HttpStatus.CONFLICT
+							);
+				}
+
+				// Validar fechas
+				if (terminal.getAutoImpresor().getFechaInicioVigencia() == null || terminal.getAutoImpresor().getFechaFinVigencia() == null) {
+					return new ResponseEntity<>(
+							new CustomerErrorType("El auto impresor no tiene fecha de vigencia definida"),
+							HttpStatus.CONFLICT
+							);
+				}
+
+				LocalDate hoy = LocalDate.now();
+				if (hoy.isBefore(terminal.getAutoImpresor().getFechaInicioVigencia()) || hoy.isAfter(terminal.getAutoImpresor().getFechaFinVigencia())) {
+					return new ResponseEntity<>(
+							new CustomerErrorType("EL TIMBRADO DEL AUTOIMPRESOR NO ESTÁ VIGENTE"),
+							HttpStatus.CONFLICT
+							);
+				}
+			}
+			 // 1. Validar compra y detalles
+	        ResponseEntity<?> validacionCompra = validarVenta(venta);
+	        if (validacionCompra != null) return validacionCompra;
+	        
+	    
+	        if (("1".equals(venta.getTipo()) && venta.getTipo().toLowerCase().equals("contado")) && "FACTURADO".equals(venta.getEstado())) {
+	            ResponseEntity<?> validacionCaja = validarCaja(operacionCaja);
+	            if (validacionCaja != null) return validacionCaja;
+	        } else if (("2".equals(venta.getTipo()) && venta.getTipo().toLowerCase().equals("credito")) && "FACTURADO".equals(venta.getEstado())) {
+	        	 if (venta.getEntrega() > 0) {
+		                ResponseEntity<?> validacionCajaEntrega = validarCaja(operacionCaja);
+		                if (validacionCajaEntrega != null) return validacionCajaEntrega;
+		           }
+		         ResponseEntity<?> validacionCuenta = validarCuentaCobrar(cuentaCobrarCabecera);
+		         if (validacionCuenta != null) return validacionCuenta;
+		         
+	         } else if(("3".equals(venta.getTipo()) || venta.getTipo().toLowerCase().equals("nota credito")) && "FACTURADO".equals(venta.getEstado())) {
+	        	 ResponseEntity<?> validarNotaCredito = validarNotaCredito(operacionCaja, notaCredito.getId());
+	             if (validarNotaCredito != null) return validarNotaCredito;
+	         }
+	        // 2. Validar flujo según tipo (contado/crédito)
+	        // ResponseEntity<?> validacionCuenta = validarCuentaPagar(cuentaPagarCabecera);
+	           // if (validacionCuenta != null) return validacionCuenta;
+	         savedRetotno = guardarVentaYDetalles(venta,  ter);
+	         
+	          
+	     // 4. Proc  Compra saved = guardarCompraYDetalles(compra);esar movimientos financieros
+	        if (("1".equals(savedRetotno.getTipo()) || savedRetotno.getTipo().toLowerCase().equals("contado")) && "FACTURADO".equals(venta.getEstado())) 
+	        {
+	          opRetotno =  procesarOperacionCaja(savedRetotno, operacionCaja);
+	        } else if (("2".equals(venta.getTipo()) || venta.getTipo().toLowerCase().equals("credito")) && "FACTURADO".equals(venta.getEstado())) 
+	        {
+	        	 if (venta.getEntrega() > 0) {
+	        		 opRetotno= procesarOperacionCaja(savedRetotno, operacionCaja);
+	        	 }
+		        cuRetotno = procesarCuentaCobrar(savedRetotno, cuentaCobrarCabecera);
+		        orRetotno = procesarOrdenPagared(cuRetotno);
+				listRetorno=  listadoCargarCuenta(cuentaCobrarRepository.findByCuentaPorIdClienteACobrarListasss(cuRetotno.getCliente().getId()));
+
+	        } else if(("3".equals(venta.getTipo()) || venta.getTipo().toLowerCase().equals("nota credito")) && "FACTURADO".equals(venta.getEstado())) 
+	        {
+	        	 opRetotno = procesarNotaCreditoOperacion(operacionCaja, notaCredito.getId(), savedRetotno.getId());
+	        }
+//	        cargarOperacion
+	        if (opRetotno != null && opRetotno.getId() != 0) {
+	            opRetotno = getOperacionCaja(opRetotno.getId());
+	        } else {
+	            opRetotno = new OperacionCaja(); // fallback para no tener null
+	        }
+//			agregarDatosCliente:
+			savedRetotno.setCliente(clienteRepository.getIdCliente(savedRetotno.getCliente().getId()));
+			//		agregarDatosFuncionarioVendedor:
+			savedRetotno.setFuncionarioV(funcionarioRepository.getIdFuncionario(savedRetotno.getFuncionarioV().getId()));
+			//		agregarDatosFuncionarioRegistro:
+			savedRetotno.setFuncionario(funcionarioRepository.getIdFuncionario(savedRetotno.getFuncionario().getId()));
+			//		agregarDatosFuncionarioReparto:
+			savedRetotno.setFuncionarioR(funcionarioRepository.getIdFuncionario(savedRetotno.getFuncionarioR().getId()));
+			System.out.println(savedRetotno.getTotalIvaDies() + " "+ savedRetotno.getTotalIvaCinco());
+			//		agregarDatosDetalleProducto:
+			savedRetotno.setDetalleProducto(detalleProductoRepository.getDetallePorCabecera(savedRetotno.getId()));
+			//		agregarDatosDetalleServicios:
+			savedRetotno.setDetalleServicio(detalleServicioRepository.getDetallePorCabecera(savedRetotno.getId()));
+			System.out.println("ID VET: RESS: "+savedRetotno.getId());
+	        // 🔹 Armar el mapa de respuesta
+	        Map<String, Object> mapa = new HashMap<>();
+	        mapa.put("venta", savedRetotno);
+	        mapa.put("operacionCaja", opRetotno);
+	        mapa.put("cuenta", listRetorno);
+	        mapa.put("pagare", orRetotno);
+	        // 🔹 Devolver todo junto
+	        return new ResponseEntity<>(mapa, HttpStatus.CREATED);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+	        return new ResponseEntity<>(new CustomerErrorType("Error: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@Transactional
+	public OperacionCaja getOperacionCaja(int id){
+		OperacionCaja ope=operacionRepository.getOperacionCajaPorId(id);
+		OperacionCaja operacion=null;
+		if(ope!= null) {
+			operacion = new OperacionCaja();
+			operacion.setId(ope.getId());
+			operacion.setVuelto(ope.getVuelto());
+			operacion.setEfectivo(ope.getEfectivo());
+			operacion.setAperturaCaja(ope.getAperturaCaja());
+			operacion.setTipoOperacion(ope.getTipoOperacion());
+			operacion.setConcepto(ope.getConcepto());
+			operacion.setReferenciaTipoOperacion(ope.getReferenciaTipoOperacion());
+			operacion.setMotivo(ope.getMotivo());
+			operacion.setMonto(ope.getMonto());
+		}else {
+			operacion = null;
+		}
+		return operacion;
+	}
+	
 
 	@Transactional
-	@RequestMapping(method=RequestMethod.POST, value = "/{numeroTerminal}")
+	public CuentaCobrarCabecera procesarCuentaCobrar(Venta venta, CuentaCobrarCabecera ent){
+		if(ent.getId() !=0) {
+			ent.getVenta().setId(venta.getId());
+			ent.setFecha(new Date());
+			 // 1) Obtener fecha de vencimiento de la última cuota
+		    Date ultimaFecha = null;
+		    for (CuentaCobrarDetalle d : ent.getCuentaCobrarDetalle()) {
+		        if (ultimaFecha == null || d.getFechaVencimiento().after(ultimaFecha)) {
+		            ultimaFecha = d.getFechaVencimiento();
+		        }
+		    }
+
+		    // Setear en cabecera
+		    ent.setFechaVencimiento(ultimaFecha);
+			CuentaCobrarCabecera saveCuenta = cuentaCobrarRepository.save(ent);
+                for(CuentaCobrarDetalle det: ent.getCuentaCobrarDetalle()) {
+                	CuentaCobrarDetalle detalle=new CuentaCobrarDetalle();
+                    detalle.setId(det.getId());
+                    detalle.setNumeroCuota(det.getNumeroCuota());
+                    detalle.setMonto(det.getMonto());
+                    detalle.setSubTotal(det.getSubTotal());
+                    detalle.setFechaVencimiento(det.getFechaVencimiento());
+                    detalle.setEstado(det.isEstado());
+                    detalle.setImporte(det.getImporte());
+                    detalle.getCuentaCobrarCabecera().setId(saveCuenta.getId());
+                    cuentaCobrarDetalleRepository.save(detalle);
+                    
+                }
+           return saveCuenta;
+  	  } else {
+  		ent.getVenta().setId(venta.getId());
+		ent.setFecha(new Date());
+		 // 1) Obtener fecha de vencimiento de la última cuota
+	    Date ultimaFecha = null;
+	    for (CuentaCobrarDetalle d : ent.getCuentaCobrarDetalle()) {
+	        if (ultimaFecha == null || d.getFechaVencimiento().after(ultimaFecha)) {
+	            ultimaFecha = d.getFechaVencimiento();
+	        }
+	    }
+	    // Setear en cabecera
+	    ent.setFechaVencimiento(ultimaFecha);
+		CuentaCobrarCabecera  saveCuenta = cuentaCobrarRepository.save(ent);
+        //eliminarDetallePorCabecera(entity.getId());
+            for(CuentaCobrarDetalle det: ent.getCuentaCobrarDetalle()) {
+            	CuentaCobrarDetalle detalle=new CuentaCobrarDetalle();
+          	  	detalle.setId(det.getId());
+                detalle.setNumeroCuota(det.getNumeroCuota());
+                detalle.setMonto(det.getMonto());
+                detalle.setSubTotal(det.getSubTotal());
+                detalle.setFechaVencimiento(det.getFechaVencimiento());
+                detalle.setEstado(det.isEstado());
+                detalle.setImporte(det.getImporte());
+                detalle.getCuentaCobrarCabecera().setId(saveCuenta.getId());
+                cuentaCobrarDetalleRepository.save(detalle);
+            }
+            return saveCuenta;
+  	  }
+	}
+	@Transactional
+	public OrdenPagare procesarOrdenPagared(CuentaCobrarCabecera cuc) {
+		OrdenPagare op = new OrdenPagare();
+		op.setTotal(cuc.getTotal());
+		op.setTotalLetra(cuc.getTotalLetra());
+		op.setFecha(new Date());
+		op.setFechaVencimiento(cuc.getFechaVencimiento());
+		op.getCliente().setId(cuc.getCliente().getId());
+		op.getFuncionario().setId(cuc.getFuncionario().getId());
+		op.getCuentaCobrarCabecera().setId(cuc.getId());
+		op.setEstado("PENDIENTE");
+		return ordenPagareRepository.save(op);
+	}
+	
+	public List<CuentaCobrarCabecera> listadoCargarCuenta(List<CuentaCobrarCabecera> lis){
+		List<CuentaCobrarCabecera> listadoRetorno = new ArrayList<>();
+		for(CuentaCobrarCabecera x :lis) {
+			CuentaCobrarCabecera cuenta= new CuentaCobrarCabecera();
+			cuenta.setId(x.getId());
+			cuenta.setTotal(x.getTotal()); 
+			cuenta.getVenta().getDocumento().setDescripcion(x.getVenta().getDocumento().getDescripcion());
+			cuenta.getVenta().setNroDocumento(x.getVenta().getNroDocumento());
+			cuenta.setPagado(x.getPagado());
+			cuenta.setSaldo(x.getSaldo());
+			cuenta.setTotalDevolucion(x.getTotalDevolucion());
+			cuenta.setEntrega(x.getEntrega());
+			cuenta.setFechaVencimiento(x.getFechaVencimiento());
+			cuenta.getCliente().setId(x.getCliente().getId());
+			cuenta.getCliente().getPersona().setNombre(x.getCliente().getPersona().getNombre());
+			cuenta.getCliente().getPersona().setApellido(x.getCliente().getPersona().getApellido());
+			cuenta.getCliente().getPersona().setCedula(x.getCliente().getPersona().getCedula());
+			cuenta.getFuncionario().getPersona().setNombre(x.getFuncionario().getPersona().getNombre());
+			cuenta.getFuncionario().getPersona().setApellido(x.getFuncionario().getPersona().getApellido());
+			cuenta.setFecha(x.getFecha());
+			cuenta.getVenta().setId(x.getVenta().getId());
+			cuenta.getVenta().setFechaFactura(x.getVenta().getFechaFactura());
+			cuenta.getVenta().setDetalleProducto(null);
+			cuenta.getVenta().setEntrega(x.getVenta().getEntrega());
+			cuenta.getVenta().setDetalleServicio(null);
+			cuenta.getVenta().setTotal(x.getVenta().getTotal());
+			cuenta.getVenta().setTotalDevolucion(x.getVenta().getTotalDevolucion());
+			cuenta.getVenta().setFecha(sumarDia(x.getFecha(), (24 * x.getTipoPlazo().getValor())));
+			cuenta.getTipoPlazo().setValor(validarDiaAtraso(x.getVenta().getFecha()));
+			cuenta.setEntrega(x.getEntrega());
+			listadoRetorno.add(cuenta);
+		}
+		return listadoRetorno;
+	}
+	public int validarDiaAtraso(Date fecha2) {
+		int diaAtraso = 0;
+		Date fechaHoy=new Date();
+		if (fechaHoy.getTime() <= fecha2.getTime()) {
+			diaAtraso = 0;
+		} else {
+			diaAtraso = diferenciaDias(new Date(), fecha2);
+		}
+		return diaAtraso;
+	}
+	public int diferenciaDias(Date fechaMayor, Date fechaMenor) {
+		long diferencia = sumarDia(fechaMayor, 24).getTime() - fechaMenor.getTime();
+		long dias = diferencia/(1000*60*60*24);
+		return (int) dias;
+	}
+	private ResponseEntity<?> validarNotaCredito(OperacionCaja entity,  int nota) {
+		
+		if(nota==0) {
+			return error("EL NUMERO DENOTA CREDITO NO SE HA PODIDO CARGAR");
+		}else if(entity.getAperturaCaja().getId() == 0) {
+			return error("SE DEBE CARGAR  LOS DATOS DE LA APERTURA CAJA");
+		}else if(entity.getConcepto().getId()==0) {
+			return error("SE DEBE CARGAR EL CONCEPTO DE LA OPERACION CAJA");
+		}else if(entity.getTipoOperacion().getId()==0) {
+			return error("SE DEBE CARGAR EL TIPO DE OPERACION EN CAJA");
+		}else if(entity.getMonto()==0) {
+			return error("EL MONTO DEBE SER MAYOR A CERO");
+		}
+		AperturaCaja cC = new AperturaCaja();
+		cC=aperturaCajaRepository.getAperturaCajaPorIdCaja(entity.getAperturaCaja().getId());
+		if(cC==null) {
+			System.out.println("entrooo null caja chiac");
+			return error("EL FUNCIONARIO REGISTRO NO POSEE UNA APERTURA CAJA A SU NOMBRE!");
+		}else {
+			if(entity.getConcepto().getId()==29) {
+				if((cC.getSaldoActual()) < entity.getMonto() && entity.getTipoOperacion().getId()==1) {
+					return error("EL EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!");
+				}else if((cC.getSaldoActualCheque()) < entity.getMonto()&& entity.getTipoOperacion().getId()==2){
+					return error("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!");
+				}else if((cC.getSaldoActualTarjeta())< entity.getMonto() && entity.getTipoOperacion().getId()==3){
+					return error("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!");
+				}
+			}
+		}
+		return null;
+	}
+	@Transactional
+	private OperacionCaja procesarNotaCreditoOperacion(OperacionCaja entity, int idNota, int idVenta){
+		if(entity.getConcepto().getId()==28) {
+			if (entity.getTipoOperacion().getId() == 1) {
+				aperturaCajaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 2) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoCheque(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			
+			if (entity.getTipoOperacion().getId() == 3) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+			entity.setMotivo(c.getDescripcion()+" REF.: "+idNota);
+			entity.setTipo("ENTRADA");
+		}else if(entity.getConcepto().getId()==29) {
+			if (entity.getTipoOperacion().getId() == 1) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			if (entity.getTipoOperacion().getId() == 2) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			if (entity.getTipoOperacion().getId() == 3) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(entity.getAperturaCaja().getId(), entity.getMonto());
+			}
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(entity.getConcepto().getId()).get();
+			entity.setMotivo(c.getDescripcion()+" REF.: "+idNota);
+			entity.setTipo("SALIDA");
+		}
+		OperacionCaja op=operacionRepository.save(entity);
+		notaCreditoRepository.findByActualizarEstadoNotaCredito(idNota, idVenta, "CERRADO");
+		entityRepository.findByActualizarVentaOperacion(idVenta, op.getId());
+		return op;
+	}
+
+	@Transactional
+	public OperacionCaja procesarOperacionCaja(Venta ent, OperacionCaja ope) {
+		if (ent.getId() == 0) {
+			Venta v = new Venta();
+			v=entityRepository.getUltimaVenta();
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(ope.getConcepto().getId()).get();
+			ope.setMotivo(c.getDescripcion()+" REF.: "+v.getId());
+			ope.setTipo("ENTRADA");
+			ope.setReferenciaOperacion(v.getId());
+		
+			if (ope.getTipoOperacion().getId() == 1) {
+				aperturaCajaRepository.findByActualizarAperturaSaldo(ope.getAperturaCaja().getId(), ope.getMonto());
+			}
+			if (ope.getTipoOperacion().getId() == 2) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoCheque(ope.getAperturaCaja().getId(), ope.getMonto());
+			}
+			if (ope.getTipoOperacion().getId() == 3) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(ope.getAperturaCaja().getId(), ope.getMonto());
+			}
+			OperacionCaja oppp= operacionRepository.save(ope);
+			entityRepository.findByActualizarVentaOperacion(v.getId(),oppp.getId());
+			return oppp;
+		} else {
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(ope.getConcepto().getId()).get();
+			ope.setTipo("ENTRADA");
+			if (ope.getTipoOperacion().getId() == 1) {
+				aperturaCajaRepository.findByActualizarAperturaSaldo(ope.getAperturaCaja().getId(), ope.getMonto());
+			}
+			if (ope.getTipoOperacion().getId() == 2) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoCheque(ope.getAperturaCaja().getId(), ope.getMonto());
+			}
+			if (ope.getTipoOperacion().getId() == 3) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(ope.getAperturaCaja().getId(), ope.getMonto());
+			}
+			ope.setReferenciaOperacion(ent.getId());
+			ope.setMotivo(c.getDescripcion()+" REF.: "+ent.getId());
+			OperacionCaja obj= operacionRepository.save(ope);
+			System.out.println("id operacion si es igual a dos : "+ obj.getId());
+			System.out.println("venta id: "+ent.getId());
+			entityRepository.findByActualizarVentaOperacion(ent.getId(),obj.getId());
+			return obj;
+		}
+	}
+	
+	@Transactional
+	public Venta guardarVentaYDetalles(Venta entity, int ter)  {
+		Double totalGenerales=0.0;
+		Double descuentoGenerales =0.0;
+		Map<String, Object> map = new HashMap<>();
+		try {
+			if(entity.getId() !=0) {
+				entity.setFecha(new Date());
+				entity.setHora(hora());
+				System.out.println("EDITA VENTA SI VIENE ENTREGA Y EL TIPO "+entity.getTipo()+ " ENTREGA "+entity.getEntrega());
+				if(entity.getEstado().equals("FACTURADO")) {
+					entity.setFechaFactura(new Date());
+
+				}else if(entity.getEstado().equals("FACTURAR")) {
+					entity.setNroDocumento("");
+					entity.setFechaFactura(null);
+				}
+				double total10=0, total5=0,  totalCostoPromedio=0;
+				double grabado10=0, grabado5=0, grabadoExcenta=0;
+				if(entity.getDetalleProducto().size()>0){
+					if (entity.getEstado().equals("FACTURADO")|| entity.getEstado().equals("PREVENTA")) {
+
+						for(DetalleProducto detalleProducto: entity.getDetalleProducto()) {
+							totalGenerales = totalGenerales + (detalleProducto.getPrecio() * detalleProducto.getCantidad());
+							descuentoGenerales = descuentoGenerales + (detalleProducto.getDescuento() * detalleProducto.getCantidad());
+							detalleProducto.getVenta().setId(entity.getId());
+							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
+
+							if(detalleProducto.getIva().equals("10 %")) {
+								grabado10 = grabado10 + detalleProducto.getSubTotal();
+								total10 = total10 + Utilidades.calcularIvaDies(detalleProducto.getSubTotal()); 
+								detalleProducto.setMontoIva(Utilidades.calcularIvaDies(detalleProducto.getSubTotal()));
+							}
+							if(detalleProducto.getIva().equals("5 %")) {
+								grabado5 = grabado5 + detalleProducto.getSubTotal();
+								total5 = total5 + Utilidades.calcularIvaCinco(detalleProducto.getSubTotal());
+								detalleProducto.setMontoIva(Utilidades.calcularIvaCinco(detalleProducto.getSubTotal()));
+							}
+							if(detalleProducto.getIva().equals("Exenta")) {
+								grabadoExcenta = grabadoExcenta + detalleProducto.getSubTotal();
+								detalleProducto.setMontoIva(0.0);
+							}
+							Double cpp= movEntradaSalidaRepository.getCostoPromedioPonderado(detalleProducto.getProducto().getId());
+							cpp= movEntradaSalidaRepository.getCostoPromedioPonderado(detalleProducto.getProducto().getId());
+							System.out.println("ccoçp: montos: "+cpp);
+							if(cpp==null) {
+								if(detalleProducto.getCosto()<=0  || detalleProducto.getCosto() == null) {
+									cpp=detalleProducto.getPrecio() * 0.50;// por defecto agarrar el 50 poricento del precio
+									detalleProducto.setCostoPromedio(cpp);
+									totalCostoPromedio = totalCostoPromedio + (cpp*detalleProducto.getCantidad());
+									detalleProducto.setSubTotalCostoPromedio(cpp*detalleProducto.getCantidad());
+								}else {
+									cpp=detalleProducto.getCosto();
+									detalleProducto.setCostoPromedio(cpp);
+									totalCostoPromedio = totalCostoPromedio + (cpp*detalleProducto.getCantidad());
+									detalleProducto.setSubTotalCostoPromedio(cpp*detalleProducto.getCantidad());
+
+								}
+							}else{
+								detalleProducto.setCostoPromedio(cpp);
+								totalCostoPromedio = totalCostoPromedio + (cpp*detalleProducto.getCantidad());
+								detalleProducto.setSubTotalCostoPromedio(cpp*detalleProducto.getCantidad());
+							}
+							detalleProducto.setCosto(detalleProducto.getCosto()*detalleProducto.getCantidad());
+							DetalleProducto detpro = detalleProductoRepository.save(detalleProducto);
+							this.actualizarProductoBase(detpro.getProducto().getId(), detpro.getCantidad(), detpro.getSubTotal(), detpro.getPrecio(), entity.getFuncionario().getId(), entity.getTipo(), entity.getId());
+
+						}
+
+					}
+
+					if (entity.getEstado().equals("FACTURAR")) {
+						for(DetalleProducto detalleProducto: entity.getDetalleProducto()) {
+							totalGenerales = totalGenerales + (detalleProducto.getPrecio() * detalleProducto.getCantidad());
+							descuentoGenerales = descuentoGenerales + (detalleProducto.getDescuento() * detalleProducto.getCantidad());
+							detalleProducto.getVenta().setId(entity.getId());
+							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
+							detalleProductoRepository.save(detalleProducto);
+						}
+					}
+
+				}
+				if(entity.getDetalleServicio().size()>0){
+					if (entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) {
+						for(DetalleServicios detalleServicio: entity.getDetalleServicio()) {
+							totalGenerales = totalGenerales + (detalleServicio.getPrecio() * detalleServicio.getCantidad());
+							// = descuentoGenerales + (detalleServicio.getDescuento() * detalleProducto.getCantidad());
+							
+							detalleServicio.getVenta().setId(entity.getId());
+							if(detalleServicio.getIva().equals("10 %")) {
+								grabado10 = grabado10 + detalleServicio.getSubTotal();
+								total10 = total10 + Utilidades.calcularIvaDies(detalleServicio.getSubTotal()); 
+								detalleServicio.setMontoIva(Utilidades.calcularIvaDies(detalleServicio.getSubTotal()));
+							}
+							if(detalleServicio.getIva().equals("5 %")) {
+								grabado5 = grabado5 + detalleServicio.getSubTotal();
+								total5 = total5 + Utilidades.calcularIvaCinco(detalleServicio.getSubTotal());
+								detalleServicio.setMontoIva(Utilidades.calcularIvaCinco(detalleServicio.getSubTotal()));
+							}
+							if(detalleServicio.getIva().equals("Exenta")) {
+								grabadoExcenta = grabadoExcenta + detalleServicio.getSubTotal();
+								detalleServicio.setMontoIva(0.0);
+							}
+							detalleServicioRepository.save(detalleServicio);
+						}
+					}		
+					if (entity.getEstado().equals("FACTURAR") || entity.getEstado().equals("PREVENTA")) {
+						for(DetalleServicios detalleServicio: entity.getDetalleServicio()) {
+							detalleServicio.getVenta().setId(entity.getId());
+							totalGenerales = totalGenerales + (detalleServicio.getPrecio() * detalleServicio.getCantidad());
+							if(detalleServicio.getObs()!=null) {detalleServicio.setObs(detalleServicio.getObs().toUpperCase());}else {detalleServicio.setObs("");}
+							//detalleServicio.setTipoPrecio(validarPrecio(detalleServicio.getProducto().getId(), detalleServicio.getPrecio()));
+							detalleServicioRepository.save(detalleServicio);
+						}
+					}
+				}
+				if(entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) {
+					System.out.println("tipo : "+entity.getTipo()+" entrega "+entity.getEntrega());
+					Impresora ipmCfgContabilidad= impresoraRepository.getOne(23);
+					System.out.println("tipo : "+entity.getTipo()+" entrega "+entity.getEntrega());
+
+					if(ipmCfgContabilidad!=null && ipmCfgContabilidad.isEstado() ==true) {
+						AsientoContableDTO dto= new AsientoContableDTO();
+						if(entity.getTipo().equals("1")){
+							dto.setConceptoId(1);
+							dto.setTipoReferencia("VENTA CONTADO");
+							Map<String, BigDecimal> mon = new HashMap<>();
+							mon.put("BASE_VENTA", BigDecimal.valueOf(entity.getTotal()));
+							mon.put("BASE_NETO", BigDecimal.valueOf(entity.getTotal()- (total10 + total5)));
+							mon.put("BASE_IVA", BigDecimal.valueOf(total10 + total5));
+							mon.put("BASE_COSTO", BigDecimal.valueOf(totalCostoPromedio));
+							for (Map.Entry<String, BigDecimal> entry : mon.entrySet()) {
+								System.out.println("Base: " + entry.getKey() + " → Valor: " + entry.getValue());
+							}
+							dto.setMontos(mon);
+						}
+						if(entity.getTipo().equals("2") && entity.getEntrega()==0 ){
+							dto.setConceptoId(2);
+							dto.setTipoReferencia("VENTA CREDITO");
+							Map<String, BigDecimal> mon = new HashMap<>();
+							mon.put("BASE_VENTA", BigDecimal.valueOf(entity.getTotal()));
+							mon.put("BASE_NETO", BigDecimal.valueOf(entity.getTotal()-(total10+total5)));
+							mon.put("BASE_IVA", BigDecimal.valueOf(total10 + total5));
+							mon.put("BASE_COSTO", BigDecimal.valueOf(totalCostoPromedio));
+							for (Map.Entry<String, BigDecimal> entry : mon.entrySet()) {
+								System.out.println("Base: " + entry.getKey() + " → Valor: " + entry.getValue());
+							}
+							dto.setMontos(mon);
+						}
+						if (entity.getTipo().equals("2")&& entity.getEntrega() > 0 ) {
+							dto.setConceptoId(24);
+							dto.setTipoReferencia("VENTA CREDITO CON ENTREGA INICIAL");
+							Map<String, BigDecimal> mon = new HashMap<>();
+							mon.put("BASE_VENTA", BigDecimal.valueOf(entity.getTotal()));
+							mon.put("BASE_NETO", BigDecimal.valueOf(entity.getTotal()-(total10+total5)));
+							mon.put("BASE_IVA", BigDecimal.valueOf(total10 + total5));
+							mon.put("BASE_COSTO", BigDecimal.valueOf(totalCostoPromedio));
+							mon.put("BASE_ENTREGA", BigDecimal.valueOf(entity.getEntrega()));
+							for (Map.Entry<String, BigDecimal> entry : mon.entrySet()) {
+								System.out.println("Base: " + entry.getKey() + " → Valor: " + entry.getValue());
+							}
+							dto.setMontos(mon);
+						}
+
+						dto.setReferenciaId(entity.getId());
+						dto.setFuncionarioRegistroId(entity.getFuncionario().getId());
+						dto.setFuncionarioModificacionId(entity.getFuncionario().getId());
+						ResponseEntity<?> retorString = asienotContableServices.guardarAsiento(dto);
+						System.out.println(retorString.getBody().equals("SAVE")+ " 88888          ");
+						Object body = retorString.getBody();
+						if (body instanceof CustomerErrorType) {
+							String mensaje = ((CustomerErrorType) body).getErrorMessage();
+							if ("SAVE".equals(mensaje)) {
+								// correcto
+								System.out.println("asientoooo guardado");
+							} else {
+								//return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR GUARDAR ASIENTO DE VENTA"), HttpStatus.CONFLICT);
+							}
+						}
+					}
+
+				}
+				entity.setTotalIvaDies(total10);
+				entity.setTotalIvaCinco(total5);
+				entity.setGrabadoIvaDies(grabado10);
+				entity.setGrabadoIvaCinco(grabado5);
+				entity.setGrabadoExcenta(grabadoExcenta);
+				entity.setTotalIva(total10 + total5);
+				entity.setTotalDescuento(descuentoGenerales);
+				entity.setTotal(totalGenerales - descuentoGenerales);
+				entity.setTotalCostoPromedio(totalCostoPromedio);
+				System.out.println(entity.getFechaFactura());
+				if((entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) && entity.getNroDocumento().equals("")) {
+					map = generarDocumentoUnificado(entity.getDocumento().getId(), ter, entity.getId());
+					if (map.get("numeroDocumento") != null && !map.get("numeroDocumento").toString().isEmpty()) {
+						entity.setNroDocumento(map.get("numeroDocumento").toString());
+					}
+					if (map.get("timbrado") != null && !map.get("timbrado").toString().isEmpty()) {
+						entity.setTimbrado(map.get("timbrado").toString());
+					}
+					if (map.get("fechaInicioVigencia") != null && !map.get("fechaInicioVigencia").toString().isEmpty()) {
+						entity.setTimbradoInicio(FechaUtil.convertirFechaStringADateUtil(map.get("fechaInicioVigencia").toString()));
+					}
+					if (map.get("fechaFinVigencia") != null && !map.get("fechaFinVigencia").toString().isEmpty()) {
+						entity.setTimbradoFin(FechaUtil.convertirFechaStringADateUtil(map.get("fechaFinVigencia").toString()));
+					}
+
+				}
+
+				entity = entityRepository.save(entity);
+				System.out.println("Venta ID: " + entity.getId() + " - TipoDocumento: " 
+						+ entity.getDocumento().getId() + " - NroDocumento: " + entity.getNroDocumento());
+
+				pdfPrintss(entity.getId(), ter, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
+
+			} else {
+
+				entity.setFecha(new Date());
+				entity.setHora(hora());
+				if(entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) {
+					entity.setFechaFactura(new Date());
+					//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId(), numeroTerminal, idv));
+					//actualizarLoteDocumentos(entity.getDocumento().getId());
+				}else if(entity.getEstado().equals("FACTURAR")) {
+					entity.setNroDocumento("");
+					entity.setFechaFactura(null);
+
+				}
+				entity = entityRepository.save(entity); // ahora entity tiene el ID asignado
+				if(entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) {
+					entity.setFechaFactura(new Date());
+					System.out.println("ejecuto id=0");
+					//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId(), numeroTerminal, id.getId()));
+					//numeroFacturaRetorno = entity.getNroDocumento();
+					//actualizarLoteDocumentos(entity.getDocumento().getId(), numeroTerminal, id.getId());
+				}
+				System.out.println(entity.getFecha());
+				System.out.println(entity.getFechaFactura()+"  ******");
+				double total10=0, total5=0, totalCostoPromedio=0.0;
+				double grabado10=0, grabado5=0, grabadoExcenta=0;
+				if(entity.getDetalleProducto().size()>0){
+					if (entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) {
+						for(DetalleProducto detalleProducto: entity.getDetalleProducto()) {	
+							totalGenerales = totalGenerales + (detalleProducto.getPrecio() * detalleProducto.getCantidad());
+							descuentoGenerales = descuentoGenerales + (detalleProducto.getDescuento() * detalleProducto.getCantidad());
+					
+							detalleProducto.getVenta().setId(entity.getId());
+							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
+							if(detalleProducto.getIva().equals("10 %")) {
+								grabado10 = grabado10 + detalleProducto.getSubTotal();
+								total10 = total10 + Utilidades.calcularIvaDies(detalleProducto.getSubTotal()); 
+								detalleProducto.setMontoIva(Utilidades.calcularIvaDies(detalleProducto.getSubTotal()));
+							}
+							if(detalleProducto.getIva().equals("5 %")) {
+								grabado5 = grabado5 + detalleProducto.getSubTotal();
+								total5 = total5 + Utilidades.calcularIvaCinco(detalleProducto.getSubTotal());
+								detalleProducto.setMontoIva(Utilidades.calcularIvaCinco(detalleProducto.getSubTotal()));
+							}
+							if(detalleProducto.getIva().equals("Exenta")) {
+								grabadoExcenta = grabadoExcenta + detalleProducto.getSubTotal();
+								detalleProducto.setMontoIva(0.0);
+							}
+							Double cpp=0.0;
+							cpp= movEntradaSalidaRepository.getCostoPromedioPonderado(detalleProducto.getProducto().getId());
+							System.out.println("ccoçp: montos: "+cpp);
+							if(cpp==null) {
+								if(detalleProducto.getCosto()<=0  || detalleProducto.getCosto() == null) {
+									cpp=detalleProducto.getPrecio() * 0.50;// por defecto agarrar el 50 poricento del precio
+									detalleProducto.setCostoPromedio(cpp);
+									totalCostoPromedio = totalCostoPromedio + (cpp*detalleProducto.getCantidad());
+									detalleProducto.setSubTotalCostoPromedio(cpp*detalleProducto.getCantidad());
+								}else {
+									cpp=detalleProducto.getCosto();
+									detalleProducto.setCostoPromedio(cpp);
+									totalCostoPromedio = totalCostoPromedio + (cpp*detalleProducto.getCantidad());
+									detalleProducto.setSubTotalCostoPromedio(cpp*detalleProducto.getCantidad());
+
+								}
+							}else{
+								detalleProducto.setCostoPromedio(cpp);
+								totalCostoPromedio = totalCostoPromedio + (cpp*detalleProducto.getCantidad());
+								detalleProducto.setSubTotalCostoPromedio(cpp*detalleProducto.getCantidad());
+							}
+
+
+
+							detalleProducto.setCosto(detalleProducto.getCosto()*detalleProducto.getCantidad());
+							detalleProductoRepository.save(detalleProducto);
+							//								subtotal, precio, idFuncionario, tipo, idVenta
+							this.actualizarProductoBase(detalleProducto.getProducto().getId(), detalleProducto.getCantidad(), detalleProducto.getSubTotal(), detalleProducto.getPrecio(), entity.getFuncionario().getId(), entity.getTipo(), entity.getId());
+						}
+
+
+
+
+					}
+					if (entity.getEstado().equals("FACTURAR")) {
+						for (DetalleProducto detalleProducto : entity.getDetalleProducto()) {
+							totalGenerales = totalGenerales + (detalleProducto.getPrecio() * detalleProducto.getCantidad());
+							descuentoGenerales = descuentoGenerales + (detalleProducto.getDescuento() * detalleProducto.getCantidad());
+					
+							detalleProducto.getVenta().setId(entity.getId());
+							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
+							detalleProductoRepository.save(detalleProducto);
+						}
+					}
+				}
+
+				if(entity.getDetalleServicio().size()>0){
+					if (entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) {
+						for(DetalleServicios detalleServicio: entity.getDetalleServicio()) {
+							totalGenerales = totalGenerales + (detalleServicio.getPrecio() * detalleServicio.getCantidad());
+							detalleServicio.getVenta().setId(entity.getId());
+							if(detalleServicio.getObs()!=null) {detalleServicio.setObs(detalleServicio.getObs().toUpperCase());}else {detalleServicio.setObs("");}
+							if(detalleServicio.getIva().equals("10 %")) {
+								grabado10 = grabado10 + detalleServicio.getSubTotal();
+								total10 = total10 + Utilidades.calcularIvaDies(detalleServicio.getSubTotal()); 
+								detalleServicio.setMontoIva(Utilidades.calcularIvaDies(detalleServicio.getSubTotal()));
+							}
+							if(detalleServicio.getIva().equals("5 %")) {
+								grabado5 = grabado5 + detalleServicio.getSubTotal();
+								total5 = total5 + Utilidades.calcularIvaCinco(detalleServicio.getSubTotal());
+								detalleServicio.setMontoIva(Utilidades.calcularIvaCinco(detalleServicio.getSubTotal()));
+							}
+							if(detalleServicio.getIva().equals("Exenta")) {
+								grabadoExcenta = grabadoExcenta + detalleServicio.getSubTotal();
+								detalleServicio.setMontoIva(0.0);
+							}
+							detalleServicioRepository.save(detalleServicio);
+						}
+
+					}
+					if (entity.getEstado().equals("FACTURAR")) {
+						for(DetalleServicios detalleServicio: entity.getDetalleServicio()) {
+							totalGenerales = totalGenerales + (detalleServicio.getPrecio() * detalleServicio.getCantidad());
+							detalleServicio.setId(0);
+							detalleServicio.getVenta().setId(entity.getId());
+							if(detalleServicio.getObs()!=null) {detalleServicio.setObs(detalleServicio.getObs().toUpperCase());}else {detalleServicio.setObs("");}
+							//detalleServicio.setTipoPrecio(validarPrecio(detalleServicio.getProducto().getId(), detalleServicio.getPrecio()));
+							detalleServicioRepository.save(detalleServicio);
+						}
+					}
+
+				}
+				System.out.println("");
+				if(entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) {
+					System.out.println("tipo : "+entity.getTipo()+" entrega "+entity.getEntrega());
+					Impresora ipmCfgContabilidad= impresoraRepository.getOne(23);
+					System.out.println("tipo : "+entity.getTipo()+" entrega "+entity.getEntrega());
+
+					if(ipmCfgContabilidad!=null && ipmCfgContabilidad.isEstado() ==true) {
+						AsientoContableDTO dto= new AsientoContableDTO();
+						if(entity.getTipo().equals("1")){
+							dto.setConceptoId(1);
+							dto.setTipoReferencia("VENTA CONTADO");
+							Map<String, BigDecimal> mon = new HashMap<>();
+							mon.put("BASE_VENTA", BigDecimal.valueOf(totalGenerales));
+							mon.put("BASE_NETO", BigDecimal.valueOf(totalGenerales- (total10 + total5)));
+							mon.put("BASE_IVA", BigDecimal.valueOf(total10 + total5));
+							mon.put("BASE_COSTO", BigDecimal.valueOf(totalCostoPromedio));
+							for (Map.Entry<String, BigDecimal> entry : mon.entrySet()) {
+								System.out.println("Base: " + entry.getKey() + " → Valor: " + entry.getValue());
+							}
+							dto.setMontos(mon);
+						}
+						if(entity.getTipo().equals("2") && entity.getEntrega()==0 ){
+							dto.setConceptoId(2);
+							dto.setTipoReferencia("VENTA CREDITO");
+							Map<String, BigDecimal> mon = new HashMap<>();
+							mon.put("BASE_VENTA", BigDecimal.valueOf(totalGenerales));
+							mon.put("BASE_NETO", BigDecimal.valueOf(totalGenerales-(total10+total5)));
+							mon.put("BASE_IVA", BigDecimal.valueOf(total10 + total5));
+							mon.put("BASE_COSTO", BigDecimal.valueOf(totalCostoPromedio));
+							for (Map.Entry<String, BigDecimal> entry : mon.entrySet()) {
+								System.out.println("Base: " + entry.getKey() + " → Valor: " + entry.getValue());
+							}
+							dto.setMontos(mon);
+						}
+						if (entity.getTipo().equals("2")&& entity.getEntrega() > 0 ) {
+							dto.setConceptoId(24);
+							dto.setTipoReferencia("VENTA CREDITO CON ENTREGA INICIAL");
+							Map<String, BigDecimal> mon = new HashMap<>();
+							mon.put("BASE_VENTA", BigDecimal.valueOf(totalGenerales));
+							mon.put("BASE_NETO", BigDecimal.valueOf(totalGenerales-(total10+total5)));
+							mon.put("BASE_IVA", BigDecimal.valueOf(total10 + total5));
+							mon.put("BASE_COSTO", BigDecimal.valueOf(totalCostoPromedio));
+							mon.put("BASE_ENTREGA", BigDecimal.valueOf(entity.getEntrega()));
+							for (Map.Entry<String, BigDecimal> entry : mon.entrySet()) {
+								System.out.println("Base: " + entry.getKey() + " → Valor: " + entry.getValue());
+							}
+							dto.setMontos(mon);
+						}
+
+						dto.setReferenciaId(entity.getId());
+						dto.setFuncionarioRegistroId(entity.getFuncionario().getId());
+						dto.setFuncionarioModificacionId(entity.getFuncionario().getId());
+						AsientoContable c= new AsientoContable();
+						ResponseEntity<?> retorString = asienotContableServices.guardarAsiento(dto);
+						System.out.println(retorString.getBody().equals("SAVE")+ " 88888          ");
+						Object body = retorString.getBody();
+						if (body instanceof CustomerErrorType) {
+							String mensaje = ((CustomerErrorType) body).getErrorMessage();
+							if ("SAVE".equals(mensaje)) {
+								// correcto
+								System.out.println("asientoooo guardado");
+							} else {
+								//return new ResponseEntity<>(new CustomerErrorType("HUBO UN ERROR AL INTENTAR GUARDAR ASIENTO DE VENTA"), HttpStatus.CONFLICT);
+							}
+						}
+					}
+				}
+				System.out.println("TOTAL ENVIADO: "+entity.getTotal() + " TOTAL CALCULADO: "+totalGenerales);
+				entity.setTotalIvaDies(total10);
+				entity.setTotalIvaCinco(total5);
+				entity.setGrabadoIvaDies(grabado10);
+				entity.setGrabadoIvaCinco(grabado5);
+				entity.setGrabadoExcenta(grabadoExcenta);
+				entity.setTotalIva(total10+total5);
+				entity.setTotalDescuento(descuentoGenerales);
+				entity.setTotal(totalGenerales- descuentoGenerales);
+				entity.setTotalCostoPromedio(totalCostoPromedio);
+				System.out.println(entity.getFechaFactura());
+				if((entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) && entity.getNroDocumento().equals("")) {
+					map = generarDocumentoUnificado(entity.getDocumento().getId(), ter, entity.getId());
+					if (map.get("numeroDocumento") != null && !map.get("numeroDocumento").toString().isEmpty()) {
+						entity.setNroDocumento(map.get("numeroDocumento").toString());
+					}
+					if (map.get("timbrado") != null && !map.get("timbrado").toString().isEmpty()) {
+						entity.setTimbrado(map.get("timbrado").toString());
+					}
+					if (map.get("fechaInicioVigencia") != null && !map.get("fechaInicioVigencia").toString().isEmpty()) {
+						entity.setTimbradoInicio(FechaUtil.convertirFechaStringADateUtil(map.get("fechaInicioVigencia").toString()));
+					}
+					if (map.get("fechaFinVigencia") != null && !map.get("fechaFinVigencia").toString().isEmpty()) {
+						entity.setTimbradoFin(FechaUtil.convertirFechaStringADateUtil(map.get("fechaFinVigencia").toString()));
+					}
+				}
+				entity = entityRepository.save(entity);
+				System.out.println("Venta ID: " + entity.getId() + " - TipoDocumento: " 
+						+ entity.getDocumento().getId() + " - NroDocumento: " + entity.getNroDocumento());
+				pdfPrintss(entity.getId(), ter, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
+			}
+	} catch (Exception e) {
+		e.printStackTrace();
+		//return new ResponseEntity<Object>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	//		agregarDatosCliente:
+	entity.setCliente(clienteRepository.getIdCliente(entity.getCliente().getId()));
+	//		agregarDatosFuncionarioVendedor:
+	entity.setFuncionarioV(funcionarioRepository.getIdFuncionario(entity.getFuncionarioV().getId()));
+	//		agregarDatosFuncionarioRegistro:
+	entity.setFuncionario(funcionarioRepository.getIdFuncionario(entity.getFuncionario().getId()));
+	//		agregarDatosFuncionarioReparto:
+	entity.setFuncionarioR(funcionarioRepository.getIdFuncionario(entity.getFuncionarioR().getId()));
+	System.out.println(entity.getTotalIvaDies() + " "+ entity.getTotalIvaCinco());
+	//		agregarDatosDetalleProducto:
+	entity.setDetalleProducto(detalleProductoRepository.getDetallePorCabecera(entity.getId()));
+	//		agregarDatosDetalleServicios:
+	entity.setDetalleServicio(detalleServicioRepository.getDetallePorCabecera(entity.getId()));
+	System.out.println("ID VET: RESS: "+entity.getId());
+	return entity;
+	
+		
+	}
+	
+	
+	
+	@Transactional
+	@RequestMapping(method=RequestMethod.POST, value = "scs/{numeroTerminal}")
 	public ResponseEntity<?>  guardar(@RequestBody Venta entity, @PathVariable int numeroTerminal ){
 		Double totalGenerales=0.0;
 		Double descuentoGenerales =0.0;
@@ -909,16 +1942,13 @@ public class VentaController {
 				}
 				entity.setZona(primeraZonaOpt.get());
 			}
-
 			if (terminal != null && entity.getDocumento().getId() == 1) {
 				// Validar que tenga autoimpresor asignado
 				if (terminal.getEstadoEmisionFactura() == false) {
 					return new ResponseEntity<>(
 							new CustomerErrorType("Esta terminal no está hablitado para emitir factura"),
-							HttpStatus.CONFLICT
-							);
+							HttpStatus.CONFLICT);
 				}
-
 				// Validar que el autoimpresor esté activo
 				if (!terminal.getAutoImpresor().isEstado()) {
 					return new ResponseEntity<>(
@@ -982,7 +2012,7 @@ public class VentaController {
 				return new ResponseEntity<>(new CustomerErrorType("EL TOTAL DE LA VENTA DEBE SER MAYOR A CERO!"), HttpStatus.CONFLICT);
 			} else if(entity.getTotalLetra().equals("") || entity.getTotalLetra()==null) {
 				return new ResponseEntity<>(new CustomerErrorType("EL TOTAL MONTO EN LETRA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			} else if(estadoClienteBloqueo(entity.getCliente().getId(), entity.getTotal())==true && entity.getTipo().equals("2")) {
+			} else if(estadoClienteBloqueo(entity.getCliente().getId(), entity.getTotal())==true && entity.getTipo().equals("2") && entity.getEstado().equals("FACTURADO")) {
 				return new ResponseEntity<>(new CustomerErrorType("NO SE PUEDE FACTURAR VENTAS, CLIENTE BLOQUEADO POR EXCEDER LINEA DE CREDITO!!"), HttpStatus.CONFLICT);
 			} else if(entity.getTipo().equals("1") || entity.getTipo().equals("Contado") || entity.getTipo().equals("CONTADO")) {
 				entity.setTipo("1");
@@ -1009,7 +2039,7 @@ public class VentaController {
 					return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL DETALLE PRODUCTO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 				}
 				totalGenerales = totalGenerales + pro.getPrecio() * pro.getCantidad();
-				descuentoGenerales = descuentoGenerales + pro.getDescuento();
+				descuentoGenerales = descuentoGenerales + pro.getDescuento() * pro.getCantidad();
 			}
 			for(int ind=0; ind < entity.getDetalleServicio().size(); ind++) {
 				DetalleServicios ser=entity.getDetalleServicio().get(ind);
@@ -1032,15 +2062,17 @@ public class VentaController {
 			System.out.println("Suma detalles sin convertir: " + totalGenerales);
 			BigDecimal totalCabecera = BigDecimal.valueOf(entity.getTotal()).setScale(2, RoundingMode.HALF_UP);
 			BigDecimal totalDetalles = BigDecimal.valueOf(totalGenerales).setScale(2, RoundingMode.HALF_UP);
+			BigDecimal totalDescuento = BigDecimal.valueOf(descuentoGenerales).setScale(2, RoundingMode.HALF_UP);
+			
 
 			// margen máximo permitido (por ejemplo 1 guaraní)
-			BigDecimal margen = new BigDecimal("1000");
+			BigDecimal totalCalculado = totalDetalles.subtract(totalDescuento);
 
-			if (totalCabecera.subtract(totalDetalles).abs().compareTo(margen) > 0) {
-				return error("EL TOTAL DE LA VENTA (" + totalCabecera +
-						") NO COINCIDE CON LA SUMA DE LOS DETALLES (" + totalDetalles + ")");
+			if (totalCabecera.subtract(totalCalculado).abs().compareTo(totalCabecera) > 0) {
+			    return error("EL TOTAL DE LA VENTA (" + totalCabecera +
+			            ") NO COINCIDE CON LA SUMA DE LOS DETALLES MENOS EL DESCUENTO (" + totalCalculado + ")");
 			}
-
+			entity.setTotal(Double.parseDouble(totalCalculado+""));
 			if(entity.getId() !=0) {
 				entity.setFecha(new Date());
 				entity.setHora(hora());
@@ -2118,7 +3150,7 @@ public class VentaController {
 
 			Reporte report = new Reporte();
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+			t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
@@ -2224,7 +3256,7 @@ public class VentaController {
 
 		Reporte report = new Reporte();
 		TerminalConfigImpresora t = new TerminalConfigImpresora();
-		t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+		t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 		if (t==null) {
 			System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 		}else {
@@ -2322,7 +3354,7 @@ public class VentaController {
 
 		Reporte report = new Reporte();
 		TerminalConfigImpresora t = new TerminalConfigImpresora();
-		t= terminalRepository.consultarTerminalPorNumero(numeroTerminal);
+		t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 		if (t==null) {
 			System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 		}else {
@@ -2404,8 +3436,6 @@ public class VentaController {
 							report.reportPDFImprimirPrueba(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
 						}
 					}
-					// Pasamos solo los detalles de la página actual a la impresión
-					//report.reportPDFImprimir(listaVentaImpresion, map, reportConfig.getNombreReporte(), t.getNombreImpresora());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -3298,10 +4328,10 @@ public class VentaController {
 						if (detalleEmpaque != null) {
 							// Descontar el subtotal de la venta del total del empaque
 							double nuevoTotalEmpaque = emp.getTotal() - v.getTotal();
-							emp.setTotal(nuevoTotalEmpaque);
+							emp.setTotalFinalizado(nuevoTotalEmpaque);
 							// Reducir la cantidad de items en el empaque
-							int nuevoItems = emp.getItemsPedido() - 1;
-							emp.setItemsPedido(Math.max(nuevoItems, 0)); // evitar negativos
+							int nuevoItems = emp.getItemsVenta() - 1;
+							emp.setItemsVenta(Math.max(nuevoItems, 0)); // evitar negativos
 
 							// Actualizar total en letras
 							emp.setTotalLetras(NumerosALetras.convertirNumeroALetras(nuevoTotalEmpaque));
@@ -3829,123 +4859,9 @@ public class VentaController {
 	private ResponseEntity<CustomerErrorType> error(String mensaje) {
 		return new ResponseEntity<>(new CustomerErrorType(mensaje), HttpStatus.CONFLICT);
 	}
-	private ResponseEntity<?> validarVenta(Venta entity) {
-		// 🔹 Validar cabecera
-		if(entity.getFuncionario().getId() == 0) {
-			return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(entity.getFuncionarioV().getId() == 0) {
-			return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO VENDEDOR NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(entity.getFuncionarioR().getId()==0) {
-			return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REPARTIDOR NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(entity.getDocumento().getId() == 0) {
-			return new ResponseEntity<>(new CustomerErrorType("EL DOCUMENTO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(entity.getCliente().getId() == 0) {
-			return new ResponseEntity<>(new CustomerErrorType("EL CLIENTE NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(entity.getDetalleProducto().size() <= 0 && entity.getDetalleServicio().size() <= 0) {
-			return new ResponseEntity<>(new CustomerErrorType("LA GRILLA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(entity.getTotal() <=0 || entity.getTotal()==null) {
-			return new ResponseEntity<>(new CustomerErrorType("EL TOTAL DE LA VENTA DEBE SER MAYOR A CERO!"), HttpStatus.CONFLICT);
-		} else if(entity.getTotalLetra().equals("") || entity.getTotalLetra()==null) {
-			return new ResponseEntity<>(new CustomerErrorType("EL TOTAL MONTO EN LETRA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-		} else if(estadoClienteBloqueo(entity.getCliente().getId(), entity.getTotal())==true && entity.getTipo().equals("2")) {
-			return new ResponseEntity<>(new CustomerErrorType("NO SE PUEDE FACTURAR VENTAS, CLIENTE BLOQUEADO POR EXCEDER LINEA DE CREDITO!!"), HttpStatus.CONFLICT);
-		} else if(entity.getTipo().equals("1") || entity.getTipo().equals("Contado") || entity.getTipo().equals("CONTADO")) {
-			entity.setTipo("1");
-			System.out.println("entro validacion tipo venta ct o 1");
-		}else if(entity.getTipo().equals("2") || entity.getTipo().equals("Credito") || entity.getTipo().equals("CREDITO")) {
-			entity.setTipo("2");
-			System.out.println("entro validacion tipo venta cr o 2");
-
-		}else if(entity.getTipo().equals("3") || entity.getTipo().equals("Nota Credito") || entity.getTipo().equals("NOTA CREDITO")){
-			entity.setTipo("3");
-			System.out.println("entro validacion tipo venta nota cr o 3");
-		}else if(entity.getObs() != null){
-			entity.setObs(entity.getObs().toUpperCase());
-		}
-		// 🔹 Validar detalles
-		for(int ind=0; ind < entity.getDetalleProducto().size(); ind++) {
-			DetalleProducto pro = entity.getDetalleProducto().get(ind);
-
-			if(pro.getCantidad() == null) {
-				return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL DETALLE DEVOLUCION ITEM N°: "+(ind++)+", NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			}else if(pro.getDescripcion() == null){
-				return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL DETALLE PRODUCTO ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			}else if(pro.getPrecio() == null){
-				return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL DETALLE PRODUCTO ITEM N°: "+ind+1+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			}
-		}
-		for(int ind=0; ind < entity.getDetalleServicio().size(); ind++) {
-			DetalleServicios ser=entity.getDetalleServicio().get(ind);
-			if(ser.getCantidad() == null) {
-				return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL DETALLE SERVICIO ITEM N°: "+(ind++)+", NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			}else if(ser.getDescripcion() == null){
-				return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL DETALLE SERVICIO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			}else if(ser.getPrecio() == null){
-				return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL DETALLE SERVICIO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			}else if(ser.getFuncionario().getId() == 0){
-				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO DEL DETALLE SERVICIO ITEM N°: "+(ind+1)+" NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-			}
-		}
-
-		// 🔹 Validar coherencia de total de la venta
-		double sumaDetalles = 0;
-		int index = 1;
-
-		// sumar productos
-		for (DetalleProducto d : entity.getDetalleProducto()) {
-			if (d.getCantidad() == null || d.getCantidad() <= 0) {
-				return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL PRODUCTO ITEM N° " + index + " NO DEBE SER <= 0!"), HttpStatus.CONFLICT);
-			}
-			if (d.getDescripcion() == null || d.getDescripcion().trim().isEmpty()) {
-				return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL PRODUCTO ITEM N° " + index + " NO DEBE QUEDAR VACÍA!"), HttpStatus.CONFLICT);
-			}
-			if (d.getPrecio() == null || d.getPrecio() <= 0) {
-				return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL PRODUCTO ITEM N° " + index + " NO DEBE SER <= 0!"), HttpStatus.CONFLICT);
-			}
-			if (d.getSubTotal() == null || d.getSubTotal() <= 0) {
-				return new ResponseEntity<>(new CustomerErrorType("EL SUBTOTAL DEL PRODUCTO ITEM N° " + index + " NO DEBE SER <= 0!"), HttpStatus.CONFLICT);
-			}
-			sumaDetalles += d.getSubTotal();
-			index++;
-		}
-
-		// sumar servicios
-		for (DetalleServicios d : entity.getDetalleServicio()) {
-			if (d.getCantidad() == null || d.getCantidad() <= 0) {
-				return new ResponseEntity<>(new CustomerErrorType("LA CANTIDAD DEL SERVICIO ITEM N° " + index + " NO DEBE SER <= 0!"), HttpStatus.CONFLICT);
-			}
-			if (d.getDescripcion() == null || d.getDescripcion().trim().isEmpty()) {
-				return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL SERVICIO ITEM N° " + index + " NO DEBE QUEDAR VACÍA!"), HttpStatus.CONFLICT);
-			}
-			if (d.getPrecio() == null || d.getPrecio() <= 0) {
-				return new ResponseEntity<>(new CustomerErrorType("EL PRECIO DEL SERVICIO ITEM N° " + index + " NO DEBE SER <= 0!"), HttpStatus.CONFLICT);
-			}
-			if (d.getSubTotal() == null || d.getSubTotal() <= 0) {
-				return new ResponseEntity<>(new CustomerErrorType("EL SUBTOTAL DEL SERVICIO ITEM N° " + index + " NO DEBE SER <= 0!"), HttpStatus.CONFLICT);
-			}
-			sumaDetalles += d.getSubTotal();
-			index++;
-		}
-
-		// validar total contra suma
-		if (entity.getTotal() == null || entity.getTotal() <= 0) {
-			return new ResponseEntity<>(new CustomerErrorType("EL TOTAL DE LA VENTA NO DEBE SER <= 0!"), HttpStatus.CONFLICT);
-		}
-
-		// tolerancia de 1 guaraní
-		if (Math.abs(entity.getTotal() - sumaDetalles) > 1) {
-			return new ResponseEntity<>(
-					new CustomerErrorType("EL TOTAL DE LA VENTA (" + entity.getTotal()
-					+ ") NO COINCIDE CON LA SUMA DE LOS DETALLES (" + sumaDetalles + ")"),
-					HttpStatus.CONFLICT);
-		}
-		return null; // ✅ Validación correcta
-	}
-
 	private ResponseEntity<?> validarCaja(OperacionCaja operacionCaja) {
 		CajaChica cajaChica = new CajaChica();
 		AperturaCaja aper = new AperturaCaja();
-		if(operacionCaja.getTipo().equals("T-A")) {
 			System.out.println("EJECUTO OPERACION PAERTURA VALIDA");
 			System.out.println("IDAPERTURA A CONSULTAR: "+operacionCaja.getAperturaCaja().getId());
 			//operacionCaja.getConcepto().getId() aca le mando el id de la caja apertura
@@ -3956,11 +4872,6 @@ public class VentaController {
 			}else {
 				return null;
 			}
-
-		}else if(operacionCaja.getTipo().equals("T-C")){
-			return error("OPERACION NO PERMITDO PAGO DE COMPRA POR CAJA CHICA!");
-		}
-		return null;
 	}
 	/*
 
@@ -3990,7 +4901,8 @@ public class VentaController {
 	        }
 
 	        // 3. Guardar compra y detalles
-	        Compra saved = guardarCompraYDetalles(compra);
+	        Compra saved = 
+(compra);
 
 	        // 4. Procesar movimientos financieros
 	        if ("CONTADO".equals(compra.getTipo()) && "FACTURADO".equals(compra.getEstado())) {

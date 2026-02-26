@@ -36,6 +36,7 @@ public class OperacionCaja {
 	private String referenciaTipoOperacion;
 	private Double efectivo;
 	private Double vuelto;
+	private Integer referenciaOperacion;
 	
 	public OperacionCaja() {
 		this.id=0;
@@ -49,6 +50,7 @@ public class OperacionCaja {
 		this.referenciaTipoOperacion="";
 		this.vuelto=0.0;
 		this.efectivo=0.0;
+		this.referenciaOperacion=0;
 	}
 	
 	public int getId() {
@@ -118,8 +120,15 @@ public class OperacionCaja {
 	public Double getVuelto() {
 		return vuelto;
 	}
-
 	public void setVuelto(Double vuelto) {
 		this.vuelto = vuelto;
 	}
+	public Integer getReferenciaOperacion() {
+		return referenciaOperacion;
+	}
+	public void setReferenciaOperacion(Integer referenciaOperacion) {
+		this.referenciaOperacion = referenciaOperacion;
+	}
+	
+	
 }
