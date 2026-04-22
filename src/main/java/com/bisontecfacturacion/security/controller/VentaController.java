@@ -1438,6 +1438,7 @@ public class VentaController {
 		Double descuentoGenerales =0.0;
 		Map<String, Object> map = new HashMap<>();
 		try {
+			if(!entity.getObs().equals("") ) {entity.setObs(entity.getObs().toUpperCase());}
 			if(entity.getId() !=0) {
 				entity.setFecha(new Date());
 				entity.setHora(hora());
@@ -3146,11 +3147,11 @@ public class VentaController {
 
 
 	public void pdfPrintss(int idVenta, int numeroTerminal, String siImpresion, int tipoDocumento) {
-		if (siImpresion.equals("true")) {
+		if(siImpresion.equals("true")) {
 
 			Reporte report = new Reporte();
 			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
+			t= terminalRepository.consultarTerminalPorNumerosSql(numeroTerminal);
 			if (t==null) {
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
@@ -3232,7 +3233,6 @@ public class VentaController {
 							}
 							if(p.getDescripcion().equals("PRUEBA-JOB")) {
 								report.reportPDFImprimirPrueba(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
-
 							}
 						}
 					} catch (Exception e) {
@@ -3241,8 +3241,10 @@ public class VentaController {
 				}
 			}
 		}else {
-
+			
 		}
+
+		
 
 	}
 

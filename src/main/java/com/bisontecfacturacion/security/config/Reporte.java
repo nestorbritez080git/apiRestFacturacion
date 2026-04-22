@@ -233,7 +233,7 @@ public class Reporte {
 	}
 	public void reportPDFImprimirLibreCorte(List<?> lista, Map<String, Object> map, String nombreReporte, String tipo, int paginaWhdth, int paginaHeigth) throws Exception {
 		try {
-			InputStream jasperStream = this.getClass().getResourceAsStream("/reporte/prueba-ticket.jrxml");
+			InputStream jasperStream = this.getClass().getResourceAsStream("/reporte/"+nombreReporte + ".jrxml");
 			JasperDesign design = JRXmlLoader.load(jasperStream);
 			int pageWidth = design.getPageWidth();   // en puntos
 			int pageHeight = design.getPageHeight(); // en puntos

@@ -45,6 +45,8 @@ import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Zona;
 import com.bisontecfacturacion.security.repository.AnticipoReferenciaCajaChicaRepository;
+import com.bisontecfacturacion.security.repository.ClienteRepository;
+import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ImpresoraRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.PagosFuncionarioReferenciaOperacionCajaRepository;
@@ -78,6 +80,11 @@ public class PresupuestoController {
 
 	@Autowired
 	private PresupuestoDetalleProductoRepository detalleProductoRepository;
+	@Autowired
+	private FuncionarioRepository funcionarioRepository; 
+
+	@Autowired
+	private ClienteRepository clienteRepository; 
 
 	@Autowired
 	private ZonaRepository zonaRepository;
@@ -652,6 +659,7 @@ public class PresupuestoController {
 					entity.setTotalIva(total10+total5);
 					entity = entityRepository.save(entity);
 					System.out.println("entro udpate edit");
+					
 				}else {
 					entity.setHora(hora());
 					entity.setNroDocumento(generarCodigo());
@@ -744,13 +752,21 @@ public class PresupuestoController {
 					entity.setTotalIvaCinco(total5);
 					entity.setTotalIva(total10+total5);
 					entity = entityRepository.save(entity);
-					System.out.println("entro insert nuevo");	
-				}
+					System.out.println("entro insert nuevo");
+					
+			}
+				entity.setFuncionario(funcionarioRepository.getIdFuncionario(entity.getFuncionario().getId()));
+				entity.setCliente(clienteRepository.getIdCliente(entity.getCliente().getId()));
+				Map<String, Object> mapa = new HashMap<>();
+		        mapa.put("presupuesto", entity);
+		        
+		        // 🔹 Devolver todo junto
+		        return new ResponseEntity<>(mapa, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<Presupuesto>(entity, HttpStatus.CREATED);
+		//return new ResponseEntity<Presupuesto>(entity, HttpStatus.CREATED);
 	}
 
 	public String hora() {
@@ -851,7 +867,6 @@ public class PresupuestoController {
 		        		}
 		        		if(p.getDescripcion().equals("CORTE")) {
 			        		report.reportPDFImprimirLibreCorte(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
-
 		        		}
 		            }
 				} catch (Exception e) {
@@ -973,7 +988,9 @@ public class PresupuestoController {
 			v.setFecha(presu.getFecha());
 			v.setHora(presu.getHora());
 			v.getFuncionario().setId(presu.getFuncionario().getId());
-			v.getFuncionario().getPersona().setNombre(presu.getFuncionario().getPersona().getNombre()+" "+presu.getFuncionario().getPersona().getApellido());
+			v.getFuncionario().getPersona().setNombre(presu.getFuncionario().getPersona().getNombre());
+			v.getFuncionario().getPersona().setCedula(presu.getFuncionario().getPersona().getCedula());
+			v.getFuncionario().getPersona().setApellido(presu.getFuncionario().getPersona().getApellido());
 			v.getFuncionario().getPersona().setTelefono(presu.getFuncionario().getPersona().getTelefono());
 			v.setTotalIvaCinco(presu.getTotalIvaCinco());
 			v.setTotalIvaDies(presu.getTotalIvaDies());

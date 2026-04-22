@@ -19,10 +19,15 @@ public interface TerminalConfigImpresoraRepository  extends JpaRepository<Termin
 	@Query("SELECT c FROM TerminalConfigImpresora c WHERE c.numeroTerminal = :idTerminal")
 	public TerminalConfigImpresora consultarTerminalPorNumeros(@Param("idTerminal") int idTerminal);
 
+	
 	@Query(value="SELECT * FROM terminal_config_impresora WHERE numero_terminal = :idTerminal", nativeQuery = true)
 	public TerminalConfigImpresora consultarTerminalPorNumeroTerminalSql(@Param("idTerminal") int idTerminal);
 
 	@Query("SELECT c FROM TerminalConfigImpresora c LEFT JOIN FETCH c.autoImpresor")
 	public List<TerminalConfigImpresora> getAllTerminal();
+	
+	@Query("SELECT c FROM TerminalConfigImpresora c WHERE c.numeroTerminal = :idTerminal")
+	public TerminalConfigImpresora consultarTerminalPorNumerosSql(@Param("idTerminal") int idTerminal);
+	
 
 }

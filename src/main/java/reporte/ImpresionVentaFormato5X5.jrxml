@@ -134,7 +134,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Courier" size="9"/>
+					<font fontName="Lucida Console" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{descripcionMovimiento}]]></textFieldExpression>
 			</textField>
