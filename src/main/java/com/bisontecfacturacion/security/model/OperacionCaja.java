@@ -11,24 +11,28 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class OperacionCaja {
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
-	private int id;
+	private Integer id;
 	@NotNull
 	private String tipo;
 	@NotNull
 	private String motivo;
 	@NotNull
-	private double monto;
+	private Double monto;
 	@NotNull
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fecha;
 	@ManyToOne
 	private Concepto concepto;
+	@ManyToOne
+	@JsonIgnoreProperties
+	private OperacionCajaCabecera operacionCajaCabecera;
 	@ManyToOne
 	private AperturaCaja aperturaCaja;
 	@ManyToOne
@@ -47,12 +51,21 @@ public class OperacionCaja {
 		this.concepto=new Concepto();
 		this.aperturaCaja= new AperturaCaja(); 
 		this.tipoOperacion= new TipoOperacion();
+		this.operacionCajaCabecera = new OperacionCajaCabecera();
 		this.referenciaTipoOperacion="";
 		this.vuelto=0.0;
 		this.efectivo=0.0;
 		this.referenciaOperacion=0;
 	}
 	
+	public OperacionCajaCabecera getOperacionCajaCabecera() {
+		return operacionCajaCabecera;
+	}
+
+	public void setOperacionCajaCabecera(OperacionCajaCabecera operacionCajaCabecera) {
+		this.operacionCajaCabecera = operacionCajaCabecera;
+	}
+
 	public int getId() {
 		return id;
 	}

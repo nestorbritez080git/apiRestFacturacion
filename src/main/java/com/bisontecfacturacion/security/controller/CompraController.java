@@ -35,16 +35,19 @@ import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CajaChica;
 import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Concepto;
+import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaPagarCabecera;
 import com.bisontecfacturacion.security.model.CuentaPagarDetalle;
 import com.bisontecfacturacion.security.model.DetalleCompra;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCajaCabecera;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
 import com.bisontecfacturacion.security.model.Proveedor;
 import com.bisontecfacturacion.security.model.Usuario;
+import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.CajaChicaRepository;
 import com.bisontecfacturacion.security.repository.CompraDetalleRepository;
@@ -53,6 +56,7 @@ import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.CuentaPagarCabeceraRepository;
 import com.bisontecfacturacion.security.repository.CuentaPagarDetalleRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaCabeceraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.ProductoCardexRepository;
@@ -95,6 +99,10 @@ public class CompraController {
 	@Autowired
 	private OperacionCajaRepository operacionCajaRepository;
 
+	@Autowired
+	private OperacionCajaCabeceraRepository operacionCajaCabeceraRepository;
+
+	
 	@Autowired
 	private ProductoCardexRepository compuestoRepository;
 
@@ -376,7 +384,49 @@ public class CompraController {
 
 	    return null; // ✅ Validación correcta
 	}
+	private ResponseEntity<?> validarCajaV2(List<OperacionCaja> operacionCajaLista) {
 
+	    if (operacionCajaLista == null || operacionCajaLista.isEmpty()) {
+	        return error("No existen formas de pago para validar caja");
+	    }
+
+	    for (OperacionCaja op : operacionCajaLista) {
+	    	System.out.println("apertura : " +  op.getAperturaCaja().getId());
+	        if (op.getAperturaCaja() == null ||
+	            op.getAperturaCaja().getId() <=0) {
+
+	            return error("El funcionario no posee una apertura de caja asignada");
+	        }
+	        
+	        AperturaCaja aper = aperturaRepository.getAperturaCajaPorIdCaja(op.getAperturaCaja().getId());
+
+	        if (aper == null) {
+	            return error("EL FUNCIONARIO NO POSEE UNA APERTURA CAJA A SU NOMBRE");
+	        }else if(op.getTipo().equals("T-C")){
+				return error("OPERACION NO PERMITDO PAGO DE COMPRA POR CAJA CHICA!");
+			}
+	        if(op.getTipo().equals("T-A")) {
+	        	if(op.getConcepto().getId()==0) {
+					return error("LA OPERACION DEBE ESTAR ASIGNADO UN CONCEPTO PARA PODER PROCESAR!");
+				}else if(op.getMonto()<=0) {
+					return error("EL MONTO DE LA OPERACION DEBE SER MAYOR A ZERO!");
+				}else if((aper.getSaldoActual()) < op.getMonto() && op.getTipoOperacion().getId()==1) {
+					return error("EL EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!");
+				}else if((aper.getSaldoActualCheque()) < op.getMonto()&& op.getTipoOperacion().getId()==2){
+					return error("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!");
+				}else if((aper.getSaldoActualTarjeta())< op.getMonto() && op.getTipoOperacion().getId()==3){
+					return error("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!");
+				}
+	        	
+	        }
+	        // 🔥 OPCIONAL PRO (MUY RECOMENDADO)
+	       // if (!aper.getEstado().equals("ABIERTO")) {
+	          //  return error("La apertura de caja no está activa");
+	        //}
+	    }
+
+	    return null;
+	}
 	private ResponseEntity<?> validarCaja(OperacionCaja operacionCaja) {
 		CajaChica cajaChica = new CajaChica();
 		AperturaCaja aper = new AperturaCaja();
@@ -487,37 +537,62 @@ public class CompraController {
   	  }
 	}
 	@Transactional
-	public void procesarOperacionCaja(Compra ent, OperacionCaja ope) {
-		if(ope.getTipo().equals("T-A")) {
-			System.out.println("EJECUTO OPERACION PAERTURA PROCEDIMINETO");
-			Concepto c= new Concepto();
-			c= conceptoRepository.findById(ope.getConcepto().getId()).get();//compra contado
-			ope.setMotivo(c.getDescripcion()+" REF.: "+ent.getId());
-			ope.setReferenciaOperacion(ent.getId());
-			ope.getAperturaCaja().setId(ope.getAperturaCaja().getId());//id aperturarecibido desdecliente
-			ope.setTipo("SALIDA");
-			//ope.setMonto(ent.getEntrega());
-			//ope.getConcepto().setId(ent.getConcepto().getId());
-			OperacionCaja saveOperacion = operacionCajaRepository.save(ope);
-			System.out.println("OPERACION ID: "+ope.getTipoOperacion().getId());
-			System.out.println("APERTURA ID: "+ope.getAperturaCaja().getId());
-			System.out.println("CONCEPTO ID: "+ope.getConcepto().getId());
-			if (saveOperacion.getTipoOperacion().getId() == 1) {
-				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(saveOperacion.getAperturaCaja().getId(), saveOperacion.getMonto());
-				System.out.println("DEBERIA CTUALZIAR EFECTIVO ACTUAL EN CAJA");
-			}
-			if (saveOperacion.getTipoOperacion().getId() == 2) {
-				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(saveOperacion.getAperturaCaja().getId(), saveOperacion.getMonto());
-			}
-			if (saveOperacion.getTipoOperacion().getId() == 3) {
-				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(saveOperacion.getAperturaCaja().getId(), saveOperacion.getMonto());
-			}
-			entityRepository.findByActualizarCompraOperacion(ent.getId(), saveOperacion.getId());
-		}
-		if(ope.getTipo().equals("T-C")){
-			System.out.println("EJECUTO OPERACION CAJACHICA PROCEDIMINETO");
-		}
+	public List<OperacionCaja> procesarOperacionCaja(Compra ent, List<OperacionCaja> listaOperacion) {
+
+	    if (listaOperacion == null || listaOperacion.isEmpty()) {
+	        throw new RuntimeException("No existen operaciones de caja para procesar");
+	    }
+	    List<OperacionCaja> resultado = new ArrayList<>();
+	    OperacionCaja primera = listaOperacion.get(0);
+	    Concepto concepto = conceptoRepository.findById(primera.getConcepto().getId())
+	            .orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+	    // 🔹 Crear cabecera
+	    OperacionCajaCabecera cabecera = new OperacionCajaCabecera();
+	    cabecera.setFecha(new Date());
+	    cabecera.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+	    cabecera.setReferenciaOperacion(ent.getId());
+	    cabecera.setTipo("SALIDA");
+	    cabecera.setMotivo(concepto.getDescripcion() + " REF.: " + ent.getId());
+	    cabecera.setConcepto(concepto);
+	    cabecera.setAperturaCaja(primera.getAperturaCaja());
+		AperturaCaja ape= aperturaRepository.getAperturaCajaPorIdCaja(listaOperacion.get(0).getAperturaCaja().getId());
+
+	    OperacionCajaCabecera savedCabecera = operacionCajaCabeceraRepository.save(cabecera);
+	    // 🔹 Procesar operaciones
+	    for (OperacionCaja ope : listaOperacion) {
+	        if ("T-A".equals(ope.getTipo())) {
+	            System.out.println("EJECUTO OPERACION APERTURA PROCEDIMIENTO");
+	            ope.setTipo("SALIDA");
+	            ope.setMotivo(concepto.getDescripcion() + " REF.: " + ent.getId());
+	            ope.setReferenciaOperacion(ent.getId());
+	            ope.setFecha(new Date());
+	            ope.setAperturaCaja(ape);
+	            ope.setOperacionCajaCabecera(savedCabecera);
+	            OperacionCaja saveOperacion = operacionCajaRepository.save(ope);
+	            int tipoOperacion = saveOperacion.getTipoOperacion().getId();
+	            int idApertura = saveOperacion.getAperturaCaja().getId();
+	            double monto = saveOperacion.getMonto();
+	            // 🔹 Actualizar saldo según tipo
+	            if (tipoOperacion == 1) {
+	                aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idApertura, monto);
+	            }
+	            if (tipoOperacion == 2) {
+	                aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idApertura, monto);
+	            }
+	            if (tipoOperacion == 3) {
+	                aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idApertura, monto);
+	            }
+	            entityRepository.findByActualizarCompraOperacion(ent.getId(), saveOperacion.getId());
+	            resultado.add(saveOperacion);
+	        }
+	        if ("T-C".equals(ope.getTipo())) {
+	            System.out.println("EJECUTO OPERACION CAJA CHICA");
+	            // aquí podrías agregar la lógica de caja chica
+	        }
+	    }
+	    return resultado;
 	}
+	
 	@Transactional
 	public Compra guardarCompraYDetalles(Compra enti) {
 	    // 1. Guardar la cabecera primero
@@ -624,20 +699,22 @@ public class CompraController {
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?> guardar(
 	        @RequestPart("compra") Compra compra,
-	        @RequestPart("operacionCaja") OperacionCaja operacionCaja,
+	        @RequestPart("operacionCaja") List<OperacionCaja> operacionCajaLista,
 	        @RequestPart("cuentaPagar") CuentaPagarCabecera cuentaPagarCabecera) {
 	    try {
+	    	//List<CuentaCobrarCabecera> listRetorno= new ArrayList<>();
+			List<OperacionCaja> opRetotno = new ArrayList<>();
 	        // 1. Validar compra y detalles
 	        ResponseEntity<?> validacionCompra = validarCompra(compra);
 	        if (validacionCompra != null) return validacionCompra;
 
 	        // 2. Validar flujo según tipo (contado/crédito)
 	        if ("CONTADO".equals(compra.getTipo()) && "FACTURADO".equals(compra.getEstado())) {
-	            ResponseEntity<?> validacionCaja = validarCaja(operacionCaja);
+	            ResponseEntity<?> validacionCaja = validarCajaV2(operacionCajaLista);
 	            if (validacionCaja != null) return validacionCaja;
 	        } else if ("CREDITO".equals(compra.getTipo())&& "FACTURADO".equals(compra.getEstado())) {
 	            if (compra.getEntrega() > 0) {
-	                ResponseEntity<?> validacionCajaEntrega = validarCaja(operacionCaja);
+	                ResponseEntity<?> validacionCajaEntrega = validarCajaV2(operacionCajaLista);
 	                if (validacionCajaEntrega != null) return validacionCajaEntrega;
 	            }
 	            ResponseEntity<?> validacionCuenta = validarCuentaPagar(cuentaPagarCabecera);
@@ -649,15 +726,14 @@ public class CompraController {
 
 	        // 4. Procesar movimientos financieros
 	        if ("CONTADO".equals(compra.getTipo()) && "FACTURADO".equals(compra.getEstado())) {
-	            procesarOperacionCaja(saved, operacionCaja);
+	        	opRetotno = procesarOperacionCaja(saved, operacionCajaLista);
 	            
 	        } else if ("CREDITO".equals(compra.getTipo()) && "FACTURADO".equals(compra.getEstado())) {
 	            if (compra.getEntrega() > 0) {
-	                procesarOperacionCaja(saved, operacionCaja); // entrega
+	              opRetotno =  procesarOperacionCaja(saved, operacionCajaLista); // entrega
 	            }
 	            procesarCuentaPagar(saved, cuentaPagarCabecera);
 	        }
-
 	        return new ResponseEntity<>(saved, HttpStatus.CREATED);
 
 	    } catch (Exception e) {

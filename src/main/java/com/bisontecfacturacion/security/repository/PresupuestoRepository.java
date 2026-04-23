@@ -19,6 +19,10 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoAll();
 	
+
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where f.id=:idFuncionario order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoAllPorUsuario(@Param("idFuncionario")  Integer idFuncionario);
+	
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id inner join zona z on z.id=v.zona_id WHERE cp.nombre ilike :des OR cp.apellido ilike :des OR cp.cedula ilike :des order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoAllDescripcion(@Param("des")  String des);
 	
@@ -26,15 +30,25 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
 	
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='ABIERTO' order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoActivo();
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='ABIERTO' AND f.id=:idFuncionario order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoActivoPorFuncionario(@Param("idFuncionario")  Integer idFuncionario);	
+	
+	
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where (v.estado='ABIERTO' and cp.nombre ilike :des) OR (v.estado='ABIERTO' and cp.apellido ilike :des) OR (v.estado='ABIERTO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoActivoDescripcion(@Param("des")  String des);
 	
 	
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='CERRADO' order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoCerrado();
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='CERRADO' AND f.id=:idFuncionario order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoCerradoPorFuncionario(@Param("idFuncionario")  Integer idFuncionario);
 	
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='FINALIZADO' order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoFinalizado();
+	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='FINALIZADO' AND f.id=:idFuncionario order by v.id desc",nativeQuery=true)
+	List<Presupuesto> getPresupuestoFinalizadoPorFuncionario(@Param("idFuncionario")  Integer idFuncionario);
+	
+	
 	
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where (v.estado='CERRADO' and cp.nombre ilike :des) OR (v.estado='CERRADO' and cp.apellido ilike :des)  OR (v.estado='CERRADO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoCerradoDescripcion(@Param("des")  String des);

@@ -1,7 +1,7 @@
 package com.bisontecfacturacion.security.auth;
 
 public class JwtConfig {
-    public static final String LLAVE_SECRETA ="alguna.clave.secreta.12345678";
+    public static final String LLAVE_SECRETA ="alguna.clave.secreta.bisontec";
 
     public static final String RSA_PRIVADA = "-----BEGIN RSA PRIVATE KEY-----\r\n" + 
 			"MIIEowIBAAKCAQEAwRRkppjNSOZkENkh8/JNk7vjVq1J7jRWT89ZrgOYbS7BkKDX\r\n" + 

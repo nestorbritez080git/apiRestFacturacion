@@ -26,11 +26,13 @@ import com.bisontecfacturacion.security.auxiliar.ResumenTesoreriaPorConceptoUtil
 import com.bisontecfacturacion.security.auxiliar.ResumenTesoreriaUtilidad;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Utilidades;
+import com.bisontecfacturacion.security.hoteleria.model.ReservacionCabecera;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CajaMayor;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCajaCabecera;
 import com.bisontecfacturacion.security.model.Tesoreria;
 import com.bisontecfacturacion.security.model.TransferenciaAnticipo;
 import com.bisontecfacturacion.security.model.TransferenciaCajaActivaCajaMayor;
@@ -48,6 +50,7 @@ import com.bisontecfacturacion.security.repository.CierreCajaRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.DetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaCabeceraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.TesoreriaRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaAnticipoRepository;
@@ -124,6 +127,10 @@ public class TesoreriaController {
 	
 	@Autowired
 	private OperacionCajaRepository operacionCajaRepository;
+	@Autowired
+	private OperacionCajaCabeceraRepository cabeceraRepository;
+
+
 
 	@Autowired
 	private IUsuarioService usuarioService;
@@ -721,6 +728,8 @@ public class TesoreriaController {
 		    System.out.println("Monto en transferencia/QR supera el disponible");
 		    return new ResponseEntity<>(new CustomerErrorType("El monto en transferencia/QR a transferir supera el disponible en caja mayor."), HttpStatus.CONFLICT);
 		}
+		List<OperacionCaja> listOperacion = new ArrayList<OperacionCaja>();
+		List<OperacionCaja> listOperacionRetorno = new ArrayList<OperacionCaja>();
 		
 		//		
 		try {
@@ -741,10 +750,11 @@ public class TesoreriaController {
 				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
 				op.setTipo("ENTRADA");
 				op.getTipoOperacion().setId(1);
-				if (op.getTipoOperacion().getId() == 1) {
-					aperturaCajaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
-				}
-				operacionCajaRepository.save(op);
+				listOperacion.add(op);
+//				if (op.getTipoOperacion().getId() == 1) {
+//					aperturaCajaRepository.findByActualizarAperturaSaldo(entity.getAperturaCaja().getId(), entity.getMonto());
+//				}
+//				operacionCajaRepository.save(op);
 				
 			}
 			if(entity.getMontoCheque()>0) {
@@ -757,10 +767,11 @@ public class TesoreriaController {
 				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
 				op.setTipo("ENTRADA");
 				op.getTipoOperacion().setId(2);
-				if (op.getTipoOperacion().getId() == 2) {
-					aperturaCajaRepository.findByActualizarAperturaSaldoCheque(entity.getAperturaCaja().getId(), entity.getMontoCheque());
-				}
-				operacionCajaRepository.save(op);
+				listOperacion.add(op);
+//				if (op.getTipoOperacion().getId() == 2) {
+//					aperturaCajaRepository.findByActualizarAperturaSaldoCheque(entity.getAperturaCaja().getId(), entity.getMontoCheque());
+//				}
+//				operacionCajaRepository.save(op);
 				
 			}
 			if(entity.getMontoTarjeta()>0) {
@@ -773,16 +784,142 @@ public class TesoreriaController {
 				op.setMotivo(c.getDescripcion()+" (#) TRANSF. : "+cvt.getId() +" POR: "+ff.getPersona().getNombre()+ " "+ff.getPersona().getApellido());
 				op.setTipo("ENTRADA");
 				op.getTipoOperacion().setId(3);
-				if(op.getTipoOperacion().getId() == 3) {
-					aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(entity.getAperturaCaja().getId(), entity.getMontoTarjeta());
-				}
-				operacionCajaRepository.save(op);
+				listOperacion.add(op);
+//				if(op.getTipoOperacion().getId() == 3) {
+//					aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(entity.getAperturaCaja().getId(), entity.getMontoTarjeta());
+//				}
+//				operacionCajaRepository.save(op);
 			}
+			
+			listOperacionRetorno = procesarOperacionCajaTransferenciaCajaMayorACajaActiva(cvt, listOperacion);
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(new CustomerErrorType("ERROR:"+e.getMessage()), HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+	private ResponseEntity<CustomerErrorType> error(String mensaje) {
+		return new ResponseEntity<>(new CustomerErrorType(mensaje), HttpStatus.CONFLICT);
+	}
+	private ResponseEntity<?> validarCaja(List<OperacionCaja> operacionCajaLista) {
+	      System.out.println("entro validacion de cajas ");
+
+		    if (operacionCajaLista == null || operacionCajaLista.isEmpty()) {
+		        return error("No existen formas de pago para validar caja");
+		    }
+
+		    for (OperacionCaja op : operacionCajaLista) {
+		    	System.out.println("apertura : " +  op.getAperturaCaja().getId());
+		        if (op.getAperturaCaja() == null ||
+		            op.getAperturaCaja().getId() <= 0) {
+		            return error("El funcionario no posee una apertura de caja asignada");
+		        }
+
+		        AperturaCaja aper = aperturaCajaRepository.getAperturaCajaPorIdCaja(op.getAperturaCaja().getId()
+		                );
+
+		        if (aper == null) {
+		            return error("EL FUNCIONARIO NO POSEE UNA APERTURA CAJA A SU NOMBRE");
+		        }
+
+		        // 🔥 OPCIONAL PRO (MUY RECOMENDADO)
+		       // if (!aper.getEstado().equals("ABIERTO")) {
+		          //  return error("La apertura de caja no está activa");
+		        //}
+		    }
+
+		    return null;
+		}
+	
+	@Transactional
+	public List<OperacionCaja> procesarOperacionCajaTransferenciaCajaMayor(TransferenciaCajaActivaCajaMayor tr, List<OperacionCaja> listaOperacion) {
+	    if (listaOperacion == null || listaOperacion.isEmpty()) {
+	        throw new RuntimeException("No existen operaciones de caja para procesar");
+	    }
+	    List<OperacionCaja> resultado = new ArrayList<>();
+	    OperacionCaja primera = listaOperacion.get(0);
+	    Concepto concepto = conceptoRepository.findById(primera.getConcepto().getId())
+	            .orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+	    // 🔹 Crear cabecera
+	    OperacionCajaCabecera cab = new OperacionCajaCabecera();
+	    cab.setFecha(new Date());
+	    cab.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+	    cab.setReferenciaOperacion(tr.getId());
+	    cab.setTipo("SALIDA");
+	    cab.setMotivo(primera.getMotivo());
+	    cab.setConcepto(concepto);
+	    cab.setAperturaCaja(primera.getAperturaCaja());
+	    OperacionCajaCabecera savedCabecera = cabeceraRepository.save(cab);
+	    // 🔹 Procesar operaciones
+	    for (OperacionCaja ope : listaOperacion) {
+	            System.out.println("EJECUTO OPERACION APERTURA PROCEDIMIENTO");
+	          
+	            ope.setOperacionCajaCabecera(savedCabecera);
+	            OperacionCaja saveOperacion = operacionCajaRepository.save(ope);
+	            int tipoOperacion = saveOperacion.getTipoOperacion().getId();
+	            int idApertura = saveOperacion.getAperturaCaja().getId();
+	            double monto = saveOperacion.getMonto();
+	            // 🔹 Actualizar saldo según tipo
+	            // 🔥 Actualizar saldos según tipo operación
+		        if (tipoOperacion == 1) {
+		            aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idApertura,monto);
+		        }
+		        if (tipoOperacion == 2) {
+		        	aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idApertura,monto);
+		        }
+		        if (tipoOperacion == 3) {
+		        	aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idApertura,monto);
+		        }
+		      
+		        resultado.add(saveOperacion);
+	    }
+	    return resultado;
+	}
+	@Transactional
+	public List<OperacionCaja> procesarOperacionCajaTransferenciaCajaMayorACajaActiva(TransferenciaCajaMayorCajaActiva tr, List<OperacionCaja> listaOperacion) {
+	    if (listaOperacion == null || listaOperacion.isEmpty()) {
+	        throw new RuntimeException("No existen operaciones de caja para procesar");
+	    }
+	    List<OperacionCaja> resultado = new ArrayList<>();
+	    OperacionCaja primera = listaOperacion.get(0);
+	    Concepto concepto = conceptoRepository.findById(primera.getConcepto().getId())
+	            .orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+	    // 🔹 Crear cabecera
+	    OperacionCajaCabecera cab = new OperacionCajaCabecera();
+	    cab.setFecha(new Date());
+	    cab.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+	    cab.setReferenciaOperacion(tr.getId());
+	    cab.setTipo("ENTRADA");
+	    cab.setMotivo(primera.getMotivo());
+	    cab.setConcepto(concepto);
+	    cab.setAperturaCaja(primera.getAperturaCaja());
+	    OperacionCajaCabecera savedCabecera = cabeceraRepository.save(cab);
+	    // 🔹 Procesar operaciones
+	    for (OperacionCaja ope : listaOperacion) {
+	            System.out.println("EJECUTO OPERACION APERTURA PROCEDIMIENTO");
+	          
+	            ope.setOperacionCajaCabecera(savedCabecera);
+	            OperacionCaja saveOperacion = operacionCajaRepository.save(ope);
+	            int tipoOperacion = saveOperacion.getTipoOperacion().getId();
+	            int idApertura = saveOperacion.getAperturaCaja().getId();
+	            double monto = saveOperacion.getMonto();
+	            // 🔹 Actualizar saldo según tipo
+	            // 🔥 Actualizar saldos según tipo operación
+		        if (tipoOperacion == 1) {
+		            aperturaCajaRepository.findByActualizarAperturaSaldo(idApertura,monto);
+		        }
+		        if (tipoOperacion == 2) {
+		        	aperturaCajaRepository.findByActualizarAperturaSaldoCheque(idApertura,monto);
+		        }
+		        if (tipoOperacion == 3) {
+		        	aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(idApertura,monto);
+		        }
+		      
+		        resultado.add(saveOperacion);
+	    }
+	    return resultado;
 	}
 	@RequestMapping(method=RequestMethod.POST, value = "/transferenciaCajaActivaCajaMayor")
 	public ResponseEntity<?> guardarTransferenciaCajaActivaCajaMayor(@RequestBody TransferenciaCajaActivaCajaMayor entity){
@@ -821,16 +958,21 @@ public class TesoreriaController {
 		if (entity.getMontoTarjeta() > cajaOrigen.getSaldoActualTarjeta()) {
 		    System.out.println("Monto en transferencia/QR supera el disponible");
 		    return new ResponseEntity<>(new CustomerErrorType("El monto en transferencia/QR a transferir supera el disponible en caja apertura."), HttpStatus.CONFLICT);
-		}
+		}	
+		List<OperacionCaja> operacionCajaList = new ArrayList<>();
+		List<OperacionCaja> resulOperacionCaja = new ArrayList<>();
 		//		
 		try {
+			entity.setCajaMayor(cajaDestino);
+			entity.setAperturaCaja(cajaOrigen); 
 			TransferenciaCajaActivaCajaMayor cvt = transferenciaCajaActivaCajaMayorRepository.save(entity);
 			Funcionario ff= funcionarioRepository.getIdFuncionario(cvt.getFuncionario().getId());
 			cajaMayorRepository.findByActualizaCajaMayor(entity.getCajaMayor().getId(), entity.getMonto(), entity.getMontoCheque(), entity.getMontoTarjeta());
 			Concepto c= new Concepto();
 			//33 conepto corresponde a transferencia de caja mayor a  caja apertura
 			c= conceptoRepository.findById(34).get();
-			
+		
+			System.out.println("procesar operacion caja mayor a apertura caja");
 			if(entity.getMonto()>0) {
 				OperacionCaja op = new OperacionCaja();
 				op.setFecha(new Date());
@@ -842,11 +984,7 @@ public class TesoreriaController {
 				op.setReferenciaOperacion(cvt.getId());
 				op.setTipo("SALIDA");
 				op.getTipoOperacion().setId(1);
-				if (op.getTipoOperacion().getId() == 1) {
-					aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(entity.getAperturaCaja().getId(), entity.getMonto());
-				}
-				operacionCajaRepository.save(op);
-				
+				operacionCajaList.add(op);
 			}
 			if(entity.getMontoCheque()>0) {
 				OperacionCaja op = new OperacionCaja();
@@ -859,11 +997,7 @@ public class TesoreriaController {
 				op.setReferenciaOperacion(cvt.getId());
 				op.setTipo("SALIDA");
 				op.getTipoOperacion().setId(2);
-				if (op.getTipoOperacion().getId() == 2) {
-					aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(entity.getAperturaCaja().getId(), entity.getMontoCheque());
-				}
-				operacionCajaRepository.save(op);
-				
+				operacionCajaList.add(op);
 			}
 			if(entity.getMontoTarjeta()>0) {
 				OperacionCaja op = new OperacionCaja();
@@ -876,16 +1010,18 @@ public class TesoreriaController {
 				op.setReferenciaOperacion(cvt.getId());
 				op.setTipo("SALIDA");
 				op.getTipoOperacion().setId(3);
-				if(op.getTipoOperacion().getId() == 3) {
-					aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(entity.getAperturaCaja().getId(), entity.getMontoTarjeta());
-				}
-				operacionCajaRepository.save(op);
+				operacionCajaList.add(op);
 			}
+			resulOperacionCaja = procesarOperacionCajaTransferenciaCajaMayor(cvt, operacionCajaList);
+			/*
+			
+			
+			*/
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(new CustomerErrorType("ERROR:"+e.getMessage()), HttpStatus.CONFLICT);
 		}
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		return new ResponseEntity<>(resulOperacionCaja, HttpStatus.CREATED);
 
 	}
 	

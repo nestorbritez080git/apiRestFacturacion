@@ -56,6 +56,7 @@ public class CuentaCobrarCabecera {
 	@ManyToOne
 	private Cliente cliente;
 
+	
 	@OneToMany(mappedBy="cuentaCobrarCabecera")
 	private List<CuentaCobrarDetalle> cuentaCobrarDetalle; 
 		

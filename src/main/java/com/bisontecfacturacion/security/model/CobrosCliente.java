@@ -10,6 +10,7 @@ import javax.persistence.ManyToOne;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class CobrosCliente {
@@ -24,6 +25,8 @@ public class CobrosCliente {
 	private CuentaCobrarCabecera cuentaCobrarCabecera;
 	@ManyToOne
 	private Funcionario funcionario;
+	// En CobrosCliente
+	@JsonIgnore
 	@ManyToOne
 	private CobrosClienteCabecera cobrosClienteCabecera;
 	@ManyToOne

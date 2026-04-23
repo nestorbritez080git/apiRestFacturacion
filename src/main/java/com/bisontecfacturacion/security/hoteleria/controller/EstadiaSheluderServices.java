@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.hoteleria.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -22,60 +23,82 @@ public class EstadiaSheluderServices {
 	private ReservacionCabeceraRepository entityRepository;
 	@Autowired
 	private SetingRecepcionesRepository setingRepository;
-	@Scheduled(fixedRate = 60000)
+	
+	@Scheduled(fixedRate = 60000) // cada 1 minuto
 	@Transactional
 	public void verificarYActualizarEstadias() {
-		SetingRecepciones seting= new SetingRecepciones();
-		seting = setingRepository.findFirstByOrderByIdAsc();
-		
-		LocalTime horaBD = seting.getHoraFinalizacionDiaria();
-		LocalTime horaActualVerificar = LocalTime.now();
+	    // 🔹 Obtener configuración
+	    SetingRecepciones seting = setingRepository.findFirstByOrderByIdAsc();
+	    LocalTime horaCorte = seting.getHoraFinalizacionDiaria();
+	    LocalDate hoy = LocalDate.now();
+	    LocalTime ahoraHora = LocalTime.now();
 
-		 if (horaBD.getHour() == horaActualVerificar.getHour() &&
-				horaBD.getMinute() == horaActualVerificar.getMinute()) {
-		    System.out.println("Es exactamente la hora configurada. "+horaBD);
-		    List<ReservacionCabecera> lisRetorno= new ArrayList<ReservacionCabecera>();
-			lisRetorno= listar(entityRepository.getReservacionActivo());
-			for (ReservacionCabecera f : lisRetorno) {
-				System.out.println("impr estadia "+f.getDescripcionCombo()+ " fehca entrada: "+f.getFechaEntrada());
-				// Fecha y hora de entrada
-		        LocalDateTime fechaEntrada = f.getFechaEntrada();
-		        System.out.println("DIA ENTRADA: "+fechaEntrada);
+	    // 🔹 Última ejecución registrada
+	    LocalDate ultimaEjecucion = seting.getFechaUltimaActualizacion();
+	    // 🔹 Ejecutar si no se hizo hoy
+	    boolean noEjecutadoHoy = (ultimaEjecucion == null || !ultimaEjecucion.equals(hoy));
+	    boolean pasoHoraCorte = ahoraHora.isAfter(horaCorte);
 
-		        // Fecha y hora actual (ahora)
-		        LocalDateTime ahora = LocalDateTime.now();
-		        System.out.println("hora ahora : "+ahora);
+	    if (noEjecutadoHoy && pasoHoraCorte) {
 
-		        // Calcular diferencia en días completos
-		        long diasEntre = ChronoUnit.DAYS.between(fechaEntrada.toLocalDate(), ahora.toLocalDate());
+	        System.out.println("✔ Ejecutando actualización de estadías...");
 
-		        // Si pasó del mediodía del último día, se suma un día más
-		        LocalTime horaActual = ahora.toLocalTime();
-		        if (horaActual.isAfter(LocalTime.NOON)) { // después de las 12:00
-		            diasEntre++;
-		        }
+	        // 🔹 Obtener todas las reservas activas
+	        List<ReservacionCabecera> reservas = listar(entityRepository.getReservacionActivo());
 
-		        // Si por algún motivo da 0, al menos es 1 día
-		        if (diasEntre < 1) {
-		            diasEntre = 1;
-		        }
-		        System.out.println("DIA ENTERO: "+diasEntre);
+	        for (ReservacionCabecera r : reservas) {
 
-		        // Actualizar estadía y totales
-		        f.setEstadia((int) diasEntre);
-		        f.setTotalHabitacion(f.getEstadia() * f.getPrecio());
-		        f.setTotal(f.getTotalHabitacion() + f.getTotalProducto());
-				entityRepository.actualizarEstadiaModificacionDiaria(f.getTotal(),f.getTotalHabitacion(), f.getEstadia(), f.getId());
+	            // 🔹 Calcular estadía total hasta hoy
+	            int estadia = calcularEstadia(r.getFechaEntrada(), LocalDateTime.now(), horaCorte);
 
-			}
-		} else {
-		    System.out.println("no conicide la hora configurada. "+ horaBD);
-		}
-		
-		
+	            // 🔹 Actualizar totales de la reserva
+	            r.setEstadia(estadia);
+	            r.setTotalHabitacion(estadia * r.getPrecio());
+	            r.setTotal(r.getTotalHabitacion() + r.getTotalProducto());
+
+	            // 🔹 Persistir cambios
+	            entityRepository.actualizarEstadiaModificacionDiaria(
+	                r.getTotal(),
+	                r.getTotalHabitacion(),
+	                r.getEstadia(),
+	                r.getId()
+	            );
+	        }
+
+	        // 🔹 Guardar la fecha de ejecución para evitar recalcular el mismo día
+	        seting.setFechaUltimaActualizacion(hoy);
+	        setingRepository.save(seting);
+
+	        System.out.println("✔ Actualización de estadías completada.");
+
+	    } else {
+	        System.out.println("⏳ Aún no corresponde ejecutar o ya se ejecutó hoy");
+	    }
 	}
 
+	/**
+	 * 🔹 Calcula la estadía tipo hotel hasta el momento actual
+	 * @param fechaEntrada Fecha y hora de ingreso del huésped
+	 * @param ahora Fecha y hora actual (o de cálculo)
+	 * @param horaCorte Hora de corte diaria (por ejemplo, 12:00)
+	 * @return Días de estadía contabilizados
+	 */
+	private int calcularEstadia(LocalDateTime fechaEntrada, LocalDateTime ahora, LocalTime horaCorte) {
+	    LocalDate entrada = fechaEntrada.toLocalDate();
+	    LocalDate actual = ahora.toLocalDate();
 
+	    long dias = ChronoUnit.DAYS.between(entrada, actual);
+
+	    // Siempre al menos 1 día
+	    dias = Math.max(dias, 1);
+
+	    // ⚠️ Sumar 1 día extra solo si la fecha es distinta a la de entrada y ya pasó la hora de corte
+	    if (!entrada.equals(actual) && ahora.toLocalTime().isAfter(horaCorte)) {
+	        dias++;
+	    }
+
+	    return (int) dias;
+	}
 	private List<ReservacionCabecera>listar(List<ReservacionCabecera> obj){
 		List<ReservacionCabecera> res=new ArrayList<>();
 		for(ReservacionCabecera ob:obj){

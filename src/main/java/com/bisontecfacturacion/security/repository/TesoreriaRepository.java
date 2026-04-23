@@ -58,7 +58,7 @@ public interface TesoreriaRepository extends JpaRepository<Tesoreria, Serializab
 	
 	
 	
-	@Query(value="select sum(v.total) as totalVenta from venta v inner join funcionario fun on fun.id=v.funcionario_id where v.estado='FACTURADO' and fun.id=:idFun and  v.fecha_factura >= :fecha_inicio AND v.fecha_factura <= :fecha_fin",nativeQuery=true)
+	@Query(value="select sum(v.total) as totalVenta from venta v inner join funcionario fun on fun.id=v.funcionariov_id where v.estado='FACTURADO' and fun.id=:idFun and  v.fecha_factura >= :fecha_inicio AND v.fecha_factura <= :fecha_fin",nativeQuery=true)
 	Object[][]  getInformeVentaFacturadoPorFuncionario(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFun") int idFun);
 	
 	@Query(value="select c.descripcion, sum(v.monto)as totalmontoconcepto from operacion_caja  v inner join concepto c on c.id=v.concepto_id inner join tipo_operacion tp on tp.id=v.tipo_operacion_id  where v.apertura_caja_id=:idApertura group by c.id",nativeQuery=true)

@@ -1,5 +1,6 @@
 package com.bisontecfacturacion.security.hoteleria.model;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import javax.persistence.Entity;
@@ -16,6 +17,7 @@ public class SetingRecepciones {
 	private int id;
 	private Boolean estadoSumaManualEstadia;
 	private LocalTime horaFinalizacionDiaria;
+	private LocalDate fechaUltimaActualizacion;
 	
 	// Getters y setters
     public int getId() {
@@ -26,7 +28,15 @@ public class SetingRecepciones {
         this.id = id;
     }
 
-    public Boolean getEstadoSumaManualEstadia() {
+    public LocalDate getFechaUltimaActualizacion() {
+		return fechaUltimaActualizacion;
+	}
+
+	public void setFechaUltimaActualizacion(LocalDate fechaUltimaActualizacion) {
+		this.fechaUltimaActualizacion = fechaUltimaActualizacion;
+	}
+
+	public Boolean getEstadoSumaManualEstadia() {
         return estadoSumaManualEstadia;
     }
 

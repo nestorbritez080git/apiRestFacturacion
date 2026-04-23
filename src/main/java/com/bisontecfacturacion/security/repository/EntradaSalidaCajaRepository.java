@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bisontecfacturacion.security.model.EntradaSalidaCaja;
+import com.bisontecfacturacion.security.model.OperacionCaja;
 
 @Transactional(readOnly=true)
 @Repository
@@ -21,9 +22,11 @@ public interface EntradaSalidaCajaRepository extends JpaRepository<EntradaSalida
 	List<EntradaSalidaCaja> getEntradaSalidaCajaFecha(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
 	public abstract EntradaSalidaCaja findTop1ByOrderByIdDesc();
 	@Modifying
-	@Transactional(readOnly=false)
-	@Query("update EntradaSalidaCaja set operacionCaja =:operacionCaja where id=:id")
-	public void findByActualizarEntradaSalidaCajaCabeceraOperacion(@Param("id") int id, @Param("operacionCaja") int operacionCaja);
+	@Transactional
+	@Query("update EntradaSalidaCaja set operacionCaja = :operacionCaja where id = :id")
+	void findByActualizarEntradaSalidaCajaCabeceraOperacion(
+	        @Param("id") int id,
+	        @Param("operacionCaja") OperacionCaja operacionCaja);
 	@Query("select c from EntradaSalidaCaja c where c.id=:id ")
 	public EntradaSalidaCaja getEntradaSalidaPorId(@Param("id") int id);
 	

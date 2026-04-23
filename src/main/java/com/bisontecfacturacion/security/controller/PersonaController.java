@@ -133,9 +133,9 @@ public class PersonaController {
 		List<Persona> lis= new ArrayList<>();
 		if(param==1){
 			if(descripcion.equals("9999999999")){
-			 lis=entityRepository.getListadoPersonaFuncionarioAll();
+			  lis=entityRepository.getListadoPersonaFuncionarioAll();
 			}else{
-				lis=entityRepository.getListadoPersonaFuncionario("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
+			  lis=entityRepository.getListadoPersonaFuncionario("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
 			}
 		}
 		if(param==2){
@@ -151,7 +151,6 @@ public class PersonaController {
 			}else{
 				lis=entityRepository.getListadoPersonaProveedor("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
 			}
-			
 		}
 		if(param==4){
 			if(descripcion.equals("9999999999")){
@@ -159,7 +158,6 @@ public class PersonaController {
 			}else{
 				lis=entityRepository.getListadoPersonaAlumno("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
 			}
-			
 		}
 		if(param==5){
 			if(descripcion.equals("9999999999")){
@@ -167,12 +165,8 @@ public class PersonaController {
 			}else{
 				lis=entityRepository.getListadoPersonaDocente("%"+Utilidades.eliminaCaracterIzqDer(descripcion.toUpperCase())+"%");
 			}
-			
 		}
-
-
 		return lis;
-
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/ejecutarLimpieza")
 	public void ejecutarLimpieza() {

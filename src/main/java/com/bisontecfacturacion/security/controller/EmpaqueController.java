@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.InformeCierreEmpaqueAuxiliar;
@@ -33,6 +34,7 @@ import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.model.Anticipo;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.Concepto;
+import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
 import com.bisontecfacturacion.security.model.DetallePresupuestoServicio;
 import com.bisontecfacturacion.security.model.DetalleProducto;
@@ -40,7 +42,10 @@ import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Documento;
 import com.bisontecfacturacion.security.model.EmpaqueCabecera;
 import com.bisontecfacturacion.security.model.EmpaqueDetalle;
+import com.bisontecfacturacion.security.model.NotaCredito;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCajaCabecera;
+import com.bisontecfacturacion.security.model.OrdenPagare;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Presupuesto;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
@@ -51,6 +56,7 @@ import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.EmpaqueCabeceraRepository;
 import com.bisontecfacturacion.security.repository.EmpaqueDetalleRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaCabeceraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.PresupuestoRepository;
@@ -65,31 +71,35 @@ import com.bisontecfacturacion.security.service.IUsuarioService;
 public class EmpaqueController {
 	private static Formatter ft;
 	private Reporte report;
-	
+
+
 	@Autowired
 	private EmpaqueCabeceraRepository entityRepository;
-	
+
 	@Autowired
 	private ConceptoRepository conceptoRepository;
-	
+
 	@Autowired
 	private AperturaCajaRepository aperturaRepository;
-	
+
 	@Autowired
 	private OperacionCajaRepository operacionCajaRepository;
-	
+
+	@Autowired
+	private OperacionCajaCabeceraRepository operacionCajaCabeceraRepository;
+
 	@Autowired
 	private VentaRepository ventaRepository;
-	
+
 	@Autowired
 	private VentaController ventaServiceController;
-	
+
 	@Autowired
 	private ProductoRepository productoRepository;
-	
+
 	@Autowired
 	private PresupuestoController presupuestoServiceController;
-	
+
 	@Autowired
 	private AperturaCajaRepository aperturaCajaRepository;
 	@Autowired
@@ -104,8 +114,8 @@ public class EmpaqueController {
 	private FuncionarioRepository funcionarioRepository;
 	@Autowired
 	private OrgRepository orgRepository;
-	
-	
+
+
 	@Autowired
 	private ReporteFormatoDatosRepository reporteFormatoDatosRepository;
 
@@ -183,20 +193,119 @@ public class EmpaqueController {
 	@Transactional
 	@RequestMapping(method = RequestMethod.GET, value = "/actualizarEmpaqueDetalleEstado/{id}/{estado}")
 	public ResponseEntity<?> actualizarEstadoEmpaqueDetalle(@PathVariable int id, @PathVariable String estado) {
-	    try {
-	        int rows = entityDetalleRepository.findByActualizarEstadoDetalleEmpaque(id, estado);
+		try {
+			int rows = entityDetalleRepository.findByActualizarEstadoDetalleEmpaque(id, estado);
 
-	        if (rows > 0) {
+			if (rows > 0) {
 				return new ResponseEntity<>(new CustomerErrorType("Empaque arreglo registrado"),HttpStatus.CREATED);
 
-	        } else {
+			} else {
 				return new ResponseEntity<>(new CustomerErrorType("No se ha podido actualizar estado"),HttpStatus.CONFLICT);
-        }
-	    } catch (Exception e) {
+			}
+		} catch (Exception e) {
 			return new ResponseEntity<>(new CustomerErrorType("No se ha podido actualizar estado"),HttpStatus.CONFLICT);
 
-	      
-	    }
+
+		}
+	}
+	@Transactional
+	public List<OperacionCaja> procesarOperacionCajaVentaPorEmpaque(Venta ent, List<OperacionCaja> listaOperacion) {
+
+		List<OperacionCaja> resultado = new ArrayList<>();
+
+		if (listaOperacion == null || listaOperacion.isEmpty()) {
+			throw new RuntimeException("No existen operaciones de caja para procesar");
+		}
+
+		// 🔥 Crear cabecera si todavía no existe
+		OperacionCajaCabecera cab = new OperacionCajaCabecera();
+		cab.setFecha(new Date());
+		cab.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+		cab.setReferenciaOperacion(ent.getId());
+		cab.getAperturaCaja().setId((listaOperacion.get(0).getAperturaCaja().getId()));
+		Concepto c = conceptoRepository.findById(listaOperacion.get(0).getConcepto().getId()).orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+		cab.setTipo("ENTRADA");
+		cab.setMotivo(c.getDescripcion()+" POR EMPAQUE REF.: "+ent.getId());
+		cab.getConcepto().setId(c.getId());
+		OperacionCajaCabecera savedCabecera = operacionCajaCabeceraRepository.save(cab);
+
+		for (OperacionCaja ope : listaOperacion) {
+			ope.setTipo("ENTRADA");
+			ope.setMotivo(c.getDescripcion()+" POR EMPAQUE REF.: "+ent.getId());
+			ope.setReferenciaOperacion(ent.getId());
+			ope.setFecha(new Date());
+			// 🔥 Asociar cabecera
+			ope.getOperacionCajaCabecera().setId(savedCabecera.getId());
+			// 🔥 Actualizar saldos según tipo operación
+			if (ope.getTipoOperacion().getId() == 1) {
+				aperturaCajaRepository.findByActualizarAperturaSaldo(ope.getAperturaCaja().getId(),ope.getMonto()
+						);
+			}
+			if (ope.getTipoOperacion().getId() == 2) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoCheque(ope.getAperturaCaja().getId(),ope.getMonto()
+						);
+			}
+			if (ope.getTipoOperacion().getId() == 3) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(ope.getAperturaCaja().getId(),ope.getMonto()
+						);
+			}
+			OperacionCaja saved = operacionCajaRepository.save(ope);
+
+			resultado.add(saved);
+		}
+		//actualiza el id de la operacion en referencia
+		ventaRepository.findByActualizarVentaOperacion(ent.getId(), savedCabecera.getId()
+				);
+		return resultado;
+	}
+	@Transactional
+	@RequestMapping(method=RequestMethod.POST, value = "/saveArregloFinalizacion/{idDetalleEmpaque}")
+	public ResponseEntity<?> guardarArregloFinalizacion(
+			@RequestPart("venta") Venta venta,
+			@RequestPart("operacionCaja") List<OperacionCaja> operacionCajaLista,
+			@RequestPart("cuentaCobrar") CuentaCobrarCabecera cuentaCobrarCabecera,
+			@PathVariable int idDetalleEmpaque) {
+		Venta savedRetotno = null;
+		OrdenPagare orRetotno = null;
+		CuentaCobrarCabecera cuRetotno= null;
+		List<CuentaCobrarCabecera> listRetorno= new ArrayList<>();
+		List<OperacionCaja> opRetotno = new ArrayList<>();
+		System.out.println("tipo: "+venta.getTipo()+" estado: "+ venta.getEstado());
+		// 1. Validar compra y detalles
+		ResponseEntity<?> validacionVenta = ventaServiceController.validarVenta(venta);
+		if (validacionVenta != null) return validacionVenta;
+
+		if (("1".equals(venta.getTipo()) || venta.getTipo().toLowerCase().equals("contado")) && "FACTURADO".equals(venta.getEstado())) {
+			System.out.println("entroo sistema de verificacion venta contado: ");
+			ResponseEntity<?> validacionCaja = ventaServiceController.validarCaja(operacionCajaLista);
+			if (validacionCaja != null) return validacionCaja;
+		} else if (("2".equals(venta.getTipo()) || venta.getTipo().toLowerCase().equals("credito")) && "FACTURADO".equals(venta.getEstado())) {
+			if (venta.getEntrega() > 0) {
+				ResponseEntity<?> validacionCajaEntrega = ventaServiceController.validarCaja(operacionCajaLista);
+				if (validacionCajaEntrega != null) return validacionCajaEntrega;
+			}
+			ResponseEntity<?> validacionCuenta = ventaServiceController.validarCuentaCobrar(cuentaCobrarCabecera);
+			if (validacionCuenta != null) return validacionCuenta;
+
+		}
+
+		savedRetotno = ventaRepository.save(venta);
+
+		if (("1".equals(savedRetotno.getTipo()) || savedRetotno.getTipo().toLowerCase().equals("contado")) && "FACTURADO".equals(venta.getEstado())) 
+		{
+			opRetotno =  procesarOperacionCajaVentaPorEmpaque(savedRetotno, operacionCajaLista);
+		} else if (("2".equals(venta.getTipo()) || venta.getTipo().toLowerCase().equals("credito")) && "FACTURADO".equals(venta.getEstado())) 
+		{
+			if (venta.getEntrega() > 0) {
+				opRetotno= procesarOperacionCajaVentaPorEmpaque(savedRetotno, operacionCajaLista);      	
+			}
+			cuRetotno = ventaServiceController.procesarCuentaCobrar(savedRetotno, cuentaCobrarCabecera);
+			orRetotno = ventaServiceController.procesarOrdenPagared(cuRetotno);
+			//listRetorno=  listadoCargarCuenta(cuentaCobrarRepository.findByCuentaPorIdClienteACobrarListasss(cuRetotno.getCliente().getId()));
+		}
+		//actualzia el estado del empaque detalle
+		entityDetalleRepository.findByActualizarEstadoDetalleEmpaque(idDetalleEmpaque, "TERMINADO");
+		return new ResponseEntity<>(savedRetotno, HttpStatus.CREATED);
 	}
 
 	@Transactional
@@ -473,187 +582,189 @@ public class EmpaqueController {
 	        return new ResponseEntity<>(new CustomerErrorType("ERROR: "+e.getMessage()), HttpStatus.CONFLICT);
 	    }
 	}
-	*/
+	 */
+
+
 	@Transactional
 	@RequestMapping(method = RequestMethod.POST, value = "/finalizarEmpaque/{numeroTerminal}")
 	public ResponseEntity<?> finalizarEmpaqueRefactorizado(@RequestBody EmpaqueCabecera entity, @PathVariable int numeroTerminal) {
-	    try {
-	        // Validaciones iniciales
-	        if(entity.getFuncionarioRegistro().getId() == 0) 
-	            return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-	        if(entity.getFuncionarioEmpaque().getId() == 0) 
-	            return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO EMPAQUE NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-	        if(entity.getZona().getId() == 0) 
-	            return new ResponseEntity<>(new CustomerErrorType("LA ZONA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
-	        if(entity.getEmpaqueDetalle().isEmpty()) 
-	            return new ResponseEntity<>(new CustomerErrorType("LA GRILLA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+		try {
+			// Validaciones iniciales
+			if(entity.getFuncionarioRegistro().getId() == 0) 
+				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+			if(entity.getFuncionarioEmpaque().getId() == 0) 
+				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO EMPAQUE NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+			if(entity.getZona().getId() == 0) 
+				return new ResponseEntity<>(new CustomerErrorType("LA ZONA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
+			if(entity.getEmpaqueDetalle().isEmpty()) 
+				return new ResponseEntity<>(new CustomerErrorType("LA GRILLA NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 
-	        // 🔹 Validar cada detalle del empaque
-	        for(int ind = 0; ind < entity.getEmpaqueDetalle().size(); ind++) {
-	            EmpaqueDetalle pro = entity.getEmpaqueDetalle().get(ind);
-	            
-	            System.out.println("PEDIDO ORDEN : "+(ind+1)+ " orden numero: "+pro.getPresupuesto().getTotal());
-	            pro.setItemsPedidoDetalle(
-	                pro.getPresupuesto().getDetallePresupuestoProducto().size() + 
-	                pro.getPresupuesto().getDetallePresupuestoServicio().size()
-	            );
+			// 🔹 Validar cada detalle del empaque
+			for(int ind = 0; ind < entity.getEmpaqueDetalle().size(); ind++) {
+				EmpaqueDetalle pro = entity.getEmpaqueDetalle().get(ind);
 
-	            if(pro.getPresupuesto().getId() == 0) {
-	                return new ResponseEntity<>(new CustomerErrorType(
-	                    "EL PRESUPUESTO NO SE LLEGÓ A CARGAR CORRECTAMENTE ITEM N°: " + (ind+1)
-	                ), HttpStatus.CONFLICT);
-	            }
-	            if(pro.getPresupuesto().getDetallePresupuestoProducto().isEmpty()) {
-	                return new ResponseEntity<>(new CustomerErrorType(
-	                    "EL PRESUPUESTO DEBE TENER AL MENOS UN DETALLE ITEM N°: " + (ind+1)
-	                ), HttpStatus.CONFLICT);
-	            }
-	        }
+				System.out.println("PEDIDO ORDEN : "+(ind+1)+ " orden numero: "+pro.getPresupuesto().getTotal());
+				pro.setItemsPedidoDetalle(
+						pro.getPresupuesto().getDetallePresupuestoProducto().size() + 
+						pro.getPresupuesto().getDetallePresupuestoServicio().size()
+						);
 
-	        // Ajustes de campos
-	        if(entity.getObs() != null) entity.setObs(entity.getObs().toUpperCase());
-	        if(entity.getTotalLetras() == null || entity.getTotalLetras().trim().equals("")) 
-	            entity.setTotalLetras(NumerosALetras.convertirNumeroALetras(entity.getTotal()));
-	        if(entity.getFechaRegistro() == null) entity.setFechaRegistro(LocalDateTime.now());
-	        if(entity.getFechaEntrega() == null) entity.setFechaEntrega(new Date());
+				if(pro.getPresupuesto().getId() == 0) {
+					return new ResponseEntity<>(new CustomerErrorType(
+							"EL PRESUPUESTO NO SE LLEGÓ A CARGAR CORRECTAMENTE ITEM N°: " + (ind+1)
+							), HttpStatus.CONFLICT);
+				}
+				if(pro.getPresupuesto().getDetallePresupuestoProducto().isEmpty()) {
+					return new ResponseEntity<>(new CustomerErrorType(
+							"EL PRESUPUESTO DEBE TENER AL MENOS UN DETALLE ITEM N°: " + (ind+1)
+							), HttpStatus.CONFLICT);
+				}
+			}
 
-	        double totalGeneralEmpaque = 0.0;
-	        int totalItemsEmpaque = 0;
-	        boolean algunDetalleGenerado = false;
+			// Ajustes de campos
+			if(entity.getObs() != null) entity.setObs(entity.getObs().toUpperCase());
+			if(entity.getTotalLetras() == null || entity.getTotalLetras().trim().equals("")) 
+				entity.setTotalLetras(NumerosALetras.convertirNumeroALetras(entity.getTotal()));
+			if(entity.getFechaRegistro() == null) entity.setFechaRegistro(LocalDateTime.now());
+			if(entity.getFechaEntrega() == null) entity.setFechaEntrega(new Date());
 
-	        // Procesar cada detalle de empaque
-	        for(EmpaqueDetalle deta : entity.getEmpaqueDetalle()) {
-	            Presupuesto p = deta.getPresupuesto();
-	            deta.getEmpaqueCabecera().setId(entity.getId());
+			double totalGeneralEmpaque = 0.0;
+			int totalItemsEmpaque = 0;
+			boolean algunDetalleGenerado = false;
 
-	            // Crear venta parcial solo si hay stock
-	            Venta preVenta = new Venta();
-	            preVenta.setCliente(p.getCliente());
-	            preVenta.setFuncionarioR(entity.getFuncionarioEmpaque());
-	            preVenta.setFuncionarioV(p.getFuncionario());
-	            preVenta.setFuncionario(entity.getFuncionarioRegistro());
-	            preVenta.setFecha(new Date());
-	            Documento doc = new Documento();
-	            doc.setId(3); // TICKET
-	            doc.setDescripcion("false");
-	            preVenta.setDocumento(doc);
-	            preVenta.setZona(p.getZona());
-	            preVenta.setEstado("PREVENTA");
-	            preVenta.setTipo(deta.getCondicion());
+			// Procesar cada detalle de empaque
+			for(EmpaqueDetalle deta : entity.getEmpaqueDetalle()) {
+				Presupuesto p = deta.getPresupuesto();
+				deta.getEmpaqueCabecera().setId(entity.getId());
 
-	            List<DetalleProducto> dpRetorno = new ArrayList<>();
-	            List<DetalleServicios> dsRetorno = new ArrayList<>();
-	            double subTotalDetalleFacturados = 0.0;
-	            int cantidadItemsDetalles = 0;
+				// Crear venta parcial solo si hay stock
+				Venta preVenta = new Venta();
+				preVenta.setCliente(p.getCliente());
+				preVenta.setFuncionarioR(entity.getFuncionarioEmpaque());
+				preVenta.setFuncionarioV(p.getFuncionario());
+				preVenta.setFuncionario(entity.getFuncionarioRegistro());
+				preVenta.setFecha(new Date());
+				Documento doc = new Documento();
+				doc.setId(3); // TICKET
+				doc.setDescripcion("false");
+				preVenta.setDocumento(doc);
+				preVenta.setZona(p.getZona());
+				preVenta.setEstado("PREVENTA");
+				preVenta.setTipo(deta.getCondicion());
 
-	            // Productos
-	            for(DetallePresupuestoProducto detPresupuesto : p.getDetallePresupuestoProducto()) {
-	                double stockActual = productoRepository.getStockActual(detPresupuesto.getProducto().getId());
-	                double cantidadAFacturar = Math.min(detPresupuesto.getCantidad(), stockActual);
-	                if(cantidadAFacturar <= 0) continue;
+				List<DetalleProducto> dpRetorno = new ArrayList<>();
+				List<DetalleServicios> dsRetorno = new ArrayList<>();
+				double subTotalDetalleFacturados = 0.0;
+				int cantidadItemsDetalles = 0;
 
-	                DetalleProducto dp = new DetalleProducto();
-	                dp.setVenta(preVenta);
-	                dp.setProducto(detPresupuesto.getProducto());
-	                dp.setCantidad(cantidadAFacturar);
-	                dp.setDescripcion(detPresupuesto.getDescripcion());
-	                dp.setCosto(detPresupuesto.getProducto().getPrecioCosto());
-	                dp.setCostoPromedio(detPresupuesto.getProducto().getPrecioCosto());
-	                dp.setSubTotal((cantidadAFacturar * detPresupuesto.getPrecio())-(detPresupuesto.getDescuento()*cantidadAFacturar));
-	                dp.setDescuento(detPresupuesto.getDescuento());
-	                dp.setIsBalanza(detPresupuesto.getIsBalanza());
-	                dp.setIva(detPresupuesto.getIva());
-	                dp.setPrecio(detPresupuesto.getPrecio());
-	                dp.setMontoIva(detPresupuesto.getMontoIva());
-	                dp.setTipoPrecio(detPresupuesto.getTipoPrecio());
-	                subTotalDetalleFacturados += dp.getSubTotal();
-	                cantidadItemsDetalles++;
-	                dpRetorno.add(dp);
-	            }
+				// Productos
+				for(DetallePresupuestoProducto detPresupuesto : p.getDetallePresupuestoProducto()) {
+					double stockActual = productoRepository.getStockActual(detPresupuesto.getProducto().getId());
+					double cantidadAFacturar = Math.min(detPresupuesto.getCantidad(), stockActual);
+					if(cantidadAFacturar <= 0) continue;
 
-	            // Servicios
-	            for(DetallePresupuestoServicio ds : p.getDetallePresupuestoServicio()) {
-	                if(ds.getCantidad() <= 0) continue;
+					DetalleProducto dp = new DetalleProducto();
+					dp.setVenta(preVenta);
+					dp.setProducto(detPresupuesto.getProducto());
+					dp.setCantidad(cantidadAFacturar);
+					dp.setDescripcion(detPresupuesto.getDescripcion());
+					dp.setCosto(detPresupuesto.getProducto().getPrecioCosto());
+					dp.setCostoPromedio(detPresupuesto.getProducto().getPrecioCosto());
+					dp.setSubTotal((cantidadAFacturar * detPresupuesto.getPrecio())-(detPresupuesto.getDescuento()*cantidadAFacturar));
+					dp.setDescuento(detPresupuesto.getDescuento());
+					dp.setIsBalanza(detPresupuesto.getIsBalanza());
+					dp.setIva(detPresupuesto.getIva());
+					dp.setPrecio(detPresupuesto.getPrecio());
+					dp.setMontoIva(detPresupuesto.getMontoIva());
+					dp.setTipoPrecio(detPresupuesto.getTipoPrecio());
+					subTotalDetalleFacturados += dp.getSubTotal();
+					cantidadItemsDetalles++;
+					dpRetorno.add(dp);
+				}
 
-	                DetalleServicios dps = new DetalleServicios();
-	                dps.setServicio(ds.getServicio());
-	                dps.setCantidad(ds.getCantidad());
-	                dps.setPrecio(ds.getPrecio());
-	                dps.setDescripcion(ds.getDescripcion());
-	                dps.setIva(ds.getIva());
-	                dps.setMontoIva(ds.getMontoIva());
-	                dps.setSubTotal(ds.getSubTotal());
-	                dps.setFuncionario(ds.getFuncionario());
-	                dps.setObs(ds.getObs());
+				// Servicios
+				for(DetallePresupuestoServicio ds : p.getDetallePresupuestoServicio()) {
+					if(ds.getCantidad() <= 0) continue;
 
-	                subTotalDetalleFacturados += ds.getCantidad() * ds.getPrecio();
-	                cantidadItemsDetalles++;
-	                dsRetorno.add(dps);
-	            }
+					DetalleServicios dps = new DetalleServicios();
+					dps.setServicio(ds.getServicio());
+					dps.setCantidad(ds.getCantidad());
+					dps.setPrecio(ds.getPrecio());
+					dps.setDescripcion(ds.getDescripcion());
+					dps.setIva(ds.getIva());
+					dps.setMontoIva(ds.getMontoIva());
+					dps.setSubTotal(ds.getSubTotal());
+					dps.setFuncionario(ds.getFuncionario());
+					dps.setObs(ds.getObs());
 
-	            // Guardar venta solo si hay productos o servicios
-	            if(!dpRetorno.isEmpty() || !dsRetorno.isEmpty()) {
-	                preVenta.setTotal(subTotalDetalleFacturados);
-	                preVenta.setDetalleProducto(dpRetorno);
-	                preVenta.setDetalleServicio(dsRetorno);
-	                preVenta.setTotalLetra(NumerosALetras.convertirNumeroALetras(subTotalDetalleFacturados));
+					subTotalDetalleFacturados += ds.getCantidad() * ds.getPrecio();
+					cantidadItemsDetalles++;
+					dsRetorno.add(dps);
+				}
 
-	                ResponseEntity<?> response = ventaServiceController.guardar(preVenta, numeroTerminal);
-	                Object body = response.getBody();
-	                if(body instanceof Venta) {
-	                    Venta vcv = (Venta) body;
-	                    if(vcv.getId() <= 0) 
-	                        return new ResponseEntity<>(new CustomerErrorType("ERROR AL GENERAR VENTA EN EMPAQUE DETALLE: " + deta.getId()), HttpStatus.CONFLICT);
+				// Guardar venta solo si hay productos o servicios
+				if(!dpRetorno.isEmpty() || !dsRetorno.isEmpty()) {
+					preVenta.setTotal(subTotalDetalleFacturados);
+					preVenta.setDetalleProducto(dpRetorno);
+					preVenta.setDetalleServicio(dsRetorno);
+					preVenta.setTotalLetra(NumerosALetras.convertirNumeroALetras(subTotalDetalleFacturados));
 
-	                    // Actualizar detalle con subtotal real y referencia a la venta
-	                    deta.setVentaReferencia(vcv.getId());
-	                    deta.setVenta(vcv);
-	                    deta.setSubtotalVenta(subTotalDetalleFacturados);
-	                    deta.setItemsVentaDetalle(cantidadItemsDetalles);
-	                    entityDetalleRepository.save(deta);
+					ResponseEntity<?> response = ventaServiceController.guardar(preVenta, numeroTerminal);
+					Object body = response.getBody();
+					if(body instanceof Venta) {
+						Venta vcv = (Venta) body;
+						if(vcv.getId() <= 0) 
+							return new ResponseEntity<>(new CustomerErrorType("ERROR AL GENERAR VENTA EN EMPAQUE DETALLE: " + deta.getId()), HttpStatus.CONFLICT);
 
-	                    // Cerrar presupuesto
-	                    //p.setEstado("CERRADO");
-	                    presupuestoRepository.cambiarEstado(p.getId(),"CERRADO");
+						// Actualizar detalle con subtotal real y referencia a la venta
+						deta.setVentaReferencia(vcv.getId());
+						deta.setVenta(vcv);
+						deta.setSubtotalVenta(subTotalDetalleFacturados);
+						deta.setItemsVentaDetalle(cantidadItemsDetalles);
+						entityDetalleRepository.save(deta);
 
-	                    totalGeneralEmpaque += subTotalDetalleFacturados;
-	                    totalItemsEmpaque++;
-	                    deta.setSubtotalVenta(subTotalDetalleFacturados);
-	                    deta.setItemsVentaDetalle(totalItemsEmpaque);
-	                    algunDetalleGenerado = true;
-	                } else if(body instanceof CustomerErrorType) {
-	                    return new ResponseEntity<>(body, HttpStatus.CONFLICT);
-	                } else {
-	                    return new ResponseEntity<>(new CustomerErrorType("RESPUESTA DESCONOCIDA AL GENERAR VENTA"), HttpStatus.INTERNAL_SERVER_ERROR);
-	                }
-	            } else {
-	                // No se generó venta, mantener subtotal en 0 y guardar detalle
-	                //deta.setSubtotalPresupuesto(0.0);
-	                //deta.setItemsPedidoDetalle(0);
-	                //entityDetalleRepository.save(deta);
-	            }
-	        }
+						// Cerrar presupuesto
+						//p.setEstado("CERRADO");
+						presupuestoRepository.cambiarEstado(p.getId(),"CERRADO");
 
-	        if(!algunDetalleGenerado) {
-	            return new ResponseEntity<>(new CustomerErrorType(
-	                    "NO SE PUDO FINALIZAR NINGUNA VENTA PARA ESTE EMPAQUE POR FALTA DE STOCK"), HttpStatus.CONFLICT);
-	        }
+						totalGeneralEmpaque += subTotalDetalleFacturados;
+						totalItemsEmpaque++;
+						deta.setSubtotalVenta(subTotalDetalleFacturados);
+						deta.setItemsVentaDetalle(totalItemsEmpaque);
+						algunDetalleGenerado = true;
+					} else if(body instanceof CustomerErrorType) {
+						return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+					} else {
+						return new ResponseEntity<>(new CustomerErrorType("RESPUESTA DESCONOCIDA AL GENERAR VENTA"), HttpStatus.INTERNAL_SERVER_ERROR);
+					}
+				} else {
+					// No se generó venta, mantener subtotal en 0 y guardar detalle
+					//deta.setSubtotalPresupuesto(0.0);
+					//deta.setItemsPedidoDetalle(0);
+					//entityDetalleRepository.save(deta);
+				}
+			}
 
-	        // Guardar cabecera con totales finales
-	        //entity.setTotal(totalGeneralEmpaque);
-	        //entity.setItemsPedido(totalItemsEmpaque);
-	        entity.setTotalFinalizado(totalGeneralEmpaque);
-	        entity.setItemsVenta(totalItemsEmpaque);
-	        entity.setTotalLetras(NumerosALetras.convertirNumeroALetras(totalGeneralEmpaque));
-	        entity.setEstado("CERRADO");
-	        entity = entityRepository.save(entity);
+			if(!algunDetalleGenerado) {
+				return new ResponseEntity<>(new CustomerErrorType(
+						"NO SE PUDO FINALIZAR NINGUNA VENTA PARA ESTE EMPAQUE POR FALTA DE STOCK"), HttpStatus.CONFLICT);
+			}
 
-	        return new ResponseEntity<>(entity, HttpStatus.CREATED);
+			// Guardar cabecera con totales finales
+			//entity.setTotal(totalGeneralEmpaque);
+			//entity.setItemsPedido(totalItemsEmpaque);
+			entity.setTotalFinalizado(totalGeneralEmpaque);
+			entity.setItemsVenta(totalItemsEmpaque);
+			entity.setTotalLetras(NumerosALetras.convertirNumeroALetras(totalGeneralEmpaque));
+			entity.setEstado("CERRADO");
+			entity = entityRepository.save(entity);
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return new ResponseEntity<>(new CustomerErrorType("ERROR: "+e.getMessage()), HttpStatus.CONFLICT);
-	    }
+			return new ResponseEntity<>(entity, HttpStatus.CREATED);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new CustomerErrorType("ERROR: "+e.getMessage()), HttpStatus.CONFLICT);
+		}
 	}
 
 	private List<Anticipo>cargarListado(List<Object[]> lista){
@@ -698,9 +809,9 @@ public class EmpaqueController {
 		}else {
 			return new ResponseEntity<>(v, HttpStatus.OK); 
 		}
-		
+
 	}
-	
+
 	@RequestMapping(method=RequestMethod.DELETE, value="/eliminar/{id}")
 	public ResponseEntity<?> eliminarEmpaqueCabecera(@PathVariable int id){
 		EmpaqueCabecera v=null;
@@ -717,8 +828,8 @@ public class EmpaqueController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-			return new ResponseEntity<>(v, HttpStatus.OK); 
-		
+		return new ResponseEntity<>(v, HttpStatus.OK); 
+
 	}
 
 	@RequestMapping(method=RequestMethod.POST, value="/eliminarEmpaqueDetalle")
@@ -750,38 +861,38 @@ public class EmpaqueController {
 		List<ResumenEmpaqueDetalle> lisResumenRetorno =  new ArrayList<ResumenEmpaqueDetalle>();
 		if(lisResumen.size()>0){
 			for (int i = 0; i < lisResumen.size(); i++) {
-			ResumenEmpaqueDetalle d = new ResumenEmpaqueDetalle();
-			d.setIdProducto(Integer.parseInt(lisResumen.get(i)[0].toString()));
-			d.setDescripcion(lisResumen.get(i)[1].toString());
-			d.setMarca(lisResumen.get(i)[2].toString());
-			d.setCantidad(Double.parseDouble(lisResumen.get(i)[3].toString()));
-			lisResumenRetorno.add(d);
-		}
+				ResumenEmpaqueDetalle d = new ResumenEmpaqueDetalle();
+				d.setIdProducto(Integer.parseInt(lisResumen.get(i)[0].toString()));
+				d.setDescripcion(lisResumen.get(i)[1].toString());
+				d.setMarca(lisResumen.get(i)[2].toString());
+				d.setCantidad(Double.parseDouble(lisResumen.get(i)[3].toString()));
+				lisResumenRetorno.add(d);
+			}
 			try {
-			Map<String, Object> map = new HashMap<>();
-			map.put("org", ""+org.getNombre());
-			map.put("direccion", ""+org.getDireccion());
-			map.put("ruc", ""+org.getRuc());
-			map.put("telefono", ""+org.getTelefono());
-			map.put("ciudad", ""+org.getCiudad());
-			map.put("pais", ""+org.getPais());
-			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
-			//Datos del empaque
-			map.put("funcionarioEmpaque", "[ "+ep.getFuncionarioRegistro().getPersona().getCedula()+" ] "+ep.getFuncionarioRegistro().getPersona().getNombre()+ " "+ep.getFuncionarioRegistro().getPersona().getApellido());
+				Map<String, Object> map = new HashMap<>();
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+				//Datos del empaque
+				map.put("funcionarioEmpaque", "[ "+ep.getFuncionarioRegistro().getPersona().getCedula()+" ] "+ep.getFuncionarioRegistro().getPersona().getNombre()+ " "+ep.getFuncionarioRegistro().getPersona().getApellido());
 
-			map.put("fechaEmpaque", ep.getFechaRegistro());
-			map.put("zonaEmpaque", "[ "+ep.getZona().getId()+" ] "+ep.getZona().getDescripcion());
-			map.put("itemsEmpaque", ep.getItemsPedido());
-			map.put("totalEmpaque", ep.getTotal());
-			map.put("obsEmpaque", ep.getObs()+"");
-			map.put("letrasEmpaque", ep.getTotalLetras()+"");
-			map.put("idEmpaque", ep.getId());
-			report = new Reporte();
-			report.reportPDFDescarga(lisResumenRetorno, map, "ReporteEmpaqueResumenPdf", response);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
-		}
+				map.put("fechaEmpaque", ep.getFechaRegistro());
+				map.put("zonaEmpaque", "[ "+ep.getZona().getId()+" ] "+ep.getZona().getDescripcion());
+				map.put("itemsEmpaque", ep.getItemsPedido());
+				map.put("totalEmpaque", ep.getTotal());
+				map.put("obsEmpaque", ep.getObs()+"");
+				map.put("letrasEmpaque", ep.getTotalLetras()+"");
+				map.put("idEmpaque", ep.getId());
+				report = new Reporte();
+				report.reportPDFDescarga(lisResumenRetorno, map, "ReporteEmpaqueResumenPdf", response);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+			}
 		}else {
 			return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 		}
@@ -791,192 +902,192 @@ public class EmpaqueController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.GET, value="/finalizar/{idEmpaque}/{idApertura}/{idTipoOperacion}/{numeroTerminal}")
 	public ResponseEntity<?> finalizarEmpaque(
-	        @PathVariable int idEmpaque,
-	        @PathVariable int idApertura,
-	        @PathVariable int idTipoOperacion,
-	        @PathVariable int numeroTerminal) {
+			@PathVariable int idEmpaque,
+			@PathVariable int idApertura,
+			@PathVariable int idTipoOperacion,
+			@PathVariable int numeroTerminal) {
 
-	    try {
-	        EmpaqueCabecera emp = entityRepository.findById(idEmpaque).orElse(null);
-	        AperturaCaja apertura = aperturaCajaRepository.findById(idApertura).orElse(null);
+		try {
+			EmpaqueCabecera emp = entityRepository.findById(idEmpaque).orElse(null);
+			AperturaCaja apertura = aperturaCajaRepository.findById(idApertura).orElse(null);
 
-	        if (emp == null) {
-	            return new ResponseEntity<>(new CustomerErrorType(
-	                    "NO SE ENCONTRÓ EMPAQUE CON EL NÚMERO: " + idEmpaque), HttpStatus.CONFLICT);
-	        }
-	        if (apertura == null) {
-	            return new ResponseEntity<>(new CustomerErrorType(
-	                    "NO SE ENCONTRÓ APERTURA CAJA CON EL NÚMERO: " + idApertura), HttpStatus.CONFLICT);
-	        }
-	        List<EmpaqueDetalle> detalleEmpaque = new ArrayList<>(emp.getEmpaqueDetalle()); // Evitar ConcurrentModificationException
-	        double totalGeneralEmpaque = 0.0;
-	        int totalItemsEmpaque = 0;
-	        boolean algunaVentaGenerada = false;
+			if (emp == null) {
+				return new ResponseEntity<>(new CustomerErrorType(
+						"NO SE ENCONTRÓ EMPAQUE CON EL NÚMERO: " + idEmpaque), HttpStatus.CONFLICT);
+			}
+			if (apertura == null) {
+				return new ResponseEntity<>(new CustomerErrorType(
+						"NO SE ENCONTRÓ APERTURA CAJA CON EL NÚMERO: " + idApertura), HttpStatus.CONFLICT);
+			}
+			List<EmpaqueDetalle> detalleEmpaque = new ArrayList<>(emp.getEmpaqueDetalle()); // Evitar ConcurrentModificationException
+			double totalGeneralEmpaque = 0.0;
+			int totalItemsEmpaque = 0;
+			boolean algunaVentaGenerada = false;
 
-	        Iterator<EmpaqueDetalle> iteratorDetalle = detalleEmpaque.iterator();
-	        while (iteratorDetalle.hasNext()) {
-	            EmpaqueDetalle det = iteratorDetalle.next();
-	            Presupuesto p = det.getPresupuesto();
+			Iterator<EmpaqueDetalle> iteratorDetalle = detalleEmpaque.iterator();
+			while (iteratorDetalle.hasNext()) {
+				EmpaqueDetalle det = iteratorDetalle.next();
+				Presupuesto p = det.getPresupuesto();
 
-	            Venta preVenta = new Venta();
-	            preVenta.setCliente(p.getCliente());
-	            preVenta.setFuncionarioR(emp.getFuncionarioEmpaque());
-	            preVenta.setFuncionarioV(p.getFuncionario());
-	            preVenta.setFuncionario(emp.getFuncionarioRegistro());
-	            preVenta.setFecha(new Date());
-	            Documento doc = new Documento();
-	            doc.setId(3); // TICKET
-	            doc.setDescripcion("false");
-	            preVenta.setDocumento(doc); // TICKET DOCUMENTO
-	            preVenta.setZona(p.getZona());
-	            preVenta.setEstado("FACTURADO");
-	            preVenta.setTipo("CONTADO");
-	            //.getDocumento().setDescripcion("false");
+				Venta preVenta = new Venta();
+				preVenta.setCliente(p.getCliente());
+				preVenta.setFuncionarioR(emp.getFuncionarioEmpaque());
+				preVenta.setFuncionarioV(p.getFuncionario());
+				preVenta.setFuncionario(emp.getFuncionarioRegistro());
+				preVenta.setFecha(new Date());
+				Documento doc = new Documento();
+				doc.setId(3); // TICKET
+				doc.setDescripcion("false");
+				preVenta.setDocumento(doc); // TICKET DOCUMENTO
+				preVenta.setZona(p.getZona());
+				preVenta.setEstado("FACTURADO");
+				preVenta.setTipo("CONTADO");
+				//.getDocumento().setDescripcion("false");
 
-	            List<DetalleProducto> dpRetorno = new ArrayList<>();
-	            List<DetalleServicios> dsRetorno = new ArrayList<>();
-	            double subTotalDetalleFacturado = 0.0;
-	            int cantidadItemsDetalle = 0;
+				List<DetalleProducto> dpRetorno = new ArrayList<>();
+				List<DetalleServicios> dsRetorno = new ArrayList<>();
+				double subTotalDetalleFacturado = 0.0;
+				int cantidadItemsDetalle = 0;
 
-	            // Productos con stock
-	            for (DetallePresupuestoProducto detPresupuesto : p.getDetallePresupuestoProducto()) {
-	                double stockActual = productoRepository.getStockActual(detPresupuesto.getProducto().getId());
-	                double cantidadAFacturar = Math.min(detPresupuesto.getCantidad(), stockActual);
+				// Productos con stock
+				for (DetallePresupuestoProducto detPresupuesto : p.getDetallePresupuestoProducto()) {
+					double stockActual = productoRepository.getStockActual(detPresupuesto.getProducto().getId());
+					double cantidadAFacturar = Math.min(detPresupuesto.getCantidad(), stockActual);
 
-	                if (cantidadAFacturar <= 0) continue;
+					if (cantidadAFacturar <= 0) continue;
 
-	                DetalleProducto dp = new DetalleProducto();
-	                dp.setVenta(preVenta);
-	                dp.setProducto(detPresupuesto.getProducto());
-	                dp.setCantidad(cantidadAFacturar);
-	                dp.setDescripcion(detPresupuesto.getDescripcion());
-	                dp.setCosto(detPresupuesto.getProducto().getPrecioCosto());
-	                dp.setCostoPromedio(detPresupuesto.getProducto().getPrecioCosto());
-	                dp.setSubTotal(cantidadAFacturar * detPresupuesto.getPrecio());
-	                dp.setDescuento(detPresupuesto.getDescuento());
-	                dp.setIsBalanza(detPresupuesto.getIsBalanza());
-	                dp.setIva(detPresupuesto.getIva());
-	                dp.setPrecio(detPresupuesto.getPrecio());
-	                dp.setMontoIva(detPresupuesto.getMontoIva());
-	                dp.setTipoPrecio(detPresupuesto.getTipoPrecio());
+					DetalleProducto dp = new DetalleProducto();
+					dp.setVenta(preVenta);
+					dp.setProducto(detPresupuesto.getProducto());
+					dp.setCantidad(cantidadAFacturar);
+					dp.setDescripcion(detPresupuesto.getDescripcion());
+					dp.setCosto(detPresupuesto.getProducto().getPrecioCosto());
+					dp.setCostoPromedio(detPresupuesto.getProducto().getPrecioCosto());
+					dp.setSubTotal(cantidadAFacturar * detPresupuesto.getPrecio());
+					dp.setDescuento(detPresupuesto.getDescuento());
+					dp.setIsBalanza(detPresupuesto.getIsBalanza());
+					dp.setIva(detPresupuesto.getIva());
+					dp.setPrecio(detPresupuesto.getPrecio());
+					dp.setMontoIva(detPresupuesto.getMontoIva());
+					dp.setTipoPrecio(detPresupuesto.getTipoPrecio());
 
-	                subTotalDetalleFacturado += dp.getSubTotal();
-	                cantidadItemsDetalle++;
-	                dpRetorno.add(dp);
-	            }
+					subTotalDetalleFacturado += dp.getSubTotal();
+					cantidadItemsDetalle++;
+					dpRetorno.add(dp);
+				}
 
-	            // Servicios
-	            for (DetallePresupuestoServicio ds : p.getDetallePresupuestoServicio()) {
-	                if (ds.getCantidad() <= 0) continue; // Solo considerar servicios con cantidad > 0
+				// Servicios
+				for (DetallePresupuestoServicio ds : p.getDetallePresupuestoServicio()) {
+					if (ds.getCantidad() <= 0) continue; // Solo considerar servicios con cantidad > 0
 
-	                DetalleServicios dps = new DetalleServicios();
-	                dps.setServicio(ds.getServicio());
-	                dps.setCantidad(ds.getCantidad());
-	                dps.setPrecio(ds.getPrecio());
-	                dps.setDescripcion(ds.getDescripcion());
-	                dps.setIva(ds.getIva());
-	                dps.setMontoIva(ds.getMontoIva());
-	                dps.setSubTotal(ds.getSubTotal());
-	                dps.setFuncionario(ds.getFuncionario());
-	                dps.setObs(ds.getObs());
+					DetalleServicios dps = new DetalleServicios();
+					dps.setServicio(ds.getServicio());
+					dps.setCantidad(ds.getCantidad());
+					dps.setPrecio(ds.getPrecio());
+					dps.setDescripcion(ds.getDescripcion());
+					dps.setIva(ds.getIva());
+					dps.setMontoIva(ds.getMontoIva());
+					dps.setSubTotal(ds.getSubTotal());
+					dps.setFuncionario(ds.getFuncionario());
+					dps.setObs(ds.getObs());
 
-	                subTotalDetalleFacturado += ds.getCantidad() * ds.getPrecio();
-	                cantidadItemsDetalle++;
-	                dsRetorno.add(dps);
-	            }
+					subTotalDetalleFacturado += ds.getCantidad() * ds.getPrecio();
+					cantidadItemsDetalle++;
+					dsRetorno.add(dps);
+				}
 
-	            // Si no hay productos ni servicios con stock, eliminar detalle de empaque
-	            if (dpRetorno.isEmpty() && dsRetorno.isEmpty()) {
-	                iteratorDetalle.remove();
-	                continue;
-	            }
+				// Si no hay productos ni servicios con stock, eliminar detalle de empaque
+				if (dpRetorno.isEmpty() && dsRetorno.isEmpty()) {
+					iteratorDetalle.remove();
+					continue;
+				}
 
-	            preVenta.setTotal(subTotalDetalleFacturado);
-	            preVenta.setDetalleProducto(dpRetorno);
-	            preVenta.setDetalleServicio(dsRetorno);
-	            preVenta.setTotalLetra(NumerosALetras.convertirNumeroALetras(subTotalDetalleFacturado));
+				preVenta.setTotal(subTotalDetalleFacturado);
+				preVenta.setDetalleProducto(dpRetorno);
+				preVenta.setDetalleServicio(dsRetorno);
+				preVenta.setTotalLetra(NumerosALetras.convertirNumeroALetras(subTotalDetalleFacturado));
 				//System.out.println("nuep total letras: "+ entity.getTotalLetra());
 
-	            // Guardar venta
-	            ResponseEntity<?> response = ventaServiceController.guardar(preVenta, numeroTerminal);
-	            Object body = response.getBody();
-	            Venta vcv = null;
-	            if (body instanceof Venta) {
-	              vcv= (Venta) body;
-	                if (vcv.getId() <= 0) {
-	                    return new ResponseEntity<>(new CustomerErrorType(
-	                            "HUBO UN ERROR AL GENERAR VENTA POR EL EMPAQUE DETALLE NÚMERO: " + det.getId()),
-	                            HttpStatus.CONFLICT);
-	                }
-	                det.setVentaReferencia(vcv.getId());
-		            if (det.getVenta() == null) det.setVenta(new Venta());
-		            det.setVenta(vcv);
-		            System.out.println("numero documento generado:  "+vcv.getNroDocumento());
-		            det.setSubtotalPresupuesto(subTotalDetalleFacturado);
-		            det.setItemsPedidoDetalle(cantidadItemsDetalle);
-		            entityDetalleRepository.save(det);
+				// Guardar venta
+				ResponseEntity<?> response = ventaServiceController.guardar(preVenta, numeroTerminal);
+				Object body = response.getBody();
+				Venta vcv = null;
+				if (body instanceof Venta) {
+					vcv= (Venta) body;
+					if (vcv.getId() <= 0) {
+						return new ResponseEntity<>(new CustomerErrorType(
+								"HUBO UN ERROR AL GENERAR VENTA POR EL EMPAQUE DETALLE NÚMERO: " + det.getId()),
+								HttpStatus.CONFLICT);
+					}
+					det.setVentaReferencia(vcv.getId());
+					if (det.getVenta() == null) det.setVenta(new Venta());
+					det.setVenta(vcv);
+					System.out.println("numero documento generado:  "+vcv.getNroDocumento());
+					det.setSubtotalPresupuesto(subTotalDetalleFacturado);
+					det.setItemsPedidoDetalle(cantidadItemsDetalle);
+					entityDetalleRepository.save(det);
 
-		            // Actualizar presupuesto
-		            p.setEstado("CERRADO");
-		            presupuestoServiceController.guardar(p);
+					// Actualizar presupuesto
+					p.setEstado("CERRADO");
+					presupuestoServiceController.guardar(p);
 
-		            // Registrar operación caja
-		            OperacionCaja op = new OperacionCaja();
-		            op.getAperturaCaja().setId(idApertura);
-		            op.getConcepto().setId(1);
-		            op.getTipoOperacion().setId(idTipoOperacion);
-		            op.setFecha(new Date());
-		            op.setMonto(subTotalDetalleFacturado);
-		            op.setEfectivo(subTotalDetalleFacturado);
-		            Concepto c = conceptoRepository.getOne(1);
-		            op.setMotivo(c.getDescripcion() + " Ref.: " + det.getVentaReferencia() + ", POR EMPAQUE NÚMERO: " + emp.getId());
-		            op.setTipo("ENTRADA");
+					// Registrar operación caja
+					OperacionCaja op = new OperacionCaja();
+					op.getAperturaCaja().setId(idApertura);
+					op.getConcepto().setId(1);
+					op.getTipoOperacion().setId(idTipoOperacion);
+					op.setFecha(new Date());
+					op.setMonto(subTotalDetalleFacturado);
+					op.setEfectivo(subTotalDetalleFacturado);
+					Concepto c = conceptoRepository.getOne(1);
+					op.setMotivo(c.getDescripcion() + " Ref.: " + det.getVentaReferencia() + ", POR EMPAQUE NÚMERO: " + emp.getId());
+					op.setTipo("ENTRADA");
 
-		            if (idTipoOperacion == 1) aperturaRepository.findByActualizarAperturaSaldo(op.getAperturaCaja().getId(), op.getMonto());
-		            if (idTipoOperacion == 2) aperturaRepository.findByActualizarAperturaSaldoCheque(op.getAperturaCaja().getId(), op.getMonto());
-		            if (idTipoOperacion == 3) aperturaRepository.findByActualizarAperturaSaldoTarjeta(op.getAperturaCaja().getId(), op.getMonto());
+					if (idTipoOperacion == 1) aperturaRepository.findByActualizarAperturaSaldo(op.getAperturaCaja().getId(), op.getMonto());
+					if (idTipoOperacion == 2) aperturaRepository.findByActualizarAperturaSaldoCheque(op.getAperturaCaja().getId(), op.getMonto());
+					if (idTipoOperacion == 3) aperturaRepository.findByActualizarAperturaSaldoTarjeta(op.getAperturaCaja().getId(), op.getMonto());
 
-		            OperacionCaja opRetorno = operacionCajaRepository.save(op);
-		            ventaRepository.findByActualizarVentaOperacion(det.getVentaReferencia(), opRetorno.getId());
+					OperacionCaja opRetorno = operacionCajaRepository.save(op);
+					ventaRepository.findByActualizarVentaOperacion(det.getVentaReferencia(), opRetorno.getId());
 
-		            totalGeneralEmpaque += subTotalDetalleFacturado;
-		            totalItemsEmpaque = totalItemsEmpaque + 1 ;
-		            algunaVentaGenerada = true; // al menos una venta se generó
+					totalGeneralEmpaque += subTotalDetalleFacturado;
+					totalItemsEmpaque = totalItemsEmpaque + 1 ;
+					algunaVentaGenerada = true; // al menos una venta se generó
 
-	                // continuar con la lógica normal
-	            } else if (body instanceof CustomerErrorType) {
-	                // reenvía el error recibido
-	                return new ResponseEntity<>(body, HttpStatus.CONFLICT);
-	            } else {
-	                // error inesperado
-	                return new ResponseEntity<>(new CustomerErrorType(
-	                        "TIPO DE RESPUESTA DESCONOCIDO AL GENERAR VENTA"),
-	                        HttpStatus.INTERNAL_SERVER_ERROR);
-	            }
-	           
-	        }
-	     // Al finalizar el recorrido de todos los detalles
-	        if (!algunaVentaGenerada) {
-	            return new ResponseEntity<>(new CustomerErrorType(
-	                "NO SE PUDO GENERAR NINGUNA VENTA PARA ESTE EMPAQUE, POR LO TANTO NO SE FINALIZA"),
-	                HttpStatus.CONFLICT);
-	        }
-	        // Actualizar cabecera con totales generales
-	        emp.setTotal(totalGeneralEmpaque);
-	        emp.setItemsPedido(totalItemsEmpaque);
-	        emp.setTotalLetras(NumerosALetras.convertirNumeroALetras(totalGeneralEmpaque));
-	        emp.setEstado("CERRADO");
-	        entityRepository.save(emp);
+					// continuar con la lógica normal
+				} else if (body instanceof CustomerErrorType) {
+					// reenvía el error recibido
+					return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+				} else {
+					// error inesperado
+					return new ResponseEntity<>(new CustomerErrorType(
+							"TIPO DE RESPUESTA DESCONOCIDO AL GENERAR VENTA"),
+							HttpStatus.INTERNAL_SERVER_ERROR);
+				}
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return new ResponseEntity<>(new CustomerErrorType("Error al finalizar empaque: " + e.getMessage()),
-	                HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+			}
+			// Al finalizar el recorrido de todos los detalles
+			if (!algunaVentaGenerada) {
+				return new ResponseEntity<>(new CustomerErrorType(
+						"NO SE PUDO GENERAR NINGUNA VENTA PARA ESTE EMPAQUE, POR LO TANTO NO SE FINALIZA"),
+						HttpStatus.CONFLICT);
+			}
+			// Actualizar cabecera con totales generales
+			emp.setTotal(totalGeneralEmpaque);
+			emp.setItemsPedido(totalItemsEmpaque);
+			emp.setTotalLetras(NumerosALetras.convertirNumeroALetras(totalGeneralEmpaque));
+			emp.setEstado("CERRADO");
+			entityRepository.save(emp);
 
-	    return new ResponseEntity<>(HttpStatus.CREATED);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new CustomerErrorType("Error al finalizar empaque: " + e.getMessage()),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
-	
+
 	@RequestMapping(value="/descargarResumenDetalladoPdf/{id}", method=RequestMethod.GET)
 	public ResponseEntity<?>  descargarDetalleEmpaquePdf(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
@@ -998,7 +1109,7 @@ public class EmpaqueController {
 				map.put("ciudad", ""+org.getCiudad());
 				map.put("pais", ""+org.getPais());
 				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
-			
+
 				report = new Reporte();
 				report.reportPDFDescarga(ep.getEmpaqueDetalle(), map, "ReporteEmpaqueDetalleResumenPdf", response);
 
@@ -1010,10 +1121,10 @@ public class EmpaqueController {
 
 		}
 
-		
+
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value="/descargarPdfEmpaqueUnitario/{id}", method=RequestMethod.GET)
 	public ResponseEntity<?>  descargarPdfEmpaqueUnitario(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
@@ -1035,7 +1146,7 @@ public class EmpaqueController {
 				map.put("ciudad", ""+org.getCiudad());
 				map.put("pais", ""+org.getPais());
 				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
-			
+
 				report = new Reporte();
 				report.reportPDFDescarga(Arrays.asList(ep), map, "ReporteEmpaqueDetalleResumenPdf", response);
 
@@ -1047,71 +1158,71 @@ public class EmpaqueController {
 
 		}
 
-		
+
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
-	
-	
+
+
 	@RequestMapping(value="/descargarPdfCierreEmpaque/{id}", method=RequestMethod.GET)
 	public ResponseEntity<?>  descargarCierreEmpaque(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable int id) throws IOException {
 		Usuario usuario = usuarioService.findByUsername(authentication.getName());
 		Org org = orgRepository.findById(1).get();
 		ReporteFormatoDatos f = reporteFormatoDatosRepository.getOne(1);
-			try {
+		try {
 
-				List<Object[]> rows = entityRepository.getReporteResumenEmpaqueRaw(id);
-				if (rows == null || rows.isEmpty()) {
-					return  new ResponseEntity<>(new CustomerErrorType("No se encontró información para el empaque " + id), HttpStatus.CONFLICT);
+			List<Object[]> rows = entityRepository.getReporteResumenEmpaqueRaw(id);
+			if (rows == null || rows.isEmpty()) {
+				return  new ResponseEntity<>(new CustomerErrorType("No se encontró información para el empaque " + id), HttpStatus.CONFLICT);
 
-				}
-
-				Object[] r = rows.get(0); // 👈 LA FILA REAL
-				InformeCierreEmpaqueAuxiliar dto = new InformeCierreEmpaqueAuxiliar();
-
-				dto.setIdEmpaque(((Number) r[0]).intValue());
-				dto.setFechaEntrega((Date) r[1]);
-				dto.setZona((String) r[3]);
-
-				dto.setFuncionarioEncargado((String) r[4]);
-				dto.setFuncionarioRepartidor((String) r[5]);
-
-				dto.setItemPedido(((Number) r[6]).intValue());
-				dto.setItemVenta(((Number) r[7]).intValue());
-
-				dto.setVentaContado(((Number) r[8]).doubleValue());
-				dto.setVentaCredito(((Number) r[9]).doubleValue());
-				dto.setTotalDevolucion(((Number) r[10]).doubleValue());
-
-				dto.setTotalEfectivo(((Number) r[11]).doubleValue());
-				dto.setTotalCheque(((Number) r[12]).doubleValue());
-				dto.setTotalTarjeta(((Number) r[13]).doubleValue());
-
-				dto.setTotalPedido(((Number) r[14]).doubleValue());
-				dto.setTotalVenta(((Number) r[15]).doubleValue());
-
-      			Map<String, Object> map = new HashMap<>();
-				map.put("tituloReporte", f.getTitulo());
-				map.put("razonSocialReporte", f.getRazonSocial());
-				map.put("descripcionMovimiento", f.getDescripcion());
-				map.put("direccionReporte", f.getDireccion());
-				map.put("telefonoReporte", f.getTelefono());
-				map.put("org", ""+org.getNombre());
-				map.put("direccion", ""+org.getDireccion());
-				map.put("ruc", ""+org.getRuc());
-				map.put("telefono", ""+org.getTelefono());
-				map.put("ciudad", ""+org.getCiudad());
-				map.put("pais", ""+org.getPais());
-				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
-			  
-				report = new Reporte();
-				report.reportPDFDescarga(Arrays.asList(dto), map, "ReporteCierreEmpaque", response);
-
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
-		
 
-		
+			Object[] r = rows.get(0); // 👈 LA FILA REAL
+			InformeCierreEmpaqueAuxiliar dto = new InformeCierreEmpaqueAuxiliar();
+
+			dto.setIdEmpaque(((Number) r[0]).intValue());
+			dto.setFechaEntrega((Date) r[1]);
+			dto.setZona((String) r[3]);
+
+			dto.setFuncionarioEncargado((String) r[4]);
+			dto.setFuncionarioRepartidor((String) r[5]);
+
+			dto.setItemPedido(((Number) r[6]).intValue());
+			dto.setItemVenta(((Number) r[7]).intValue());
+
+			dto.setVentaContado(((Number) r[8]).doubleValue());
+			dto.setVentaCredito(((Number) r[9]).doubleValue());
+			dto.setTotalDevolucion(((Number) r[10]).doubleValue());
+
+			dto.setTotalEfectivo(((Number) r[11]).doubleValue());
+			dto.setTotalCheque(((Number) r[12]).doubleValue());
+			dto.setTotalTarjeta(((Number) r[13]).doubleValue());
+
+			dto.setTotalPedido(((Number) r[14]).doubleValue());
+			dto.setTotalVenta(((Number) r[15]).doubleValue());
+
+			Map<String, Object> map = new HashMap<>();
+			map.put("tituloReporte", f.getTitulo());
+			map.put("razonSocialReporte", f.getRazonSocial());
+			map.put("descripcionMovimiento", f.getDescripcion());
+			map.put("direccionReporte", f.getDireccion());
+			map.put("telefonoReporte", f.getTelefono());
+			map.put("org", ""+org.getNombre());
+			map.put("direccion", ""+org.getDireccion());
+			map.put("ruc", ""+org.getRuc());
+			map.put("telefono", ""+org.getTelefono());
+			map.put("ciudad", ""+org.getCiudad());
+			map.put("pais", ""+org.getPais());
+			map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+
+			report = new Reporte();
+			report.reportPDFDescarga(Arrays.asList(dto), map, "ReporteCierreEmpaque", response);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+
 		return  new  ResponseEntity<String>(HttpStatus.OK);
 	}
 }

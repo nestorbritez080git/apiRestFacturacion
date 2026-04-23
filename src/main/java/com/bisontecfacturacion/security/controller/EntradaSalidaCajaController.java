@@ -27,14 +27,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.model.AperturaCaja;
+import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.EntradaSalidaCaja;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCajaCabecera;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Usuario;
+import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.EntradaSalidaCajaRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaCabeceraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
@@ -58,8 +62,176 @@ public class EntradaSalidaCajaController {
 	private AperturaCajaRepository aperturaRepository;
 	@Autowired
 	private AperturaCajaRepository aperturaCajaRepository;
+	
+	@Autowired
+	private OperacionCajaCabeceraRepository operacionCajaCabeceraRepository;
+
+	@Autowired
+	private OperacionCajaRepository operacionRepository;
 
 	
+	
+	private ResponseEntity<CustomerErrorType> error(String mensaje) {
+		return new ResponseEntity<>(new CustomerErrorType(mensaje), HttpStatus.CONFLICT);
+	}
+	private ResponseEntity<?> validarCajaSalida(List<OperacionCaja> lista) {
+
+	    if (lista == null || lista.isEmpty()) {
+	        return error("No existen formas de pago para validar caja");
+	    }
+
+	    // 🔹 Obtener apertura una sola vez (asumo misma caja)
+	    AperturaCaja aper = aperturaRepository
+	            .getAperturaCajaPorIdCaja(lista.get(0).getAperturaCaja().getId());
+
+	    if (aper == null) {
+	        return error("EL FUNCIONARIO NO POSEE UNA APERTURA DE CAJA");
+	    }
+
+	    double totalEfectivo = 0;
+	    double totalCheque = 0;
+	    double totalTarjeta = 0;
+
+	    for (OperacionCaja op : lista) {
+
+	        if (op.getMonto() <= 0) {
+	            return error("EL MONTO DE LA OPERACIÓN DEBE SER MAYOR A CERO");
+	        }
+
+	        // 🔹 Solo validar SALIDAS (ajustá según tu lógica)
+
+	            switch (op.getTipoOperacion().getId()) {
+	                case 1:
+	                    totalEfectivo += op.getMonto();
+	                    break;
+	                case 2:
+	                    totalCheque += op.getMonto();
+	                    break;
+	                case 3:
+	                    totalTarjeta += op.getMonto();
+	                    break;
+	            }
+	        
+	    }
+
+	    // 🔴 VALIDACIÓN FINAL (clave)
+	    if (totalEfectivo > aper.getSaldoActual()) {
+	        return error("NO HAY SALDO SUFICIENTE EN EFECTIVO");
+	    }
+
+	    if (totalCheque > aper.getSaldoActualCheque()) {
+	        return error("NO HAY SALDO SUFICIENTE EN CHEQUE");
+	    }
+
+	    if (totalTarjeta > aper.getSaldoActualTarjeta()) {
+	        return error("NO HAY SALDO SUFICIENTE EN TARJETA");
+	    }
+
+	    return null;
+	}
+	@Transactional
+	public List<OperacionCaja> procesarOperacionCajaSalida(EntradaSalidaCaja ent, List<OperacionCaja> listaOperacion) {
+	    List<OperacionCaja> resultado = new ArrayList<>();
+	    if (listaOperacion == null || listaOperacion.isEmpty()) {
+	        throw new RuntimeException("No existen operaciones de caja para procesar");
+	    }
+	 // 🔥 Crear cabecera si todavía no existe
+	    OperacionCajaCabecera cab = new OperacionCajaCabecera();
+	    cab.setFecha(new Date());
+	    cab.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+	    cab.setReferenciaOperacion(ent.getId());
+	    cab.getAperturaCaja().setId((listaOperacion.get(0).getAperturaCaja().getId()));
+	    Concepto c = conceptoRepository.findById(listaOperacion.get(0).getConcepto().getId()).orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+	    cab.setMotivo(c.getDescripcion() + " REF.: " + ent.getId());
+	    cab.getConcepto().setId(c.getId());
+	    cab.setTipo("SALIDA");
+	    OperacionCajaCabecera savedCabecera = operacionCajaCabeceraRepository.save(cab);
+	    // 🔹 Procesar operaciones
+	    for (OperacionCaja ope : listaOperacion) {
+	    	 	ope.setTipo("SALIDA");
+		       
+		        
+		        ope.setFecha(new Date());
+		        // 🔥 Asociar cabecera
+		        ope.getOperacionCajaCabecera().setId(savedCabecera.getId());
+	            OperacionCaja savedOperacion = operacionCajaRepository.save(ope);
+	            // 🔹 Actualizar saldo según tipo
+	            if (savedOperacion.getTipoOperacion().getId() == 1) {
+	                aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(savedOperacion.getAperturaCaja().getId(),savedOperacion.getMonto());
+	            }
+	            if (savedOperacion.getTipoOperacion().getId() == 2) {
+	                aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(savedOperacion.getAperturaCaja().getId(),savedOperacion.getMonto());
+	            }
+	            if (savedOperacion.getTipoOperacion().getId() == 3) {
+	                aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(savedOperacion.getAperturaCaja().getId(),savedOperacion.getMonto());
+	            }
+	            ent.setOperacionCaja(savedOperacion);
+	            EntradaSalidaCaja saveEntrada = entityRepository.save(ent);
+	            savedOperacion.setReferenciaOperacion(saveEntrada.getId());
+	            savedOperacion.setMotivo(c.getDescripcion() + " REF.: " + saveEntrada.getId());
+		        entityRepository.findByActualizarEntradaSalidaCajaCabeceraOperacion(saveEntrada.getId(), savedOperacion);
+	            operacionCajaRepository.save(savedOperacion);
+		        resultado.add(savedOperacion);
+	        
+	       
+	    }
+	    return resultado;
+	}
+	@Transactional
+	public List<OperacionCaja> procesarOperacionCajaEntrada(EntradaSalidaCaja ent, List<OperacionCaja> listaOperacion) {
+
+	    List<OperacionCaja> resultado = new ArrayList<>();
+
+	    if (listaOperacion == null || listaOperacion.isEmpty()) {
+	        throw new RuntimeException("No existen operaciones de caja para procesar");
+	    }
+
+	    // 🔥 Crear cabecera si todavía no existe
+	    OperacionCajaCabecera cab = new OperacionCajaCabecera();
+	    cab.setFecha(new Date());
+	    cab.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+	    cab.setReferenciaOperacion(ent.getId());
+	    cab.getAperturaCaja().setId((listaOperacion.get(0).getAperturaCaja().getId()));
+	    Concepto c = conceptoRepository.findById(listaOperacion.get(0).getConcepto().getId()).orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+	    cab.setMotivo(c.getDescripcion() + " REF.: " + ent.getId());
+	    cab.getConcepto().setId(c.getId());
+	    cab.setTipo("ENTRADA");
+	    OperacionCajaCabecera savedCabecera = operacionCajaCabeceraRepository.save(cab);
+
+	    for (OperacionCaja ope : listaOperacion) {
+	        ope.setTipo("ENTRADA");
+	        ope.setMotivo(c.getDescripcion() + " REF.: " + ent.getId());
+	        ope.setFecha(new Date());
+	        // 🔥 Asociar cabecera
+	        ope.getOperacionCajaCabecera().setId(savedCabecera.getId());
+            OperacionCaja savedOperacion = operacionCajaRepository.save(ope);
+
+	        // 🔥 Actualizar saldos según tipo operación
+	        if (savedOperacion.getTipoOperacion().getId() == 1) {
+	            aperturaCajaRepository.findByActualizarAperturaSaldo(savedOperacion.getAperturaCaja().getId(),savedOperacion.getMonto());
+	        }
+	        if (savedOperacion.getTipoOperacion().getId() == 2) {
+	            aperturaCajaRepository.findByActualizarAperturaSaldoCheque(savedOperacion.getAperturaCaja().getId(),savedOperacion.getMonto()
+	            );
+	        }
+	        if (savedOperacion.getTipoOperacion().getId() == 3) {
+	            aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(savedOperacion.getAperturaCaja().getId(),savedOperacion.getMonto()
+	            );
+	        }
+	        ent.setOperacionCaja(savedOperacion);
+            EntradaSalidaCaja saveEntrada = entityRepository.save(ent);
+	        savedOperacion.setReferenciaOperacion(saveEntrada.getId());
+            savedOperacion.setMotivo(c.getDescripcion() + " REF.: " + saveEntrada.getId());
+	        entityRepository.findByActualizarEntradaSalidaCajaCabeceraOperacion(saveEntrada.getId(), savedOperacion);
+	      	operacionCajaRepository.save(savedOperacion);
+	        resultado.add(savedOperacion);
+	    }
+	   
+		    //actualiza el id de la operacion en referencia
+		    //entityRepository.findByActualizarVentaOperacion(ent.getId(), savedCabecera.getId()
+        
+	    return resultado;
+	}
 	
 	@Autowired
 	private ConceptoRepository conceptoRepository;
@@ -93,6 +265,7 @@ public class EntradaSalidaCajaController {
 		entity.setMotivo(entity.getMotivo().toUpperCase());
 		
 		entity.setHora(hora());
+		//EntradaSalidaCaja savedEntradaSalida = entityRepository.save(entity);
 		OperacionCaja op= new OperacionCaja();
 		op.setMonto(entity.getMonto());
 		op.getTipoOperacion().setId(entity.getTipoOperacion().getId());
@@ -100,13 +273,10 @@ public class EntradaSalidaCajaController {
 		System.out.println("idApe edddiiitaaerr: "+idApe);
 		System.out.println(aperturaRepository.getAperturaActivoCajaId(entity.getFuncionario().getId()));
 		op.getAperturaCaja().setId(idApe);
-		
 		op.setEfectivo(0.0);
 		op.setVuelto(0.0);
 		Concepto c= new Concepto();
-//		c= conceptoRepository.findById(9).get();
-//		op.setMotivo(c.getDescripcion()+" REF.: "+ entity.getId());
-		
+		List<OperacionCaja> listOpreacion =  new ArrayList<OperacionCaja>() ;
 		if(entity.getTipoMovimiento().getId()==1) {
 			op.getConcepto().setId(10);
 			c= conceptoRepository.findById(10).get();
@@ -114,15 +284,10 @@ public class EntradaSalidaCajaController {
 			op.setReferenciaOperacion(entity.getId());
 			op.setTipo("ENTRADA");
 			System.out.println("Entrada");
-			if (op.getTipoOperacion().getId() == 1) {
-				aperturaRepository.findByActualizarAperturaSaldo(idApe, entity.getMonto());
-			}
-			if (op.getTipoOperacion().getId() == 2) {
-				aperturaRepository.findByActualizarAperturaSaldoCheque(idApe, entity.getMonto());
-			}
-			if (op.getTipoOperacion().getId() == 3) {
-				aperturaRepository.findByActualizarAperturaSaldoTarjeta(idApe, entity.getMonto());
-			}
+			listOpreacion.add(op);
+			
+			procesarOperacionCajaEntrada(entity, listOpreacion);
+			
 			
 		}else if(entity.getTipoMovimiento().getId()==2) {
 			System.out.println("Salida");
@@ -131,46 +296,13 @@ public class EntradaSalidaCajaController {
 			op.setMotivo(c.getDescripcion()+" REF.: "+ entity.getId());
 			op.setReferenciaOperacion(entity.getId());
 			op.setTipo("SALIDA");
-			if (op.getTipoOperacion().getId() == 1) {
-				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idApe, entity.getMonto());
-			}
-			if (op.getTipoOperacion().getId() == 2) {
-				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idApe, entity.getMonto());
-			}
-			if (op.getTipoOperacion().getId() == 3) {
-				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idApe, entity.getMonto());
-			}
-		}
-		operacionCajaRepository.save(op);
-		
-		OperacionCaja opera =  operacionCajaRepository.findTop1ByOrderByIdDesc();
-		
-
-		entity.setOperacionCaja(opera);
-		entityRepository.save(entity);
-		EntradaSalidaCaja entSalCaja= entityRepository.findTop1ByOrderByIdDesc();
-		Concepto cc= new Concepto();
-
-		if(entity.getTipoMovimiento().getId()==1) {
-			opera.getConcepto().setId(10);
-			cc= conceptoRepository.findById(10).get();
-			opera.setMotivo(cc.getDescripcion()+" REF.: "+ entSalCaja.getId());
-			opera.setReferenciaOperacion(entSalCaja.getId());
-			opera.setTipo("ENTRADA");
-			System.out.println("Entrada");
-			
-			
-		}else if(entity.getTipoMovimiento().getId()==2) {
-			System.out.println("Salida");
-			opera.getConcepto().setId(11);
-			cc= conceptoRepository.findById(11).get();
-			opera.setMotivo(cc.getDescripcion()+" REF.: "+ entSalCaja.getId());
-			opera.setReferenciaOperacion(entSalCaja.getId());
-			opera.setTipo("SALIDA");
+			listOpreacion.add(op);
+			ResponseEntity<?> validacionCaja = validarCajaSalida(listOpreacion);
+            if (validacionCaja != null) return validacionCaja;			
+			procesarOperacionCajaSalida(entity, listOpreacion);
 			
 		}
-		operacionCajaRepository.save(opera);
-		
+
 //		entityRepository.findByActualizarEntradaSalidaCajaCabeceraOperacion(entSalCaja.getId(), opera.getId());
 		return new ResponseEntity<String>(HttpStatus.CREATED);
 	}

@@ -98,25 +98,109 @@ public class ReservacionCabecera {
 		this.estadia=0;
 		this.referenciaOperacion="";
 	}
-	
-	
-	public String getReferenciaOperacion() {
-		return referenciaOperacion;
+
+	public int getId() {
+		return id;
 	}
 
-
-	public void setReferenciaOperacion(String referenciaOperacion) {
-		this.referenciaOperacion = referenciaOperacion;
+	public void setId(int id) {
+		this.id = id;
 	}
 
+	public LocalDateTime getFechaFactura() {
+		return fechaFactura;
+	}
+
+	public void setFechaFactura(LocalDateTime fechaFactura) {
+		this.fechaFactura = fechaFactura;
+	}
+
+	public LocalDateTime getFechaRegistro() {
+		return fechaRegistro;
+	}
+
+	public void setFechaRegistro(LocalDateTime fechaRegistro) {
+		this.fechaRegistro = fechaRegistro;
+	}
 
 	public LocalDateTime getFechaEntrada() {
 		return fechaEntrada;
 	}
 
-
 	public void setFechaEntrada(LocalDateTime fechaEntrada) {
 		this.fechaEntrada = fechaEntrada;
+	}
+
+	public LocalDate getFechaReservacion() {
+		return fechaReservacion;
+	}
+
+	public void setFechaReservacion(LocalDate fechaReservacion) {
+		this.fechaReservacion = fechaReservacion;
+	}
+
+	public Funcionario getFuncionarioRegistro() {
+		return funcionarioRegistro;
+	}
+
+	public void setFuncionarioRegistro(Funcionario funcionarioRegistro) {
+		this.funcionarioRegistro = funcionarioRegistro;
+	}
+
+	public Funcionario getFuncionarioFinalizacion() {
+		return funcionarioFinalizacion;
+	}
+
+	public void setFuncionarioFinalizacion(Funcionario funcionarioFinalizacion) {
+		this.funcionarioFinalizacion = funcionarioFinalizacion;
+	}
+
+	public Cliente getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
+	}
+
+	public Documento getDocumento() {
+		return documento;
+	}
+
+	public void setDocumento(Documento documento) {
+		this.documento = documento;
+	}
+
+	public HabitacionesCategoriaCombo getHabitacionesCategoriaCombo() {
+		return habitacionesCategoriaCombo;
+	}
+
+	public void setHabitacionesCategoriaCombo(HabitacionesCategoriaCombo habitacionesCategoriaCombo) {
+		this.habitacionesCategoriaCombo = habitacionesCategoriaCombo;
+	}
+
+	public Double getEntrega() {
+		return entrega;
+	}
+
+	public void setEntrega(Double entrega) {
+		this.entrega = entrega;
+	}
+
+	public Double getTotalHabitacion() {
+		return totalHabitacion;
+	}
+
+	public void setTotalHabitacion(Double totalHabitacion) {
+		this.totalHabitacion = totalHabitacion;
+	}
+
+	public Double getTotalProducto() {
+		return totalProducto;
+	}
+
+	public void setTotalProducto(Double totalProducto) {
+		this.totalProducto = totalProducto;
 	}
 
 	public Double getTotal() {
@@ -127,60 +211,12 @@ public class ReservacionCabecera {
 		this.total = total;
 	}
 
-	public int getEstadia() {
-		return estadia;
-	}
-	public void setEstadia(int estadia) {
-		this.estadia = estadia;
+	public String getTotalLetra() {
+		return totalLetra;
 	}
 
-
-	public String getHoraFinalizacion() {
-		return horaFinalizacion;
-	}
-
-	public void setHoraFinalizacion(String horaFinalizacion) {
-		this.horaFinalizacion = horaFinalizacion;
-	}
-
-	public int getOperacionCajaEntrega() {
-		return operacionCajaEntrega;
-	}
-
-	public void setOperacionCajaEntrega(int operacionCajaEntrega) {
-		this.operacionCajaEntrega = operacionCajaEntrega;
-	}
-
-	public Double getPrecio() {
-		return precio;
-	}
-
-	public void setPrecio(Double precio) {
-		this.precio = precio;
-	}
-
-	public String getObs() {
-		return obs;
-	}
-
-	public void setObs(String obs) {
-		this.obs = obs;
-	}
-
-	public String getHora() {
-		return hora;
-	}
-
-	public void setHora(String hora) {
-		this.hora = hora;
-	}
-
-	public List<ReservacionDetalle> getReservacionDetalles() {
-		return reservacionDetalles;
-	}
-
-	public void setReservacionDetalles(List<ReservacionDetalle> reservacionDetalles) {
-		this.reservacionDetalles = reservacionDetalles;
+	public void setTotalLetra(String totalLetra) {
+		this.totalLetra = totalLetra;
 	}
 
 	public Double getTotalDescuento() {
@@ -207,53 +243,12 @@ public class ReservacionCabecera {
 		this.totalIvaDies = totalIvaDies;
 	}
 
-	public void setPrecioMinimo(Double precioMinimo) {
-		this.precioMinimo = precioMinimo;
+	public String getEstado() {
+		return estado;
 	}
 
-	public void setPrecioNormal(Double precioNormal) {
-		this.precioNormal = precioNormal;
-	}
-
-	public double getPrecioMinimo() {
-		return precioMinimo;
-	}
-
-	public void setPrecioMinimo(double precioMinimo) {
-		this.precioMinimo = precioMinimo;
-	}
-
-	public double getPrecioNormal() {
-		return precioNormal;
-	}
-
-	public void setPrecioNormal(double precioNormal) {
-		this.precioNormal = precioNormal;
-	}
-
-	public String getDescripcionCombo() {
-		return descripcionCombo;
-	}
-
-	public void setDescripcionCombo(String descripcionCombo) {
-		this.descripcionCombo = descripcionCombo;
-	}
-
-	
-	public Documento getDocumento() {
-		return documento;
-	}
-
-	public void setDocumento(Documento documento) {
-		this.documento = documento;
-	}
-
-	public int getOperacionCaja() {
-		return operacionCaja;
-	}
-
-	public void setOperacionCaja(int operacionCaja) {
-		this.operacionCaja = operacionCaja;
+	public void setEstado(String estado) {
+		this.estado = estado;
 	}
 
 	public String getTipo() {
@@ -264,94 +259,102 @@ public class ReservacionCabecera {
 		this.tipo = tipo;
 	}
 
-	public Cliente getCliente() {
-		return cliente;
+	public int getOperacionCaja() {
+		return operacionCaja;
 	}
 
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
+	public void setOperacionCaja(int operacionCaja) {
+		this.operacionCaja = operacionCaja;
 	}
 
-	public String getEstado() {
-		return estado;
+	public int getOperacionCajaEntrega() {
+		return operacionCajaEntrega;
 	}
 
-	public void setEstado(String estado) {
-		this.estado = estado;
+	public void setOperacionCajaEntrega(int operacionCajaEntrega) {
+		this.operacionCajaEntrega = operacionCajaEntrega;
 	}
 
-	public int getId() {
-		return id;
+	public Double getPrecioMinimo() {
+		return precioMinimo;
 	}
-	public void setId(int id) {
-		this.id = id;
+
+	public void setPrecioMinimo(Double precioMinimo) {
+		this.precioMinimo = precioMinimo;
 	}
-	public LocalDateTime getFechaFactura() {
-		return fechaFactura;
+
+	public Double getPrecioNormal() {
+		return precioNormal;
 	}
-	public void setFechaFactura(LocalDateTime fechaFactura) {
-		this.fechaFactura = fechaFactura;
+
+	public void setPrecioNormal(Double precioNormal) {
+		this.precioNormal = precioNormal;
 	}
-	public LocalDateTime getFechaRegistro() {
-		return fechaRegistro;
+
+	public Double getPrecio() {
+		return precio;
+	}
+
+	public void setPrecio(Double precio) {
+		this.precio = precio;
+	}
+
+	public String getDescripcionCombo() {
+		return descripcionCombo;
+	}
+
+	public void setDescripcionCombo(String descripcionCombo) {
+		this.descripcionCombo = descripcionCombo;
+	}
+
+	public String getHora() {
+		return hora;
+	}
+
+	public void setHora(String hora) {
+		this.hora = hora;
+	}
+
+	public String getHoraFinalizacion() {
+		return horaFinalizacion;
+	}
+
+	public void setHoraFinalizacion(String horaFinalizacion) {
+		this.horaFinalizacion = horaFinalizacion;
+	}
+
+	public String getObs() {
+		return obs;
+	}
+
+	public void setObs(String obs) {
+		this.obs = obs;
+	}
+
+	public String getReferenciaOperacion() {
+		return referenciaOperacion;
+	}
+
+	public void setReferenciaOperacion(String referenciaOperacion) {
+		this.referenciaOperacion = referenciaOperacion;
+	}
+
+	public int getEstadia() {
+		return estadia;
+	}
+
+	public void setEstadia(int estadia) {
+		this.estadia = estadia;
+	}
+
+	public List<ReservacionDetalle> getReservacionDetalles() {
+		return reservacionDetalles;
+	}
+
+	public void setReservacionDetalles(List<ReservacionDetalle> reservacionDetalles) {
+		this.reservacionDetalles = reservacionDetalles;
 	}
 	
-
-	public LocalDate getFechaReservacion() {
-		return fechaReservacion;
-	}
-
-
-	public void setFechaReservacion(LocalDate fechaReservacion) {
-		this.fechaReservacion = fechaReservacion;
-	}
-
-
-	public void setFechaRegistro(LocalDateTime fechaRegistro) {
-		this.fechaRegistro = fechaRegistro;
-	}
-	public Funcionario getFuncionarioRegistro() {
-		return funcionarioRegistro;
-	}
-	public void setFuncionarioRegistro(Funcionario funcionarioRegistro) {
-		this.funcionarioRegistro = funcionarioRegistro;
-	}
-	public Funcionario getFuncionarioFinalizacion() {
-		return funcionarioFinalizacion;
-	}
-	public void setFuncionarioFinalizacion(Funcionario funcionarioFinalizacion) {
-		this.funcionarioFinalizacion = funcionarioFinalizacion;
-	}
-	public HabitacionesCategoriaCombo getHabitacionesCategoriaCombo() {
-		return habitacionesCategoriaCombo;
-	}
-	public void setHabitacionesCategoriaCombo(HabitacionesCategoriaCombo habitacionesCategoriaCombo) {
-		this.habitacionesCategoriaCombo = habitacionesCategoriaCombo;
-	}
-	public Double getEntrega() {
-		return entrega;
-	}
-	public void setEntrega(Double entrega) {
-		this.entrega = entrega;
-	}
-	public Double getTotalHabitacion() {
-		return totalHabitacion;
-	}
-	public void setTotalHabitacion(Double totalHabitacion) {
-		this.totalHabitacion = totalHabitacion;
-	}
-	public Double getTotalProducto() {
-		return totalProducto;
-	}
-	public void setTotalProducto(Double totalProducto) {
-		this.totalProducto = totalProducto;
-	}
-	public String getTotalLetra() {
-		return totalLetra;
-	}
-	public void setTotalLetra(String totalLetra) {
-		this.totalLetra = totalLetra;
-	}
 	
 
 }

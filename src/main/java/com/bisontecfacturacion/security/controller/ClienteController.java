@@ -112,42 +112,144 @@ public class ClienteController {
 		
 	}
 
-	@RequestMapping(method=RequestMethod.POST)
-	public ResponseEntity<?> guardar(@RequestBody Cliente entity){
+	@RequestMapping(method = RequestMethod.POST)
+	public ResponseEntity<?> guardar(@RequestBody Cliente entity) {
+	    try {
+
+	        // 🔒 VALIDAR PERSONA
+	        if (entity.getPersona() == null) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("La persona no puede ser nula"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+
+	        Persona p = entity.getPersona();
+
+	        if (p.getCedula() == null || p.getCedula().trim().isEmpty()) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("EL N° DE CÉDULA Y/O RUC NO DEBE QUEDAR VACÍO"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+
+	        if (p.getNombre() == null || p.getNombre().trim().isEmpty()) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("EL NOMBRE NO DEBE QUEDAR VACÍO"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+
+	        // 🧹 NORMALIZACIÓN DE DATOS
+	        p.setNombre(Utilidades.eliminaCaracterIzqDer(p.getNombre().trim().toUpperCase()));
+
+	        if (p.getApellido() != null)
+	            p.setApellido(Utilidades.eliminaCaracterIzqDer(p.getApellido().trim().toUpperCase()));
+
+	        if (p.getDireccion() != null)
+	            p.setDireccion(Utilidades.eliminaCaracterIzqDer(p.getDireccion().trim().toUpperCase()));
+
+	        if (p.getEmail() != null)
+	            p.setEmail(p.getEmail().trim().toUpperCase());
+
+	        if (p.getTipo() != null)
+	            p.setTipo(p.getTipo().trim().toUpperCase());
+
+	        // 🔑 NORMALIZAR CÉDULA (SIN GUIONES NI DV)
+	        String cedulaOriginal = p.getCedula();
+	        String cedulaNormalizada = normalizar(cedulaOriginal);
+
+	        // 🔍 BUSCAR SI YA EXISTE PERSONA CON ESA CÉDULA
+	        Persona existente = personaRepository.findByCedula(cedulaNormalizada);
+
+	        if (existente != null) {
+	            // 👉 YA EXISTE → reutilizar persona (NO crear duplicado)
+	            entity.setPersona(existente);
+	        } else {
+	            // 👉 NO EXISTE → crear nueva persona
+	            p.setId(null);
+	            p.setCedula(cedulaNormalizada);
+	            entity.setPersona(p);
+	        }
+
+	        // 💾 GUARDAR CLIENTE
+	        entity.setId(null);
+	        entityRepository.save(entity);
+
+	        return new ResponseEntity<>(HttpStatus.CREATED);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+	public boolean siExistePersonaCedula(Persona p){
+		String cedulaNormalizada = normalizar(p.getCedula());
+	    return entityRepository.findAll().stream()
+	        .anyMatch(x -> normalizar(x.getPersona().getCedula()).equals(cedulaNormalizada));
+	}
+
+	@RequestMapping(method=RequestMethod.PUT)
+	public ResponseEntity<?> editar(@RequestBody Cliente entity){
 		try {
-			if(entity.getPersona().getId()==0){
-				return new ResponseEntity<>(new CustomerErrorType("La persona no debe quedar vacio"), HttpStatus.CONFLICT);		
-			}else if (siExistePersona(entity.getPersona())== true) {
-				return new ResponseEntity<>(new CustomerErrorType("Esta Persona ya posee credenciales como Cliente dentro del sistema.!\nSi persiste el inconveniente consulte con el administrador  "), HttpStatus.CONFLICT);
-//					return new ResponseEntity<>("Esta Persona ya posee credenciales como funcionario dentro del sistema.!\nSi persiste el inconvenientes consulte con administrador  ", HttpStatus.CONFLICT);
+			if (entity.getPersona() == null) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("La persona no puede ser nula"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+	        // 🔒 VALIDACIONES
+	        if (entity.getPersona().getCedula() == null || entity.getPersona().getCedula().isEmpty()) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("El N° DE CEDULA Y/O RUC NO DEBE QUEDAR VACIO"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+	        if (entity.getPersona().getNombre() == null || entity.getPersona().getNombre().isEmpty()) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("EL NOMBRE NO DEBE QUEDAR VACIO"),
+	                HttpStatus.CONFLICT
+	            );
+	        } 
+	        // 🧹 NORMALIZACIÓN
+	        Persona p = entity.getPersona();
+	        p.setNombre(Utilidades.eliminaCaracterIzqDer(p.getNombre().trim().toUpperCase()));
+	        if (p.getApellido() != null)
+	            p.setApellido(Utilidades.eliminaCaracterIzqDer(p.getApellido().trim().toUpperCase()));
+	        if (p.getDireccion() != null)
+	            p.setDireccion(Utilidades.eliminaCaracterIzqDer(p.getDireccion().trim().toUpperCase()));
+	        if (p.getEmail() != null)
+	            p.setEmail(p.getEmail().trim().toUpperCase());
+	        if (p.getTipo() != null)
+	            p.setTipo(p.getTipo().trim().toUpperCase());
+	        
+		    if(entity.getPersona().getId()==0){
+					return new ResponseEntity<>(new CustomerErrorType("LA PERSONA NO DEBE QUEDAR VACIO"), HttpStatus.CONFLICT);		
+		    }else if (siExistePersonaEditar(entity)) {
+					return new ResponseEntity<>(new CustomerErrorType("ESTA PERSONA YA POSEE CREDENCIALES DENTRO DEL SISTEMA.!"), HttpStatus.CONFLICT);
+//						return new ResponseEntity<>("Esta Persona ya posee credenciales como funcionario dentro del sistema.!\nSi persiste el inconvenientes consulte con administrador  ", HttpStatus.CONFLICT);
 			}else {
-				entityRepository.save(entity);
-				return  new  ResponseEntity<String>(HttpStatus.CREATED);
+					entityRepository.save(entity);
+					return  new  ResponseEntity<String>(HttpStatus.CREATED);
 			}
 		} catch (Exception e) {
+			// TODO: handle exception
 			e.printStackTrace();
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		    return new ResponseEntity<>(
+		            new CustomerErrorType(e.getMessage()),
+		            HttpStatus.INTERNAL_SERVER_ERROR
+		        );
 		}
 	}
-	public boolean siExistePersona(Persona entity){
-		if(entityRepository.getIdPersona(entity.getId())!=null){
-			return true;
-		}
-		return false;
-	}
-	
 	public boolean siExistePersonaEditar(Cliente entity){
-		if(entityRepository.getIdPersonaEditar(entity.getPersona().getId(), entity.getId())!=null){
-			return true;
-		}
-		return false;
+	    String cedulaNormalizada = normalizar(entity.getPersona().getCedula());
+	    return entityRepository.findAll().stream()
+	        .anyMatch(x ->
+	            !x.getPersona().getId().equals(entity.getPersona().getId()) && // 👈 EXCLUIR EL MISMO
+	            normalizar(x.getPersona().getCedula()).equals(cedulaNormalizada)
+	        );
 	}
 	
-	@RequestMapping(method=RequestMethod.PUT)
-	public Cliente editar(@RequestBody Cliente entity){
-		
-		return entityRepository.save(entity);
-	}
 	@RequestMapping(method=RequestMethod.DELETE, value="/{id}")
 	public void eliminar(@PathVariable int id){
 		entityRepository.deleteById(id);
@@ -177,24 +279,6 @@ public class ClienteController {
 	public ModeloRuc  consultarPorDescripcion(@PathVariable int ruc, @PathVariable int dv ){
 		return modeloRepository.getModeloRucDv(ruc, dv);
 	}
-	
-	/*
-@RequestMapping(value="/clientePDF", method=RequestMethod.GET)
-public @ResponseBody void clientePDF() throws IOException{
-	List<Cliente> cliente = entityRepository.findAll();
-	Impresora impre=new Impresora();
-	impre=impreRepository.findTop1ByOrderByIdAsc();
-	String tipo = impre.getDescripcion();
-	String filtros = "hoalm";
-	
-	Map<String, Object> map = new HashMap<>();
-	map.put("filtros", filtros);
-	Reporte report=new Reporte();
-	//report.report(cliente, map, "cliente", tipo);
-	
-}
-
-*/
 	
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/venta")
@@ -234,7 +318,6 @@ public @ResponseBody void clientePDF() throws IOException{
 	            p.setEmail(p.getEmail().trim().toUpperCase());
 	        if (p.getTipo() != null)
 	            p.setTipo(p.getTipo().trim().toUpperCase());
-
 	        // 🚨 CLAVE: fuerza entidad nueva
 	        p.setId(null);
 	        entity.setId(null);
@@ -243,12 +326,12 @@ public @ResponseBody void clientePDF() throws IOException{
 	        p.setCedula(cedulaNormalizada);
 
 	        // 🔍 VALIDAR DUPLICADO
-	        if (siExiste(p)) {
-	            return new ResponseEntity<>(
-	                new CustomerErrorType("El N° DE CEDULA " + p.getCedula() + " YA EXISTE."),
-	                HttpStatus.CONFLICT
-	            );
-	        }
+//	        if (siExiste(p)) {
+//	            return new ResponseEntity<>(
+//	                new CustomerErrorType("El N° DE CEDULA " + p.getCedula() + " YA EXISTE."),
+//	                HttpStatus.CONFLICT
+//	            );
+//	        }
 
 	        // 💾 UN SOLO SAVE
 	        entityRepository.save(entity);
@@ -263,11 +346,7 @@ public @ResponseBody void clientePDF() throws IOException{
 	        );
 	    }
 	}
-	public boolean siExiste(Persona p){
-	    String cedulaNormalizada = normalizar(p.getCedula());
-	    System.out.println(cedulaNormalizada);
-		return personaRepository.findByCedula(cedulaNormalizada)!=null;
-	}
+	
 	
 	 public static String normalizar(String valor) {
 	        if (valor == null) return null;

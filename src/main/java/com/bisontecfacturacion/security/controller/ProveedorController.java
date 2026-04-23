@@ -48,7 +48,7 @@ public class ProveedorController {
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")
 	public Proveedor getPorId(@PathVariable int id){
 		return entityRepository.findById(id).get();
-	}
+	}		
 	
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?> guardar(@RequestBody Proveedor entity){

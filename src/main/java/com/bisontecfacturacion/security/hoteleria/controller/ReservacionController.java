@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bisontecfacturacion.security.auxiliar.InformeBalanceReservacionAuxiliar;
@@ -39,21 +40,26 @@ import com.bisontecfacturacion.security.hoteleria.repository.HabitacionesReposit
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionAnuladaRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionCabeceraRepository;
 import com.bisontecfacturacion.security.hoteleria.repository.ReservacionDetalleRepository;
+import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
+import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCajaCabecera;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
 import com.bisontecfacturacion.security.model.ReporteConfig;
 import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
+import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaCabeceraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
@@ -100,6 +106,11 @@ public class ReservacionController {
 	private IUsuarioService usuarioService;
 
 	private Reporte report;
+	
+	@Autowired
+	private OperacionCajaRepository operacionCajaRepository;
+	@Autowired
+	private OperacionCajaCabeceraRepository cabeceraRepository;
 
 
 	@Autowired
@@ -116,8 +127,7 @@ public class ReservacionController {
 
 	@Autowired
 	private MovimientoE_SRepository movEntradaSalidaRepository;
-	@Autowired
-	private OperacionCajaRepository operacionRepository;
+	
 
 	@Autowired
 	private ConceptoRepository conceptoRepository;
@@ -242,7 +252,7 @@ public class ReservacionController {
 		r.getFuncionarioRegistro().setId(ob.getFuncionarioRegistro().getId());
 		r.getFuncionarioRegistro().getPersona().setNombre(ob.getFuncionarioRegistro().getPersona().getNombre()+ " "+ob.getFuncionarioRegistro().getPersona().getApellido() );
 		r.getFuncionarioFinalizacion().setId(ob.getFuncionarioRegistro().getId());
-		r.getFuncionarioFinalizacion().getPersona().setNombre(ob.getFuncionarioFinalizacion().getPersona().getNombre()+" "+ ob.getFuncionarioRegistro().getPersona().getApellido());
+		r.getFuncionarioFinalizacion().getPersona().setNombre(ob.getFuncionarioFinalizacion().getPersona().getNombre()+" "+ ob.getFuncionarioFinalizacion().getPersona().getApellido());
 		r.getCliente().setId(ob.getCliente().getId());
 		r.getCliente().getPersona().setNombre(ob.getCliente().getPersona().getNombre()+" "+ob.getCliente().getPersona().getApellido());
 		r.getDocumento().setId(ob.getDocumento().getId());
@@ -256,6 +266,8 @@ public class ReservacionController {
 		r.setTotalLetra(ob.getTotalLetra());
 		r.setDescripcionCombo(ob.getDescripcionCombo());
 		r.setPrecio(ob.getPrecio());
+		r.setPrecioMinimo(ob.getPrecioMinimo());
+		r.setPrecioNormal(ob.getPrecioNormal());
 		r.setHabitacionesCategoriaCombo(ob.getHabitacionesCategoriaCombo());
 		r.setOperacionCajaEntrega(ob.getOperacionCajaEntrega());
 		r.setOperacionCaja(ob.getOperacionCaja());
@@ -350,12 +362,105 @@ public class ReservacionController {
 		actualizarHabitacionDisponilidadReservacion(r.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
 		return new ResponseEntity<String>("OK", HttpStatus.CREATED);
 	}
+	private ResponseEntity<CustomerErrorType> error(String mensaje) {
+		return new ResponseEntity<>(new CustomerErrorType(mensaje), HttpStatus.CONFLICT);
+	}
+	private ResponseEntity<?> validarCaja(List<OperacionCaja> operacionCajaLista) {
+	      System.out.println("entro validacion de cajas ");
+
+		    if (operacionCajaLista == null || operacionCajaLista.isEmpty()) {
+		        return error("No existen formas de pago para validar caja");
+		    }
+
+		    for (OperacionCaja op : operacionCajaLista) {
+		    	System.out.println("apertura : " +  op.getAperturaCaja().getId());
+		        if (op.getAperturaCaja() == null ||
+		            op.getAperturaCaja().getId() <= 0) {
+		            return error("El funcionario no posee una apertura de caja asignada");
+		        }
+
+		        AperturaCaja aper = aperturaCajaRepository.getAperturaCajaPorIdCaja(op.getAperturaCaja().getId()
+		                );
+
+		        if (aper == null) {
+		            return error("EL FUNCIONARIO NO POSEE UNA APERTURA CAJA A SU NOMBRE");
+		        }
+
+		        // 🔥 OPCIONAL PRO (MUY RECOMENDADO)
+		       // if (!aper.getEstado().equals("ABIERTO")) {
+		          //  return error("La apertura de caja no está activa");
+		        //}
+		    }
+
+		    return null;
+		}
+	@Transactional
+	public List<OperacionCaja> procesarOperacionCajaReservaciones(ReservacionCabecera reservacion, List<OperacionCaja> listaOperacion) {
+	    if (listaOperacion == null || listaOperacion.isEmpty()) {
+	        throw new RuntimeException("No existen operaciones de caja para procesar");
+	    }
+	    List<OperacionCaja> resultado = new ArrayList<>();
+	    OperacionCaja primera = listaOperacion.get(0);
+	    Concepto concepto = conceptoRepository.findById(primera.getConcepto().getId())
+	            .orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+	    // 🔹 Crear cabecera
+	    OperacionCajaCabecera cab = new OperacionCajaCabecera();
+	    cab.setFecha(new Date());
+	    cab.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+	    cab.setReferenciaOperacion(reservacion.getId());
+	    cab.setTipo("ENTRADA");
+	    cab.setMotivo(concepto.getDescripcion()+": "+reservacion.getDescripcionCombo() + " REF.: "+reservacion.getId());
+	    cab.setConcepto(concepto);
+	    cab.setAperturaCaja(primera.getAperturaCaja());
+	    OperacionCajaCabecera savedCabecera = cabeceraRepository.save(cab);
+	    // 🔹 Procesar operaciones
+	    for (OperacionCaja ope : listaOperacion) {
+	            System.out.println("EJECUTO OPERACION APERTURA PROCEDIMIENTO");
+	            ope.setTipo("ENTRADA");
+	    	    ope.setMotivo(concepto.getDescripcion()+": "+reservacion.getDescripcionCombo() + " REF.: "+reservacion.getId());
+	            ope.setReferenciaOperacion(reservacion.getId());
+	            ope.setFecha(new Date());
+	            ope.setOperacionCajaCabecera(savedCabecera);
+	            OperacionCaja saveOperacion = operacionCajaRepository.save(ope);
+	            int tipoOperacion = saveOperacion.getTipoOperacion().getId();
+	            int idApertura = saveOperacion.getAperturaCaja().getId();
+	            double monto = saveOperacion.getMonto();
+	            // 🔹 Actualizar saldo según tipo
+	            // 🔥 Actualizar saldos según tipo operación
+		        if (tipoOperacion == 1) {
+		            aperturaCajaRepository.findByActualizarAperturaSaldo(idApertura,monto);
+		        }
+		        if (tipoOperacion == 2) {
+		        	aperturaCajaRepository.findByActualizarAperturaSaldoCheque(idApertura,monto);
+		        }
+		        if (tipoOperacion == 3) {
+		        	aperturaCajaRepository.findByActualizarAperturaSaldoTarjeta(idApertura,monto);
+		        }
+		      
+		        resultado.add(saveOperacion);
+	    }
+	    //OperacionCaja saved = entityRepository.save(ope);
+        if(savedCabecera.getConcepto().getId()==31) {
+			entityRepository.findByActualizarReservacionOperacionEntrega(reservacion.getId(),savedCabecera.getId());
+		}else if(savedCabecera.getConcepto().getId()==13) {
+			entityRepository.findByActualizarReservacionOperacion(reservacion.getId(),savedCabecera.getId());
+		}
+	    //ent.setEstado("FACTURADO");
+		//ventaRepositoty.findByActualizarVentaOperacion(idReservacion,savedCabecera.getId());
+		//ventaRepositoty.findByActualizarFacturas(ent.getId(), "FACTURADO");
+	 
+	    
+	    return resultado;
+	}
 	@Transactional
 	@RequestMapping(method = RequestMethod.POST, value = "/{numeroTerminal}/{idAper}")
-	public ResponseEntity<?> guardar(@RequestBody ReservacionCabecera entity, @PathVariable int numeroTerminal,  @PathVariable int idAper){
+	public ResponseEntity<?> guardar(
+			@RequestPart("reservacion") ReservacionCabecera entity,
+		    @RequestPart("operacionCaja") List<OperacionCaja> operacionCajaLista, 
+			@PathVariable int numeroTerminal,  
+			@PathVariable int idAper){
 		try {
 			Double totalGeneral =0.0;
-			
 			if(entity.getFuncionarioRegistro().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT);
 			} else if(idAper == 0 && entity.getEntrega()>0) {
@@ -375,6 +480,7 @@ public class ReservacionController {
 			} else if (entity.getEstadia()<=0){
 				return new ResponseEntity<>(new CustomerErrorType("EL NÚMERO DE ESTADIA DEBE SER MAYOR A CERO!"), HttpStatus.CONFLICT);
 			} else{
+				
 				totalGeneral = totalGeneral + (entity.getEstadia()*entity.getPrecio());
 				for(int ind=0; ind < entity.getReservacionDetalles().size(); ind++) {
 					ReservacionDetalle pro = entity.getReservacionDetalles().get(ind);
@@ -388,27 +494,25 @@ public class ReservacionController {
 					totalGeneral = (totalGeneral + (pro.getPrecio()* pro.getCantidad()- pro.getDescuento()));
 				}
 
-
 				if(entity.getId() !=0) {
 				    ReservacionCabecera reservacionAnterior = entityRepository.findById(entity.getId()).orElse(null);
 					if (reservacionAnterior != null) {
 						if(reservacionAnterior.getHabitacionesCategoriaCombo().getHabitaciones().getId()!=entity.getHabitacionesCategoriaCombo().getHabitaciones().getId()) {
-							
 						}
 					}
-					System.out.println(entity.getFechaRegistro()+" fe registrerter");
+					System.out.println(entity.getFechaRegistro()+" fe registrerter: "+entity.getFechaReservacion());
 					if(entity.getEstado().equals("FINALIZADO")) {
 						entity.setFechaFactura(LocalDateTime.now());
 						entity.setHoraFinalizacion(hora());
 						//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId()));
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
-					}else if(entity.getEstado().equals("RESERVADO")) {
+					}else if(entity.getEstado().equals("OCUPADO")) {
 						if (reservacionAnterior != null) {
 				            if ("PRE-RESERVADO".equals(reservacionAnterior.getEstado())) {
 				                // Si antes era PRE-RESERVADO, ahora que pasa a RESERVADO => actualizamos fechaEntrada
 				                entity.setFechaEntrada(LocalDateTime.now());
 				                entity.setHora(hora());
-				            } else if ("RESERVADO".equals(reservacionAnterior.getEstado())) {
+				            } else if ("OCUPADO".equals(reservacionAnterior.getEstado())) {
 				                // Si antes ya era RESERVADO, no tocar fechaEntrada
 				                entity.setFechaEntrada(reservacionAnterior.getFechaEntrada());
 				                entity.setHora(reservacionAnterior.getHora());
@@ -419,8 +523,8 @@ public class ReservacionController {
 					}else if(entity.getEstado().equals("PRE-RESERVADO")) {
 						if (reservacionAnterior != null) {
 							 if ("PRE-RESERVADO".equals(reservacionAnterior.getEstado())) {
-						            entity.setFechaReservacion(reservacionAnterior.getFechaReservacion());
-						            entity.setHora(reservacionAnterior.getHora());
+						            entity.setFechaReservacion(entity.getFechaReservacion());
+						            entity.setHora(entity.getHora());
 					         }else {
 					        	 	entity.setFechaReservacion(entity.getFechaReservacion());
 					         }
@@ -461,7 +565,7 @@ public class ReservacionController {
 								this.actualizarProductoBase(detalleProducto.getProducto().getId(), detalleProducto.getCantidad(), detalleProducto.getSubTotal(), detalleProducto.getPrecio(), entity.getFuncionarioRegistro().getId(), entity.getTipo(), idVent);
 
 							}
-						}else if(entity.getEstado().equals("RESERVADO")) {
+						}else if(entity.getEstado().equals("OCUPADO")) {
 							for(ReservacionDetalle detalleProducto: entity.getReservacionDetalles()) {
 								detalleProducto.getReservacionCabecera().setId(idVent);
 								detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
@@ -484,8 +588,16 @@ public class ReservacionController {
 					entity.setTotalDescuento(totalDescuento);
 					entityRepository.save(entity);
 					System.out.println("entro  update");
+					if(operacionCajaLista.size()>0) {
+						ResponseEntity<?> validacionCaja = validarCaja(operacionCajaLista);
+						if (validacionCaja != null) return validacionCaja;
+					
+						procesarOperacionCajaReservaciones(entity, operacionCajaLista);
+					}
+					
 					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 				}else {
+					System.out.println("entro nuevo lis: "+operacionCajaLista.size());
 					entity.setFechaRegistro(LocalDateTime.now());
 					entity.setHora(hora());
 					if(entity.getEstado().equals("FINALIZADO")) {
@@ -493,7 +605,7 @@ public class ReservacionController {
 						entity.setHoraFinalizacion(hora());
 						//entity.setNroDocumento(getNroDocumento(entity.getDocumento().getId()));
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), false, false);
-					}else if(entity.getEstado().equals("RESERVADO")) {
+					}else if(entity.getEstado().equals("OCUPADO")) {
 						entity.setFechaEntrada(LocalDateTime.now());
 						entity.setHora(hora());
 						actualizarHabitacionDisponilidadReservacion(entity.getHabitacionesCategoriaCombo().getHabitaciones().getId(), true, true);
@@ -540,7 +652,7 @@ public class ReservacionController {
 								this.actualizarProductoBase(detalleProducto.getProducto().getId(), detalleProducto.getCantidad(), detalleProducto.getSubTotal(), detalleProducto.getPrecio(), entity.getFuncionarioRegistro().getId(), entity.getTipo(), idVent);
 
 							}
-						}else if(entity.getEstado().equals("RESERVADO")) {
+						}else if(entity.getEstado().equals("OCUPADO")) {
 							for(ReservacionDetalle detalleProducto: entity.getReservacionDetalles()) {
 								detalleProducto.getReservacionCabecera().setId(idVent);
 								detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
@@ -563,7 +675,12 @@ public class ReservacionController {
 					entity.setTotalDescuento(totalDescuento);
 					entityRepository.save(entity);
 					System.out.println("entro  nuevo");
-
+					if(operacionCajaLista.size()>0) {
+						ResponseEntity<?> validacionCaja = validarCaja(operacionCajaLista);
+						if (validacionCaja != null) return validacionCaja;
+					
+						procesarOperacionCajaReservaciones(entity, operacionCajaLista);
+					}
 					pdfPrintss(idVent, numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 
 				}

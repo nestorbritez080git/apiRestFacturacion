@@ -44,7 +44,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join cliente cl on v.cliente_id=cl.id \r\n" + 
 			"inner join persona cp on cl.persona_id=cp.id \r\n" + 
 			"inner join documento doc on doc.id=v.documento_id \r\n" + 
-			"where (v.estado='RESERVADO') AND extract(year from cast(v.fecha_entrada as Date))=:ano AND extract(month from cast(v.fecha_entrada as Date))=:mes AND extract(day from cast(v.fecha_entrada as Date))=:dia  order by v.id desc ",nativeQuery=true)
+			"where (v.estado='OCUPADO') AND extract(year from cast(v.fecha_entrada as Date))=:ano AND extract(month from cast(v.fecha_entrada as Date))=:mes AND extract(day from cast(v.fecha_entrada as Date))=:dia  order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesActivoRangoFechaAll(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
 
 	@Query(value="select * from reservacion_cabecera v \r\n" + 
@@ -55,7 +55,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join cliente cl on v.cliente_id=cl.id \r\n" + 
 			"inner join persona cp on cl.persona_id=cp.id \r\n" + 
 			"inner join documento doc on doc.id=v.documento_id \r\n" + 
-			"where (v.estado='RESERVADO') order by v.id desc ",nativeQuery=true)
+			"where (v.estado='OCUPADO') order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesActivoAll();
 	
 	@Query(value="select * from reservacion_cabecera v \r\n" + 
@@ -66,7 +66,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join cliente cl on v.cliente_id=cl.id \r\n" + 
 			"inner join persona cp on cl.persona_id=cp.id \r\n" + 
 			"inner join documento doc on doc.id=v.documento_id \r\n" + 
-			"where (v.estado= 'RESERVADO' OR v.estado='FINALIZADO') AND extract(year from cast(v.fecha_entrada as Date))=:ano AND extract(month from cast(v.fecha_entrada as Date))=:mes AND extract(day from cast(v.fecha_entrada as Date))=:dia  order by v.id desc ",nativeQuery=true)
+			"where (v.estado= 'OCUPADO' OR v.estado='FINALIZADO') AND extract(year from cast(v.fecha_entrada as Date))=:ano AND extract(month from cast(v.fecha_entrada as Date))=:mes AND extract(day from cast(v.fecha_entrada as Date))=:dia  order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesRangoFechaAll(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
 	
 	@Query(value="select * from reservacion_cabecera v \r\n" + 
@@ -77,7 +77,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join cliente cl on v.cliente_id=cl.id \r\n" + 
 			"inner join persona cp on cl.persona_id=cp.id \r\n" + 
 			"inner join documento doc on doc.id=v.documento_id \r\n" + 
-			"where (v.estado= 'RESERVADO' OR v.estado='FINALIZADO' OR v.estado='ANULADO') order by v.id desc ",nativeQuery=true)
+			"where (v.estado= 'OCUPADO' OR v.estado='FINALIZADO' OR v.estado='ANULADO') order by v.id desc ",nativeQuery=true)
 	List<ReservacionCabecera> getReservacionesAll();
 	
 	
@@ -102,7 +102,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 			"inner join persona perFin on perFin.id=funFin.persona_id " + 
 			"inner join cliente cli on cli.id=cab.cliente_id  " + 
 			"inner join persona perCli on perCli.id=cli.persona_id " + 
-			"where  (cab.estado='FINALIZADO' OR cab.estado='RESERVADO') " + 
+			"where  (cab.estado='FINALIZADO' OR cab.estado='OCUPADO') " + 
 			"AND (cab.fecha_registro >= :fecha_inicio) " + 
 			"AND (cab.fecha_registro <= :fecha_fin) ORDER BY cab.id DESC ", nativeQuery = true)
     List<Object []> getResumenRecepcionesRagoFecha( @Param("fecha_inicio") LocalDateTime fecha_inicio, @Param("fecha_fin") LocalDateTime fecha_fin);
@@ -159,7 +159,7 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 	);
 	
 	
-	@Query("SELECT c FROM ReservacionCabecera c ORDER BY c.id desc")
+	@Query("SELECT c FROM ReservacionCabecera c WHERE c.estado <> 'PRE-RESERVADO' ORDER BY c.id desc")
 	List<ReservacionCabecera> getReservacionAll();
 	@Query("SELECT c FROM ReservacionCabecera c " +
 		       "INNER JOIN c.cliente cl " +
@@ -170,12 +170,12 @@ public interface ReservacionCabeceraRepository extends JpaRepository<Reservacion
 		       "ORDER BY c.id DESC")
 	List<ReservacionCabecera> getReservacionAllDescripcion(@Param("des")  String des);
 	
-	@Query("SELECT c FROM ReservacionCabecera c WHERE c.estado='RESERVADO' ORDER BY c.id desc")
+	@Query("SELECT c FROM ReservacionCabecera c WHERE c.estado='OCUPADO' ORDER BY c.id desc")
 	List<ReservacionCabecera> getReservacionActivo();
 	@Query("SELECT c FROM ReservacionCabecera c " +
 		       "INNER JOIN c.cliente cl " +
 		       "INNER JOIN cl.persona pcli " +
-		       "WHERE c.estado = 'RESERVADO' AND (" +
+		       "WHERE c.estado = 'OCUPADO' AND (" +
 		       "LOWER(pcli.nombre) LIKE LOWER(CONCAT('%', :des, '%')) OR " +
 		       "LOWER(pcli.apellido) LIKE LOWER(CONCAT('%', :des, '%')) OR " +
 		       "LOWER(pcli.cedula) LIKE LOWER(CONCAT('%', :des, '%'))" +

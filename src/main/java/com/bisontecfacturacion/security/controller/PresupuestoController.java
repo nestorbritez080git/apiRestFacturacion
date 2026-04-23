@@ -34,6 +34,7 @@ import com.bisontecfacturacion.security.config.NumerosALetras;
 import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.config.Utilidades;
+import com.bisontecfacturacion.security.model.CierreCaja;
 import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
 import com.bisontecfacturacion.security.model.DetallePresupuestoServicio;
 import com.bisontecfacturacion.security.model.Org;
@@ -147,6 +148,40 @@ public class PresupuestoController {
 		if(filtro==4) { lisRetorno= listar(entityRepository.getPresupuestoFinalizado());}
 
 		return lisRetorno;
+		
+	}
+	@RequestMapping(method=RequestMethod.GET, value="/activo/app/{filtro}")
+	public List<Presupuesto> getAllsApp(OAuth2Authentication authentication, @PathVariable int filtro){
+		  if (authentication == null) {
+		        throw new RuntimeException("Authentication es null");
+		    }
+
+		    String username = authentication.getName();
+		    Usuario usuario = usuarioService.findByUsername(username);
+
+		    if (usuario == null) {
+		        throw new RuntimeException("Usuario no encontrado: " + username);
+		    }
+
+		    List<Presupuesto> lisRetorno = new ArrayList<>();
+
+		    if (usuario.getAdministrador() != null && usuario.getAdministrador()) {
+		        if (filtro == 1) lisRetorno = listar(entityRepository.getPresupuestoAll());
+		        if (filtro == 2) lisRetorno = listar(entityRepository.getPresupuestoActivo());
+		        if (filtro == 3) lisRetorno = listar(entityRepository.getPresupuestoCerrado());
+		        if (filtro == 4) lisRetorno = listar(entityRepository.getPresupuestoFinalizado());
+		    } else {
+		        if (usuario.getFuncionario() == null) {
+		            throw new RuntimeException("Funcionario es null para el usuario");
+		        }
+		        Integer funcId = usuario.getFuncionario().getId();
+		        if (filtro == 1) lisRetorno = listar(entityRepository.getPresupuestoAllPorUsuario(funcId));
+		        if (filtro == 2) lisRetorno = listar(entityRepository.getPresupuestoActivoPorFuncionario(funcId));
+		        if (filtro == 3) lisRetorno = listar(entityRepository.getPresupuestoCerradoPorFuncionario(funcId));
+		        if (filtro == 4) lisRetorno = listar(entityRepository.getPresupuestoFinalizadoPorFuncionario(funcId));
+		    }
+
+		    return lisRetorno;
 		
 	}
 	

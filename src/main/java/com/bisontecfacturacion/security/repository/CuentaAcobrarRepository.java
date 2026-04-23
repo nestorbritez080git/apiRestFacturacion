@@ -23,7 +23,12 @@ public interface CuentaAcobrarRepository extends JpaRepository<CuentaCobrarCabec
 
 	@Query(value = "select c from CuentaCobrarCabecera c where venta_id=:id")
 	CuentaCobrarCabecera getCuentaCabeceraPorVentaId(@Param("id") int id);
-
+	
+	@Query(value = "select c from CuentaCobrarCabecera c where id=:id")
+	CuentaCobrarCabecera getCuentaCabeceraPorId(@Param("id") int id);
+	
+	
+	
 	@Modifying
     @Transactional(readOnly=false)
 	@Query(value = "update cuenta_cobrar_cabecera set pagado=pagado+:monto, saldo = saldo-:monto where id=:id", nativeQuery = true)

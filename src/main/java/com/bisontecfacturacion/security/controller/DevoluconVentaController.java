@@ -31,6 +31,7 @@ import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.Cliente;
+import com.bisontecfacturacion.security.model.Compra;
 import com.bisontecfacturacion.security.model.Concepto;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
@@ -43,6 +44,7 @@ import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.MovimientoEntradaSalida;
 import com.bisontecfacturacion.security.model.NotaCredito;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCajaCabecera;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.Producto;
 import com.bisontecfacturacion.security.model.ProductoCardex;
@@ -64,6 +66,7 @@ import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.InteresCuotaRepository;
 import com.bisontecfacturacion.security.repository.MovimientoE_SRepository;
 import com.bisontecfacturacion.security.repository.NotaCreditoRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaCabeceraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.ParametroTipoHojaRepository;
@@ -165,6 +168,9 @@ public class DevoluconVentaController {
 	@Autowired
 	private TerminalConfigImpresoraRepository terminalRepository;
 
+	@Autowired
+	private OperacionCajaCabeceraRepository operacionCajaCabeceraRepository;
+ 
 	private SimpleDateFormat formater=new SimpleDateFormat("dd-MM-yyyy");
 
 
@@ -499,6 +505,8 @@ public class DevoluconVentaController {
 			}else {
 				System.out.println("no tiene empaque asociada");
 			}
+			List<OperacionCaja> listOperaciones = new ArrayList<>();
+			List<OperacionCaja> listResultOperaciones = new ArrayList<>();
 	        // 🔹 Operaciones de caja (efectivo/cheque/tarjeta)
 	        if (tEfe > 0) {
 	            OperacionCaja ope = new OperacionCaja();
@@ -512,12 +520,12 @@ public class DevoluconVentaController {
 	            if (tpCaja.equals("EFECTIVO")) ope.getTipoOperacion().setId(1);
 	            if (tpCaja.equals("CHEQUE")) ope.getTipoOperacion().setId(2);
 	            if (tpCaja.equals("TARJETA")) ope.getTipoOperacion().setId(3);
+	            listOperaciones.add(ope);
+	            listResultOperaciones= procesarOperacionCaja(ccc, listOperaciones);//operacionCajaRepository.save(ope);
 
-	            operacionCajaRepository.save(ope);
-
-	            if (tpCaja.equals("EFECTIVO")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idAper, tEfe);
-	            if (tpCaja.equals("CHEQUE")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idAper, tEfe);
-	            if (tpCaja.equals("TARJETA")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idAper, tEfe);
+	            //if (tpCaja.equals("EFECTIVO")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idAper, tEfe);
+	            //if (tpCaja.equals("CHEQUE")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idAper, tEfe);
+	            //if (tpCaja.equals("TARJETA")) aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idAper, tEfe);
 	        }
 
 	        // 🔹 Nota de crédito
@@ -543,6 +551,59 @@ public class DevoluconVentaController {
 	        return new ResponseEntity<>(new CustomerErrorType("Error al confirmar la devolución: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	}
+	
+	@Transactional
+	public List<OperacionCaja> procesarOperacionCaja(DevolucionVenta ent, List<OperacionCaja> listaOperacion) {
+
+	    if (listaOperacion == null || listaOperacion.isEmpty()) {
+	        throw new RuntimeException("No existen operaciones de caja para procesar");
+	    }
+	    List<OperacionCaja> resultado = new ArrayList<>();
+	    OperacionCaja primera = listaOperacion.get(0);
+	    Concepto concepto = conceptoRepository.findById(primera.getConcepto().getId())
+	            .orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+	    // 🔹 Crear cabecera
+	    OperacionCajaCabecera cabecera = new OperacionCajaCabecera();
+	    cabecera.setFecha(new Date());
+	    cabecera.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+	    cabecera.setReferenciaOperacion(ent.getId());
+	    cabecera.setTipo("SALIDA");
+	    cabecera.setMotivo(concepto.getDescripcion() + " REF.: " + ent.getId());
+	    cabecera.setConcepto(concepto);
+	    cabecera.setAperturaCaja(primera.getAperturaCaja());
+	    OperacionCajaCabecera savedCabecera = operacionCajaCabeceraRepository.save(cabecera);
+	    // 🔹 Procesar operaciones
+	    for (OperacionCaja ope : listaOperacion) {
+	            ope.setTipo("SALIDA");
+	            ope.setMotivo(concepto.getDescripcion() + " REF.: " + ent.getId());
+	            ope.setReferenciaOperacion(ent.getId());
+	            ope.setFecha(new Date());
+	            ope.setOperacionCajaCabecera(savedCabecera);
+	            OperacionCaja saveOperacion = operacionCajaRepository.save(ope);
+	            int tipoOperacion = saveOperacion.getTipoOperacion().getId();
+	            int idApertura = saveOperacion.getAperturaCaja().getId();
+	            double monto = saveOperacion.getMonto();
+	            // 🔹 Actualizar saldo según tipo
+	            if (tipoOperacion == 1) {
+	                aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idApertura, monto);
+	            }
+	            if (tipoOperacion == 2) {
+	            	aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idApertura, monto);
+	            }
+	            if (tipoOperacion == 3) {
+	            	aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idApertura, monto);
+	            }
+	            //entityRepository.findByActualizarCompraOperacion(ent.getId(), saveOperacion.getId());
+	            resultado.add(saveOperacion);
+	        
+	        if ("T-C".equals(ope.getTipo())) {
+	            System.out.println("EJECUTO OPERACION CAJA CHICA");
+	            // aquí podrías agregar la lógica de caja chica
+	        }
+	    }
+	    return resultado;
+	}
+	
 
 	public void actualizarProductoBaseAumentarCorregido(int id , double cantidad, double costo, double subtotal, double preVen1, double preVen2, double preVen3, double preVen4, int idfuncio, String marca, String tipo, int idDevolucion) {
 		ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);

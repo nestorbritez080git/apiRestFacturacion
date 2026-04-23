@@ -125,6 +125,7 @@ public class ConfigImpresora {
 			dto.getAutoImpresor().setId(ter.getAutoImpresor().getId());
 			dto.setEstadoListadoGrigImagen(ter.getEstadoListadoGrigImagen());
 			dto.setImpresora(ter.getImpresora());
+			dto.setNombreImpresora(ter.getNombreImpresora());
 		}
 		System.out.println("*/*/*/: "+dto.getImpresora());
 		return dto;

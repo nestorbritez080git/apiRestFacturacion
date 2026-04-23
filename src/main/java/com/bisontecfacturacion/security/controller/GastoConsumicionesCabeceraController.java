@@ -27,11 +27,13 @@ import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.model.AperturaCaja;
 import com.bisontecfacturacion.security.model.CajaChica;
 import com.bisontecfacturacion.security.model.Concepto;
+import com.bisontecfacturacion.security.model.DevolucionVenta;
 import com.bisontecfacturacion.security.model.GastoConsumicionesCabecera;
 import com.bisontecfacturacion.security.model.GastoConsumicionesDetalle;
 import com.bisontecfacturacion.security.model.GastoConsumicionesReferenciaCajaChica;
 import com.bisontecfacturacion.security.model.GastoConsumicionesReferenciaOperacionCaja;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCajaCabecera;
 import com.bisontecfacturacion.security.model.Org;
 import com.bisontecfacturacion.security.model.TransferenciaGastos;
 import com.bisontecfacturacion.security.model.Usuario;
@@ -43,6 +45,7 @@ import com.bisontecfacturacion.security.repository.GastoConsumicionesCabeceraRep
 import com.bisontecfacturacion.security.repository.GastoConsumicionesDetalleRepository;
 import com.bisontecfacturacion.security.repository.GastoConsumicionesReferenciaAperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.GastoConsumicionesReferenciaCajaChicaRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaCabeceraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.OrgRepository;
 import com.bisontecfacturacion.security.repository.TransferenciaGastoRepository;
@@ -81,6 +84,9 @@ public class GastoConsumicionesCabeceraController {
 	@Autowired
 	private GastoConsumicionesReferenciaCajaChicaRepository gastoReferenciaCajaChicaRepository;
 	
+	@Autowired
+	private OperacionCajaCabeceraRepository operacionCajaCabeceraRepository;
+ 
 	
 	@Autowired
 	private ConceptoRepository conceptoRepository;
@@ -231,7 +237,8 @@ public class GastoConsumicionesCabeceraController {
 									System.out.println("entrooo monto superaod tarj");
 									return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
 								}else{
-									
+									List<OperacionCaja> opLista= new ArrayList<>();
+									List<OperacionCaja> opListaRetorno= new ArrayList<>();
 									OperacionCaja op= new OperacionCaja();
 									op.getAperturaCaja().setId(cC.getId());
 									op.getConcepto().setId(9);
@@ -245,7 +252,10 @@ public class GastoConsumicionesCabeceraController {
 									c = conceptoRepository.findById(9).get();
 									op.setMotivo(c.getDescripcion() + " REF.: " + entity.getId());
 									op.setReferenciaOperacion(entity.getId());
-									operacionCajaRepository.save(op);
+									op.setConcepto(c);
+									opLista.add(op);
+									opListaRetorno = procesarOperacionCaja(entity, opLista);
+									/*operacionCajaRepository.save(op);
 									if (op.getTipoOperacion().getId() == 1) {
 										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(op.getAperturaCaja().getId(), entity.getTotal());
 									}
@@ -256,12 +266,10 @@ public class GastoConsumicionesCabeceraController {
 										aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(op.getAperturaCaja().getId(), entity.getTotal());
 
 									}
-									OperacionCaja opA= new  OperacionCaja();
-									opA= operacionCajaRepository.findTop1ByOrderByIdDesc();
-									GastoConsumicionesReferenciaOperacionCaja rfe= new GastoConsumicionesReferenciaOperacionCaja();
-									rfe.getOperacionCaja().setId(opA.getId());
-									rfe.getGastoConsumicionesCabecera().setId(entity.getId());
-									gastoReferenciaAperturaCajaRepository.save(rfe);
+									*/
+									//OperacionCaja opA= new  OperacionCaja();
+									//opA= operacionCajaRepository.findTop1ByOrderByIdDesc();
+									
 									
 								}
 							}
@@ -346,7 +354,61 @@ public class GastoConsumicionesCabeceraController {
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	@Transactional
+	public List<OperacionCaja> procesarOperacionCaja(GastoConsumicionesCabecera ent, List<OperacionCaja> listaOperacion) {
 
+	    if (listaOperacion == null || listaOperacion.isEmpty()) {
+	        throw new RuntimeException("No existen operaciones de caja para procesar");
+	    }
+	    List<OperacionCaja> resultado = new ArrayList<>();
+	    OperacionCaja primera = listaOperacion.get(0);
+	    Concepto concepto = conceptoRepository.findById(primera.getConcepto().getId())
+	            .orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+	    // 🔹 Crear cabecera
+	    OperacionCajaCabecera cabecera = new OperacionCajaCabecera();
+	    cabecera.setFecha(new Date());
+	    cabecera.setMonto(listaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+	    cabecera.setReferenciaOperacion(ent.getId());
+	    cabecera.setTipo("SALIDA");
+	    cabecera.setMotivo(concepto.getDescripcion() + " REF.: " + ent.getId());
+	    cabecera.setConcepto(concepto);
+	    cabecera.setAperturaCaja(primera.getAperturaCaja());
+	    OperacionCajaCabecera savedCabecera = operacionCajaCabeceraRepository.save(cabecera);
+	    // 🔹 Procesar operaciones
+	    for (OperacionCaja ope : listaOperacion) {
+	            ope.setTipo("SALIDA");
+	            ope.setMotivo(concepto.getDescripcion() + " REF.: " + ent.getId());
+	            ope.setReferenciaOperacion(ent.getId());
+	            ope.setFecha(new Date());
+	            ope.setOperacionCajaCabecera(savedCabecera);
+	            OperacionCaja saveOperacion = operacionCajaRepository.save(ope);
+	            int tipoOperacion = saveOperacion.getTipoOperacion().getId();
+	            int idApertura = saveOperacion.getAperturaCaja().getId();
+	            double monto = saveOperacion.getMonto();
+	            // 🔹 Actualizar saldo según tipo
+	            if (tipoOperacion == 1) {
+	                aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idApertura, monto);
+	            }
+	            if (tipoOperacion == 2) {
+	            	aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idApertura, monto);
+	            }
+	            if (tipoOperacion == 3) {
+	            	aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idApertura, monto);
+	            }
+	            //entityRepository.findByActualizarCompraOperacion(ent.getId(), saveOperacion.getId());
+	            resultado.add(saveOperacion);
+	            GastoConsumicionesReferenciaOperacionCaja rfe= new GastoConsumicionesReferenciaOperacionCaja();
+				rfe.getOperacionCaja().setId(saveOperacion.getId());
+				rfe.getGastoConsumicionesCabecera().setId(ent.getId());
+				gastoReferenciaAperturaCajaRepository.save(rfe);
+	        
+	        if ("T-C".equals(ope.getTipo())) {
+	            System.out.println("EJECUTO OPERACION CAJA CHICA");
+	            // aquí podrías agregar la lógica de caja chica
+	        }
+	    }
+	    return resultado;
+	}
 	public String hora() {
 		return new SimpleDateFormat("HH:mm:ss a", Locale.US).format(new Date());
 	}
