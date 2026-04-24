@@ -53,6 +53,9 @@ public class Org {
 
 
 
+	
+
+
 	public String getCiudad() {
 		return ciudad;
 	}

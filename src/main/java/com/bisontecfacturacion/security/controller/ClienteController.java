@@ -17,8 +17,12 @@ import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.ModeloRuc;
 import com.bisontecfacturacion.security.model.Persona;
 import com.bisontecfacturacion.security.repository.ClienteRepository;
+import com.bisontecfacturacion.security.repository.CompraRepository;
+import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.ModeloRucRepository;
 import com.bisontecfacturacion.security.repository.PersonaRepository;
+import com.bisontecfacturacion.security.repository.ProveedorRepository;
+import com.bisontecfacturacion.security.repository.VentaRepository;
 import com.bisontecfacturacion.security.service.CustomerErrorType;
 
 @RestController
@@ -28,7 +32,20 @@ public class ClienteController {
 	private ClienteRepository entityRepository;
 	
 	@Autowired
+	private FuncionarioRepository funcionarioRepository;
+	
+	@Autowired
+	private ProveedorRepository proveedorRepository;
+	
+	
+	@Autowired
 	private PersonaRepository personaRepository;
+	
+	@Autowired
+	private CompraRepository compraRepository;
+	
+	@Autowired
+	private VentaRepository ventaRepository;
 	
 	@Autowired
 	private ModeloRucRepository modeloRepository;
@@ -115,15 +132,6 @@ public class ClienteController {
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> guardar(@RequestBody Cliente entity) {
 	    try {
-
-	        // 🔒 VALIDAR PERSONA
-	        if (entity.getPersona() == null) {
-	            return new ResponseEntity<>(
-	                new CustomerErrorType("La persona no puede ser nula"),
-	                HttpStatus.CONFLICT
-	            );
-	        }
-
 	        Persona p = entity.getPersona();
 
 	        if (p.getCedula() == null || p.getCedula().trim().isEmpty()) {
@@ -154,24 +162,21 @@ public class ClienteController {
 
 	        if (p.getTipo() != null)
 	            p.setTipo(p.getTipo().trim().toUpperCase());
-
-	        // 🔑 NORMALIZAR CÉDULA (SIN GUIONES NI DV)
-	        String cedulaOriginal = p.getCedula();
-	        String cedulaNormalizada = normalizar(cedulaOriginal);
-
-	        // 🔍 BUSCAR SI YA EXISTE PERSONA CON ESA CÉDULA
-	        Persona existente = personaRepository.findByCedula(cedulaNormalizada);
+// 🔍 BUSCAR SI YA EXISTE PERSONA CON ESA CÉDULA
+	   
+	        String cedulaNormalizada = normalizar(p.getCedula());
+	        Persona existente = personaRepository.findAll().stream()
+	            .filter(x -> normalizar(x.getCedula()).equals(cedulaNormalizada))
+	            .findFirst()
+	            .orElse(null);
 
 	        if (existente != null) {
-	            // 👉 YA EXISTE → reutilizar persona (NO crear duplicado)
 	            entity.setPersona(existente);
 	        } else {
-	            // 👉 NO EXISTE → crear nueva persona
 	            p.setId(null);
 	            p.setCedula(cedulaNormalizada);
 	            entity.setPersona(p);
 	        }
-
 	        // 💾 GUARDAR CLIENTE
 	        entity.setId(null);
 	        entityRepository.save(entity);
@@ -185,8 +190,8 @@ public class ClienteController {
 	}
 	public boolean siExistePersonaCedula(Persona p){
 		String cedulaNormalizada = normalizar(p.getCedula());
-	    return entityRepository.findAll().stream()
-	        .anyMatch(x -> normalizar(x.getPersona().getCedula()).equals(cedulaNormalizada));
+	    return personaRepository.findAll().stream()
+	        .anyMatch(x -> normalizar(x.getCedula()).equals(cedulaNormalizada));
 	}
 
 	@RequestMapping(method=RequestMethod.PUT)
@@ -250,9 +255,37 @@ public class ClienteController {
 	        );
 	}
 	
-	@RequestMapping(method=RequestMethod.DELETE, value="/{id}")
-	public void eliminar(@PathVariable int id){
-		entityRepository.deleteById(id);
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+	public ResponseEntity<?> eliminar(@PathVariable int id) {
+		try {
+		    Cliente cli = entityRepository.findById(id).orElse(null);
+		    if (cli == null) {
+		        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		    }
+		    Persona persona = cli.getPersona();
+		    // validar ventas
+		    if (ventaRepository.existsByClienteId(id)) {
+		        return new ResponseEntity<>(
+		            new CustomerErrorType("NO SE PUEDE ELIMINAR, EL CLIENTE TIENE VENTAS"),
+		            HttpStatus.CONFLICT
+		        );
+		    }
+		    // eliminar cliente
+		    entityRepository.deleteById(id);
+		    // verificar si la persona sigue siendo usada
+		    boolean usadoEnProveedor = proveedorRepository.existsByPersonaId(persona.getId());
+		    boolean usadoEnFuncionario = funcionarioRepository.existsByPersonaId(persona.getId());
+		    if (!usadoEnProveedor && !usadoEnFuncionario) {
+		        if (personaRepository.existsById(persona.getId())) {
+		            personaRepository.deleteById(persona.getId());
+		        }
+		    }
+		    return new ResponseEntity<>(HttpStatus.OK);
+
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@RequestMapping(method=RequestMethod.GET, value="/buscar/{descripcion}")
@@ -339,11 +372,8 @@ public class ClienteController {
 	        return new ResponseEntity<>(HttpStatus.CREATED);
 
 	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return new ResponseEntity<>(
-	            new CustomerErrorType(e.getMessage()),
-	            HttpStatus.INTERNAL_SERVER_ERROR
-	        );
+	    	 e.printStackTrace();
+	    	return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	}
 	
@@ -360,4 +390,5 @@ public class ClienteController {
 	        }
 
 	        return limpio;
-	    }}
+	    }
+	 }

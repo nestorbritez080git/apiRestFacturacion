@@ -247,4 +247,8 @@ public List<Object []> getResumenEntregaInicialVentaCredito(@Param("fecha_inicio
 
 @Query(value = "SELECT pf.nombre AS nomb, pf.apellido AS ape, SUM(v.total) AS total FROM venta v INNER JOIN funcionario f ON v.funcionariov_id = f.id INNER JOIN persona pf ON  pf.id=f.persona_id WHERE v.estado = 'FACTURADO'   AND CAST(v.fecha_factura AS DATE) = CAST(:fecha AS DATE) GROUP BY pf.nombre, pf.apellido ORDER BY pf.nombre  ", nativeQuery = true)
 List<Object[]> findTotalVentaXFuncionarioEnFecha(@Param("fecha") LocalDate fecha);
+
+
+
+boolean existsByClienteId(Integer id);
 }

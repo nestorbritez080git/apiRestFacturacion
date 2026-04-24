@@ -40,6 +40,9 @@
 	<field name="vendedorNombre" class="java.lang.String">
 		<fieldDescription><![CDATA[funcionarioV.persona.nombre]]></fieldDescription>
 	</field>
+	<field name="vendedorApellido" class="java.lang.String">
+		<fieldDescription><![CDATA[funcionarioV.persona.apellido]]></fieldDescription>
+	</field>
 	<field name="vendedorTelefono" class="java.lang.String">
 		<fieldDescription><![CDATA[funcionarioV.persona.telefono]]></fieldDescription>
 	</field>
@@ -85,6 +88,12 @@
 	<field name="repartidorTelefono" class="java.lang.String">
 		<fieldDescription><![CDATA[funcionarioR.persona.telefono]]></fieldDescription>
 	</field>
+	<field name="repartidorApellido" class="java.lang.String">
+		<fieldDescription><![CDATA[funcionarioR.persona.apellido]]></fieldDescription>
+	</field>
+	<field name="apellidoCliente" class="java.lang.Object">
+		<fieldDescription><![CDATA[cliente.persona.apellido]]></fieldDescription>
+	</field>
 	<variable name="totalIva" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{totalIvaCinco}+$F{totalIvaDies}]]></variableExpression>
 	</variable>
@@ -109,7 +118,7 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{nombreCliente}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{nombreCliente}+" "+$F{apellidoCliente}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy">
 				<reportElement x="508" y="44" width="66" height="12" uuid="2416aa88-4002-4fc3-aabd-702f5b957cf3">
@@ -212,7 +221,7 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{vendedorNombre}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{vendedorNombre}+" "+$F{vendedorApellido}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="-1" y="66" width="71" height="12" uuid="42a86621-8f2b-4a17-bbd1-912a515f57ff">
@@ -303,7 +312,7 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{repartidorNombre}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{repartidorNombre}+" "+$F{repartidorApellido}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="206" y="55" width="65" height="12" uuid="8ab72997-707f-4d9f-afe7-742e6da3db83">

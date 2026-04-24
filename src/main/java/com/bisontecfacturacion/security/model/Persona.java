@@ -44,12 +44,6 @@ public class Persona {
     @JsonBackReference
     private List<Funcionario> funcionario;
 
-    @OneToOne(
-        fetch = FetchType.LAZY,
-        cascade = CascadeType.ALL,
-        mappedBy = "persona"
-    )
-    private Proveedor proveedor;
 
     public Persona() {
     	this.id=0;

@@ -27,10 +27,12 @@ public class Cliente {
 	private int diaLimite;
 	private boolean estadoBloqueo;
 
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "persona_id", unique = true)
-	private Persona persona;
 
+	@ManyToOne(cascade = CascadeType.MERGE)
+	@JoinColumn(name = "persona_id")
+	private Persona persona;
+	
+	
 	@OneToMany(mappedBy="cliente")
 	@JsonBackReference
 	private List<Venta> venta; 

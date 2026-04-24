@@ -2,6 +2,7 @@ package com.bisontecfacturacion.security.model;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -24,6 +25,7 @@ public class Funcionario {
 	private Double sueldoBruto;
 	
 	
+	
 	public boolean isEstadoServicio() {
 		return estadoServicio;
 	}
@@ -32,9 +34,9 @@ public class Funcionario {
 		this.estadoServicio = estadoServicio;
 	}
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "persona_id", unique = true)
-    private Persona persona;
+	private Persona persona;
 	
 	@OneToMany(mappedBy="funcionario")
 	@JsonBackReference

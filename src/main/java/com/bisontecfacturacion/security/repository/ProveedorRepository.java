@@ -23,6 +23,8 @@ public interface ProveedorRepository extends JpaRepository<Proveedor, Serializab
 	@Query(value = "select count(p.id) FROM Proveedor p",nativeQuery = true)
 	Object[] findByProveedor();
  
-	@Query(value="select proveedor.id, persona.nombre, persona.apellido, persona.cedula from proveedor inner join persona on proveedor.persona_id=persona.id where persona.nombre ilike :descripcion or persona.apellido ilike :descripcion or persona.cedula ilike :descripcion order by id desc limit 100",nativeQuery=true)
+	@Query(value="select proveedor.id, persona.nombre, persona.apellido, persona.cedula, persona.id as proveeId from proveedor inner join persona on proveedor.persona_id=persona.id where persona.nombre ilike :descripcion or persona.apellido ilike :descripcion or persona.cedula ilike :descripcion order by id desc limit 100",nativeQuery=true)
 	List<Object[]>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
+	
+	boolean existsByPersonaId(Integer id);
 }

@@ -1058,7 +1058,6 @@ public class VentaController {
 							HttpStatus.CONFLICT
 							);
 				}
-
 				// Validar que el autoimpresor esté activo
 				if (!terminal.getAutoImpresor().isEstado()) {
 					return new ResponseEntity<>(
@@ -1066,7 +1065,6 @@ public class VentaController {
 							HttpStatus.CONFLICT
 							);
 				}
-
 				// Validar rango de numeración
 				if (terminal.getAutoImpresor().getNumeroActual() < terminal.getAutoImpresor().getRangoInicio() ) {
 					return new ResponseEntity<>(
@@ -1728,7 +1726,7 @@ public class VentaController {
 				System.out.println("Venta ID: " + entity.getId() + " - TipoDocumento: " 
 						+ entity.getDocumento().getId() + " - NroDocumento: " + entity.getNroDocumento());
 
-				pdfPrintss(entity.getId(), ter, entity.getDocumento().getDescripcion(), entity.getDocumento().getId(), entity.getZona().getDescripcion());
+				pdfPrintss(entity.getId(), ter, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 
 			} else {
 
@@ -1955,7 +1953,7 @@ public class VentaController {
 				entity = entityRepository.save(entity);
 				System.out.println("Venta ID: " + entity.getId() + " - TipoDocumento: " 
 						+ entity.getDocumento().getId() + " - NroDocumento: " + entity.getNroDocumento());
-				pdfPrintss(entity.getId(), ter, entity.getDocumento().getDescripcion(), entity.getDocumento().getId(), entity.getZona().getDescripcion());
+				pdfPrintss(entity.getId(), ter, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2355,7 +2353,7 @@ public class VentaController {
 				System.out.println("Venta ID: " + entity.getId() + " - TipoDocumento: " 
 						+ entity.getDocumento().getId() + " - NroDocumento: " + entity.getNroDocumento());
 
-				pdfPrintss(entity.getId(), numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId(), entity.getZona().getDescripcion());
+				pdfPrintss(entity.getId(), numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 
 			} else {
 
@@ -2577,7 +2575,7 @@ public class VentaController {
 				System.out.println("Venta ID: " + entity.getId() + " - TipoDocumento: " 
 						+ entity.getDocumento().getId() + " - NroDocumento: " + entity.getNroDocumento());
 
-				pdfPrintss(entity.getId(), numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId(), entity.getZona().getDescripcion());
+				pdfPrintss(entity.getId(), numeroTerminal, entity.getDocumento().getDescripcion(), entity.getDocumento().getId());
 
 			}
 		} catch (Exception e) {
@@ -3166,7 +3164,8 @@ public class VentaController {
 			Funcionario FunR = funcionarioRepository.getIdFuncionario(xxx.getFuncionarioR().getId());
 
 			Venta v = new Venta();
-			v.getCliente().getPersona().setNombre(cli.getPersona().getNombre()+ " "+cli.getPersona().getApellido());
+			v.getCliente().getPersona().setNombre(cli.getPersona().getNombre());
+			v.getCliente().getPersona().setApellido(cli.getPersona().getApellido());
 			v.getCliente().getPersona().setCedula(cli.getPersona().getCedula());
 			v.getCliente().getPersona().setTelefono(cli.getPersona().getTelefono());
 			v.getCliente().getPersona().setDireccion(cli.getPersona().getDireccion());
@@ -3178,17 +3177,19 @@ public class VentaController {
 			v.getDocumento().setId(xxx.getDocumento().getId());
 
 			System.out.println("fun veeveveve : "+FunV.getPersona().getNombre());
-			v.getFuncionarioV().getPersona().setNombre(FunV.getPersona().getNombre()+ " "+FunV.getPersona().getApellido());
+			v.getFuncionarioV().getPersona().setNombre(FunV.getPersona().getNombre());
+			v.getFuncionarioV().getPersona().setApellido(FunV.getPersona().getApellido());
 			v.getFuncionarioV().getPersona().setTelefono(FunV.getPersona().getTelefono());
-			v.getFuncionarioR().getPersona().setNombre(FunR.getPersona().getNombre()+ " "+FunR.getPersona().getApellido());
+			v.getFuncionarioR().getPersona().setNombre(FunR.getPersona().getNombre());
+			v.getFuncionarioR().getPersona().setApellido(FunR.getPersona().getApellido());
 			v.getFuncionarioR().getPersona().setTelefono(FunR.getPersona().getTelefono());
-
 			v.setTotalDescuento(xxx.getTotalDescuento());
 			v.setTotalIvaCinco(xxx.getTotalIvaCinco());
 			v.setTotalIvaDies(xxx.getTotalIvaDies());
 			v.setTotal(xxx.getTotal());
 			v.setTotalLetra(xxx.getTotalLetra());
 			v.setTipo(xxx.getTipo());
+			v.setObs(xxx.getObs());
 			v.setNroDocumento(xxx.getNroDocumento());
 			v.getDocumento().setDescripcion(xxx.getDocumento().getDescripcion());
 			v.setEntrega(xxx.getEntrega());
@@ -3226,23 +3227,12 @@ public class VentaController {
 
 	}
 
-
-<<<<<<< Updated upstream
 	public void pdfPrintss(int idVenta, int numeroTerminal, String siImpresion, int tipoDocumento) {
-		if(siImpresion.equals("true")) {
-
-			Reporte report = new Reporte();
-			TerminalConfigImpresora t = new TerminalConfigImpresora();
-			t= terminalRepository.consultarTerminalPorNumerosSql(numeroTerminal);
-			if (t==null) {
-=======
-	public void pdfPrintss(int idVenta, int numeroTerminal, String siImpresion, int tipoDocumento, String tipoImpresora) {
 		if (siImpresion.equals("true")) {
 			Reporte report = new Reporte();
 			TerminalConfigImpresora ter = new TerminalConfigImpresora();
 			ter= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
 			if (ter==null) {
->>>>>>> Stashed changes
 				System.out.println("Se debe cargar numero terminal dentro de la base de datos");
 			}else {
 
@@ -3321,12 +3311,7 @@ public class VentaController {
 
 							}
 							if(p.getDescripcion().equals("PRUEBA-JOB")) {
-<<<<<<< Updated upstream
-								report.reportPDFImprimirPrueba(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), t.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
-=======
 								report.reportPDFImprimirPrueba(Arrays.asList(listaVentaImpresion.get(i)), map, reportConfig.getNombreReporte(), ter.getNombreImpresora(), reportConfig.getPageWidth(), reportConfig.getPageHeigth());
-
->>>>>>> Stashed changes
 							}
 						}
 					} catch (Exception e) {

@@ -52,4 +52,6 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Serial
     @Query("update Funcionario set estado=:estado where id=:id")
     public void findByActualizarFuncionario(@Param("id") int id, @Param("estado")Boolean estado );
 	
+	boolean existsByPersonaId(Integer id);
+	
 }

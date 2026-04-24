@@ -53,7 +53,7 @@ public interface CompraRepository extends JpaRepository<Compra,  Serializable>{
     @Query(value = "select pfun.nombre || ' ' || pfun.apellido as funcionario, pprov.nombre || ' ' || pprov.apellido as proveedor, doc.descripcion, c.nro_documento, c.fecha, c.total, c.tipo  from compra c inner join proveedor pro on pro.id=c.proveedor_id inner join persona pprov on pprov.id=pro.persona_id inner join funcionario fun on fun.id= c.funcionario_id inner join persona pfun on pfun.id=fun.persona_id inner join documento doc on doc.id=c.documento_id where c.estado='FACTURADO' and pro.id=:idPro", nativeQuery = true)
     List<Object []> getResumenCompraProveedorDetallado(@Param("idPro") int idPro);
     
-    
+    boolean existsByProveedorId(Integer id);
    
     @Query(value = "select sum(c.total)as costoTotal from compra c inner join proveedor pro on pro.id=c.proveedor_id inner join persona pprov on pprov.id=pro.persona_id inner join funcionario fun on fun.id= c.funcionario_id inner join persona pfun on pfun.id=fun.persona_id inner join documento doc on doc.id=c.documento_id where c.estado='FACTURADO' and ((c.fecha >= :fecha_inicio) AND (c.fecha<= :fecha_fin  ))", nativeQuery = true)
     Object [][] getResumenCompraFecha(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin);   
@@ -67,7 +67,6 @@ public interface CompraRepository extends JpaRepository<Compra,  Serializable>{
     
     @Query(value="select * from compra v inner join documento doc on doc.id=v.documento_id inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join proveedor cl on v.proveedor_id=cl.id inner join persona cp on cl.persona_id=cp.id where v.nro_documento ILIKE :filtro OR cp.nombre ILIKE :filtro OR   cp.apellido ILIKE :filtro OR   cp.cedula ILIKE :filtro order by v.id desc",nativeQuery=true)
 	List<Compra> getCompraAllFiltroProveedor(@Param("filtro") String filtro);
-    
      
     @Query("SELECT c FROM Compra c WHERE c.proveedor.id = :idproveedor AND c.nroDocumento = :docNumero")
     Optional<Compra> findByProveedorAndNumeroFactura(@Param("idproveedor") Integer idproveedor,

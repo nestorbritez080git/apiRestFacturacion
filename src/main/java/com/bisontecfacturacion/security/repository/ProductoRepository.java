@@ -20,7 +20,9 @@ import com.bisontecfacturacion.security.model.Producto;
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Serializable>, PagingAndSortingRepository<Producto, Serializable>{
 	
-	
+	 boolean existsByProveedorId(Integer id);
+	 
+	 
 	@Query(value = "SELECT p.*\r\n" + 
 			"FROM producto p\r\n" + 
 			"INNER JOIN marca m ON p.marca_id = m.id\r\n" + 

@@ -22,10 +22,10 @@ public class Proveedor {
 	private Integer id;
 	private String numeroCuenta;
 
+	@ManyToOne(cascade = CascadeType.MERGE)
+	@JoinColumn(name = "persona_id")
+	private Persona persona;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "persona_id", unique = true)
-    private Persona persona;
 
 	@OneToMany(mappedBy="proveedor")
 	@JsonBackReference
@@ -54,6 +54,12 @@ public class Proveedor {
 	}
 	public void setPersona(Persona persona) {
 		this.persona = persona;
+	}
+	public List<Producto> getProducto() {
+		return producto;
+	}
+	public void setProducto(List<Producto> producto) {
+		this.producto = producto;
 	}
 	
 	

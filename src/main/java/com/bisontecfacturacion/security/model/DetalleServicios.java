@@ -18,33 +18,24 @@ public class DetalleServicios {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private int id;
-
 	@ManyToOne
 	private Servicio servicio;
-	
 	@NotNull
 	private String descripcion;
-	
 	@NotNull
 	private Double cantidad;
-	
 	@NotNull
 	private Double subTotal;
 	@NotNull
 	private Double precio;
-	
 	private Double montoIva;
 	private String iva;
 	private String obs;
-	
 	@ManyToOne
 	@JsonIgnoreProperties("venta")
 	private Venta venta;
-	
 	@ManyToOne
 	private Funcionario funcionario;
-	
-
 	public DetalleServicios() {
 		super();
 		id=0;

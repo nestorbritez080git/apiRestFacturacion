@@ -23,6 +23,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Serializable> 
 	 @Query("select c from Cliente c where persona_id=:id ")
 	 public Cliente getIdPersona(@Param("id") int id);
 	 
+	 
 	 @Query("select c from Cliente c where id=:id ")
 	 public Cliente getIdCliente(@Param("id") int id);
 	 
@@ -41,4 +42,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Serializable> 
 		       "per.cedula LIKE CONCAT('%', :descripcion, '%') " +
 		       "ORDER BY c.id DESC")
 	public List<Cliente>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
+	
+	boolean existsByPersonaId(Integer id);
 }

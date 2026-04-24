@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<!-- Created with Jaspersoft Studio version 6.21.3.final using JasperReports Library version 6.21.3-4a3078d20785ebe464f18037d738d12fc98c13cf  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Prueba" pageWidth="595" pageHeight="461" columnWidth="585" leftMargin="5" rightMargin="5" topMargin="10" bottomMargin="5" uuid="777e1bb0-9dfd-46f8-a513-6381ef99413c">
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -28,6 +28,9 @@
 	<field name="nombreCliente" class="java.lang.Object">
 		<fieldDescription><![CDATA[cliente.persona.nombre]]></fieldDescription>
 	</field>
+	<field name="apellidoCliente" class="java.lang.Object">
+		<fieldDescription><![CDATA[cliente.persona.apellido]]></fieldDescription>
+	</field>
 	<field name="ruc" class="java.lang.Object">
 		<fieldDescription><![CDATA[cliente.persona.cedula]]></fieldDescription>
 	</field>
@@ -39,6 +42,9 @@
 	</field>
 	<field name="vendedorNombre" class="java.lang.String">
 		<fieldDescription><![CDATA[funcionarioV.persona.nombre]]></fieldDescription>
+	</field>
+	<field name="vendedorApellido" class="java.lang.String">
+		<fieldDescription><![CDATA[funcionarioV.persona.apellido]]></fieldDescription>
 	</field>
 	<field name="vendedorTelefono" class="java.lang.String">
 		<fieldDescription><![CDATA[funcionarioV.persona.telefono]]></fieldDescription>
@@ -84,6 +90,9 @@
 	</field>
 	<field name="repartidorTelefono" class="java.lang.String">
 		<fieldDescription><![CDATA[funcionarioR.persona.telefono]]></fieldDescription>
+	</field>
+	<field name="repartidorApellido" class="java.lang.String">
+		<fieldDescription><![CDATA[funcionarioR.persona.nombre]]></fieldDescription>
 	</field>
 	<variable name="totalIva" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{totalIvaCinco}+$F{totalIvaDies}]]></variableExpression>
@@ -188,14 +197,14 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{vendedorNombre}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{vendedorNombre}+" "+$F{vendedorApellido}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="274" y="139" width="125" height="12" uuid="cfeb9209-4191-4361-8fd3-dbe079e4c30d"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{repartidorNombre}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{repartidorNombre}+" "+$F{repartidorApellido}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="401" y="128" width="80" height="12" uuid="f3781f5e-101c-4383-b08d-0206f7842bc1">
@@ -306,7 +315,7 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Lucida Console" size="8" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{nombreCliente}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{nombreCliente}+" "+$F{apellidoCliente}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="481" y="139" width="86" height="12" uuid="f2059c07-072c-414e-8e5f-1625ebe69422">
