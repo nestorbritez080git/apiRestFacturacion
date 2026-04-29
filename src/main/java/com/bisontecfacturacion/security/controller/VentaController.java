@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,14 +38,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.ComparativaVentasDTO;
 import com.bisontecfacturacion.security.auxiliar.InformeVentaTotalPorProducto;
 import com.bisontecfacturacion.security.auxiliar.MovimientoPorConceptosAuxiliar;
 import com.bisontecfacturacion.security.auxiliar.NroDocumento;
 import com.bisontecfacturacion.security.auxiliar.ParametroTipoHoja;
+import com.bisontecfacturacion.security.auxiliar.VentaMensualDTO;
 import com.bisontecfacturacion.security.config.ExcelGenerator;
 import com.bisontecfacturacion.security.config.FechaUtil;
 import com.bisontecfacturacion.security.config.NumerosALetras;
@@ -292,13 +296,10 @@ public class VentaController {
 	}
 
 
-	@RequestMapping(method=RequestMethod.GET, value="/totalventa/{fecha}")
-	public Object[] getTotalVenta(@PathVariable String fecha){
-		String[] fec=fecha.split("-");
-		Integer dia=Integer.parseInt(fec[0]);
-		Integer mes=Integer.parseInt(fec[1]);
-		Integer ano=Integer.parseInt(fec[2]);
-		return entityRepository.findByTotalVenta(ano, mes, dia);
+	@RequestMapping(method=RequestMethod.GET, value="/totalventa")
+	public Object[] getTotalVenta(){
+	
+		return entityRepository.findByTotalVentas();
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/{fecha}")
 	public List<Venta> getAlls(@PathVariable String fecha){
@@ -578,13 +579,12 @@ public class VentaController {
 	public synchronized Map<String, Object> generarDocumentoUnificado(int idDocumento, int numeroTerminal, int idVenta) {
 		Map<String, Object> resultado = new HashMap<>();
 		String numeroCompleto = "";
-
 		TerminalConfigImpresora terminal = terminalRepository.consultarTerminalEmisonFacturaPorTerminales(numeroTerminal);
 
 		// Solo Factura puede usar AutoImpresor
 		if (idDocumento == 1) {
 			AutoImpresor auto = null;
-			if (Boolean.TRUE.equals(terminal.getEstadoEmisionFactura())) {
+			if (Boolean.TRUE.equals(terminal.getEstadoEmisionFactura()) &&( terminal.getAutoImpresor().getAutoImpresorTipoRemision().getId()==2 || terminal.getAutoImpresor().getAutoImpresorTipoRemision().getId()==1)) {
 				auto = terminal.getAutoImpresor();
 				LocalDate hoy = LocalDate.now();
 				if (auto != null && !hoy.isBefore(auto.getFechaInicioVigencia()) && !hoy.isAfter(auto.getFechaFinVigencia())) {
@@ -1050,13 +1050,14 @@ public class VentaController {
 				}
 				venta.setZona(primeraZonaOpt.get());
 			}
-			if (terminal != null && venta.getDocumento().getId() == 1) {
+			System.out.println("auatorimpresor tipo: "+terminal.getAutoImpresor().getAutoImpresorTipoRemision().getId());
+			if (terminal != null && venta.getDocumento().getId() == 1 && terminal.getAutoImpresor().getId()==2) {
 				// Validar que tenga autoimpresor asignado
 				if (terminal.getEstadoEmisionFactura() == false) {
 					return new ResponseEntity<>(
 							new CustomerErrorType("Esta terminal no está hablitado para emitir factura"),
 							HttpStatus.CONFLICT
-							);
+					);
 				}
 				// Validar que el autoimpresor esté activo
 				if (!terminal.getAutoImpresor().isEstado()) {
@@ -1325,23 +1326,18 @@ public class VentaController {
 		if (nota == 0) {
 			return error("EL NUMERO DE NOTA CREDITO NO SE HA PODIDO CARGAR");
 		}
-
 		if (listaOperacion == null || listaOperacion.isEmpty()) {
 			return error("NO EXISTEN OPERACIONES DE CAJA PARA VALIDAR");
 		}
-
 		for (OperacionCaja entity : listaOperacion) {
-
 			if (entity.getAperturaCaja() == null ||
 					entity.getAperturaCaja().getId() > 0) {
 				return error("SE DEBE CARGAR LOS DATOS DE LA APERTURA CAJA");
 			}
-
 			if (entity.getConcepto() == null ||
 					entity.getConcepto().getId() > 0) {
 				return error("SE DEBE CARGAR EL CONCEPTO DE LA OPERACION CAJA");
 			}
-
 			if (entity.getTipoOperacion() == null ||
 					entity.getTipoOperacion().getId() > 0) {
 				return error("SE DEBE CARGAR EL TIPO DE OPERACION EN CAJA");
@@ -1530,12 +1526,13 @@ public class VentaController {
 					entity.setNroDocumento("");
 					entity.setFechaFactura(null);
 				}
-				double total10=0, total5=0,  totalCostoPromedio=0;
+				double total10=0, total5=0,  totalCostoPromedio=0, costoReal=0.0;
 				double grabado10=0, grabado5=0, grabadoExcenta=0;
 				if(entity.getDetalleProducto().size()>0){
 					if (entity.getEstado().equals("FACTURADO")|| entity.getEstado().equals("PREVENTA")) {
 
 						for(DetalleProducto detalleProducto: entity.getDetalleProducto()) {
+							costoReal = costoReal + detalleProducto.getSubTotalCosto();
 							totalGenerales = totalGenerales + (detalleProducto.getPrecio() * detalleProducto.getCantidad());
 							descuentoGenerales = descuentoGenerales + (detalleProducto.getDescuento() * detalleProducto.getCantidad());
 							detalleProducto.getVenta().setId(entity.getId());
@@ -1555,6 +1552,7 @@ public class VentaController {
 								grabadoExcenta = grabadoExcenta + detalleProducto.getSubTotal();
 								detalleProducto.setMontoIva(0.0);
 							}
+							
 							Double cpp= movEntradaSalidaRepository.getCostoPromedioPonderado(detalleProducto.getProducto().getId());
 							cpp= movEntradaSalidaRepository.getCostoPromedioPonderado(detalleProducto.getProducto().getId());
 							System.out.println("ccoçp: montos: "+cpp);
@@ -1576,6 +1574,8 @@ public class VentaController {
 								totalCostoPromedio = totalCostoPromedio + (cpp*detalleProducto.getCantidad());
 								detalleProducto.setSubTotalCostoPromedio(cpp*detalleProducto.getCantidad());
 							}
+							
+							
 							detalleProducto.setCosto(detalleProducto.getCosto()*detalleProducto.getCantidad());
 							DetalleProducto detpro = detalleProductoRepository.save(detalleProducto);
 							this.actualizarProductoBase(detpro.getProducto().getId(), detpro.getCantidad(), detpro.getSubTotal(), detpro.getPrecio(), entity.getFuncionario().getId(), entity.getTipo(), entity.getId());
@@ -1587,6 +1587,7 @@ public class VentaController {
 					if (entity.getEstado().equals("FACTURAR")) {
 						for(DetalleProducto detalleProducto: entity.getDetalleProducto()) {
 							totalGenerales = totalGenerales + (detalleProducto.getPrecio() * detalleProducto.getCantidad());
+							costoReal = costoReal + detalleProducto.getSubTotalCosto();
 							descuentoGenerales = descuentoGenerales + (detalleProducto.getDescuento() * detalleProducto.getCantidad());
 							detalleProducto.getVenta().setId(entity.getId());
 							detalleProducto.setTipoPrecio(validarPrecio(detalleProducto.getProducto().getId(), detalleProducto.getPrecio()));
@@ -1600,7 +1601,7 @@ public class VentaController {
 						for(DetalleServicios detalleServicio: entity.getDetalleServicio()) {
 							totalGenerales = totalGenerales + (detalleServicio.getPrecio() * detalleServicio.getCantidad());
 							// = descuentoGenerales + (detalleServicio.getDescuento() * detalleProducto.getCantidad());
-
+							 
 							detalleServicio.getVenta().setId(entity.getId());
 							if(detalleServicio.getIva().equals("10 %")) {
 								grabado10 = grabado10 + detalleServicio.getSubTotal();
@@ -1695,6 +1696,7 @@ public class VentaController {
 					}
 
 				}
+				entity.setTotalCosto(costoReal);
 				entity.setTotalIvaDies(total10);
 				entity.setTotalIvaCinco(total5);
 				entity.setGrabadoIvaDies(grabado10);
@@ -1751,12 +1753,13 @@ public class VentaController {
 				}
 				System.out.println(entity.getFecha());
 				System.out.println(entity.getFechaFactura()+"  ******");
-				double total10=0, total5=0, totalCostoPromedio=0.0;
+				double total10=0, total5=0, totalCostoPromedio=0.0, costoReal=0.0;
 				double grabado10=0, grabado5=0, grabadoExcenta=0;
 				if(entity.getDetalleProducto().size()>0){
 					if (entity.getEstado().equals("FACTURADO") || entity.getEstado().equals("PREVENTA")) {
 						for(DetalleProducto detalleProducto: entity.getDetalleProducto()) {	
 							totalGenerales = totalGenerales + (detalleProducto.getPrecio() * detalleProducto.getCantidad());
+							costoReal = costoReal + detalleProducto.getSubTotalCosto();
 							descuentoGenerales = descuentoGenerales + (detalleProducto.getDescuento() * detalleProducto.getCantidad());
 
 							detalleProducto.getVenta().setId(entity.getId());
@@ -1812,6 +1815,7 @@ public class VentaController {
 					if (entity.getEstado().equals("FACTURAR")) {
 						for (DetalleProducto detalleProducto : entity.getDetalleProducto()) {
 							totalGenerales = totalGenerales + (detalleProducto.getPrecio() * detalleProducto.getCantidad());
+							costoReal = costoReal + detalleProducto.getSubTotalCosto();
 							descuentoGenerales = descuentoGenerales + (detalleProducto.getDescuento() * detalleProducto.getCantidad());
 
 							detalleProducto.getVenta().setId(entity.getId());
@@ -1925,6 +1929,7 @@ public class VentaController {
 					}
 				}
 				System.out.println("TOTAL ENVIADO: "+entity.getTotal() + " TOTAL CALCULADO: "+totalGenerales);
+				entity.setTotalCosto(costoReal);
 				entity.setTotalIvaDies(total10);
 				entity.setTotalIvaCinco(total5);
 				entity.setGrabadoIvaDies(grabado10);
@@ -5105,5 +5110,41 @@ public class VentaController {
 	    }
 	}
 	 */
+	
+	@RequestMapping(value="/comparativaVenta/{actual}/{anterior}", method=RequestMethod.GET)
+	public ComparativaVentasDTO  getVentasPorMes(@PathVariable int actual, @PathVariable int anterior) {
+		 ComparativaVentasDTO dto = new ComparativaVentasDTO();
+		    dto.setActual(mapear(entityRepository.getVentasPorMes(actual)));
+		    dto.setAnterior(mapear(entityRepository.getVentasPorMes(anterior)));
+		    return dto;
+	}
+	 private List<VentaMensualDTO> mapear(List<Object[]> lista) {
 
+	        return lista.stream().map(obj -> {
+
+	        	String mes = obj[0].toString();
+
+	        
+
+	            Double totalVenta = obj[2] != null
+	                    ? Double.parseDouble(obj[2].toString())
+	                    : 0.0;
+	            Double totalDevolucion = obj[3] != null
+	    	                    ? Double.parseDouble(obj[3].toString())
+	    	                    : 0.0;
+
+	            return new VentaMensualDTO(
+	                    mes,
+	                    totalVenta,
+	                    totalDevolucion
+	            );
+
+	        }).collect(Collectors.toList());
+	    }
+	 @RequestMapping(value="/prediccionVentaMensaul", method=RequestMethod.GET)
+		public ComparativaVentasDTO  getVentasPorMes() {
+			 ComparativaVentasDTO dto = new ComparativaVentasDTO();
+			    dto.setActual(mapear(entityRepository.getVentaPorMes()));
+			    return dto;
+		}
 }

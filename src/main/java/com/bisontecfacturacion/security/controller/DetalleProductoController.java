@@ -168,6 +168,7 @@ public class DetalleProductoController {
 			detalleProductos.setCosto(Double.parseDouble(ob[19].toString()));
 			detalleProductos.setTipoPrecio(ob[20].toString());
 			detalleProductos.setCantidadDevolucion(Double.parseDouble(ob[21].toString()));
+			detalleProductos.setSubTotalCosto(Double.parseDouble(ob[22].toString()));
 			detalleProducto.add(detalleProductos);
 		}
 		System.out.println("Retorno Lista Detalle Producto "+detalleProducto.size());

@@ -42,6 +42,7 @@ public class DetalleProducto {
 	private Venta venta;
 	
 	private Double costo;
+	private Double subTotalCosto;
 	private Double costoPromedio;
 	private Double subTotalCostoPromedio;
 
@@ -62,6 +63,17 @@ public class DetalleProducto {
 		this.montoIva=0.0;
 		this.costoPromedio=0.0;
 		this.subTotalCostoPromedio=0.0;
+		this.subTotalCosto=0.0;
+	}
+
+
+	public Double getSubTotalCosto() {
+		return subTotalCosto;
+	}
+
+
+	public void setSubTotalCosto(Double subTotalCosto) {
+		this.subTotalCosto = subTotalCosto;
 	}
 
 

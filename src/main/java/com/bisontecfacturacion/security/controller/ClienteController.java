@@ -148,7 +148,7 @@ public class ClienteController {
 	            );
 	        }
 
-	        // 🧹 NORMALIZACIÓN DE DATOS
+	        // NORMALIZACIÓN
 	        p.setNombre(Utilidades.eliminaCaracterIzqDer(p.getNombre().trim().toUpperCase()));
 
 	        if (p.getApellido() != null)
@@ -162,9 +162,11 @@ public class ClienteController {
 
 	        if (p.getTipo() != null)
 	            p.setTipo(p.getTipo().trim().toUpperCase());
-// 🔍 BUSCAR SI YA EXISTE PERSONA CON ESA CÉDULA
-	   
+
+	        // BUSCAR PERSONA EXISTENTE
 	        String cedulaNormalizada = normalizar(p.getCedula());
+	        String cedulaRuc = p.getCedula();
+
 	        Persona existente = personaRepository.findAll().stream()
 	            .filter(x -> normalizar(x.getCedula()).equals(cedulaNormalizada))
 	            .findFirst()
@@ -174,10 +176,15 @@ public class ClienteController {
 	            entity.setPersona(existente);
 	        } else {
 	            p.setId(null);
-	            p.setCedula(cedulaNormalizada);
-	            entity.setPersona(p);
+	            p.setCedula(cedulaRuc);
+
+	            // GUARDAR PERSONA PRIMERO
+	            Persona personaGuardada = personaRepository.save(p);
+
+	            entity.setPersona(personaGuardada);
 	        }
-	        // 💾 GUARDAR CLIENTE
+
+	        // GUARDAR CLIENTE
 	        entity.setId(null);
 	        entityRepository.save(entity);
 

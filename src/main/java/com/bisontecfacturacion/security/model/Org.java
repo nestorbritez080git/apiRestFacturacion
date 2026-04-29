@@ -36,6 +36,7 @@ public class Org {
 	private Date alta;
     private String ciudad;
     private String pais;
+    private String nombreImagen;
 	
 	
 
@@ -49,11 +50,30 @@ public class Org {
 		alta=new Date();
 		ciudad="";
 		pais="";
+		nombreImagen="";
 	}
 
 
 
 	
+
+
+	public String getNombreImagen() {
+		return nombreImagen;
+	}
+
+
+
+
+
+
+	public void setNombreImagen(String nombreImagen) {
+		this.nombreImagen = nombreImagen;
+	}
+
+
+
+
 
 
 	public String getCiudad() {

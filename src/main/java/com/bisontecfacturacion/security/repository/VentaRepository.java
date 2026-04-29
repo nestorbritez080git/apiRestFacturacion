@@ -83,8 +83,8 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 	public List<Venta> getVentaPorRangoFechaClienteHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idCli") int idCli);
 	
 	
-	@Query(value = "select sum(total) as total from venta v where extract(year from cast(v.fecha as Date))=:ano AND extract(month from cast(v.fecha as Date))=:mes AND extract(day from cast(v.fecha as Date))=:dia",nativeQuery = true)
-	Object[] findByTotalVenta(@Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia);
+	@Query(value = "select sum(v.total - v.total_devolucion) as total from venta v where v.estado='FACTURADO'",nativeQuery = true)
+	Object[] findByTotalVentas();
 
 	@Query(value = "select sum(sub_total) as totales, producto_id, descripcion from detalle_producto group by producto_id, descripcion order by totales desc limit 5",nativeQuery = true)
 	List<Object[]> findByUtilidad();
@@ -251,4 +251,48 @@ List<Object[]> findTotalVentaXFuncionarioEnFecha(@Param("fecha") LocalDate fecha
 
 
 boolean existsByClienteId(Integer id);
+
+
+@Query(value = "SELECT \r\n" + 
+		"        TO_CHAR(v.fecha, 'TMMonth') AS mes,\r\n" + 
+		"        EXTRACT(MONTH FROM v.fecha) AS nroMes,\r\n" + 
+		"\r\n" + 
+		"        SUM(\r\n" + 
+		"            CASE \r\n" + 
+		"                WHEN v.estado = 'FACTURADO' THEN v.total\r\n" + 
+		"                ELSE 0\r\n" + 
+		"            END\r\n" + 
+		"        ) AS totalVenta,\r\n" + 
+		"\r\n" + 
+		"        SUM(\r\n" + 
+		"            COALESCE(v.total_devolucion, 0)\r\n" + 
+		"        ) AS totalDevolucion\r\n" + 
+		"\r\n" + 
+		"    FROM venta v\r\n" + 
+		"    WHERE EXTRACT(YEAR FROM v.fecha) = :anio\r\n" + 
+		"      AND v.estado IN ('FACTURADO', 'DEVOLUCION')\r\n" + 
+		"\r\n" + 
+		"    GROUP BY \r\n" + 
+		"        TO_CHAR(v.fecha, 'TMMonth'),\r\n" + 
+		"        EXTRACT(MONTH FROM v.fecha)\r\n" + 
+		"\r\n" + 
+		"    ORDER BY nroMes", nativeQuery = true)
+List<Object[]> getVentasPorMes(@Param("anio") int anio);
+
+@Query(value = "SELECT \r\n" + 
+		"    TO_CHAR(v.fecha, 'MM/YYYY') AS mes,\r\n" + 
+		"    EXTRACT(MONTH FROM v.fecha) AS nroMes,\r\n" + 
+		"    SUM(v.total) AS totalVenta,\r\n" + 
+		"    SUM(COALESCE(v.total_devolucion, 0)) AS totalDevolucion\r\n" + 
+		"    FROM venta v\r\n " + 
+		"    WHERE v.estado = 'FACTURADO'\r\n" + 
+		"    AND v.fecha >= (CURRENT_DATE - INTERVAL '15 months') \r\n" +
+		"    GROUP BY \r\n" + 
+		"    TO_CHAR(v.fecha, 'MM/YYYY'),\r\n" + 
+		"    EXTRACT(MONTH FROM v.fecha),\r\n" + 
+		"    EXTRACT(YEAR FROM v.fecha)\r\n" + 
+		"    ORDER BY \r\n" + 
+		"    EXTRACT(YEAR FROM v.fecha),\r\n" + 
+		"    EXTRACT(MONTH FROM v.fecha)", nativeQuery = true)
+List<Object[]> getVentaPorMes();
 }

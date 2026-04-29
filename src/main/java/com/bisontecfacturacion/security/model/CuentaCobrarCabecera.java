@@ -35,11 +35,6 @@ public class CuentaCobrarCabecera {
 	private boolean estado;
 	private Double entrega;
 	private Double totalDevolucion;
-	
-	
-	
-
-	
 	@ManyToOne
 	private TipoPlazo tipoPlazo;
 	@ManyToOne
@@ -55,8 +50,6 @@ public class CuentaCobrarCabecera {
 	private Funcionario funcionario;
 	@ManyToOne
 	private Cliente cliente;
-
-	
 	@OneToMany(mappedBy="cuentaCobrarCabecera")
 	private List<CuentaCobrarDetalle> cuentaCobrarDetalle; 
 		

@@ -88,6 +88,7 @@ public class Venta {
 
 	private Double totalIva;
 	private Double totalDevolucion;
+	private Double totalCosto;
 
 	
 	public Venta() {
@@ -123,8 +124,19 @@ public class Venta {
 		this.grabadoIvaDies=0.0;
 		this.grabadoIvaCinco=0.0;
 		this.grabadoExcenta=0.0;
+		this.totalCosto=0.0;
 	}
 	
+
+	public Double getTotalCosto() {
+		return totalCosto;
+	}
+
+
+	public void setTotalCosto(Double totalCosto) {
+		this.totalCosto = totalCosto;
+	}
+
 
 	public Double getGrabadoIvaCinco() {
 		return grabadoIvaCinco;

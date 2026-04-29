@@ -42,7 +42,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     	
     	
         clients.inMemory().withClient("apiRestFacturacion")
-            .secret(passwordEncoder.encode("12345ndaikuaainolose"))
+            .secret(passwordEncoder.encode("bisontec.2025"))
             .scopes("read", "white")
             .authorizedGrantTypes("password")
             .accessTokenValiditySeconds(36000)
