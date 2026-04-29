@@ -304,7 +304,6 @@ public class SerialController {
 				return new ResponseEntity<>("La validacion no son validdddddddddddo!!", HttpStatus.OK);
 			}
 		}
-
 	}
 
 	private boolean validacion(Serial s) {

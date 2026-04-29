@@ -27,10 +27,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.jandex.TypeTarget.Usage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.bisontecfacturacion.security.auxiliar.ComparativaVentasDTO;
 import com.bisontecfacturacion.security.auxiliar.InformeVentaTotalPorProducto;
@@ -95,6 +100,8 @@ import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.model.Zona;
+import com.bisontecfacturacion.security.modeloIA.VentaModeloIA;
+import com.bisontecfacturacion.security.modeloIA.VentaPrediccionIA;
 import com.bisontecfacturacion.security.repository.AnulacionesVentaRepository;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.AutoImpresorDetalleVentaRepository;
@@ -139,6 +146,8 @@ import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 public class VentaController {
 	private static Formatter ft;
 	private Reporte report;
+	@Value("${python.api.url}")
+	private String pythonUrl;
 
 	@Autowired
 	private AnulacionesVentaRepository anulacionVentaRepository;
@@ -5141,10 +5150,58 @@ public class VentaController {
 
 	        }).collect(Collectors.toList());
 	    }
+	 
+	 private List<VentaModeloIA> mapearVentaModeloIA(List<Object[]> lista) {
+
+	        return lista.stream().map(obj -> {
+
+	        	String mes = obj[0].toString();
+
+	        
+
+	            Double totalVenta = obj[2] != null
+	                    ? Double.parseDouble(obj[2].toString())
+	                    : 0.0;
+	            Double totalDevolucion = obj[3] != null
+	    	                    ? Double.parseDouble(obj[3].toString())
+	    	                    : 0.0;
+	    	    Double neto = totalVenta - totalDevolucion; 
+
+	            return new VentaModeloIA(mes, neto);
+
+	        }).collect(Collectors.toList());
+	    }
 	 @RequestMapping(value="/prediccionVentaMensaul", method=RequestMethod.GET)
-		public ComparativaVentasDTO  getVentasPorMes() {
-			 ComparativaVentasDTO dto = new ComparativaVentasDTO();
-			    dto.setActual(mapear(entityRepository.getVentaPorMes()));
-			    return dto;
-		}
+	 public VentaPrediccionIA getVentasPorMes() {
+
+	     // 1. Datos reales
+	     List<VentaModeloIA> actual =
+	             mapearVentaModeloIA(entityRepository.getVentaPorMes());
+
+	     // 2. Python IA
+	     RestTemplate restTemplate = new RestTemplate();
+
+	     String url = pythonUrl + "/prediccion-ventas";
+	     
+	     HttpHeaders headers = new HttpHeaders();
+	     headers.setContentType(MediaType.APPLICATION_JSON);
+
+	     HttpEntity<List<VentaModeloIA>> request =
+	             new HttpEntity<>(actual, headers);
+
+	     ResponseEntity<VentaPrediccionIA> response =
+	    	        restTemplate.exchange(
+	    	                url,
+	    	                HttpMethod.POST,
+	    	                request,
+	    	                VentaPrediccionIA.class
+	    	        );
+
+	     // 3. Resultado
+	     VentaPrediccionIA dto = new VentaPrediccionIA();
+	     dto.setHistorico(actual);
+	     dto.setPrediccion(response.getBody().getPrediccion());
+
+	     return dto;
+	 }
 }

@@ -40,6 +40,9 @@ public class DetallePresupuestoProducto {
 		@ManyToOne
 		private Presupuesto presupuesto;
 		
+		private Double subTotalCosto;
+
+		
 		
 		public DetallePresupuestoProducto() {
 			this.id=0;
@@ -54,6 +57,17 @@ public class DetallePresupuestoProducto {
 			this.tipoPrecio="";
 			this.montoIva=0.0;
 			this.descripcion="";
+			this.subTotalCosto =0.0;
+		}
+
+
+		public Double getSubTotalCosto() {
+			return subTotalCosto;
+		}
+
+
+		public void setSubTotalCosto(Double subTotalCosto) {
+			this.subTotalCosto = subTotalCosto;
 		}
 
 

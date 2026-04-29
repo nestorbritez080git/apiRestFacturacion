@@ -322,7 +322,7 @@ public class PresupuestoController {
 			detalleProductos.getProducto().setCodbar(ob[16].toString());
 			detalleProductos.getProducto().getMarca().setDescripcion(ob[17].toString());
 			detalleProductos.getProducto().setPrecioCosto(Double.parseDouble(ob[18].toString()));
-
+			detalleProductos.setSubTotalCosto(Double.parseDouble(ob[19].toString()));
 			detalleProducto.add(detalleProductos);
 		}
 
