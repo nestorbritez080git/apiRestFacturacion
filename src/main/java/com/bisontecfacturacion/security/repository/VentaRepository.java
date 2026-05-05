@@ -295,4 +295,7 @@ List<Object[]> getVentasPorMes(@Param("anio") int anio);
 		"    EXTRACT(YEAR FROM v.fecha),\r\n" + 
 		"    EXTRACT(MONTH FROM v.fecha)", nativeQuery = true)
 List<Object[]> getVentaPorMes();
+
+@Query(value = "SELECT  p.id AS producto_id, p.descripcion AS producto_nombre,  TO_CHAR(v.fecha, 'MM/YYYY') AS mes, SUM(d.cantidad) AS total_vendido FROM venta v JOIN detalle_producto d ON d.venta_id = v.id JOIN producto p ON p.id = d.producto_id WHERE v.estado = 'FACTURADO' AND v.fecha >= (CURRENT_DATE - INTERVAL '15 months') GROUP BY  p.id,     p.descripcion, TO_CHAR(v.fecha, 'MM/YYYY'), EXTRACT(YEAR FROM v.fecha), EXTRACT(MONTH FROM v.fecha) ORDER BY p.id, EXTRACT(YEAR FROM v.fecha), EXTRACT(MONTH FROM v.fecha) LIMIT 200", nativeQuery = true)
+List<Object[]> getVentasAgrupadasPorProducto();
 }

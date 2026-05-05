@@ -323,6 +323,9 @@ public class PresupuestoController {
 			detalleProductos.getProducto().getMarca().setDescripcion(ob[17].toString());
 			detalleProductos.getProducto().setPrecioCosto(Double.parseDouble(ob[18].toString()));
 			detalleProductos.setSubTotalCosto(Double.parseDouble(ob[19].toString()));
+			if (ob[20].toString()==null) { detalleProductos.getProducto().setNombreImagen(""); } else { detalleProductos.getProducto().setNombreImagen(ob[20].toString()); }
+
+			
 			detalleProducto.add(detalleProductos);
 		}
 

@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -100,8 +101,10 @@ import com.bisontecfacturacion.security.model.ReporteFormatoDatos;
 import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.model.Zona;
+import com.bisontecfacturacion.security.modeloIA.ProductoVentaIA;
 import com.bisontecfacturacion.security.modeloIA.VentaModeloIA;
 import com.bisontecfacturacion.security.modeloIA.VentaPrediccionIA;
+import com.bisontecfacturacion.security.modeloIA.VentaPrediccionPorProductoIA;
 import com.bisontecfacturacion.security.repository.AnulacionesVentaRepository;
 import com.bisontecfacturacion.security.repository.AperturaCajaRepository;
 import com.bisontecfacturacion.security.repository.AutoImpresorDetalleVentaRepository;
@@ -5151,6 +5154,35 @@ public class VentaController {
 	        }).collect(Collectors.toList());
 	    }
 	 
+	
+	 public List<ProductoVentaIA> mapearModeloProductoIA(List<Object[]> datos) {
+
+		    Map<Integer, ProductoVentaIA> mapa = new LinkedHashMap<>();
+
+		    for (Object[] row : datos) {
+
+		        Integer productoId = ((Number) row[0]).intValue();
+		        String nombre = (String) row[1];
+		        Double total = ((Number) row[3]).doubleValue();
+
+		        ProductoVentaIA prod = mapa.get(productoId);
+
+		        if (prod == null) {
+		            prod = new ProductoVentaIA();
+		            prod.setId(productoId);
+		            prod.setNombre(nombre);
+		            prod.setVentas(new ArrayList<>());
+		            mapa.put(productoId, prod);
+		        }
+
+		        // 🔥 ESTE ES EL PUNTO CLAVE
+		        prod.getVentas().add(total);
+		    }
+		    
+		   
+		    return new ArrayList<>(mapa.values());
+		}
+	 
 	 private List<VentaModeloIA> mapearVentaModeloIA(List<Object[]> lista) {
 
 	        return lista.stream().map(obj -> {
@@ -5201,6 +5233,57 @@ public class VentaController {
 	     VentaPrediccionIA dto = new VentaPrediccionIA();
 	     dto.setHistorico(actual);
 	     dto.setPrediccion(response.getBody().getPrediccion());
+
+	     return dto;
+	 }
+	 
+	 @RequestMapping(value="/prediccionPorProducto", method=RequestMethod.GET)
+	 public VentaPrediccionPorProductoIA getPrediccionPorProducto() {
+
+	     // 1. HISTÓRICO REAL AGRUPADO POR PRODUCTO
+	     List<ProductoVentaIA> historico =
+	             mapearModeloProductoIA(
+	                     entityRepository.getVentasAgrupadasPorProducto()
+	             );
+	     System.out.println("=== PRODUCTOS ===");
+
+		    for (ProductoVentaIA p : historico) {
+		        System.out.println(p.getNombre() + " -> " + p.getVentas());
+		    }
+
+
+	     // 2. LLAMADA A PYTHON IA
+	     RestTemplate restTemplate = new RestTemplate();
+
+	     String url = pythonUrl + "/prediccion-ventas-por-producto";
+
+	     HttpHeaders headers = new HttpHeaders();
+	     headers.setContentType(MediaType.APPLICATION_JSON);
+	     	System.out.println();
+	     HttpEntity<List<ProductoVentaIA>> request =
+	             new HttpEntity<>(historico, headers);
+
+	     ResponseEntity<VentaPrediccionPorProductoIA> response =
+	             restTemplate.exchange(
+	                     url,
+	                     HttpMethod.POST,
+	                     request,
+	                     VentaPrediccionPorProductoIA.class
+	             );
+
+	     // 3. RESPUESTA FINAL BI
+	     VentaPrediccionPorProductoIA dto = new VentaPrediccionPorProductoIA();
+
+	     dto.setHistorico(historico);
+
+	     if (response.getBody() != null) {
+	         dto.setPrediccion(response.getBody().getPrediccion());
+	     }
+	     for (ProductoVentaIA p : dto.getPrediccion()) {
+	    	    System.out.println(p.getNombre());
+	    	    System.out.println("Histórico: " + p.getVentas());
+	    	    System.out.println("Predicción: " + p.getPrediccion());
+	    	}
 
 	     return dto;
 	 }

@@ -91,7 +91,7 @@ public class Producto {
 		this.codoriginal="";
 		this.fabricante="";
 		this.estadoCompuesto=true;
-//		this.nombreImagen = "";
+		this.nombreImagen = "";
 	
 	}
 

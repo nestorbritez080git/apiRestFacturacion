@@ -48,8 +48,6 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where v.estado='FINALIZADO' AND f.id=:idFuncionario order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoFinalizadoPorFuncionario(@Param("idFuncionario")  Integer idFuncionario);
 	
-	
-	
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where (v.estado='CERRADO' and cp.nombre ilike :des) OR (v.estado='CERRADO' and cp.apellido ilike :des)  OR (v.estado='CERRADO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
 	List<Presupuesto> getPresupuestoCerradoDescripcion(@Param("des")  String des);
 	@Query(value="select * from presupuesto v inner join funcionario f on v.funcionario_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id  inner join zona z on z.id=v.zona_id where (v.estado='FINALIZADO' and cp.nombre ilike :des) OR (v.estado='FINALIZADO' and cp.apellido ilike :des)  OR (v.estado='FINALIZADO' and cp.cedula ilike :des) order by v.id desc",nativeQuery=true)
@@ -58,7 +56,7 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
 	
 	
 	
-	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.presupuesto_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, p.precio_costo as costo, dp.sub_total_costo as subTotalCosto from detalle_presupuesto_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.presupuesto_id=:id ORDER BY dp.id DESC",nativeQuery=true)
+	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.presupuesto_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, p.precio_costo as costo, dp.sub_total_costo as subTotalCosto, p.nombre_imagen as imgnm from detalle_presupuesto_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.presupuesto_id=:id ORDER BY dp.id DESC",nativeQuery=true)
 	List<Object[]> listaDetallePresupuestoProducto(@Param("id") int id);
 	
 	@Query(value="select dp.servicio_id as idServ, "
