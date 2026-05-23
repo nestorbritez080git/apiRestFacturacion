@@ -2,7 +2,10 @@ package com.bisontecfacturacion.security.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,14 +15,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bisontecfacturacion.security.auxiliar.CobrosTicketDTO;
 import com.bisontecfacturacion.security.auxiliar.CuentaProveedor;
+import com.bisontecfacturacion.security.auxiliar.DTOticketCobros;
+import com.bisontecfacturacion.security.auxiliar.OperacionTicketDTO;
 import com.bisontecfacturacion.security.model.AperturaCaja;
+import com.bisontecfacturacion.security.model.CobrosCliente;
+import com.bisontecfacturacion.security.model.CobrosClienteCabecera;
 import com.bisontecfacturacion.security.model.Concepto;
+import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
+import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
 import com.bisontecfacturacion.security.model.CuentaPagarCabecera;
 import com.bisontecfacturacion.security.model.CuentaPagarDetalle;
+import com.bisontecfacturacion.security.model.Funcionario;
 import com.bisontecfacturacion.security.model.OperacionCaja;
+import com.bisontecfacturacion.security.model.OperacionCajaCabecera;
 import com.bisontecfacturacion.security.model.PagosProveedor;
 import com.bisontecfacturacion.security.model.PagosProveedorCabecera;
 import com.bisontecfacturacion.security.model.PagosProveedorCompra;
@@ -30,6 +43,7 @@ import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.CuentaPagarCabeceraRepository;
 import com.bisontecfacturacion.security.repository.CuentaPagarDetalleRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
+import com.bisontecfacturacion.security.repository.OperacionCajaCabeceraRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
 import com.bisontecfacturacion.security.repository.PagoProveedorRepository;
 import com.bisontecfacturacion.security.repository.PagosProveedorCompraRepository;
@@ -48,7 +62,7 @@ public class PagosProveedorController {
 
 	@Autowired
 	private PagoProveedorRepository entityRepository;
-	
+
 	@Autowired
 	private ConceptoRepository conceptoRepository;
 
@@ -57,23 +71,28 @@ public class PagosProveedorController {
 
 	@Autowired
 	private PagosProveedorCompraRepository  pagosProveedorCompraRepository;
-	
+
 	@Autowired
 	private PagosProveedoresCabeceraRepository pagosProveedorCabeceraRepository;
-	
+
 	@Autowired
 	private AperturaCajaRepository aperturaCajaRepository;
-	
-	
+
+
 	@Autowired
 	private PagosProveedorReferenciaCajaChicaRepository pagosProveedorReferenciaCajaChicaRepository;
-	
-	
+
+
 	@Autowired
 	private PagosProveedorReferenciaOperacionCajaRepository pagosProveedorReferenciaOperacionCajaRepository;
-	
-	
-	
+
+	@Autowired
+	private OperacionCajaRepository operacionCajaRepository;
+
+	@Autowired
+	private OperacionCajaCabeceraRepository operacionCajaCabeceraRepository;
+
+
 	@Autowired
 	private TransferenciaPagosProveedorRepository  transferenciaPagosRepository;
 
@@ -82,10 +101,9 @@ public class PagosProveedorController {
 
 	@Autowired
 	private AperturaCajaRepository aperturaRepository;
-	
-	@Autowired
-	private OperacionCajaRepository operacionCajaRepository;
-	
+
+
+
 	@Autowired
 	private CuentaPagarCabeceraRepository cuentaPagarRepository;
 
@@ -96,6 +114,7 @@ public class PagosProveedorController {
 
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?>  save(@RequestBody PagosProveedor entity ){
+
 		/*
 		entity.getCajaMayor().setId(1);
 		Concepto conc= conceptoRepository.consultarIDConcepto(12);
@@ -106,7 +125,7 @@ public class PagosProveedorController {
 		if(caj==null) {
 			return new ResponseEntity<>(new CustomerErrorType("EL NUMERO DE LA CAJA MAYOR <1> NO ESTÁ PRESENTE EN LA BASE DE DATOS"), HttpStatus.CONFLICT);
 		}else {entity.getCajaMayor().setId(caj.getId());}
-		
+
 		try {
 			if (entity.getFuncionarioR().getId()==0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO DEBE QUEDAR VACIO PARA EFECTUAR PAGOS PROVEEDOR"), HttpStatus.CONFLICT);
@@ -123,7 +142,7 @@ public class PagosProveedorController {
 			}else {
 //				Verifica la cabecera si importe es mayor al saldo a pagar entonces directamente se cancela
 //				/*
-				
+
 				CuentaPagarCabecera cuen=cuentaPagarRepository.getOne(entity.getCuentaCabecera().getId());
 				double pagadoCabecera=0, saldoCabecera=0;
 				System.out.println("monto importe: "+entity.getImporte()+ ", monto saldo cuenta: "+cuen.getSaldo());
@@ -162,7 +181,7 @@ public class PagosProveedorController {
 					cuentaPagarDetalleRepository.save(cueDet);
 				}
 					entityRepository.save(entity);
-					
+
 					PagosProveedor id = entityRepository.getUltimoPagos();
 					int idVent=0;
 					if(id == null){idVent=1;}else{idVent=id.getId();}
@@ -183,7 +202,7 @@ public class PagosProveedorController {
 					}
 					cajaMayorRepository.findByActualizaCajaMayorNegativo(1, tgasto.getMonto(), tgasto.getMontoCheque(), tgasto.getMontoTarjeta());
 					transferenciaPagosRepository.save(tgasto);
-					
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -191,11 +210,12 @@ public class PagosProveedorController {
 		}*/
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	/*
 	@RequestMapping(method = RequestMethod.POST, value = "/pagarPorCuenta/{idCuenta}")
 	public ResponseEntity<?> savePagosPorCuentas(@RequestBody PagosProveedorCabecera entity, @PathVariable int idCuenta ) {
 		Integer apertura=0, cajaChica=0;
 		if(entity.getTipo().equals("T-A")){
-			apertura=entity.getConcepto().getId();
+			//apertura=entity.getConcepto().getId();
 			AperturaCaja XX = new AperturaCaja();
 			XX=aperturaCajaRepository.getAperturaCajaPorIdCaja(apertura);
 			if(XX==null) {
@@ -211,7 +231,7 @@ public class PagosProveedorController {
 					System.out.println("entrooo monto superaod tarj");
 					return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
 				}else{
-					entity.getConcepto().setId(12);
+					//entity.getConcepto().setId(12);
 					entity.setFechaRegistro(new Date());
 					pagosProveedorCabeceraRepository.save(entity);
 					PagosProveedorCabecera pagosActualizar = pagosProveedorCabeceraRepository.findTop1ByOrderByIdDesc();
@@ -252,142 +272,226 @@ public class PagosProveedorController {
 		 return new ResponseEntity<String>(HttpStatus.OK);
 
 	}
-	
-	public List<Object[][]> operacionPorCuenta(int idCuenta, Double monto, int idCobrosCabecera, int idFun) {
-		CuentaPagarCabecera cue = cuentaPagarRepository.getOne(idCuenta);
-		Double cobradoActual = 0.0;
-		if ((monto - cobradoActual) >= cue.getSaldo()) {
-			System.out.println("Entro en 1*******************************");
-			PagosProveedor pagos = new PagosProveedor();
-			pagos.getPagosProveedorCabecera().setId(idCobrosCabecera);
-			pagos.getCuentaPagarCabecera().setId(cue.getId());
-			pagos.setImporte(cue.getSaldo());
-			cobradoActual = cobradoActual + cue.getSaldo();
-			pagos.getFuncionario().setId(idFun);
-			entityRepository.save(pagos);
-			cuentaPagarDetalleRepository.liquidarDetalleCuentaProveedor(cue.getId(), new Date(), true);
-			cuentaPagarRepository.findByActualizarPagadoCuentaProveedor(pagos.getCuentaPagarCabecera().getId(), cue.getSaldo());
-		
-			
-		}else {
-			Double saldoPositivoaCobrar = 0.0;
-			Double montoCuotaActualizados = 0.0;
-			Double montoIMporteActualizados = 0.0;
-			if ((monto - cobradoActual) > 0) {
-				saldoPositivoaCobrar = monto - cobradoActual;
-				PagosProveedor pagos = new PagosProveedor();
-				pagos.getPagosProveedorCabecera().setId(idCobrosCabecera);
-				pagos.getCuentaPagarCabecera().setId(cue.getId());
-				pagos.setImporte(saldoPositivoaCobrar);
-				// cobradoActual = cobradoActual + cue.getSaldo();
-				pagos.getFuncionario().setId(idFun);
-				entityRepository.save(pagos);
-				cuentaPagarRepository.findByActualizarPagadoCuentaProveedor(pagos.getCuentaPagarCabecera().getId(),	saldoPositivoaCobrar);
-				
-				List<Object[]> det = cuentaPagarDetalleRepository.consultarDetalleCuentaPorIdCabecera(cue.getId());
-				List<CuentaPagarDetalle> listadoDetalleActualizados = new ArrayList<CuentaPagarDetalle>();
-//				 cuenta_pagar_cabecera.fraccion_cuota,  cuenta_pagar_detalle.numero_cuota,  cuenta_pagar_detalle.fecha_vencimiento,  cuenta_pagar_detalle.monto, cuenta_pagar_detalle.importe,  cuenta_pagar_detalle.id, cuenta_pagar_detalle.sub_total, cuenta_pagar_detalle.cuenta_pagar_cabecera_id from cuenta_pagar_detalle inner join cuenta_pagar_cabecera on cuenta_pagar_cabecera.id=cuenta_pagar_detalle.cuenta_pagar_cabecera_id  where cuenta_pagar_detalle.cuenta_pagar_cabecera_id=:idCabecera order by cuenta_pagar_detalle.numero_cuota ASC", nativeQuery = true)
-//				cuenta_cobrar_cabecera.fraccion_cuota, cuenta_cobrar_detalle.numero_cuota, cuenta_cobrar_detalle.fecha_vencimiento, cuenta_cobrar_detalle.monto, cuenta_cobrar_detalle.importe, cuenta_cobrar_detalle.interes_mora, cuenta_cobrar_detalle.id, cuenta_cobrar_detalle.sub_total, cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id from cuenta_cobrar_detalle inner join cuenta_cobrar_cabecera on cuenta_cobrar_cabecera.id=cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id  where cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id=:idCabecera order by cuenta_cobrar_detalle.numero_cuota ASC ", nativeQuery = true)
+	 */
 
-				for (int index = 0; index < det.size() && saldoPositivoaCobrar > 0; index++) {
-					Object[] ob = det.get(index);
-					montoCuotaActualizados = Double.parseDouble(ob[6].toString()) - Double.parseDouble(ob[4].toString());
-		
-					if (saldoPositivoaCobrar >= montoCuotaActualizados) {
-						saldoPositivoaCobrar = saldoPositivoaCobrar - montoCuotaActualizados;
-						montoIMporteActualizados = montoCuotaActualizados;
-						cobradoActual = cobradoActual + montoIMporteActualizados;
-					} else {
-						montoIMporteActualizados = saldoPositivoaCobrar;
-						saldoPositivoaCobrar = saldoPositivoaCobrar - montoCuotaActualizados;
-						cobradoActual = cobradoActual + montoIMporteActualizados;
-					}
-					CuentaPagarDetalle detalleCuenta = new CuentaPagarDetalle();
-					detalleCuenta.getCuentaPagarCabecera().setFraccionCuota(Integer.parseInt(ob[0].toString()));
-					detalleCuenta.setNumeroCuota(Integer.parseInt(ob[1].toString()));
-					if (ob[2].toString() == null) {
-						detalleCuenta.setFechaVencimiento(null);
-					} else {
-						detalleCuenta.setFechaVencimiento(FechaUtil.convertirFechaStringADateUtil(ob[2].toString()));
-					}
-					detalleCuenta.setMonto(Double.parseDouble(ob[3].toString()));
-					detalleCuenta.setImporte(Double.parseDouble(ob[4].toString())+ montoIMporteActualizados);
-					detalleCuenta.setId(Integer.parseInt(ob[5].toString()));
-					detalleCuenta.setSubTotal(Double.parseDouble(ob[6].toString()));
-					detalleCuenta.getCuentaPagarCabecera().setId(Integer.parseInt(ob[7].toString()));
-					listadoDetalleActualizados.add(detalleCuenta);
-				}
-				cuentaPagarDetalleRepository.saveAll(listadoDetalleActualizados);
-			}
+	@RequestMapping(method = RequestMethod.POST, value = "/pagarPorCuenta/{idCuenta}")
+	public ResponseEntity<?> savePagosPorCuenta(
+			@PathVariable Integer idCuenta,
+			@RequestPart("pagosProveedorCabecera")PagosProveedorCabecera entity,
+			@RequestPart("operacionCaja")List<OperacionCaja> operacionCajaLista) {
+		// =========================
+		// VALIDAR TIPO
+		// =========================
+		if (!entity.getTipo().equals("T-A")) {
+			return new ResponseEntity<>(
+					new CustomerErrorType("TIPO CONFIGURACION DE PAGOS PROVEEDOR NO APLICABLE DESDE LA CAJA CHICAS!"),HttpStatus.CONFLICT);
 		}
-		return null;
+		// =========================
+		// VALIDAR OPERACIONES
+		// =========================
+		if (operacionCajaLista == null || operacionCajaLista.isEmpty()) {
+			return new ResponseEntity<>(
+					new CustomerErrorType("NO EXISTEN OPERACIONES DE CAJA!"),HttpStatus.CONFLICT);
+		}
+		// =========================
+		// OBTENER PRIMERA OPERACION
+		// =========================
+		OperacionCaja operacion = operacionCajaLista.get(0);
+		// =========================
+		// VALIDAR APERTURA
+		// =========================
+		Integer idApertura = operacion.getAperturaCaja().getId();
+		AperturaCaja caja =	aperturaCajaRepository.findById(idApertura).orElse(null);
+		if (caja == null) {
+			return new ResponseEntity<>(new CustomerErrorType("NO SE ENCONTRO LA APERTURA DE CAJA!"),HttpStatus.CONFLICT);
+		}
+		// =========================
+		// VALIDAR SALDOS
+		// =========================
+		if ((caja.getSaldoActual()) < entity.getTotal()	&& operacion.getTipoOperacion().getId() == 1) {
+			return new ResponseEntity<>(
+					new CustomerErrorType("EL MONTO EN EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"),HttpStatus.CONFLICT);
+		}
+		if ((caja.getSaldoActualCheque()) < entity.getTotal()&& operacion.getTipoOperacion().getId() == 2) {
+			return new ResponseEntity<>(
+					new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"),HttpStatus.CONFLICT);
+		}
+		if ((caja.getSaldoActualTarjeta()) < entity.getTotal()&& operacion.getTipoOperacion().getId() == 3) {
+			return new ResponseEntity<>(
+					new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"),HttpStatus.CONFLICT);
+		}
+		// =========================
+		// OBTENER CUENTA
+		// =========================
+		CuentaPagarCabecera cuenta = cuentaPagarRepository.findById(idCuenta).orElse(null);
+		if (cuenta == null) {
+			return new ResponseEntity<>(
+					new CustomerErrorType("NO SE ENCONTRO LA CUENTA A PAGAR!"),HttpStatus.CONFLICT);
+		}
+		// =========================
+		// VALIDAR SALDO CUENTA
+		// =========================
+		if (cuenta.getSaldo() <= 0) {
+			return new ResponseEntity<>(
+					new CustomerErrorType("LA CUENTA YA SE ENCUENTRA CANCELADA!"),HttpStatus.CONFLICT);
+		}
+		// =========================
+		// CONFIGURAR CABECERA
+		// =========================
+		entity.setFechaRegistro(new Date());
+		// =========================
+		// GUARDAR CABECERA
+		// =========================
+		PagosProveedorCabecera pagosActualizar = pagosProveedorCabeceraRepository.save(entity);
+		// =========================
+		// ARMAR LISTA CUENTAS
+		// =========================
+		List<CuentaPagarCabecera> cuentas =	new ArrayList<>();
+		cuentas.add(cuenta);
+		// =========================
+		// LLAMAR METODO CENTRAL
+		// =========================
+		return operacionPagoProveedor(
+				cuentas,
+				pagosActualizar,
+				entity.getTotal(),
+				entity.getFuncionarioR().getId(),
+				operacionCajaLista
+				);
 	}
-
-		
 	@RequestMapping(method = RequestMethod.POST, value = "/pagarPorProveedor")
-	public ResponseEntity<?> savePagosPorProveedor(@RequestBody PagosProveedorCabecera entity ) {
-		Integer apertura=0, cajaChica=0;
-		if(entity.getTipo().equals("T-A")){
-			apertura=entity.getConcepto().getId();
-			AperturaCaja XX = new AperturaCaja();
-			XX=aperturaCajaRepository.getAperturaCajaPorIdCaja(apertura);
-			if(XX==null) {
-				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO REGISTRO NO POSEE UNA APERTURA CAJA A SU NOMBRE!"), HttpStatus.CONFLICT);
-			}else {
-				if((XX.getSaldoActual()) < entity.getTotal() && entity.getTipoOperacion().getId()==1) {
-					System.out.println("entrooo monto superaod efe");
-					return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-				}else if((XX.getSaldoActualCheque()) < entity.getTotal()&& entity.getTipoOperacion().getId()==2){
-					System.out.println("entrooo monto superaod che");
-					return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-				}else if((XX.getSaldoActualTarjeta())< entity.getTotal() && entity.getTipoOperacion().getId()==3){
-					System.out.println("entrooo monto superaod tarj");
-					return new ResponseEntity<>(new CustomerErrorType("EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"), HttpStatus.CONFLICT);
-				}else{
-					entity.getConcepto().setId(12);
-					entity.setFechaRegistro(new Date());
-					pagosProveedorCabeceraRepository.save(entity);
-					PagosProveedorCabecera pagosActualizar = pagosProveedorCabeceraRepository.findTop1ByOrderByIdDesc();
-					OperacionCaja op = new OperacionCaja();
-					op.getTipoOperacion().setId(entity.getTipoOperacion().getId());
-					op.getAperturaCaja().setId(apertura);
-					op.getConcepto().setId(12);
-					op.setEfectivo(0.0);
-					op.setVuelto(0.0);
-					op.setMonto(entity.getTotal());
-					op.setReferenciaTipoOperacion(entity.getReferencia());
-					op.setTipo("SALIDA");
-					
-					Concepto c = new Concepto();
-					c = conceptoRepository.findById(12).get();
-					op.setMotivo(c.getDescripcion() + " REF.: " + pagosActualizar.getId());
-					operacionCajaRepository.save(op);
-					if (op.getTipoOperacion().getId() == 1) {
-						aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(op.getAperturaCaja().getId(), entity.getTotal());
-					}
-					if (op.getTipoOperacion().getId() == 2) {
-						aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(op.getAperturaCaja().getId(), entity.getTotal());
-					}
-					if (op.getTipoOperacion().getId() == 3) {
-						aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(op.getAperturaCaja().getId(), entity.getTotal());
+	public ResponseEntity<?> savePagosPorProveedor(
+			@RequestPart("pagosProveedorCabecera")
+			PagosProveedorCabecera entity,
+			@RequestPart("operacionCaja")
+			List<OperacionCaja> operacionCajaLista) {
+		// =========================
+		// VALIDAR TIPO
+		// =========================
+		if (!entity.getTipo().equals("T-A")) {
 
-					}
-					OperacionCaja operacioActualziar = operacionCajaRepository.findTop1ByOrderByIdDesc();
-					PagosProveedoresReferenciaOperacionCaja rfPagos=new PagosProveedoresReferenciaOperacionCaja();
-					rfPagos.getPagosProveedorCabecera().setId(pagosActualizar.getId());
-					rfPagos.getOperacionCaja().setId(operacioActualziar.getId());
-					pagosProveedorReferenciaOperacionCajaRepository.save(rfPagos);
-					System.out.println("Entro en cero^^^^^^^^^^^^^^^^^^^^");
-					List<CuentaPagarCabecera> cuentaCabecera = cuentaPagarRepository.findByCuentaPorIdACobrars(entity.getProveedor().getId());
-					operacionPorPooveedor(cuentaCabecera, entity.getTotal(), pagosActualizar.getId(), entity.getFuncionarioR().getId());
-				}
-			}
-		}else {
-			return new ResponseEntity<>(new CustomerErrorType("TIPO CONFIGURACION DE PAGOS PROVEEDOR NO APLICABLE DESDE LA CAJA CHICAS!"), HttpStatus.CONFLICT);
-
+			return new ResponseEntity<>(
+					new CustomerErrorType(
+							"TIPO CONFIGURACION DE PAGOS PROVEEDOR NO APLICABLE DESDE LA CAJA CHICAS!"
+							),
+					HttpStatus.CONFLICT
+					);
 		}
-		
-		return new ResponseEntity<>(HttpStatus.OK);
+
+		// =========================
+		// VALIDAR OPERACIONES
+		// =========================
+
+		if (operacionCajaLista == null
+				|| operacionCajaLista.isEmpty()) {
+
+			return new ResponseEntity<>(
+					new CustomerErrorType(
+							"NO EXISTEN OPERACIONES DE CAJA!"
+							),
+					HttpStatus.CONFLICT
+					);
+		}
+
+		// =========================
+		// OBTENER PRIMERA OPERACION
+		// =========================
+
+		OperacionCaja operacion =
+				operacionCajaLista.get(0);
+
+		// =========================
+		// OBTENER APERTURA
+		// =========================
+
+		Integer idApertura =
+				operacion.getAperturaCaja().getId();
+
+		AperturaCaja caja =
+				aperturaCajaRepository
+				.findById(idApertura)
+				.orElse(null);
+
+		if (caja == null) {
+
+			return new ResponseEntity<>(
+					new CustomerErrorType(
+							"NO SE ENCONTRO LA APERTURA DE CAJA!"
+							),
+					HttpStatus.CONFLICT
+					);
+		}
+
+		// =========================
+		// VALIDAR SALDOS
+		// =========================
+
+		if ((caja.getSaldoActual()) < entity.getTotal()
+				&& operacion.getTipoOperacion().getId() == 1) {
+
+			return new ResponseEntity<>(
+					new CustomerErrorType(
+							"EL MONTO EN EFECTIVO DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"
+							),
+					HttpStatus.CONFLICT
+					);
+		}
+
+		if ((caja.getSaldoActualCheque()) < entity.getTotal()
+				&& operacion.getTipoOperacion().getId() == 2) {
+
+			return new ResponseEntity<>(
+					new CustomerErrorType(
+							"EL MONTO EN CHEQUE DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"
+							),
+					HttpStatus.CONFLICT
+					);
+		}
+
+		if ((caja.getSaldoActualTarjeta()) < entity.getTotal()
+				&& operacion.getTipoOperacion().getId() == 3) {
+
+			return new ResponseEntity<>(
+					new CustomerErrorType(
+							"EL MONTO EN TARJETA DISPONIBLE EN LA CAJA SUPERA EL MONTO A PAGAR!"
+							),
+					HttpStatus.CONFLICT
+					);
+		}
+
+		// =========================
+		// CONFIGURAR CABECERA
+		// =========================
+
+		entity.setFechaRegistro(new Date());
+
+		// =========================
+		// GUARDAR CABECERA
+		// =========================
+
+		PagosProveedorCabecera pagosActualizar =
+				pagosProveedorCabeceraRepository.save(entity);
+
+		// =========================
+		// OBTENER CUENTAS
+		// =========================
+
+		List<CuentaPagarCabecera> cuentas =
+				cuentaPagarRepository.findByCuentaPorIdACobrars(
+						entity.getProveedor().getId()
+						);
+
+		// =========================
+		// LLAMAR METODO CENTRAL
+		// =========================
+
+		return operacionPagoProveedor(
+				cuentas,
+				pagosActualizar,
+				entity.getTotal(),
+				entity.getFuncionarioR().getId(),
+				operacionCajaLista
+				);
 	}
 	public List<Object[][]> operacionPorPooveedor(List<CuentaPagarCabecera> cuentas, Double monto, int idCobrosCabecera, int idFun) {
 		String tipoPago="";
@@ -398,85 +502,85 @@ public class PagosProveedorController {
 		for (int i = 0; i < cuentas.size(); i++) {
 			CuentaPagarCabecera cue = cuentas.get(i);
 			System.out.println("cue.getCliente().getId(): veeveve "+cue.getCompra().getId());
-			
-			
-				if ((monto - cobradoActual) >= cue.getSaldo()) {
-					System.out.println("Entro en 1*******************************");
-				
+
+
+			if ((monto - cobradoActual) >= cue.getSaldo()) {
+				System.out.println("Entro en 1*******************************");
+
+				PagosProveedor pagos = new PagosProveedor();
+				pagos.getPagosProveedorCabecera().setId(idCobrosCabecera);
+				pagos.getCuentaPagarCabecera().setId(cue.getId());
+				pagos.setImporte(cue.getSaldo());
+				cobradoActual = cobradoActual + cue.getSaldo();
+				pagos.getFuncionario().setId(idFun);
+				entityRepository.save(pagos);
+				cuentaPagarDetalleRepository.liquidarDetalleCuentaProveedor(cue.getId(), new Date(), true);
+				cuentaPagarRepository.findByActualizarPagadoCuentaProveedor(pagos.getCuentaPagarCabecera().getId(), cue.getSaldo());
+
+
+			} else {
+				System.out.println("Entro en 2*******************************");
+				Double saldoPositivoaCobrar = 0.0;
+				Double montoCuotaActualizados = 0.0;
+				Double montoIMporteActualizados = 0.0;
+				if ((monto - cobradoActual) > 0) {
+					saldoPositivoaCobrar = monto - cobradoActual;
 					PagosProveedor pagos = new PagosProveedor();
 					pagos.getPagosProveedorCabecera().setId(idCobrosCabecera);
 					pagos.getCuentaPagarCabecera().setId(cue.getId());
-					pagos.setImporte(cue.getSaldo());
-					cobradoActual = cobradoActual + cue.getSaldo();
+					pagos.setImporte(saldoPositivoaCobrar);
+					// cobradoActual = cobradoActual + cue.getSaldo();
 					pagos.getFuncionario().setId(idFun);
 					entityRepository.save(pagos);
-					cuentaPagarDetalleRepository.liquidarDetalleCuentaProveedor(cue.getId(), new Date(), true);
-					cuentaPagarRepository.findByActualizarPagadoCuentaProveedor(pagos.getCuentaPagarCabecera().getId(), cue.getSaldo());
-				
-					
-				} else {
-					System.out.println("Entro en 2*******************************");
-					Double saldoPositivoaCobrar = 0.0;
-					Double montoCuotaActualizados = 0.0;
-					Double montoIMporteActualizados = 0.0;
-					if ((monto - cobradoActual) > 0) {
-						saldoPositivoaCobrar = monto - cobradoActual;
-						PagosProveedor pagos = new PagosProveedor();
-						pagos.getPagosProveedorCabecera().setId(idCobrosCabecera);
-						pagos.getCuentaPagarCabecera().setId(cue.getId());
-						pagos.setImporte(saldoPositivoaCobrar);
-						// cobradoActual = cobradoActual + cue.getSaldo();
-						pagos.getFuncionario().setId(idFun);
-						entityRepository.save(pagos);
-						PagosProveedor pagAct = entityRepository.findTop1ByOrderByIdDesc();
-						cuentaPagarRepository.findByActualizarPagadoCuentaProveedor(pagos.getCuentaPagarCabecera().getId(),	saldoPositivoaCobrar);
-						
-						
-						List<Object[]> det = cuentaPagarDetalleRepository.consultarDetalleCuentaPorIdCabecera(cue.getId());
-						List<CuentaPagarDetalle> listadoDetalleActualizados = new ArrayList<CuentaPagarDetalle>();
-//						 cuenta_pagar_cabecera.fraccion_cuota,  cuenta_pagar_detalle.numero_cuota,  cuenta_pagar_detalle.fecha_vencimiento,  cuenta_pagar_detalle.monto, cuenta_pagar_detalle.importe,  cuenta_pagar_detalle.id, cuenta_pagar_detalle.sub_total, cuenta_pagar_detalle.cuenta_pagar_cabecera_id from cuenta_pagar_detalle inner join cuenta_pagar_cabecera on cuenta_pagar_cabecera.id=cuenta_pagar_detalle.cuenta_pagar_cabecera_id  where cuenta_pagar_detalle.cuenta_pagar_cabecera_id=:idCabecera order by cuenta_pagar_detalle.numero_cuota ASC", nativeQuery = true)
-//						cuenta_cobrar_cabecera.fraccion_cuota, cuenta_cobrar_detalle.numero_cuota, cuenta_cobrar_detalle.fecha_vencimiento, cuenta_cobrar_detalle.monto, cuenta_cobrar_detalle.importe, cuenta_cobrar_detalle.interes_mora, cuenta_cobrar_detalle.id, cuenta_cobrar_detalle.sub_total, cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id from cuenta_cobrar_detalle inner join cuenta_cobrar_cabecera on cuenta_cobrar_cabecera.id=cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id  where cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id=:idCabecera order by cuenta_cobrar_detalle.numero_cuota ASC ", nativeQuery = true)
+					PagosProveedor pagAct = entityRepository.findTop1ByOrderByIdDesc();
+					cuentaPagarRepository.findByActualizarPagadoCuentaProveedor(pagos.getCuentaPagarCabecera().getId(),	saldoPositivoaCobrar);
 
-						for (int index = 0; index < det.size() && saldoPositivoaCobrar > 0; index++) {
-							Object[] ob = det.get(index);
-							montoCuotaActualizados = Double.parseDouble(ob[6].toString()) - Double.parseDouble(ob[4].toString());
-				
-							if (saldoPositivoaCobrar >= montoCuotaActualizados) {
-								saldoPositivoaCobrar = saldoPositivoaCobrar - montoCuotaActualizados;
-								montoIMporteActualizados = montoCuotaActualizados;
-								cobradoActual = cobradoActual + montoIMporteActualizados;
-							} else {
-								montoIMporteActualizados = saldoPositivoaCobrar;
-								saldoPositivoaCobrar = saldoPositivoaCobrar - montoCuotaActualizados;
-								cobradoActual = cobradoActual + montoIMporteActualizados;
-							}
-							CuentaPagarDetalle detalleCuenta = new CuentaPagarDetalle();
-							detalleCuenta.getCuentaPagarCabecera().setFraccionCuota(Integer.parseInt(ob[0].toString()));
-							detalleCuenta.setNumeroCuota(Integer.parseInt(ob[1].toString()));
-							if (ob[2].toString() == null) {
-								detalleCuenta.setFechaVencimiento(null);
-							} else {
-								detalleCuenta.setFechaVencimiento(FechaUtil.convertirFechaStringADateUtil(ob[2].toString()));
-							}
-							detalleCuenta.setMonto(Double.parseDouble(ob[3].toString()));
-							detalleCuenta.setImporte(Double.parseDouble(ob[4].toString())+ montoIMporteActualizados);
-							detalleCuenta.setId(Integer.parseInt(ob[5].toString()));
-							detalleCuenta.setSubTotal(Double.parseDouble(ob[6].toString()));
-							detalleCuenta.getCuentaPagarCabecera().setId(Integer.parseInt(ob[7].toString()));
-							listadoDetalleActualizados.add(detalleCuenta);
+
+					List<Object[]> det = cuentaPagarDetalleRepository.consultarDetalleCuentaPorIdCabecera(cue.getId());
+					List<CuentaPagarDetalle> listadoDetalleActualizados = new ArrayList<CuentaPagarDetalle>();
+					//						 cuenta_pagar_cabecera.fraccion_cuota,  cuenta_pagar_detalle.numero_cuota,  cuenta_pagar_detalle.fecha_vencimiento,  cuenta_pagar_detalle.monto, cuenta_pagar_detalle.importe,  cuenta_pagar_detalle.id, cuenta_pagar_detalle.sub_total, cuenta_pagar_detalle.cuenta_pagar_cabecera_id from cuenta_pagar_detalle inner join cuenta_pagar_cabecera on cuenta_pagar_cabecera.id=cuenta_pagar_detalle.cuenta_pagar_cabecera_id  where cuenta_pagar_detalle.cuenta_pagar_cabecera_id=:idCabecera order by cuenta_pagar_detalle.numero_cuota ASC", nativeQuery = true)
+					//						cuenta_cobrar_cabecera.fraccion_cuota, cuenta_cobrar_detalle.numero_cuota, cuenta_cobrar_detalle.fecha_vencimiento, cuenta_cobrar_detalle.monto, cuenta_cobrar_detalle.importe, cuenta_cobrar_detalle.interes_mora, cuenta_cobrar_detalle.id, cuenta_cobrar_detalle.sub_total, cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id from cuenta_cobrar_detalle inner join cuenta_cobrar_cabecera on cuenta_cobrar_cabecera.id=cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id  where cuenta_cobrar_detalle.cuenta_cobrar_cabecera_id=:idCabecera order by cuenta_cobrar_detalle.numero_cuota ASC ", nativeQuery = true)
+
+					for (int index = 0; index < det.size() && saldoPositivoaCobrar > 0; index++) {
+						Object[] ob = det.get(index);
+						montoCuotaActualizados = Double.parseDouble(ob[6].toString()) - Double.parseDouble(ob[4].toString());
+
+						if (saldoPositivoaCobrar >= montoCuotaActualizados) {
+							saldoPositivoaCobrar = saldoPositivoaCobrar - montoCuotaActualizados;
+							montoIMporteActualizados = montoCuotaActualizados;
+							cobradoActual = cobradoActual + montoIMporteActualizados;
+						} else {
+							montoIMporteActualizados = saldoPositivoaCobrar;
+							saldoPositivoaCobrar = saldoPositivoaCobrar - montoCuotaActualizados;
+							cobradoActual = cobradoActual + montoIMporteActualizados;
 						}
-						cuentaPagarDetalleRepository.saveAll(listadoDetalleActualizados);
+						CuentaPagarDetalle detalleCuenta = new CuentaPagarDetalle();
+						detalleCuenta.getCuentaPagarCabecera().setFraccionCuota(Integer.parseInt(ob[0].toString()));
+						detalleCuenta.setNumeroCuota(Integer.parseInt(ob[1].toString()));
+						if (ob[2].toString() == null) {
+							detalleCuenta.setFechaVencimiento(null);
+						} else {
+							detalleCuenta.setFechaVencimiento(FechaUtil.convertirFechaStringADateUtil(ob[2].toString()));
+						}
+						detalleCuenta.setMonto(Double.parseDouble(ob[3].toString()));
+						detalleCuenta.setImporte(Double.parseDouble(ob[4].toString())+ montoIMporteActualizados);
+						detalleCuenta.setId(Integer.parseInt(ob[5].toString()));
+						detalleCuenta.setSubTotal(Double.parseDouble(ob[6].toString()));
+						detalleCuenta.getCuentaPagarCabecera().setId(Integer.parseInt(ob[7].toString()));
+						listadoDetalleActualizados.add(detalleCuenta);
 					}
+					cuentaPagarDetalleRepository.saveAll(listadoDetalleActualizados);
 				}
-			
-			
-			
+			}
+
+
+
 		}
-		
+
 		return null;
 	}
-	
-	
+
+
 
 	@RequestMapping(method=RequestMethod.GET, value = "/buscarPagos/{idCuenta}")
 	public ResponseEntity<?> getPagosPorIdCuenta(@PathVariable int idCuenta) {
@@ -531,15 +635,15 @@ public class PagosProveedorController {
 			co.getFuncionarioA().setPersona(c.getFuncionarioA().getPersona());
 			co.setFechaPagos(c.getFechaPagos());
 			co.setFechaRegistro(c.getFechaRegistro());
-			co.setTipoOperacion(c.getTipoOperacion());
+			//co.setTipoOperacion(c.getTipoOperacion());
 			co.setTotal(c.getTotal());
 			co.setComprobante(c.getComprobante());
 			cobro.add(co);
 		}
 		return cobro;
 	}
-	
-	
+
+
 	@RequestMapping(method = RequestMethod.GET, value = "/buscarPagos/cabeceraPagos/{idCabecera}")
 	public ResponseEntity<?> getPagosProveedorPorCobrosCabeceraId(@PathVariable int idCabecera) {
 		List<PagosProveedor> listado = entityRepository.getPagosProveedorPorPagosCabeceraId(idCabecera);
@@ -547,13 +651,16 @@ public class PagosProveedorController {
 		if (listado.size() < 0) {
 			return new ResponseEntity<>(new CustomerErrorType("Esta cuenta aún no posee Cobros"), HttpStatus.CONFLICT);
 		} else {
-
 			for (PagosProveedor cobros : listado) {
 				PagosProveedor cob = new PagosProveedor();
 				cob.setId(cobros.getId());
 				cob.setFecha(cobros.getFecha());
-				
+				cob.getCuentaPagarCabecera().getCompra().setNroDocumento(cobros.getCuentaPagarCabecera().getCompra().getNroDocumento());
+				cob.getCuentaPagarCabecera().getCompra().getDocumento().setDescripcion(cobros.getCuentaPagarCabecera().getCompra().getDocumento().getDescripcion());
+				cob.getCuentaPagarCabecera().getCompra().getProveedor().getPersona().setNombre(cobros.getCuentaPagarCabecera().getCompra().getProveedor().getPersona().getNombre());
+				cob.getCuentaPagarCabecera().getCompra().getProveedor().getPersona().setApellido(cobros.getCuentaPagarCabecera().getCompra().getProveedor().getPersona().getApellido());
 				cob.setImporte(cobros.getImporte());
+				cob.getOperacionCaja().getTipoOperacion().setDescripcion(cobros.getOperacionCaja().getTipoOperacion().getDescripcion());
 				cob.getFuncionario().getPersona().setNombre(cobros.getFuncionario().getPersona().getNombre());
 				cob.getFuncionario().getPersona().setApellido(cobros.getFuncionario().getPersona().getApellido());
 				cob.getCuentaPagarCabecera().getCompra().setId(cobros.getCuentaPagarCabecera().getCompra().getId());
@@ -563,8 +670,8 @@ public class PagosProveedorController {
 		}
 		return new ResponseEntity<>(listadoRetorno, HttpStatus.OK);
 	}
-	
-	
+
+
 	@RequestMapping(method = RequestMethod.GET, value = "/cabecera/id/{id}")
 	public PagosProveedorCabecera buscarPAgosProveedorCabeceraPorId(@PathVariable int id) {		
 		return cargarCabecera(pagosProveedorCabeceraRepository.buscarPagosCabeceraPorId(id));
@@ -579,7 +686,7 @@ public class PagosProveedorController {
 		c.getFuncionarioR().getPersona().setNombre(ob.getFuncionarioR().getPersona().getNombre()+" "+ob.getFuncionarioR().getPersona().getApellido());
 		c.getFuncionarioA().getPersona().setNombre(ob.getFuncionarioA().getPersona().getNombre()+" "+ob.getFuncionarioA().getPersona().getApellido());
 		c.setTipo(ob.getTipo());
-		c.setTipoOperacion(ob.getTipoOperacion());
+		//c.setTipoOperacion(ob.getTipoOperacion());
 		c.setFechaRegistro(ob.getFechaRegistro());
 		c.setFechaPagos(ob.getFechaPagos());
 		c.setTotal(ob.getTotal());
@@ -668,9 +775,9 @@ public class PagosProveedorController {
 			cccRetorno.setMontoTarjeta(ccc.getMontoTarjeta());
 			cccRetorno.setFechaFactura(ccc.getFechaFactura());			
 		}
-	 return cccRetorno;
+		return cccRetorno;
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST, value = "/guardar/pagosCompra")
 	public ResponseEntity<?>  saveRegsitroPagosCompra(@RequestBody PagosProveedorCompra entity ){
 		try {
@@ -685,44 +792,175 @@ public class PagosProveedorController {
 			}else if (entity.getTipoOperacion().getId()== 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL TIPO OPERACION NO DEBE QUEDAR VACIO PARA EFECTUAR PAGOS PROVEEDOR"), HttpStatus.CONFLICT);
 			}
-				pagosProveedorCompraRepository.save(entity);
-				
-				OperacionCaja op= new OperacionCaja();
-				op.setMonto(entity.getMonto());
-				op.getTipoOperacion().setId(entity.getTipoOperacion().getId());
-				Integer idApe= aperturaRepository.getAperturaActivoCajaId(entity.getFuncionario().getId());
-				System.out.println("idApe edddiiitaaerr: "+idApe);
-				System.out.println(aperturaRepository.getAperturaActivoCajaId(entity.getFuncionario().getId()));
-				op.getAperturaCaja().setId(idApe);
-				
-				op.setEfectivo(0.0);
-				op.setVuelto(0.0);
-				Concepto c= new Concepto();
-				op.getConcepto().setId(12);
-				c= conceptoRepository.findById(12).get();
-				op.setMotivo(c.getDescripcion()+" REF.: "+ entity.getId());
-				op.setTipo("SALIDA");
-				if (op.getTipoOperacion().getId() == 1) {
-					aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idApe, entity.getMonto());
-				}
-				if (op.getTipoOperacion().getId() == 2) {
-					aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idApe, entity.getMonto());
-				}
-				if (op.getTipoOperacion().getId() == 3) {
-					aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idApe, entity.getMonto());
-				}
-				operacionCajaRepository.save(op);
-				OperacionCaja opera =  operacionCajaRepository.findTop1ByOrderByIdDesc();
-				System.out.println(opera.getId()+ " ID OPERA");
-				PagosProveedorCompra pagoCompra= pagosProveedorCompraRepository.findTop1ByOrderByIdDesc();
-				System.out.println(pagoCompra.getId()+ " ID pagGG");
-				pagosProveedorCompraRepository.findByActualizarPagosCompraCajaCabeceraOperacion(pagoCompra.getId(), opera.getId());
+			pagosProveedorCompraRepository.save(entity);
 
-			
+			OperacionCaja op= new OperacionCaja();
+			op.setMonto(entity.getMonto());
+			op.getTipoOperacion().setId(entity.getTipoOperacion().getId());
+			Integer idApe= aperturaRepository.getAperturaActivoCajaId(entity.getFuncionario().getId());
+			System.out.println("idApe edddiiitaaerr: "+idApe);
+			System.out.println(aperturaRepository.getAperturaActivoCajaId(entity.getFuncionario().getId()));
+			op.getAperturaCaja().setId(idApe);
+
+			op.setEfectivo(0.0);
+			op.setVuelto(0.0);
+			Concepto c= new Concepto();
+			op.getConcepto().setId(12);
+			c= conceptoRepository.findById(12).get();
+			op.setMotivo(c.getDescripcion()+" REF.: "+ entity.getId());
+			op.setTipo("SALIDA");
+			if (op.getTipoOperacion().getId() == 1) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(idApe, entity.getMonto());
+			}
+			if (op.getTipoOperacion().getId() == 2) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(idApe, entity.getMonto());
+			}
+			if (op.getTipoOperacion().getId() == 3) {
+				aperturaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(idApe, entity.getMonto());
+			}
+			operacionCajaRepository.save(op);
+			OperacionCaja opera =  operacionCajaRepository.findTop1ByOrderByIdDesc();
+			System.out.println(opera.getId()+ " ID OPERA");
+			PagosProveedorCompra pagoCompra= pagosProveedorCompraRepository.findTop1ByOrderByIdDesc();
+			System.out.println(pagoCompra.getId()+ " ID pagGG");
+			pagosProveedorCompraRepository.findByActualizarPagosCompraCajaCabeceraOperacion(pagoCompra.getId(), opera.getId());
+
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
+
+
+
+	@Transactional
+	public ResponseEntity<?> operacionPagoProveedor(
+			List<CuentaPagarCabecera> cuentas,
+			PagosProveedorCabecera ent,  
+			Double monto, 
+			Integer idUser, 
+			List<OperacionCaja> listCajaOperacion) {
+		Funcionario f = funcionarioRepository.getIdFuncionario(idUser);
+
+		List<OperacionCaja> resultado = new ArrayList<>();
+		List<PagosProveedor> resultadoPagos = new ArrayList<>();
+
+		List<CobrosTicketDTO> resultDTOCobros = new ArrayList<>();
+		List<OperacionTicketDTO> resultDTOOperacion = new ArrayList<>();
+		// =========================
+		// CABECERA OPERACION CAJA
+		// =========================
+		OperacionCajaCabecera cab = new OperacionCajaCabecera();
+		cab.setFecha(new Date());
+		cab.setMonto(listCajaOperacion.stream().mapToDouble(OperacionCaja::getMonto).sum());
+		cab.setReferenciaOperacion(ent.getId());
+		cab.setAperturaCaja(listCajaOperacion.get(0).getAperturaCaja());
+		Concepto c = conceptoRepository.findById(listCajaOperacion.get(0).getConcepto().getId()).orElseThrow(() -> new RuntimeException("Concepto no encontrado"));
+		cab.setMotivo(c.getDescripcion() + " REF.: " + ent.getId());
+		cab.setConcepto(c);
+		// ⚠️ IMPORTANTE
+		cab.setTipo("SALIDA");
+		OperacionCajaCabecera savedCabecera =  operacionCajaCabeceraRepository.save(cab);
+		// =========================
+		// ORDEN DE CUENTAS
+		// =========================
+		int indexCuenta = 0;
+		for (OperacionCaja ope : listCajaOperacion) {
+			ope.setTipo("SALIDA");
+			ope.setMotivo(c.getDescripcion() + " REF.: " + ent.getId());
+			ope.setReferenciaOperacion(ent.getId());
+			ope.setFecha(new Date());
+			ope.setOperacionCajaCabecera(savedCabecera);
+			OperacionCaja saved = operacionCajaRepository.save(ope);
+			resultado.add(saved);
+			double montoRestanteOperacion = ope.getMonto();
+			// =========================
+			// DISTRIBUIR EN CUENTAS
+			// =========================
+			while (montoRestanteOperacion > 0
+					&& indexCuenta < cuentas.size()) {
+				CuentaPagarCabecera cuenta = cuentas.get(indexCuenta);
+				double saldoCuenta = cuenta.getSaldo();
+				if (saldoCuenta <= 0) {
+					indexCuenta++;
+					continue;
+				}
+				double importeAplicar = Math.min(saldoCuenta, montoRestanteOperacion);
+				// =========================
+				// PAGOS PROVEEDOR
+				// =========================
+				PagosProveedor pago =  new PagosProveedor();
+				pago.setFecha(new Date());
+				pago.setFuncionario(f);
+				pago.setOperacionCaja(saved);
+				pago.setImporte(importeAplicar);
+				pago.setCuentaPagarCabecera(cuenta);
+				pago.setPagosProveedorCabecera(ent);
+				PagosProveedor savePago =  entityRepository.save(pago);
+				resultadoPagos.add(savePago);
+				// =========================
+				// ACTUALIZAR DETALLES
+				// =========================
+				List<CuentaPagarDetalle> detalles = cuentaPagarDetalleRepository.getDetalleXIdCabecera(cuenta.getId());
+
+				double saldoDistribuir = importeAplicar;
+
+				for (CuentaPagarDetalle detalle : detalles) {
+					System.out.println("monto det: "+detalle.getSubTotal()+ " importe act: "+detalle.getImporte());
+					if (saldoDistribuir <= 0)
+						break;
+
+					double saldoDetalle =  detalle.getSubTotal() - detalle.getImporte();
+					if (saldoDetalle <= 0)
+						continue;
+
+					double montoAplicarDetalle =  Math.min(saldoDetalle, saldoDistribuir);
+					detalle.setImporte(detalle.getImporte() + montoAplicarDetalle);
+					// ⚠️ OPCIONAL
+					// Marcar cuota pagada
+					if (detalle.getImporte() >= detalle.getSubTotal()) {
+						detalle.setEstado(true);
+						detalle.setFechaPago(new Date());
+					}
+					saldoDistribuir -= montoAplicarDetalle;
+				}
+				cuentaPagarDetalleRepository.saveAll(detalles);
+				// =========================
+				// ACTUALIZAR CABECERA
+				// =========================
+				cuenta.setPagado(cuenta.getPagado() + importeAplicar );
+				cuenta.setSaldo(cuenta.getSaldo() - importeAplicar);
+				// ⚠️ OPCIONAL
+				// cuenta cancelada
+				if (cuenta.getSaldo() <= 0) {
+					cuenta.setEstado(true);
+				}
+				cuentaPagarRepository.save(cuenta);
+				montoRestanteOperacion -= importeAplicar;
+				if (cuenta.getSaldo() <= 0) {
+					indexCuenta++;
+				}
+			}
+			// =========================
+			// ACTUALIZAR SALDOS CAJA
+			// =========================
+
+			// ⚠️ AHORA ES SALIDA
+			// DEBE DESCONTAR
+
+			if (ope.getTipoOperacion().getId() == 1) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVenta(ope.getAperturaCaja().getId(),ope.getMonto());
+			} else if (ope.getTipoOperacion().getId() == 2) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaCheque(ope.getAperturaCaja().getId(),ope.getMonto());
+			} else if (ope.getTipoOperacion().getId() == 3) {
+				aperturaCajaRepository.findByActualizarAperturaSaldoActualAnulacionVentaTarjeta(ope.getAperturaCaja().getId(),ope.getMonto());
+			}
+		}
+
+		return ResponseEntity.ok(resultado);
+	}
+
+
 }

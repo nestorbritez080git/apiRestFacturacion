@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="movimientoCajaConceptoAuxiliar" pageWidth="578" pageHeight="837" columnWidth="578" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="2d182dcd-898f-48ed-bcae-077393c78e8b">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="cm"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="monto" class="java.lang.Double">
+		<fieldDescription><![CDATA[monto]]></fieldDescription>
+	</field>
+	<field name="gastosDetalle" class="java.lang.String">
+		<fieldDescription><![CDATA[gastosDetalle]]></fieldDescription>
+	</field>
+	<field name="gastosConsumicion" class="java.lang.String">
+		<fieldDescription><![CDATA[gastosConsumicion]]></fieldDescription>
+	</field>
+	<field name="gastosCategoria" class="java.lang.String">
+		<fieldDescription><![CDATA[gastosCategoria]]></fieldDescription>
+	</field>
+	<field name="comprobante" class="java.lang.String">
+		<fieldDescription><![CDATA[comprobante]]></fieldDescription>
+	</field>
+	<field name="fecha" class="java.util.Date">
+		<fieldDescription><![CDATA[fecha]]></fieldDescription>
+	</field>
+	<field name="funcionario" class="java.lang.String">
+		<fieldDescription><![CDATA[funcionario]]></fieldDescription>
+	</field>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.layout"/>
+			<textField>
+				<reportElement x="399" y="0" width="70" height="8" uuid="5c23884c-218b-45e3-81a8-4575c4d1aedd">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0").format($F{monto})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="107" y="0" width="106" height="8" uuid="9c626799-267e-4ef3-99c5-aeeda34e8820">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gastosDetalle}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="217" y="0" width="100" height="8" uuid="c5a1fd26-7b92-4ee6-922c-ab290597c955">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gastosConsumicion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="318" y="0" width="80" height="8" uuid="97ef4317-98f5-49c3-bc47-b82c8956011f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gastosCategoria}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="473" y="0" width="46" height="8" uuid="3d6649d0-29af-408e-8bab-42b282c320e2">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{comprobante}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MM/dd/yyyy">
+				<reportElement x="521" y="0" width="46" height="8" uuid="5239d727-aafd-486d-95b1-4e81a05a04fa">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="0" width="104" height="8" uuid="586119d1-953a-4cae-95fe-126fe7077092">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{funcionario}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

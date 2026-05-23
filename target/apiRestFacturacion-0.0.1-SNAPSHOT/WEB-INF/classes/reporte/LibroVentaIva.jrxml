@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.10.0.final using JasperReports Library version 6.10.0-unknown  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Prueba" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="822" leftMargin="10" rightMargin="10" topMargin="20" bottomMargin="20" uuid="777e1bb0-9dfd-46f8-a513-6381ef99413c">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="inicio" class="java.lang.String"/>
+	<parameter name="fin" class="java.lang.String"/>
+	<parameter name="totalIvaCinco" class="java.lang.Double"/>
+	<parameter name="totalIvaDies" class="java.lang.Double"/>
+	<parameter name="totalExcenta" class="java.lang.Double"/>
+	<parameter name="totalMonto" class="java.lang.Double"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="total" class="java.lang.Double">
+		<fieldDescription><![CDATA[total]]></fieldDescription>
+	</field>
+	<field name="nroDocumento" class="java.lang.String"/>
+	<field name="fechaFactura" class="java.util.Date"/>
+	<field name="cliente.persona.nombre" class="java.lang.String">
+		<fieldDescription><![CDATA[cliente.persona.nombre]]></fieldDescription>
+	</field>
+	<field name="cliente.persona.cedula" class="java.lang.String">
+		<fieldDescription><![CDATA[cliente.persona.cedula]]></fieldDescription>
+	</field>
+	<field name="timbrado" class="java.lang.String">
+		<fieldDescription><![CDATA[timbrado]]></fieldDescription>
+	</field>
+	<field name="timbradoFin" class="java.util.Date">
+		<fieldDescription><![CDATA[timbradoFin]]></fieldDescription>
+	</field>
+	<field name="totalIvaCinco" class="java.lang.Double">
+		<fieldDescription><![CDATA[totalIvaCinco]]></fieldDescription>
+	</field>
+	<field name="totalIvaDies" class="java.lang.Double">
+		<fieldDescription><![CDATA[totalIvaDies]]></fieldDescription>
+	</field>
+	<field name="totalExcenta" class="java.lang.Double">
+		<fieldDescription><![CDATA[totalExcenta]]></fieldDescription>
+	</field>
+	<title>
+		<band height="59" splitType="Stretch">
+			<rectangle radius="8">
+				<reportElement x="0" y="0" width="820" height="53" uuid="283f9487-b537-4643-a1e6-568c98a58c8c">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement x="6" y="24" width="84" height="14" uuid="662055e2-f3ff-4573-bb05-437dced4296e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[Fecha Inicio:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="92" y="24" width="86" height="14" uuid="c4c95dc9-0033-4dd1-a7bb-c8b37f8873eb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[Fecha Fin:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="6" y="38" width="84" height="14" uuid="bd1756a6-d284-4588-8c84-5f2412e266b6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$P{inicio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="93" y="38" width="85" height="14" uuid="0c37fc3a-ac5d-4a5d-84de-525eec21252d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$P{fin}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="628" y="24" width="80" height="14" uuid="a487a852-01c5-4e44-a729-2283aec97b24">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Fecha Imp.:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="628" y="40" width="80" height="14" uuid="72983ce5-8bb6-4e3d-9b35-17512a840ab6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Hora Imp.:]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="710" y="24" width="100" height="14" uuid="1815005e-87fb-414a-a104-f59219e14d46">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField pattern="HH:mm">
+				<reportElement x="710" y="40" width="100" height="14" uuid="af7558ff-a567-42c3-bf10-8e2b0f0b3fac">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="6" y="7" width="804" height="14" uuid="59abe9b4-992e-45bd-8e7c-ababd802fe8c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Reporte Libro Venta IVA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="183" y="24" width="116" height="14" uuid="dc3436c0-94b7-47e8-b70c-ea15a9b3e61b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<text><![CDATA[Total Monto:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="306" y="24" width="99" height="14" uuid="141c6f12-7f3a-4e91-a044-5a798c8b616a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<text><![CDATA[Total I.V.A. 5%:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="411" y="24" width="98" height="14" uuid="ffd39db9-1764-448a-a25b-ed917c53c7c8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<text><![CDATA[Total I.V.A. 10%:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="515" y="24" width="110" height="14" uuid="53dcc2fc-da30-4b28-befe-faaf24b977bf">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<text><![CDATA[Excenta:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="183" y="38" width="115" height="14" uuid="66cb6667-c70b-43a2-919e-438bb19a4a5d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalMonto})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="304" y="38" width="100" height="14" uuid="2642ae26-3eee-4d97-9b67-7d922b108482">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalIvaCinco})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="410" y="39" width="99" height="14" uuid="c14c9e92-1b3c-4beb-9515-2d5a9d562f4e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalIvaDies})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="515" y="39" width="110" height="14" uuid="6ce19d1e-c598-4131-a1c8-76ee47424a9f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($P{totalExcenta})]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="23">
+			<rectangle radius="8">
+				<reportElement x="0" y="3" width="820" height="17" uuid="fa78f648-0841-4389-9096-76cb33547e45">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement x="3" y="6" width="67" height="14" uuid="6d4f95d7-8081-4f76-9d9e-5f36cfdea083">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[N° FACTURA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="98" y="6" width="94" height="14" uuid="3d051f89-25cb-46a2-9f57-80073908aa37">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FECHA FACTURA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="203" y="6" width="181" height="14" uuid="33d5a187-fbc2-4d0f-a310-78ecfef56a59">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CLIENTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="385" y="6" width="54" height="14" uuid="1cb9b4ac-c669-4dd4-adfe-5f770b7203aa">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[RUC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="446" y="6" width="71" height="14" uuid="7f561d9f-e3d8-456f-b75c-2460b14c5fe4">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TIMBRADO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="522" y="6" width="86" height="14" uuid="c21a40e1-4c91-48ec-8fa8-56176aea5345">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MONTO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="611" y="6" width="68" height="14" uuid="2289dcde-937d-4e28-9e1a-7d5166641d81">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[IVA 5%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="680" y="6" width="70" height="14" uuid="a282ff4c-0b00-4a3d-8382-0a74514968d3">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[IVA 10%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="750" y="6" width="65" height="14" uuid="06e02474-7b48-46c3-845c-0361747094d0">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[EXCENTA]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement x="523" y="0" width="86" height="12" uuid="73e2b6c0-ff79-4796-8b19-f4179f14bdcc">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{total})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="69" height="12" uuid="813e9623-efd5-4d47-b9f3-2aceecc3f7eb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nroDocumento}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="98" y="0" width="94" height="12" uuid="78e87ee5-cdad-44cd-a75a-2401b2cc118c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fechaFactura}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="203" y="0" width="181" height="12" uuid="921f2013-0068-4524-8950-774a91c5162c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cliente.persona.nombre}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="386" y="0" width="52" height="12" uuid="9fbd79cd-9135-4447-aa39-c4283762480f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cliente.persona.cedula}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="446" y="0" width="70" height="12" uuid="ae97d9e5-21bc-40c7-a8f3-5edb8d92d608">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{timbrado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="609" y="0" width="69" height="12" uuid="df1efcc8-4ec1-4343-a51f-625e66d4878f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{totalIvaCinco})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="680" y="0" width="69" height="12" uuid="07ce0534-dfda-4d93-8cd7-3f001c2a5c37">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{totalIvaDies})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="750" y="0" width="65" height="12" uuid="437d47b0-b994-4ddc-b140-a01c7b38f39b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{totalExcenta})]]></textFieldExpression>
+			</textField>
+		</band>
+		<band>
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="194" splitType="Immediate"/>
+	</pageFooter>
+</jasperReport>

@@ -95,60 +95,107 @@ public interface EmpaqueCabeceraRepository extends JpaRepository<EmpaqueCabecera
 	    @Query("update EmpaqueCabecera set totalDevolucion = totalDevolucion +:monto where id=:id")
 	    public void findeByTotalDevolucionVenta(@Param("id")int id, @Param("monto") Double monto);
 		
-		@Query(value = "SELECT " 
-			    + " ec.id AS empaque_id, " 
-			    + " DATE(ec.fecha_registro) AS fecha, "
+		
+		@Query(value = "SELECT "
+		        + " ec.id AS empaque_id, "
+		        + " DATE(ec.fecha_registro) AS fecha, "
 
-			    + " z.id AS zona_id, "
-			    + " z.descripcion AS zona_descripcion, "
+		        + " z.id AS zona_id, "
+		        + " z.descripcion AS zona_descripcion, "
 
-			    + " CONCAT(pr.nombre, ' ', pr.apellido) AS funcionario_registro, "
-			    + " CONCAT(pe.nombre, ' ', pe.apellido) AS funcionario_entrega, "
+		        + " CONCAT(pr.nombre, ' ', pr.apellido) AS funcionario_registro, "
+		        + " CONCAT(pe.nombre, ' ', pe.apellido) AS funcionario_entrega, "
 
-			    + " ec.items_pedido AS itemPedido, "
-			    + " ec.items_venta AS itemVenta, "
+		        + " ec.items_pedido AS itemPedido, "
+		        + " ec.items_venta AS itemVenta, "
 
-			    + " SUM(CASE WHEN v.tipo IN ('CONTADO','1') THEN v.total ELSE 0 END) AS total_contado, "
-			    + " SUM(CASE WHEN v.tipo IN ('CREDITO','2') THEN v.total ELSE 0 END) AS total_credito, "
-			    + " SUM(COALESCE(v.total_devolucion,0)) AS total_devoluciones, "
+		        + " SUM(CASE WHEN v.tipo IN ('CONTADO','1') THEN v.total ELSE 0 END) AS total_contado, "
+		        + " SUM(CASE WHEN v.tipo IN ('CREDITO','2') THEN v.total ELSE 0 END) AS total_credito, "
+		        + " SUM(COALESCE(v.total_devolucion,0)) AS total_devoluciones, "
 
-			    + " SUM(COALESCE(oc.efectivo,0)) AS efectivo, "
-			    + " SUM(COALESCE(oc.cheque,0)) AS cheque, "
-			    + " SUM(COALESCE(oc.transferencia,0)) AS transferencia, "
+		        + " SUM(COALESCE(oc.efectivo,0)) AS efectivo, "
+		        + " SUM(COALESCE(oc.cheque,0)) AS cheque, "
+		        + " SUM(COALESCE(oc.transferencia,0)) AS transferencia, "
 
-			    + " ec.total AS totalPedido, "
-			    + " ec.total_finalizado AS totalVenta "
+		        + " ec.total AS totalPedido, "
+		        + " ec.total_finalizado AS totalVenta "
 
-			    + " FROM empaque_cabecera ec "
+		        + " FROM empaque_cabecera ec "
 
-			+ " LEFT JOIN zona z ON z.id = ec.zona_id "
+		        + " LEFT JOIN zona z ON z.id = ec.zona_id "
 
-			+ " LEFT JOIN funcionario fr ON fr.id = ec.funcionario_registro_id "
-			+ " LEFT JOIN persona pr ON pr.id = fr.persona_id "
+		        + " LEFT JOIN funcionario fr ON fr.id = ec.funcionario_registro_id "
+		        + " LEFT JOIN persona pr ON pr.id = fr.persona_id "
 
-			+ " LEFT JOIN funcionario fe ON fe.id = ec.funcionario_empaque_id "
-			+ " LEFT JOIN persona pe ON pe.id = fe.persona_id "
+		        + " LEFT JOIN funcionario fe ON fe.id = ec.funcionario_empaque_id "
+		        + " LEFT JOIN persona pe ON pe.id = fe.persona_id "
 
-			+ " JOIN empaque_detalle ed ON ed.empaque_cabecera_id = ec.id "
+		        // =========================================
+		        // VENTAS ÚNICAS DEL EMPAQUE
+		        // =========================================
 
-			+ " JOIN ( SELECT id, tipo, total, total_devolucion FROM venta WHERE estado = 'FACTURADO') v ON v.id = ed.venta_id "
+		        + " JOIN ( "
+		        + "     SELECT DISTINCT "
+		        + "         ed.empaque_cabecera_id, "
+		        + "         v.id, "
+		        + "         v.tipo, "
+		        + "         v.total, "
+		        + "         v.total_devolucion, "
+		        + "         v.operacion_caja "
+		        + "     FROM empaque_detalle ed "
+		        + "     JOIN venta v ON v.id = ed.venta_id "
+		        + "     WHERE v.estado = 'FACTURADO' "
+		        + " ) v ON v.empaque_cabecera_id = ec.id "
 
-			+ " LEFT JOIN ( SELECT referencia_operacion, " 
-			+ "    SUM(CASE WHEN tipo_operacion_id = 1 THEN monto ELSE 0 END) AS efectivo, "
-			+ "    SUM(CASE WHEN tipo_operacion_id = 2 THEN monto ELSE 0 END) AS cheque, "
-			+ "    SUM(CASE WHEN tipo_operacion_id = 3 THEN monto ELSE 0 END) AS transferencia "
-			+ "    FROM operacion_caja "
-			+ "    GROUP BY referencia_operacion "
-			+ " ) oc ON oc.referencia_operacion = v.id "
+		        // =========================================
+		        // MULTICOBROS
+		        // =========================================
 
-			+ "  WHERE ec.id = :empaqueId	GROUP BY   ec.id,  DATE(ec.fecha_registro), z.id,  z.descripcion, "
-			+ "     pr.nombre, "
-			+ "     pr.apellido, "
-			+ "     pe.nombre, "
-			 + "    pe.apellido, "
-			+ "     ec.items_pedido, "
-			+ "     ec.items_venta, "
-			+ "     ec.total, "
-			 + "    ec.total_finalizado", nativeQuery = true)
-			List<Object[]> getReporteResumenEmpaqueRaw(@Param("empaqueId") Integer empaqueId);
+		        + " LEFT JOIN ( "
+		        + "     SELECT "
+		        + "         oc.operacion_caja_cabecera_id, "
+
+		        + "         SUM(CASE "
+		        + "             WHEN oc.tipo_operacion_id = 1 "
+		        + "             THEN oc.monto "
+		        + "             ELSE 0 "
+		        + "         END) AS efectivo, "
+
+		        + "         SUM(CASE "
+		        + "             WHEN oc.tipo_operacion_id = 2 "
+		        + "             THEN oc.monto "
+		        + "             ELSE 0 "
+		        + "         END) AS cheque, "
+
+		        + "         SUM(CASE "
+		        + "             WHEN oc.tipo_operacion_id = 3 "
+		        + "             THEN oc.monto "
+		        + "             ELSE 0 "
+		        + "         END) AS transferencia "
+
+		        + "     FROM operacion_caja oc "
+		        + "     GROUP BY oc.operacion_caja_cabecera_id "
+
+		        + " ) oc "
+		        + " ON oc.operacion_caja_cabecera_id = v.operacion_caja "
+
+		        + " WHERE ec.id = :empaqueId "
+
+		        + " GROUP BY "
+		        + " ec.id, "
+		        + " DATE(ec.fecha_registro), "
+		        + " z.id, "
+		        + " z.descripcion, "
+		        + " pr.nombre, "
+		        + " pr.apellido, "
+		        + " pe.nombre, "
+		        + " pe.apellido, "
+		        + " ec.items_pedido, "
+		        + " ec.items_venta, "
+		        + " ec.total, "
+		        + " ec.total_finalizado "
+
+		        , nativeQuery = true)
+		List<Object[]> getReporteResumenEmpaqueRaw(
+		        @Param("empaqueId") Integer empaqueId);
 }

@@ -234,7 +234,6 @@ public class ClienteController {
 	            p.setEmail(p.getEmail().trim().toUpperCase());
 	        if (p.getTipo() != null)
 	            p.setTipo(p.getTipo().trim().toUpperCase());
-	        
 		    if(entity.getPersona().getId()==0){
 					return new ResponseEntity<>(new CustomerErrorType("LA PERSONA NO DEBE QUEDAR VACIO"), HttpStatus.CONFLICT);		
 		    }else if (siExistePersonaEditar(entity)) {

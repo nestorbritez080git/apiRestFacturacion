@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.10.0.final using JasperReports Library version 6.10.0-unknown  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="codigoBarras" columnCount="4" printOrder="Horizontal" pageWidth="1122" pageHeight="842" orientation="Landscape" columnWidth="263" leftMargin="35" rightMargin="35" topMargin="20" bottomMargin="20" uuid="d67ff06e-619f-481a-89ec-1a63733fd3d8">
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="codbar" class="java.lang.String">
+		<fieldDescription><![CDATA[codbar]]></fieldDescription>
+	</field>
+	<detail>
+		<band height="359">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<componentElement>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="0" width="236" height="354" isPrintWhenDetailOverflows="true" uuid="38928d81-bc14-44c7-9bad-74dffc599e6e">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.barHeight" value="px"/>
+				</reportElement>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="false" checksumRequired="false" barHeight="150" rotation="Left" evaluationTime="Column">
+					<jr:codeExpression><![CDATA[$F{codbar}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

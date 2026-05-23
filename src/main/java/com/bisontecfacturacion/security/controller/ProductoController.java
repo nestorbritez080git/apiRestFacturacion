@@ -128,6 +128,15 @@ public class ProductoController {
 		}
 	}
 	
+	@RequestMapping(method=RequestMethod.GET, value = "/listaAjusteStock")
+	public List<Producto> getProducto(){
+		List<Producto> objeto= new ArrayList<Producto>();
+		objeto=entityRepository.lista();
+		return product(objeto);
+		
+	}
+	
+	
 	@RequestMapping(method=RequestMethod.GET, value = "/lista/compra")
 	public List<Producto> getAllListaCompra(){
 		List<Producto> objeto= new ArrayList<Producto>();
@@ -297,11 +306,9 @@ public class ProductoController {
 //			productos.getGrupo().setDescripcion(ob.getGrupo().getDescripcion());
 //			productos.getSubGrupo().setDescripcion(ob.getSubGrupo().getDescripcion());
 //			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
-//			
+
 			producto.add(productos);
 		}
-
-
 		return producto;
 	}
 	
@@ -334,7 +341,6 @@ public class ProductoController {
 			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
 			productos.setStockPresupuesto(ob.getStockPresupuesto());
 			productos.setNombreImagen(ob.getNombreImagen());
-			
 			producto.add(productos);
 		}
 
@@ -361,6 +367,8 @@ public class ProductoController {
 		producto.setNombreImagen(pro.getNombreImagen());
 		producto.setFechaVencimiento(pro.getFechaVencimiento());
 		producto.setStockPresupuesto(pro.getStockPresupuesto());
+		producto.setCodoriginal(pro.getCodoriginal());
+		producto.setAplicacion(pro.getAplicacion());
 		return producto;
 	}
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")
@@ -444,11 +452,21 @@ public class ProductoController {
 		}else
 		if(entity.getExistencia()== null) {
 			entity.setExistencia(0.0);
-		}else if(entity.getDescripcion()!=null){
-			entity.setDescripcion(Utilidades.eliminaCaracterIzqDer(entity.getDescripcion().trim().toUpperCase()));			
+		}else if(entity.getDescripcion() != null &&
+				   !entity.getDescripcion().trim().equals("")){
+		    entity.setDescripcion(
+		        Utilidades.eliminaCaracterIzqDer(
+		            entity.getDescripcion().trim().toUpperCase()
+		        )
+		    );
 		}else {
-			return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL PRODUCTO ES OBLIGATORIO"), HttpStatus.CONFLICT);
-		}
+		    return new ResponseEntity<>(
+		        new CustomerErrorType(
+		            "LA DESCRIPCIÓN DEL PRODUCTO ES OBLIGATORIO"
+		        ),
+		        HttpStatus.CONFLICT
+		    );
+}
 		if(entity.getCodoriginal()!=null){
 			entity.setCodoriginal(Utilidades.eliminaCaracterIzqDer(entity.getCodoriginal().trim().toUpperCase()));
 		}  
@@ -500,10 +518,21 @@ public class ProductoController {
 	@RequestMapping(method=RequestMethod.PUT)
 	public ResponseEntity<?> editar(@RequestBody Producto entity){
 
-		if(entity.getDescripcion()!=null){
-			entity.setDescripcion(Utilidades.eliminaCaracterIzqDer(entity.getDescripcion().trim().toUpperCase()));			
-		}else {
-			return new ResponseEntity<>(new CustomerErrorType("LA DESCRIPCIÓN DEL PRODUCTO ES OBLIGATORIO"), HttpStatus.CONFLICT);
+		if(entity.getDescripcion() != null &&
+				   !entity.getDescripcion().trim().equals("")){
+				    entity.setDescripcion(
+				        Utilidades.eliminaCaracterIzqDer(
+				            entity.getDescripcion().trim().toUpperCase()
+				        )
+				    );
+				}else {
+				    return new ResponseEntity<>(
+				        new CustomerErrorType(
+				            "LA DESCRIPCIÓN DEL PRODUCTO ES OBLIGATORIO"
+				        ),
+				        HttpStatus.CONFLICT
+				    );
+
 		}
 		if(entity.getCodoriginal()!=null){
 			entity.setCodoriginal(Utilidades.eliminaCaracterIzqDer(entity.getCodoriginal().trim().toUpperCase()));

@@ -75,14 +75,6 @@ public class ProveedorController {
 	    try {
 
 	        Persona p = entity.getPersona();
-
-	        if (p == null) {
-	            return new ResponseEntity<>(
-	                new CustomerErrorType("LA PERSONA NO PUEDE SER NULA"),
-	                HttpStatus.CONFLICT
-	            );
-	        }
-
 	        if (p.getCedula() == null || p.getCedula().trim().isEmpty()) {
 	            return new ResponseEntity<>(
 	                new CustomerErrorType("EL N° DE CÉDULA Y/O RUC NO DEBE QUEDAR VACÍO"),
@@ -97,7 +89,7 @@ public class ProveedorController {
 	            );
 	        }
 
-	        // 🧹 NORMALIZACIÓN DE DATOS
+	        // NORMALIZACIÓN
 	        p.setNombre(Utilidades.eliminaCaracterIzqDer(p.getNombre().trim().toUpperCase()));
 
 	        if (p.getApellido() != null)
@@ -112,10 +104,10 @@ public class ProveedorController {
 	        if (p.getTipo() != null)
 	            p.setTipo(p.getTipo().trim().toUpperCase());
 
-	        // 🔍 NORMALIZAR CÉDULA
+	        // BUSCAR PERSONA EXISTENTE
 	        String cedulaNormalizada = normalizar(p.getCedula());
+	        String cedulaRuc = p.getCedula();
 
-	        // 🔍 BUSCAR SI YA EXISTE PERSONA
 	        Persona existente = personaRepository.findAll().stream()
 	            .filter(x -> normalizar(x.getCedula()).equals(cedulaNormalizada))
 	            .findFirst()
@@ -125,20 +117,22 @@ public class ProveedorController {
 	            entity.setPersona(existente);
 	        } else {
 	            p.setId(null);
-	            p.setCedula(cedulaNormalizada);
-	            entity.setPersona(p);
+	            p.setCedula(cedulaRuc);
+
+	            // GUARDAR PERSONA PRIMERO
+	            Persona personaGuardada = personaRepository.save(p);
+
+	            entity.setPersona(personaGuardada);
 	        }
 
-	        // 💾 GUARDAR PROVEEDOR
+	        // GUARDAR proveedor
 	        entity.setId(null);
 	        entityRepository.save(entity);
-
 	        return new ResponseEntity<>(HttpStatus.CREATED);
-
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+	    }  
 	}
 	 public static String normalizar(String valor) {
 	        if (valor == null) return null;
@@ -228,27 +222,67 @@ public class ProveedorController {
 		}
 		return false;
 	}
-	public boolean siExistePersonaEditar(Proveedor entity){
-		if(entityRepository.getIdPersonaEditar(entity.getPersona().getId(), entity.getId())!=null){
-			return true;
-		}
-		return false;
+		public boolean siExistePersonaEditar(Proveedor entity){
+		    String cedulaNormalizada = normalizar(entity.getPersona().getCedula());
+		    return entityRepository.findAll().stream()
+		        .anyMatch(x ->
+		            !x.getPersona().getId().equals(entity.getPersona().getId()) && // 👈 EXCLUIR EL MISMO
+		            normalizar(x.getPersona().getCedula()).equals(cedulaNormalizada)
+		        );
+		
 	}
 	
 	@RequestMapping(method=RequestMethod.PUT)
 	public ResponseEntity<?> editar(@RequestBody Proveedor entity){
 		try {
-			if (siExistePersonaEditar(entity)== true) {
-				return new ResponseEntity<>(new CustomerErrorType("Esta Persona ya posee credenciales relacionado con otro Proveedor dentro del sistema.!\nSi persiste el inconveniente consulte con el administrador  "), HttpStatus.CONFLICT);
-//					return new ResponseEntity<>("Esta Persona ya posee credenciales como funcionario dentro del sistema.!\nSi persiste el inconvenientes consulte con administrador  ", HttpStatus.CONFLICT);
+			if (entity.getPersona() == null) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("La persona no puede ser nula"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+	        // 🔒 VALIDACIONES
+	        if (entity.getPersona().getCedula() == null || entity.getPersona().getCedula().isEmpty()) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("El N° DE CEDULA Y/O RUC NO DEBE QUEDAR VACIO"),
+	                HttpStatus.CONFLICT
+	            );
+	        }
+	        if (entity.getPersona().getNombre() == null || entity.getPersona().getNombre().isEmpty()) {
+	            return new ResponseEntity<>(
+	                new CustomerErrorType("EL NOMBRE NO DEBE QUEDAR VACIO"),
+	                HttpStatus.CONFLICT
+	            );
+	        } 
+	        // 🧹 NORMALIZACIÓN
+	        Persona p = entity.getPersona();
+	        p.setNombre(Utilidades.eliminaCaracterIzqDer(p.getNombre().trim().toUpperCase()));
+	        if (p.getApellido() != null)
+	            p.setApellido(Utilidades.eliminaCaracterIzqDer(p.getApellido().trim().toUpperCase()));
+	        if (p.getDireccion() != null)
+	            p.setDireccion(Utilidades.eliminaCaracterIzqDer(p.getDireccion().trim().toUpperCase()));
+	        if (p.getEmail() != null)
+	            p.setEmail(p.getEmail().trim().toUpperCase());
+	        if (p.getTipo() != null)
+	            p.setTipo(p.getTipo().trim().toUpperCase());
+	        
+		    if(entity.getPersona().getId()==0){
+					return new ResponseEntity<>(new CustomerErrorType("LA PERSONA NO DEBE QUEDAR VACIO"), HttpStatus.CONFLICT);		
+		    }else if (siExistePersonaEditar(entity)) {
+					return new ResponseEntity<>(new CustomerErrorType("ESTA PERSONA YA POSEE CREDENCIALES DENTRO DEL SISTEMA.!"), HttpStatus.CONFLICT);
+//						return new ResponseEntity<>("Esta Persona ya posee credenciales como funcionario dentro del sistema.!\nSi persiste el inconvenientes consulte con administrador  ", HttpStatus.CONFLICT);
 			}else {
-				entityRepository.save(entity);
-				return  new  ResponseEntity<String>(HttpStatus.CREATED);
+					entityRepository.save(entity);
+					return  new  ResponseEntity<String>(HttpStatus.CREATED);
 			}
 		} catch (Exception e) {
+			// TODO: handle exception
 			e.printStackTrace();
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+		    return new ResponseEntity<>(
+		            new CustomerErrorType(e.getMessage()),
+		            HttpStatus.INTERNAL_SERVER_ERROR
+		        );
+		}
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")

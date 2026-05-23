@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.query.criteria.internal.ValueHandlerFactory.DoubleValueHandler;
 import org.jboss.jandex.TypeTarget.Usage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -102,6 +103,7 @@ import com.bisontecfacturacion.security.model.Usuario;
 import com.bisontecfacturacion.security.model.Venta;
 import com.bisontecfacturacion.security.model.Zona;
 import com.bisontecfacturacion.security.modeloIA.ProductoVentaIA;
+import com.bisontecfacturacion.security.modeloIA.ProductoVentaRentabilidad;
 import com.bisontecfacturacion.security.modeloIA.VentaModeloIA;
 import com.bisontecfacturacion.security.modeloIA.VentaPrediccionIA;
 import com.bisontecfacturacion.security.modeloIA.VentaPrediccionPorProductoIA;
@@ -4730,7 +4732,7 @@ public class VentaController {
 				//obb.get(i).getDetalleServicio().clear();
 			}
 			listado = obb;
-		}else {listado = null;}
+		}
 		return listado;
 	}
 	@RequestMapping(value="/reporteVentaRangoGrupo/{fechaI}/{fechaF}/{idGrupo}/{detallado}", method=RequestMethod.GET)
@@ -5287,4 +5289,236 @@ public class VentaController {
 
 	     return dto;
 	 }
+	 
+	 @RequestMapping(value="/rentabilidadClasificacion", method=RequestMethod.GET)
+	 public List<ProductoVentaRentabilidad> getRentabilidadClasificado() {
+
+	     // 1. HISTÓRICO REAL AGRUPADO POR PRODUCTO
+	     List<ProductoVentaRentabilidad> rentabilidad =
+	             mapearRentabilidad(entityRepository.getRentabilidadProductos());
+	     System.out.println("=== PRODUCTOS ===");
+
+		/*
+	     // 2. LLAMADA A PYTHON IA
+	     RestTemplate restTemplate = new RestTemplate();
+
+	     String url = pythonUrl + "/prediccion-ventas-por-producto";
+
+	     HttpHeaders headers = new HttpHeaders();
+	     headers.setContentType(MediaType.APPLICATION_JSON);
+	     	System.out.println();
+	     HttpEntity<List<ProductoVentaIA>> request =
+	             new HttpEntity<>(historico, headers);
+
+	     ResponseEntity<VentaPrediccionPorProductoIA> response =
+	             restTemplate.exchange(
+	                     url,
+	                     HttpMethod.POST,
+	                     request,
+	                     VentaPrediccionPorProductoIA.class
+	             );
+
+	     // 3. RESPUESTA FINAL BI
+	     VentaPrediccionPorProductoIA dto = new VentaPrediccionPorProductoIA();
+
+	     dto.setHistorico(historico);
+
+	     if (response.getBody() != null) {
+	         dto.setPrediccion(response.getBody().getPrediccion());
+	     }
+	     for (ProductoVentaIA p : dto.getPrediccion()) {
+	    	    System.out.println(p.getNombre());
+	    	    System.out.println("Histórico: " + p.getVentas());
+	    	    System.out.println("Predicción: " + p.getPrediccion());
+	    	}
+	    	
+	    	*/
+
+	     return rentabilidad;
+	 }
+	 
+	 public List<ProductoVentaRentabilidad> mapearRentabilidad(List<Object[]> datos) {
+
+		    List<ProductoVentaRentabilidad> lista = new ArrayList<>();
+
+		    for (Object[] row : datos) {
+
+		    	ProductoVentaRentabilidad dto = new ProductoVentaRentabilidad();
+
+		        dto.setProductoId(((Number) row[0]).intValue());
+		        dto.setNombre((String) row[1]);
+		        dto.setCantidadVendida(row[2] != null ? ((Number) row[2]).doubleValue() : 0);
+		        dto.setVentas(row[3] != null ? ((Number) row[3]).doubleValue() : 0);
+		        dto.setCosto(row[4] != null ? ((Number) row[4]).doubleValue() : 0);
+		        dto.setGanancia(row[5] != null ? ((Number) row[5]).doubleValue() : 0);
+		        dto.setMargen(row[6] != null ? ((Number) row[6]).doubleValue() : 0);
+
+		        dto.setClasificacion((String) row[7]);
+		        System.out.println(""+row[1] + " MARGEN: "+((Number) row[6]).doubleValue());
+		        lista.add(dto);
+		    }
+
+		    return lista;
+		}
+	 
+	 
+	 @RequestMapping(value="/reporteVentaRangoFechaPorZonaResumenListado/{idZona}/{fechaI}/{fechaF}", method=RequestMethod.GET)
+		public List<Object[]> getReporteVentaRangoFechaZonaResumenListado(
+				OAuth2Authentication authentication,
+				@PathVariable String fechaI,
+				@PathVariable String fechaF,
+				@PathVariable int idZona) throws IOException {
+		 List<Object[]> obb = new ArrayList<>();
+			try {
+				Date fecI = FechaUtil.setFechaHoraInicial(fechaI);
+				Date fecF = FechaUtil.setFechaHoraFinal(fechaF);
+
+				// Convertir a Timestamp explícitamente
+				java.sql.Timestamp tsInicio = new java.sql.Timestamp(fecI.getTime());
+				java.sql.Timestamp tsFin = new java.sql.Timestamp(fecF.getTime());
+				obb = entityRepository.getResumenProductoPorZonaYRango(idZona, tsInicio, tsFin);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return obb;
+		}
+
+	 
+	 @RequestMapping(value="/reporteVentaRangoFechaPorZona/{fechaI}/{fechaF}/{idZona}/{detallado}", method=RequestMethod.GET)
+		public ResponseEntity<?>  getReporteVentaRangoFechaZona(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idZona ,  @PathVariable int detallado) throws IOException {
+			System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF);
+			List<Venta> listado = new ArrayList<>();
+			List<Venta> listadoDetallado = new ArrayList<>();
+			Usuario usuario = usuarioService.findByUsername(authentication.getName());
+			Zona cl= zonaRepository.getOne(idZona);
+			Org org = orgRepository.findById(1).get();
+			List<Object[]> listUltimaVentas= new ArrayList<Object[]>();
+
+			Double totalCostoProd=0.0, totalProducto=0.0, totalDevolucion=0.0, totalServicio=0.0, totalVenta=0.0 ;
+
+
+			try {
+				System.out.println("entroo tryy"+detallado);
+				SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
+				Date fecI;
+				System.out.println("pasoo1");
+				fecI = formater.parse(fechaI);
+				System.out.println("pasoo2");
+				Date fecF=formater.parse(fechaF);
+				System.out.println("pasoo3");
+				//Date fechaFi = sumarDia(fecF, 24);
+				fecF.setHours(23);
+				fecI.setHours(1);
+				System.out.println("FI: "+fecI+ "  : : : FFIN: "+fecF+ " : id Func:  "+idZona);
+				System.out.println("ejecutoo el metodo de reangoooo");
+				Map<String, Object> map = new HashMap<>();
+				map.put("org", ""+org.getNombre());
+				map.put("direccion", ""+org.getDireccion());
+				map.put("ruc", ""+org.getRuc());
+				map.put("telefono", ""+org.getTelefono());
+				map.put("ciudad", ""+org.getCiudad());
+				map.put("pais", ""+org.getPais());
+				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+				map.put("desde", fecI);
+				map.put("hasta", fecF);
+
+				map.put("zona", cl.getDescripcion());
+
+				System.out.println("Tipo detallado:   "+detallado);
+				report = new Reporte();
+
+				if (detallado==1) {
+					List<Venta> obb= entityRepository.getVentaPorRangoFechaZonaHql(fecI, fecF, idZona);
+					System.out.println(obb.size()+" ************lis obb");
+					if(obb.size()>0) {
+						for (int i = 0; i < obb.size(); i++) {
+							totalVenta = totalVenta + obb.get(i).getTotal();
+							for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
+								totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
+								totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+								totalDevolucion = totalDevolucion + obb.get(i).getTotalDevolucion();
+							}
+							for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+								totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
+								DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+								DetalleProducto detalleProducto = new DetalleProducto();
+								detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
+								detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
+								detalleProducto.setCantidad(detAux.getCantidad());
+								detalleProducto.setPrecio(detAux.getPrecio());
+								detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
+								detalleProducto.setIva(detAux.getIva()+"");
+								detalleProducto.setSubTotal(detAux.getSubTotal());
+								detalleProducto.setMontoIva(detAux.getMontoIva());
+								obb.get(i).getDetalleProducto().add(detalleProducto);
+							}
+						}
+
+						map.put("totalCostoProducto", totalCostoProd);
+						map.put("totalProducto", totalProducto);
+						map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
+						map.put("totalServicio", totalServicio);
+						map.put("totalVenta", totalVenta);	
+						map.put("totalDevolucion", totalDevolucion);	
+						
+						listado = obb;
+						report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorZona", response);
+						return  new  ResponseEntity<String>(HttpStatus.OK);
+					}else {
+						return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+					}
+
+				}
+
+				if (detallado==2) {
+					List<Venta> obb= entityRepository.getVentaPorRangoFechaZonaHql(fecI, fecF, idZona);
+					System.out.println(obb.size()+" ************lis obb");
+					if(obb.size()>0) {
+						for (int i = 0; i < obb.size(); i++) {
+							totalVenta = totalVenta + obb.get(i).getTotal();
+							for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
+								totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
+								totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
+								totalDevolucion = totalDevolucion + obb.get(i).getTotalDevolucion();
+							}
+							for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
+								totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
+								DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
+								DetalleProducto detalleProducto = new DetalleProducto();
+								detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
+								detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
+								detalleProducto.setCantidad(detAux.getCantidad());
+								detalleProducto.setPrecio(detAux.getPrecio());
+								detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
+								detalleProducto.setIva(detAux.getIva()+"");
+								detalleProducto.setSubTotal(detAux.getSubTotal());
+								detalleProducto.setMontoIva(detAux.getMontoIva());
+								obb.get(i).getDetalleProducto().add(detalleProducto);
+							}
+						}
+
+						map.put("totalCostoProducto", totalCostoProd);
+						map.put("totalProducto", totalProducto);
+						map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
+						map.put("totalServicio", totalServicio);
+						map.put("totalVenta", totalVenta);	
+						map.put("totalDevolucion", totalDevolucion);	
+
+						listadoDetallado = obb;
+						report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoPorZonaDetallado", response);
+						return  new  ResponseEntity<String>(HttpStatus.OK);
+					}else {
+						return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+					}
+
+				}
+
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+			return  new  ResponseEntity<String>(HttpStatus.OK);
+
+		}
+	 
 }

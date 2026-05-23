@@ -670,6 +670,7 @@ public class EmpaqueController {
 					dp.setDescripcion(detPresupuesto.getDescripcion());
 					dp.setCosto(detPresupuesto.getProducto().getPrecioCosto());
 					dp.setCostoPromedio(detPresupuesto.getProducto().getPrecioCosto());
+					dp.setSubTotalCosto(detPresupuesto.getProducto().getPrecioCosto() * cantidadAFacturar);
 					dp.setSubTotal((cantidadAFacturar * detPresupuesto.getPrecio())-(detPresupuesto.getDescuento()*cantidadAFacturar));
 					dp.setDescuento(detPresupuesto.getDescuento());
 					dp.setIsBalanza(detPresupuesto.getIsBalanza());

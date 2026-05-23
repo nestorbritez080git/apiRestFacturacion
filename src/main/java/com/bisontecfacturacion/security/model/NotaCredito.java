@@ -48,11 +48,7 @@ public class NotaCredito {
 		this.devolucionVenta = new DevolucionVenta();
 		this.estado="ABIERTO";
 		this.numeroVenta=0;
-		
-		
 	}
-	
-
 	public int getId() {
 		return id;
 	}
@@ -101,8 +97,6 @@ public class NotaCredito {
 	public void setDevolucionVenta(DevolucionVenta devolucionVenta) {
 		this.devolucionVenta = devolucionVenta;
 	}
-
-
 	public String getEstado() {
 		return estado;
 	}

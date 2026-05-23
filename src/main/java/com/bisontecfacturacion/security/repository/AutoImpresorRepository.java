@@ -14,13 +14,8 @@ import com.bisontecfacturacion.security.model.AutoImpresor;
 
 public interface AutoImpresorRepository extends JpaRepository<AutoImpresor, Serializable> {
 	public abstract List<AutoImpresor> findByOrderByIdDesc();
-	 @Query("SELECT DISTINCT a FROM AutoImpresor a " + 
-	 		"        LEFT JOIN FETCH a.autoImpresorDetalleVentas d " + 
-	 		"        LEFT JOIN FETCH d.venta v " + 
-	 		"        LEFT JOIN FETCH v.cliente c" + 
-	 		"        LEFT JOIN FETCH c.persona p " + 
-	 		"        ORDER BY a.id DESC")
-	 public List<AutoImpresor> getListaAutoImpresor();
+	@Query("SELECT a FROM AutoImpresor a ORDER BY a.id DESC")
+	public List<AutoImpresor> getListaAutoImpresor();
 	 
 	 
 	 

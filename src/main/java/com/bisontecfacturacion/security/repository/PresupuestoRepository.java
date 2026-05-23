@@ -56,7 +56,7 @@ public interface PresupuestoRepository extends JpaRepository<Presupuesto, Serial
 	
 	
 	
-	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.presupuesto_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, p.precio_costo as costo, dp.sub_total_costo as subTotalCosto, p.nombre_imagen as imgnm from detalle_presupuesto_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.presupuesto_id=:id ORDER BY dp.id DESC",nativeQuery=true)
+	@Query(value="select dp.id as detalleId, dp.producto_id as productoId ,dp.descripcion, dp.cantidad,dp.iva, dp.precio, dp.sub_total, dp.presupuesto_id, p.precio_venta_1, p.precio_venta_2, p.precio_venta_3, p.precio_venta_4, dp.descuento, unidad_medida.descripcion as unidad, p.existencia, dp.is_balanza,p.codbar as procodbar, m.descripcion as descrimarca, p.precio_costo as costo, dp.sub_total_costo as subTotalCosto, p.nombre_imagen as imgnm, p.codoriginal as codori from detalle_presupuesto_producto dp inner join producto p on dp.producto_id=p.id inner join unidad_medida on p.unidad_medida_id=unidad_medida.id inner join marca m on p.marca_id=m.id where dp.presupuesto_id=:id ORDER BY dp.id DESC",nativeQuery=true)
 	List<Object[]> listaDetallePresupuestoProducto(@Param("id") int id);
 	
 	@Query(value="select dp.servicio_id as idServ, "

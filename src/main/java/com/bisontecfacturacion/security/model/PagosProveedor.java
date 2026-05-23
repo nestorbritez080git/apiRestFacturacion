@@ -22,127 +22,81 @@ public class PagosProveedor {
 	private Double importe;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fecha;
-	
-	
 	@ManyToOne
 	private CuentaPagarCabecera cuentaPagarCabecera;
 	@ManyToOne
 	private PagosProveedorCabecera pagosProveedorCabecera;
-	
 	@ManyToOne
 	private Funcionario funcionario;
 	
-	
-	
-	
+	@ManyToOne
+	private OperacionCaja operacionCaja;
 	
 	public PagosProveedor() {
 		this.id=0;
 		this.importe=0.0;
 		this.cuentaPagarCabecera= new CuentaPagarCabecera();
 		this.pagosProveedorCabecera= new PagosProveedorCabecera();
+		this.operacionCaja = new OperacionCaja();
 		this.funcionario = new Funcionario();
 		this.fecha= new Date();
 	}
-
-
-
-
-
-	public Date getFecha() {
-		return fecha;
-	}
-
-
-
-
-
-	public void setFecha(Date fecha) {
-		this.fecha = fecha;
-	}
-
-
-
-
 
 	public int getId() {
 		return id;
 	}
 
-
-
-
-
 	public void setId(int id) {
 		this.id = id;
 	}
-
-
-
-
 
 	public Double getImporte() {
 		return importe;
 	}
 
-
-
-
-
 	public void setImporte(Double importe) {
 		this.importe = importe;
 	}
 
+	public Date getFecha() {
+		return fecha;
+	}
 
-
-
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
 
 	public CuentaPagarCabecera getCuentaPagarCabecera() {
 		return cuentaPagarCabecera;
 	}
 
-
-
-
-
 	public void setCuentaPagarCabecera(CuentaPagarCabecera cuentaPagarCabecera) {
 		this.cuentaPagarCabecera = cuentaPagarCabecera;
 	}
-
-
-
-
 
 	public PagosProveedorCabecera getPagosProveedorCabecera() {
 		return pagosProveedorCabecera;
 	}
 
-
-
-
-
 	public void setPagosProveedorCabecera(PagosProveedorCabecera pagosProveedorCabecera) {
 		this.pagosProveedorCabecera = pagosProveedorCabecera;
 	}
-
-
-
-
 
 	public Funcionario getFuncionario() {
 		return funcionario;
 	}
 
-
-
-
-
 	public void setFuncionario(Funcionario funcionario) {
 		this.funcionario = funcionario;
 	}
-	
 
-	
+	public OperacionCaja getOperacionCaja() {
+		return operacionCaja;
+	}
+
+	public void setOperacionCaja(OperacionCaja operacionCaja) {
+		this.operacionCaja = operacionCaja;
+	}
 	
 	
 }

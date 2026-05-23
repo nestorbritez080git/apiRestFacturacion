@@ -74,7 +74,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Serializable
 	@Query(value="select * from producto  where existencia > 0 order by id desc limit 50", nativeQuery = true)
 	List<Producto> listaStockBajo();
 	
-	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal like :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion or cast(p.id AS VARCHAR)   ilike :descripcion   order by p.id desc  limit 50",nativeQuery=true)
+	@Query(value="select * from producto p inner join marca on marca.id=p.marca_id inner join grupo on grupo.id=p.grupo_id inner join sub_grupo on sub_grupo.id=p.sub_grupo_id inner join unidad_medida on unidad_medida.id=p.unidad_medida_id inner join deposito on deposito.id=p.deposito_id where p.descripcion ilike :descripcion or p.codbar ilike :descripcion or p.codoriginal ilike :descripcion or fabricante ilike :descripcion or aplicacion ilike :descripcion or marca.descripcion ilike :descripcion  or grupo.descripcion ilike :descripcion or cast(p.id AS VARCHAR)   ilike :descripcion   order by p.id desc  limit 50",nativeQuery=true)
 	List<Producto>  getBuscarPorDescripcion(@Param("descripcion") String descripcion);
 	
 	

@@ -41,6 +41,7 @@ public class NotaCreditoController {
 		public NotaCredito consultarPorVentaId(@PathVariable Integer idVenta){
 			return cargarObjeto(entityRepository.getNotaCreditoPorVentaCabeceraId(idVenta));
 	}
+	 
 	 @RequestMapping(method=RequestMethod.GET, value="/buscar/devolucionId/{idDevol}")
 		public NotaCredito consultarPorDevolucionId(@PathVariable Integer idDevol){
 			return cargarObjeto(entityRepository.getNotaCreditoPorDevolucionId(idDevol));

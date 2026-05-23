@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -324,7 +325,7 @@ public class PresupuestoController {
 			detalleProductos.getProducto().setPrecioCosto(Double.parseDouble(ob[18].toString()));
 			detalleProductos.setSubTotalCosto(Double.parseDouble(ob[19].toString()));
 			if (ob[20].toString()==null) { detalleProductos.getProducto().setNombreImagen(""); } else { detalleProductos.getProducto().setNombreImagen(ob[20].toString()); }
-
+			detalleProductos.getProducto().setCodoriginal(ob[21].toString());
 			
 			detalleProducto.add(detalleProductos);
 		}
@@ -574,8 +575,48 @@ public class PresupuestoController {
 				System.out.println("nuep total letras: "+ entity.getTotalLetra());
 			} else if(entity.getFecha() == null){
 				entity.setFecha(LocalDateTime.now());
-			} 
-			
+			}
+			// AGRUPAR PRODUCTOS REPETIDOS
+			Map<String, DetallePresupuestoProducto> productosAgrupados =  new LinkedHashMap<>();
+			List<DetallePresupuestoProducto> listaFinal = new ArrayList<>();
+			for (DetallePresupuestoProducto detalle : entity.getDetallePresupuestoProducto()) {
+			    Integer idProducto = detalle.getProducto().getId();
+			    // DESCUENTO
+			    Double descuento = detalle.getDescuento() == null ? 0.0 : detalle.getDescuento();
+			    // RECALCULAR SUBTOTAL 
+			    detalle.setSubTotal((detalle.getCantidad() * detalle.getPrecio()) - (descuento * detalle.getCantidad()));
+			    // =====================================
+			    // ARTICULO VARIOS -> NO AGRUPAR
+			    // =====================================
+			    if (Integer.valueOf(1).equals(idProducto) || "15".equals(detalle.getProducto().getCodbar())) {
+			        listaFinal.add(detalle);
+			        continue;
+			    }
+			    // =====================================
+			    // CLAVE AGRUPACIÓN
+			    // PRODUCTO + PRECIO + DESCUENTO
+			    // =====================================
+			    String key = idProducto + "_"+ detalle.getPrecio()+"_"+descuento;
+			    // =====================================
+			    // SI YA EXISTE
+			    // =====================================
+			    if(productosAgrupados.containsKey(key)){
+			    	DetallePresupuestoProducto existente = productosAgrupados.get(key);
+			    	//SUMAR CANTIDAD 
+			        existente.setCantidad(existente.getCantidad() + detalle.getCantidad());
+			        //SUMAR DESCUENTO 
+			        Double descuentoActual = existente.getDescuento() == null ? 0.0 : existente.getDescuento();
+			        existente.setDescuento(descuentoActual + descuento);
+			        // RECALCULAR SUBTOTAL 
+			        existente.setSubTotal((existente.getCantidad() * existente.getPrecio()) - existente.getDescuento()* existente.getCantidad());
+			     } else {
+			        productosAgrupados.put(key, detalle);
+			    }
+			}
+			// AGREGAR AGRUPADOS
+			listaFinal.addAll(productosAgrupados.values());
+			// REEMPLAZAR LISTA ORIGINAL 
+			entity.setDetallePresupuestoProducto(listaFinal);
 				for(int ind=0; ind < entity.getDetallePresupuestoProducto().size(); ind++) {
 					DetallePresupuestoProducto pro = entity.getDetallePresupuestoProducto().get(ind);
 					if(pro.getCantidad() == null || pro.getCantidad() <=0) {

@@ -130,10 +130,10 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 
 //	@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin,
 //	((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))
-	@Query(value="SELECT  * FROM venta v where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  v.estado='FACTURADO' AND v.funcionariov_id=:idFuncionario", nativeQuery = true)
+	@Query(value="SELECT  * FROM venta v where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin)) AND  (v.estado ='FACTURADO'  OR v.estado ='PREVENTA') AND v.funcionariov_id=:idFuncionario", nativeQuery = true)
 	public List<Venta> getReporteVentaRangoPorFuncionarios(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFuncionario") int idFuncionario);
 	
-	@Query("select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and v.estado ='FACTURADO' and v.funcionarioV.id=:idFuncionario ORDER BY v.id DESC")
+	@Query("select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and (v.estado ='FACTURADO'  OR v.estado ='PREVENTA') and v.funcionarioV.id=:idFuncionario ORDER BY v.id DESC")
 	public List<Venta> getReporteVentaRangoPorFuncionarioVendedorHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFuncionario") int idFuncionario);
 
 
@@ -161,6 +161,21 @@ public interface VentaRepository extends JpaRepository<Venta, Serializable>{
 		     @Param("funcionarioId") Integer funcionarioId,
 		     @Param("fechaInicio") Date fechaInicio,
 		     @Param("fechaFin") Date fechaFin);
+		
+		
+		
+	
+		@Query("select v from Venta v " +
+			       "where v.fechaFactura >= :fecha_inicio " +
+			       "and v.fechaFactura <= :fecha_fin " +
+			       "and (v.estado = 'FACTURADO' OR v.estado = 'PREVENTA') " +
+			       "and v.zona.id = :idZona " +
+			       "ORDER BY v.id DESC")
+		public List<Venta> getReporteVentaPorZonaYRango(
+			        @Param("fecha_inicio") Date fecha_inicio,
+			        @Param("fecha_fin") Date fecha_fin,
+			        @Param("idZona") Integer idZona);
+		
 	
 	@Query(value="select sum(det.costo)as costoTotal, sum(det.sub_total) as ventaTotal, sum(det.sub_total - det.costo)as utilidad  from detalle_producto det inner join venta v on v.id=det.venta_id inner join funcionario f on  f.id=v.funcionariov_id inner join persona pf on pf.id=f.persona_id inner join cliente cli on cli.id=v.cliente_id inner join persona pc on pc.id=cli.persona_id inner join documento doc on doc.id=v.documento_id where ((v.fecha_factura >= :fecha_inicio) AND (v.fecha_factura <=  :fecha_fin))  and v.estado ='FACTURADO' and f.id=:idFuncionario",nativeQuery=true)
 	Object [][] getReporteVentaRangoFuncionarioCabecera(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idFuncionario") int idFuncionario);
@@ -298,4 +313,101 @@ List<Object[]> getVentaPorMes();
 
 @Query(value = "SELECT  p.id AS producto_id, p.descripcion AS producto_nombre,  TO_CHAR(v.fecha, 'MM/YYYY') AS mes, SUM(d.cantidad) AS total_vendido FROM venta v JOIN detalle_producto d ON d.venta_id = v.id JOIN producto p ON p.id = d.producto_id WHERE v.estado = 'FACTURADO' AND v.fecha >= (CURRENT_DATE - INTERVAL '15 months') GROUP BY  p.id,     p.descripcion, TO_CHAR(v.fecha, 'MM/YYYY'), EXTRACT(YEAR FROM v.fecha), EXTRACT(MONTH FROM v.fecha) ORDER BY p.id, EXTRACT(YEAR FROM v.fecha), EXTRACT(MONTH FROM v.fecha) LIMIT 200", nativeQuery = true)
 List<Object[]> getVentasAgrupadasPorProducto();
+
+@Query(value = "WITH resumen AS ( " +
+        " SELECT  " +
+        " p.id AS producto_id, " +
+        " p.descripcion AS producto_nombre, " +
+        " SUM(d.sub_total) AS ventas, " +
+        " SUM(d.sub_total_costo) AS costo, " +
+        " SUM(d.sub_total - d.sub_total_costo) AS ganancia, " +
+        " SUM(d.cantidad) AS cantidad_vendida " +
+        " FROM venta v " +
+        " JOIN detalle_producto d ON d.venta_id = v.id " +
+        " JOIN producto p ON p.id = d.producto_id " +
+        " WHERE v.estado = 'FACTURADO' " +
+        " AND v.fecha >= (CURRENT_DATE - INTERVAL '12 months') " +
+        " GROUP BY p.id, p.descripcion " +
+        "), " +
+
+        "promedios AS ( " +
+        " SELECT " +
+        " AVG(r.ventas) AS avg_ventas, " +
+        " AVG(r.ganancia) AS avg_ganancia " +
+        " FROM resumen r " +
+        ") " +
+
+        "SELECT " +
+        " r.producto_id, " +
+        " r.producto_nombre, " +
+        " r.cantidad_vendida, " +
+        " r.ventas, " +
+        " r.costo, " +
+        " r.ganancia, " +
+
+        " COALESCE( " +
+        " ROUND( " +
+        " CAST(((r.ganancia / NULLIF(r.ventas,0)) * 100) AS numeric), " +
+        " 2 " +
+        " ), 0 ) AS margen, " + 
+
+        " CASE " +
+        " WHEN r.ventas >= p.avg_ventas AND r.ganancia >= p.avg_ganancia THEN 'PRIORIDAD' " +
+        " WHEN r.ventas >= p.avg_ventas AND r.ganancia < p.avg_ganancia THEN 'REVISAR' " +
+        " WHEN r.ventas < p.avg_ventas AND r.ganancia >= p.avg_ganancia THEN 'POTENCIAL' " +
+        " ELSE 'DESCARTAR' " +
+        " END AS clasificacion " +
+
+        "FROM resumen r, promedios p " +
+
+        "ORDER BY " +
+        " CASE " +
+        " WHEN r.ventas >= p.avg_ventas AND r.ganancia >= p.avg_ganancia THEN 1 " +
+        " WHEN r.ventas >= p.avg_ventas AND r.ganancia < p.avg_ganancia THEN 2 " +
+        " WHEN r.ventas < p.avg_ventas AND r.ganancia >= p.avg_ganancia THEN 3 " +
+        " ELSE 4 " +
+        " END, " +
+        " r.ventas DESC " , nativeQuery = true)
+List<Object[]> getRentabilidadProductos();
+
+
+
+@Query(value="select v from Venta v where ((v.fechaFactura >= :fecha_inicio) AND (v.fechaFactura <=  :fecha_fin))  and (v.estado ='FACTURADO' OR v.estado ='PREVENTA')and v.zona.id=:idZona ORDER BY v.id DESC")
+public List<Venta> getVentaPorRangoFechaZonaHql(@Param("fecha_inicio") Date fecha_inicio, @Param("fecha_fin") Date fecha_fin, @Param("idZona") int idZona);
+
+@Query(value = "SELECT "
+		+ " dp.descripcion AS producto, "
+	    + " (SUM(dp.sub_total) / NULLIF(SUM(dp.cantidad), 0)) AS precio_promedio, "
+		+ " SUM(dp.cantidad) AS cantidadVendida, "
+	    + " SUM(dp.costo) AS costo_real, "
+	    + " SUM(dp.sub_total) AS subtotal_venta, "
+	    + " SUM(dp.cantidad_devolucion) AS cantidad_devuelta, "
+	    + " SUM((dp.costo / NULLIF(dp.cantidad,0)) * dp.cantidad_devolucion) AS costo_devolucion, "
+	    + " SUM(dp.precio * dp.cantidad_devolucion) AS subtotal_devolucion, "
+	    + " ( "
+		+ "   (SUM(dp.sub_total) - SUM(dp.precio * dp.cantidad_devolucion)) "
+		+ "   - "
+		+ "   (SUM(dp.costo) - SUM((dp.costo / NULLIF(dp.cantidad,0)) * dp.cantidad_devolucion)) "
+		+ " ) AS subtotalNeto, "
+	    + " z.descripcion AS zona_nombre " 
+	    + " FROM detalle_producto dp "
+	    + " INNER JOIN venta v ON v.id = dp.venta_id "
+	    + " INNER JOIN zona z ON z.id = v.zona_id "
+	    + " WHERE v.zona_id = :zonaId "
+	    + " AND v.fecha_factura BETWEEN :fechaInicio AND :fechaFin "
+	    + " AND (v.estado = 'FACTURADO' OR v.estado = 'PREVENTA')"
+	    + " GROUP BY dp.descripcion, z.descripcion "
+	    + " ORDER BY dp.descripcion", nativeQuery = true)
+	List<Object[]> getResumenProductoPorZonaYRango(
+	     @Param("zonaId") Integer zonaId,
+	     @Param("fechaInicio") Date fechaInicio,
+	     @Param("fechaFin") Date fechaFin);
+
+
+
+
+
+
+
+
 }

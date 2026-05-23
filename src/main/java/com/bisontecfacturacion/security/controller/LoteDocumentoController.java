@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -80,11 +81,32 @@ public class LoteDocumentoController {
 	public List<LoteFactura> getAllLoteFactura(){
 		return loteFacturaRepository.findByOrderByIdDesc();
 	}
+	
 	@RequestMapping(method=RequestMethod.GET, value="/autoImpresor")
 	public List<AutoImpresor> getAllLoteAutoImpresor(){
-		return autoImpresorRepository.getListaAutoImpresor();
+		 List<AutoImpresor> lista = autoImpresorRepository.getListaAutoImpresor();
+		    return lista.stream().map(a -> {
+
+		    	AutoImpresor dto = new AutoImpresor();
+
+		        dto.setId(a.getId());
+		        dto.setFecha(a.getFecha());
+		        dto.setTimbrado(a.getTimbrado());
+		        dto.setNumeroAutorizacion(a.getNumeroAutorizacion());
+		        dto.setNumeroActual(a.getNumeroActual());
+		        dto.setEstado(a.isEstado());
+		        dto.getAutoImpresorTipoRemision().setDescripcion(a.getAutoImpresorTipoRemision().getDescripcion());
+		        dto.setRuc(a.getRuc());
+		        dto.setCodigoEstablecimiento(a.getCodigoEstablecimiento());
+		        dto.setPuntoExpedicion(a.getPuntoExpedicion());
+		        dto.setRangoInicio(a.getRangoInicio());
+		        dto.setRangoFin(a.getRangoFin());
+		        dto.setCantidadExpedicion(a.getCantidadExpedicion());
+		        dto.setNumeroActual(a.getNumeroActual());
+		        //dto.getAutoImpresorDetalleVentas().set(index, element)
+		        return dto;
+		    }).collect(Collectors.toList());
 	}
-	
 	@RequestMapping(method=RequestMethod.GET, value="/autoImpresor/buscarId/{id}")
 	public AutoImpresor getAutoImpresorPorId(@PathVariable int id){
 		return autoImpresorRepository.getAutoImpresorPorId(id);

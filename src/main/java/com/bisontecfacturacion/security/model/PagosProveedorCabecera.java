@@ -39,15 +39,8 @@ public class PagosProveedorCabecera {
 	private Funcionario funcionarioA;
 	@ManyToOne
 	private Funcionario funcionarioR;
-	@ManyToOne
-	private Concepto concepto;
-	
-	@ManyToOne
-	private TipoOperacion tipoOperacion;
-	private String referencia;
-	private String tipo;
 
-	
+	private String tipo;
 	public PagosProveedorCabecera() {
 		this.id=0;
 		this.total=0.0;		
@@ -57,12 +50,19 @@ public class PagosProveedorCabecera {
 		this.comprobante= "";
 		this.fechaRegistro= new  Date();
 		this.fechaPagos= new Date();
-		this.concepto= new Concepto();
-		this.tipoOperacion= new TipoOperacion();
-		this.referencia="";
-		this.tipo = "";
+		this.tipo="";
 		this.pagosProveedors= new ArrayList<PagosProveedor>();
 		
+	}
+
+
+	public String getTipo() {
+		return tipo;
+	}
+
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
 	}
 
 
@@ -155,46 +155,6 @@ public class PagosProveedorCabecera {
 		this.funcionarioR = funcionarioR;
 	}
 
-
-	public Concepto getConcepto() {
-		return concepto;
-	}
-
-
-	public void setConcepto(Concepto concepto) {
-		this.concepto = concepto;
-	}
-
-
-	public TipoOperacion getTipoOperacion() {
-		return tipoOperacion;
-	}
-
-
-	public void setTipoOperacion(TipoOperacion tipoOperacion) {
-		this.tipoOperacion = tipoOperacion;
-	}
-
-
-	public String getReferencia() {
-		return referencia;
-	}
-
-
-	public void setReferencia(String referencia) {
-		this.referencia = referencia;
-	}
-
-
-	public String getTipo() {
-		return tipo;
-	}
-
-
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
-	}
-
 	
-	
+
 }

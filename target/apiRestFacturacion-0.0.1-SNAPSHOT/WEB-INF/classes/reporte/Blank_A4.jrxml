@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.10.0.final using JasperReports Library version 6.10.0-unknown  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" columnCount="4" printOrder="Horizontal" pageWidth="269" pageHeight="595" columnWidth="63" columnSpacing="1" leftMargin="1" rightMargin="1" topMargin="1" bottomMargin="1" uuid="22269e58-f56c-4b9a-93d5-fd8b971a929e">
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="codbar" class="java.lang.String">
+		<fieldDescription><![CDATA[codbar]]></fieldDescription>
+	</field>
+	<field name="descripcion" class="java.lang.String">
+		<fieldDescription><![CDATA[descripcion]]></fieldDescription>
+	</field>
+	<detail>
+		<band height="96" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="mm"/>
+			<componentElement>
+				<reportElement x="13" y="4" width="27" height="86" uuid="8f9a4c83-0fca-4367-9e28-acb28ade7469">
+					<property name="com.jaspersoft.studio.unit.barHeight" value="px"/>
+					<property name="com.jaspersoft.studio.unit.barWidth" value="px"/>
+				</reportElement>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="false" checksumRequired="false" barHeight="130" rotation="Left">
+					<jr:codeExpression><![CDATA[$F{codbar}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField>
+				<reportElement x="40" y="5" width="11" height="86" uuid="1c1e22ef-6977-4dfa-9186-4388bd89723a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" rotation="Left">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codbar}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="2" y="4" width="11" height="86" uuid="4f3e7e1a-be1c-44e8-8f4b-d76fb3d6de02">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" rotation="Left">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

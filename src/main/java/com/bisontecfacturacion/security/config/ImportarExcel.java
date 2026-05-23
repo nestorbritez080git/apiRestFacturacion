@@ -2,7 +2,12 @@ package com.bisontecfacturacion.security.config;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,8 +22,21 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Component;
 
+import com.bisontecfacturacion.ApiRestApplication;
+import com.bisontecfacturacion.security.model.Producto;
+import com.bisontecfacturacion.security.repository.ProductoRepository;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+
+@Component
 public class ImportarExcel {
+	@Autowired
+	private ProductoRepository productoRepository;
 	Workbook wwk;
 	public String importar(File archivo, JTable tablaD) {
 		String respuesta="No se pudo abrir el archivo.!";
@@ -73,7 +91,138 @@ public class ImportarExcel {
 	                System.out.print("");
 	        }
 	 }
-	 
+			 private String limpiarDescripcion(String descripcion) {
+
+			     if (descripcion == null) {
+			         return "";
+			     }
+
+			     // elimina números decimales al final
+			     descripcion = descripcion.replaceAll(
+			             "\\s+\\d+[.]\\d+",
+			             ""
+			     );
+
+			     // elimina cero suelto al final
+			     descripcion = descripcion.replaceAll(
+			             "\\s+0$",
+			             ""
+			     );
+
+			     // espacios duplicados
+			     descripcion = descripcion.replaceAll(
+			             "\\s+",
+			             " "
+			     );
+
+			     return descripcion.trim();
+
+			 }
+			 
+
+			 public List<Producto> leerArchivoCSV(String rutaArchivo) {
+
+			     List<Producto> listado = new ArrayList<>();
+
+			     try {
+
+			         Reader reader = Files.newBufferedReader(Paths.get(rutaArchivo));
+
+			         CSVReader csvReader = new CSVReaderBuilder(reader)
+			                 .withSkipLines(1) // saltar cabecera
+			                 .build();
+
+			         String[] line;
+
+			         while ((line = csvReader.readNext()) != null) {
+
+			             try {
+
+			                 Producto p = new Producto();
+
+			                 // CSV generado:
+			                 // codoriginal,descripcion,existencia,
+			                 // precio_costo,precio_venta_1,
+			                 // habilitado,iva,volumen,
+			                 // stock_minimo,estado_compuesto
+
+			                 p.setCodoriginal(line[0]);
+			                 p.setDescripcion(limpiarDescripcion(line[1]));
+
+			                 p.setExistencia(parseDouble(line[2]));
+
+			                 p.setPrecioCosto(parseDouble(line[3]));
+
+			                 p.setPrecioVenta_1(parseDouble(line[4]));
+			                 p.setPrecioVenta_2(parseDouble(line[4]));
+			                 p.setPrecioVenta_3(parseDouble(line[4]));
+			                 p.setPrecioVenta_4(parseDouble(line[4]));
+
+			                 p.setHabilitado(Boolean.parseBoolean(line[5]));
+
+			                 p.setIva(line[6]);
+
+			                 p.setVolumen(0);
+
+			                 p.setStock_minimo(0.0);
+
+			                 p.setEstadoCompuesto(false);
+			                 p.getMarca().setId(1);
+			                 p.getGrupo().setId(1);
+			                 p.getProveedor().setId(1);
+			                 p.getSubGrupo().setId(1);
+			                 p.getUnidadMedida().setId(1);
+			                 p.getDeposito().setId(1);
+			                 p.setAplicacion("");
+			                 p.setNombreImagen("");
+			                 p.setFabricante("");
+			                 p.setFechaVencimiento(new Date());
+			                 p.setIsBalanza(false);
+			                 p.setStockPresupuesto(0.0);
+			                 listado.add(p);
+			             } catch (Exception e) {
+			                 System.out.println(
+			                         "Error procesando línea CSV: "
+			                         + Arrays.toString(line)
+			                 );
+
+			                 e.printStackTrace();
+
+			             }
+
+			         }
+
+			         csvReader.close();
+
+			     } catch (Exception e) {
+
+			         e.printStackTrace();
+
+			     }
+
+			     return listado;
+
+			 }
+
+			 private Double parseDouble(String value) {
+
+			     try {
+
+			         if (value == null || value.trim().isEmpty()) {
+			             return 0D;
+			         }
+
+			         return Double.parseDouble(value);
+
+			     } catch (Exception e) {
+
+			         return 0D;
+
+			     }
+
+			 }
+			
+
 	 public List<RucFormato> leerArchivoExcel(String nombreArchivo) {
 		 List<RucFormato> listado= new ArrayList<RucFormato>();
 		 try {
@@ -147,217 +296,15 @@ public class ImportarExcel {
 	 }
 	 
 	public static void main(String[] args) {
-		ImportarExcel v = new ImportarExcel();
-		v.leerArchivoExcel("ruc11");
-	/*	
-		try {
-			
-			
-			String rutaArchivoExcel = "ruc.xls";
-            FileInputStream inputStream = new FileInputStream(new File(rutaArchivoExcel));
-            System.out.println(inputStream.toString());
-            Workbook wb = WorkbookFactory.create(new File("ruc.xls"));
-            Sheet firstSheet = wb.getSheetAt(0);
-			Iterator iterator = firstSheet.iterator();
-            StringBuilder text = new StringBuilder();
-            DataFormatter forma = new DataFormatter();
-            
-//            firstSheet.forEach(row -> {
-////            	Column column=columnIndexColumnMap.get(cell.getColumnIndex());
-////                if (column==null){
-////                  return;
-////                }
-//            	row .forEach(cell -> {
-//            		text.append(forma.formatCellValue(cell)+"\t");
-//            	});
-//            	text.append("\n");
-//            });
-//            int row = firstSheet.getLastRowNum();
-//            System.out.println("row : " +row);
-////            for (int i = 0; i < row ; i++) {
-//            	
-//            	Row r= firstSheet.getRow(i);
-//            	if(r.getCell(0)!=null & r.getCell(1)!=null & r.getCell(2)!=null) {
-//            		System.out.println("CEL: "+ r.getCell(0)+ "  "+r.getCell(1)+ "  "+r.getCell(2) );
-//            	}
-//            	
-//				
-//			}
-           
-            firstSheet.forEach(row -> {
-            	row .forEach(cell -> {
-            		text.append(forma.formatCellValue(cell)+"\t");
-            	});
-            	text.append("\n");
-            });
-            
-            System.out.println(text);
-            
-          //  Workbook workbook = WorkbookFactory.create(new File(SAMPLE_XLSX_FILE_PATH));
-
-            // Retrieving the number of sheets in the Workbook
-            System.out.println("Workbook has " + wb.getNumberOfSheets() + " Sheets : ");
-            
-               =============================================================
-               Iterating over all the sheets in the workbook (Multiple ways)
-               =============================================================
-            
-
-            // 1. You can obtain a sheetIterator and iterate over it
-            Iterator<Sheet> sheetIterator = wb.sheetIterator();
-            
-            
-            List<RucFormato> listado= new ArrayList<RucFormato>();
-            
-            
-            List<String> rucS= new  ArrayList<>();
-            List<String> dv= new  ArrayList<>();
-            List<String> razon = new  ArrayList<>();
-            FormulaEvaluator la= wb.getCreationHelper().createFormulaEvaluator();
-            for (int i = 0; i < firstSheet.getLastRowNum()+1; i++) {
-				Row row = firstSheet.getRow(i);
-				if((row != null) && (row.getRowNum() != 0)) {
-					
-					Cell cell = row.getCell(0);
-					if(cell!=null) {
-						System.out.println(cell.toString()+"**********************");
-						rucS.add(cell.toString());
-						
-						Cell cell1 = row.getCell(1);
-						System.out.println(cell1.toString()+"**********************");
-						dv.add(cell1.toString());
-						
-						Cell cell2 = row.getCell(2);
-						System.out.println(cell2.toString()+"**********************");
-						razon.add(cell2.toString());
-					}else {
-						System.out.println("DATOS VACIOS");
-					}
-					
-				}else {
-					System.out.println("No hay version anterior");
-				}
-				
-			}
-            for (int i = 0; i < rucS.size(); i++) {
-//            	System.out.println(rucS.get(i).toString()+"  ASFSAD");
-//            	System.out.println(dv.get(i).toString()+"  ASFSAD");
-//            	System.out.println(razon.get(i).toString()+"  ASFSAD");
-            	RucFormato f = new RucFormato();
-            	
-            	f.setRuc(rucS.get(i));
-            	f.setDv(dv.get(i));
-            	f.setRazonSocial(razon.get(i));
-            	listado.add(f);
-            }
-            System.out.println("Arregloss Ruc : "+ listado.size());
-            for (int i = 0; i < listado.size(); i++) {
-				System.out.println("   RAZON SOCIAL: "+listado.get(i).getRazonSocial()+"   RUC: "+ listado.get(i).getRuc());
-			}
-            System.out.println("Retrieving Sheets using Iterator");
-//            while (sheetIterator.hasNext()) {
-//                Sheet sheet = sheetIterator.next();
-//                System.out.println("=> " + sheet.getSheetName());
-//            }
-
-            // 2. Or you can use a for-each loop
-            System.out.println("Retrieving Sheets using for-each loop");
-            for(Sheet sheet: wb) {
-                System.out.println("=> " + sheet.getSheetName());
-            }
-
-            // 3. Or you can use a Java 8 forEach with lambda
-            System.out.println("Retrieving Sheets using Java 8 forEach with lambda");
-            wb.forEach(sheet -> {
-                System.out.println("=> " + sheet.getSheetName());
-            });
-
-            
-               ==================================================================
-               Iterating over all the rows and columns in a Sheet (Multiple ways)
-               ==================================================================
-          
-          
-          
-          
-      
-          
-          
-            // 1. You can obtain a rowIterator and columnIterator and iterate over them
-            System.out.println("\n\nIterating over Rows and Columns using Iterator\n");
-            Iterator<Row> rowIterator = sheet.rowIterator();
-            while (rowIterator.hasNext()) {
-                Row roww = rowIterator.next();
-
-                // Now let's iterate over the columns of the current row
-                Iterator<Cell> cellIterator = roww.cellIterator();
-
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    String cellValue = dataFormatter.formatCellValue(cell);
-                    System.out.print(cellValue +"\t");
-                }
-                System.out.println();
-            }
-
-            // 2. Or you can use a for-each loop to iterate over the rows and columns
-            
-            System.out.println("\n\nIterating over Rows and Columns using for-each loop\n");
-            for (Row rows: sheet) {
-                for(Cell cell: rows) {
-                    String cellValue = dataFormatter.formatCellValue(cell);
-                    System.out.print(cellValue + "\t");
-                }
-                System.out.println();
-            }
-
-            // 3. Or you can use Java 8 forEach loop with lambda
-            System.out.println("\n\nIterating over Rows and Columns using Java 8 forEach with lambda\n");
-            sheet.forEach(rowa -> {
-                rowa.forEach(cell -> {
-                    String cellValue = dataFormatter.formatCellValue(cell);
-                    System.out.print(cellValue + "\t");
-                });
-                System.out.println();
-            });
-
-            // Closing the workbook
-            wb.close();
-        
-			
-            -
-            -
-            -
-            -
-            -
-            -
-            -
-             
-			
-            String rutaArchivoExcel = "ruc.xls";
-            FileInputStream inputStream = new FileInputStream(new File(rutaArchivoExcel));
-            System.out.println(inputStream.toString());
-            Workbook wb = WorkbookFactory.create(new File("ruc.xls"));
-            Sheet firstSheet = wb.getSheetAt(0);
-			Iterator iterator = firstSheet.iterator();
-            
-            DataFormatter formatter = new DataFormatter();
-            while (iterator.hasNext()) {
-                Row nextRow = (Row) iterator.next();
-				Iterator cellIterator = nextRow.cellIterator();
-                while(cellIterator.hasNext()) {
-                    Cell cell = (Cell) cellIterator.next();
-                    String contenidoCelda = formatter.formatCellValue(cell);
-                    System.out.println("celda: " + contenidoCelda);
-                }
-                
-            }
-           
-			
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
+		ConfigurableApplicationContext context = SpringApplication.run(ApiRestApplication.class, args ); ImportarExcel v = context.getBean(ImportarExcel.class); 
+		List<Producto> productos = v.leerArchivoCSV( "C:/productos_importacion.csv" ); 
+		System.out.println( "TOTAL PRODUCTOS: " + productos.size() ); 
+		for (Producto p : productos) { 
+			System.out.println( p.getCodoriginal() + " - " + p.getDescripcion() ); 
+			} 
+		v.productoRepository.saveAll(productos); 
+		System.out.println( "PRODUCTOS GUARDADOS" );
+	
 	}
 
 }

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="venta-detalle-producto" pageWidth="573" pageHeight="870" columnWidth="569" leftMargin="2" rightMargin="2" topMargin="0" bottomMargin="0" uuid="2d182dcd-898f-48ed-bcae-077393c78e8b">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="descripcion" class="java.lang.String">
+		<fieldDescription><![CDATA[descripcion]]></fieldDescription>
+	</field>
+	<field name="cantidad" class="java.lang.Double">
+		<fieldDescription><![CDATA[cantidad]]></fieldDescription>
+	</field>
+	<field name="precio" class="java.lang.Double">
+		<fieldDescription><![CDATA[precio]]></fieldDescription>
+	</field>
+	<field name="subTotal" class="java.lang.Double">
+		<fieldDescription><![CDATA[subTotal]]></fieldDescription>
+	</field>
+	<field name="iva" class="java.lang.String">
+		<fieldDescription><![CDATA[iva]]></fieldDescription>
+	</field>
+	<field name="codbar" class="java.lang.Object">
+		<fieldDescription><![CDATA[producto.codbar]]></fieldDescription>
+	</field>
+	<field name="montoIva" class="java.lang.Double">
+		<fieldDescription><![CDATA[montoIva]]></fieldDescription>
+	</field>
+	<field name="id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[producto.id]]></fieldDescription>
+	</field>
+	<field name="codigo" class="java.lang.Integer">
+		<fieldDescription><![CDATA[producto.id]]></fieldDescription>
+	</field>
+	<field name="ud" class="java.lang.String">
+		<fieldDescription><![CDATA[producto.unidadMedida.descripcion]]></fieldDescription>
+	</field>
+	<field name="descuento" class="java.lang.Double">
+		<fieldDescription><![CDATA[descuento]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="17" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement x="0" y="2" width="37" height="10" uuid="d8d97447-ae21-4f7f-b2b9-00f1a28aa31c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Cod.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="39" y="2" width="58" height="10" uuid="aedd31be-9467-4085-948e-397e0b5c0a3e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Cant.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="97" y="2" width="163" height="10" uuid="000a47e2-06b4-4e87-91b6-f7975f49c814">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Descripción]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="263" y="2" width="88" height="10" uuid="6aa16e28-15e9-4e86-824c-70ab1e00611f"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Precio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="470" y="2" width="96" height="10" uuid="3f4298ae-09b3-4040-a6e9-61c48c36a592">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Subtotal]]></text>
+			</staticText>
+			<line>
+				<reportElement x="-2" y="15" width="571" height="1" uuid="6097edd1-58d9-4d16-936c-273d00db9f28">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement x="410" y="2" width="24" height="10" uuid="996cbdf9-93c8-4cd3-bc36-d28827b13072"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Ud]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="436" y="2" width="32" height="10" uuid="ebe8dafa-6375-4588-99a1-863f81dbdaad"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Iva]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="356" y="2" width="54" height="10" uuid="9dbb2681-c4c9-4348-8907-68d6c5710eac">
+					<printWhenExpression><![CDATA[$F{descuento}>0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Desc.]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.layout"/>
+			<textField>
+				<reportElement x="0" y="1" width="37" height="10" uuid="5136ad17-5525-40d7-bbc9-871042248e45"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="39" y="1" width="58" height="10" uuid="1d96bda0-806d-4a06-b189-ae0321af4d6c">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{cantidad})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="97" y="1" width="163" height="10" uuid="9f6aae6c-c3f7-4e76-8571-bc25d6777141">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="260" y="1" width="92" height="10" uuid="5c0cba62-3986-468a-aa59-a1090625669e">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{precio})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="470" y="1" width="96" height="10" uuid="96e7443c-9f66-449a-91fc-d7bf90a5a3c6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{subTotal})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="410" y="1" width="24" height="10" uuid="3c4bd095-f59a-4aa8-acd4-5fd5f18f8e67">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ud}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="436" y="1" width="33" height="10" uuid="5893fee1-12f0-4089-a500-570725710151">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{iva}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="353" y="1" width="57" height="10" uuid="b8152d7b-458c-44b5-9457-23e91e94de6c">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<printWhenExpression><![CDATA[$F{descuento}>0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Lucida Console" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat(" #,##0.00").format($F{descuento})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -101,6 +101,9 @@ public class Reporte {
 	public void reportPDFDescarga(List<?> lista, Map<String, Object> map, String nombreReporte, HttpServletResponse response) throws IOException{
 		try {
 			InputStream jasperStream = this.getClass().getResourceAsStream("/reporte/"+nombreReporte + ".jrxml");
+			if (jasperStream == null) {
+			    throw new RuntimeException("No se encontró el reporte: /reporte/" + nombreReporte + ".jrxml");
+			}
 			JasperDesign design = JRXmlLoader.load(jasperStream);
 			JasperReport report = JasperCompileManager.compileReport(design);
 			JRDataSource jRDataSource = new JRBeanCollectionDataSource(lista);
