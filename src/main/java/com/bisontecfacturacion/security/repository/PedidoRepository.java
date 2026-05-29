@@ -36,7 +36,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Serializable>{
 	List<Pedido> getPedidoAllDescripcion(@Param("des") String des);
     
 
-    @Query(value="SELECT d.id as detId, p.id as proId, p.codbar, d.descripcion,d.cantidad,d.precio_costo,d.iva,d.sub_total, d.precio_venta_1, d.precio_venta_2, d.precio_venta_3, d.precio_venta_4, d.pedido_id, u.descripcion as descripcionDescrip, m.descripcion as marcadesc FROM pedido_detalle d INNER JOIN producto p ON d.producto_id=p.id INNER JOIN unidad_medida u ON p.unidad_medida_id=u.id INNER JOIN marca m ON p.marca_id=m.id  where d.pedido_id=:id order by d.id DESC",nativeQuery=true)
+    @Query(value="SELECT d.id as detId, p.id as proId, p.codbar, d.descripcion,d.cantidad,d.precio_costo,d.iva,d.sub_total, d.precio_venta_1, d.precio_venta_2, d.precio_venta_3, d.precio_venta_4, d.pedido_id, u.descripcion as descripcionDescrip, m.descripcion as marcadesc, dep.descripcion as depDes, p.existencia as exi, p.stock_presupuesto as solici FROM pedido_detalle d INNER JOIN producto p ON d.producto_id=p.id INNER JOIN unidad_medida u ON p.unidad_medida_id=u.id INNER JOIN marca m ON p.marca_id=m.id INNER JOIN deposito dep ON p.deposito_id=dep.id  where d.pedido_id=:id order by d.id DESC",nativeQuery=true)
 	List<Object[]> listaDetallePedidoProducto(@Param("id") int id);
     
 

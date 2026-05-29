@@ -326,6 +326,8 @@ public class PresupuestoController {
 			detalleProductos.setSubTotalCosto(Double.parseDouble(ob[19].toString()));
 			if (ob[20].toString()==null) { detalleProductos.getProducto().setNombreImagen(""); } else { detalleProductos.getProducto().setNombreImagen(ob[20].toString()); }
 			detalleProductos.getProducto().setCodoriginal(ob[21].toString());
+			detalleProductos.getProducto().getDeposito().setDescripcion(ob[22].toString());
+			detalleProductos.getProducto().setStockPresupuesto(Double.parseDouble(ob[23].toString()));
 			
 			detalleProducto.add(detalleProductos);
 		}

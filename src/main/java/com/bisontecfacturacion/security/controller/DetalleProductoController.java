@@ -172,6 +172,8 @@ public class DetalleProductoController {
 			//detalleProductos.getProducto().setNombreImagen(ob[23].toString());
 			if (ob[23].toString()==null) { detalleProductos.getProducto().setNombreImagen(""); } else { detalleProductos.getProducto().setNombreImagen(ob[23].toString()); }
 			detalleProductos.getProducto().setCodoriginal(ob[24].toString());
+			detalleProductos.getProducto().getDeposito().setDescripcion(ob[25].toString());
+			detalleProductos.getProducto().setStockPresupuesto(Double.parseDouble(ob[26].toString()));
 			detalleProducto.add(detalleProductos);
 		}
 		System.out.println("Retorno Lista Detalle Producto "+detalleProducto.size());

@@ -5382,143 +5382,59 @@ public class VentaController {
 			}
 			return obb;
 		}
-
-	 
-	 @RequestMapping(value="/reporteVentaRangoFechaPorZona/{fechaI}/{fechaF}/{idZona}/{detallado}", method=RequestMethod.GET)
-		public ResponseEntity<?>  getReporteVentaRangoFechaZona(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idZona ,  @PathVariable int detallado) throws IOException {
-			System.out.println("Entro metodo funcionaajnaaaoao::: "+fechaI+":::: " + fechaF);
-			List<Venta> listado = new ArrayList<>();
-			List<Venta> listadoDetallado = new ArrayList<>();
+	 @RequestMapping(value="/reporteVentaRangoFechaPorZona/{fechaI}/{fechaF}/{idZona}", method=RequestMethod.GET)
+		public ResponseEntity<?>  getReporteVentaRangoFechaZona(HttpServletResponse response, OAuth2Authentication authentication, @PathVariable String fechaI, @PathVariable String fechaF, @PathVariable int idZona) throws IOException {
+		 	List<InformeVentaTotalPorProducto> lisRetorno = new ArrayList<InformeVentaTotalPorProducto>();
+			List<Object[]> obb = new ArrayList<>();
 			Usuario usuario = usuarioService.findByUsername(authentication.getName());
-			Zona cl= zonaRepository.getOne(idZona);
+			Zona zon= zonaRepository.getOne(idZona);
 			Org org = orgRepository.findById(1).get();
-			List<Object[]> listUltimaVentas= new ArrayList<Object[]>();
-
-			Double totalCostoProd=0.0, totalProducto=0.0, totalDevolucion=0.0, totalServicio=0.0, totalVenta=0.0 ;
-
-
 			try {
-				System.out.println("entroo tryy"+detallado);
-				SimpleDateFormat formater=new SimpleDateFormat("yyyy-MM-dd");
-				Date fecI;
-				System.out.println("pasoo1");
-				fecI = formater.parse(fechaI);
-				System.out.println("pasoo2");
-				Date fecF=formater.parse(fechaF);
-				System.out.println("pasoo3");
-				//Date fechaFi = sumarDia(fecF, 24);
-				fecF.setHours(23);
-				fecI.setHours(1);
-				System.out.println("FI: "+fecI+ "  : : : FFIN: "+fecF+ " : id Func:  "+idZona);
-				System.out.println("ejecutoo el metodo de reangoooo");
-				Map<String, Object> map = new HashMap<>();
-				map.put("org", ""+org.getNombre());
-				map.put("direccion", ""+org.getDireccion());
-				map.put("ruc", ""+org.getRuc());
-				map.put("telefono", ""+org.getTelefono());
-				map.put("ciudad", ""+org.getCiudad());
-				map.put("pais", ""+org.getPais());
-				map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
-				map.put("desde", fecI);
-				map.put("hasta", fecF);
-
-				map.put("zona", cl.getDescripcion());
-
-				System.out.println("Tipo detallado:   "+detallado);
-				report = new Reporte();
-
-				if (detallado==1) {
-					List<Venta> obb= entityRepository.getVentaPorRangoFechaZonaHql(fecI, fecF, idZona);
-					System.out.println(obb.size()+" ************lis obb");
-					if(obb.size()>0) {
-						for (int i = 0; i < obb.size(); i++) {
-							totalVenta = totalVenta + obb.get(i).getTotal();
-							for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
-								totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
-								totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
-								totalDevolucion = totalDevolucion + obb.get(i).getTotalDevolucion();
-							}
-							for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
-								totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
-								DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
-								DetalleProducto detalleProducto = new DetalleProducto();
-								detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
-								detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
-								detalleProducto.setCantidad(detAux.getCantidad());
-								detalleProducto.setPrecio(detAux.getPrecio());
-								detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
-								detalleProducto.setIva(detAux.getIva()+"");
-								detalleProducto.setSubTotal(detAux.getSubTotal());
-								detalleProducto.setMontoIva(detAux.getMontoIva());
-								obb.get(i).getDetalleProducto().add(detalleProducto);
-							}
-						}
-
-						map.put("totalCostoProducto", totalCostoProd);
-						map.put("totalProducto", totalProducto);
-						map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
-						map.put("totalServicio", totalServicio);
-						map.put("totalVenta", totalVenta);	
-						map.put("totalDevolucion", totalDevolucion);	
-						
-						listado = obb;
-						report.reportPDFDescarga(listado, map, "ReporteVentaRangoPorZona", response);
-						return  new  ResponseEntity<String>(HttpStatus.OK);
-					}else {
-						return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
+				Date fecI = FechaUtil.setFechaHoraInicial(fechaI);
+				Date fecF = FechaUtil.setFechaHoraFinal(fechaF);
+				// Convertir a Timestamp explícitamente
+				java.sql.Timestamp tsInicio = new java.sql.Timestamp(fecI.getTime());
+				java.sql.Timestamp tsFin = new java.sql.Timestamp(fecF.getTime());
+				obb = entityRepository.getResumenProductoPorZonaYRango(idZona, tsInicio, tsFin);
+				if(obb.size()>0) {
+					for (int i = 0; i < obb.size(); i++) {
+						InformeVentaTotalPorProducto inf = new InformeVentaTotalPorProducto();
+						inf.setDescripcion(obb.get(i)[0].toString());
+						inf.setPrecio(Double.parseDouble(obb.get(i)[1].toString()));
+						inf.setCantidadVenta(Double.parseDouble(obb.get(i)[2].toString()));
+						inf.setCosto(Double.parseDouble(obb.get(i)[3].toString()));
+						inf.setSubTotalVenta(Double.parseDouble(obb.get(i)[4].toString()));
+						inf.setCantidadDevuelta(Double.parseDouble(obb.get(i)[5].toString()));
+						inf.setCostoDevuelta(Double.parseDouble(obb.get(i)[6].toString()));
+						inf.setSubTotalDevuelto(Double.parseDouble(obb.get(i)[7].toString()));
+						inf.setSubTotalNeta(Double.parseDouble(obb.get(i)[8].toString()));
+						inf.setFuncionario(obb.get(i)[9].toString());
+						System.out.println("COSTO real : "+inf.getCosto());
+						System.out.println("COSTO devolucion: "+inf.getCostoDevuelta());
+						lisRetorno.add(inf);
 					}
-
+					System.out.println("ejecutoo el metodo de reangoooo");
+					Map<String, Object> map = new HashMap<>();
+					map.put("org", ""+org.getNombre());
+					map.put("direccion", ""+org.getDireccion());
+					map.put("ruc", ""+org.getRuc());
+					map.put("telefono", ""+org.getTelefono());
+					map.put("ciudad", ""+org.getCiudad());
+					map.put("pais", ""+org.getPais());
+					map.put("funcionario", ""+usuario.getFuncionario().getPersona().getNombre()+" "+usuario.getFuncionario().getPersona().getApellido());
+					map.put("desde", fecI);
+					map.put("hasta", fecF);
+					map.put("zona", zon.getDescripcion());
+					report = new Reporte();
+					report.reportPDFDescarga(lisRetorno, map, "InformeTotalVentaResumidoProductoPorZona", response);
+					return  new  ResponseEntity<String>(HttpStatus.OK);
+				}else {
+					return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 				}
-
-				if (detallado==2) {
-					List<Venta> obb= entityRepository.getVentaPorRangoFechaZonaHql(fecI, fecF, idZona);
-					System.out.println(obb.size()+" ************lis obb");
-					if(obb.size()>0) {
-						for (int i = 0; i < obb.size(); i++) {
-							totalVenta = totalVenta + obb.get(i).getTotal();
-							for (int j = 0; j < obb.get(i).getDetalleProducto().size(); j++) {
-								totalCostoProd= totalCostoProd + obb.get(i).getDetalleProducto().get(j).getCosto();
-								totalProducto= totalProducto + obb.get(i).getDetalleProducto().get(j).getSubTotal();
-								totalDevolucion = totalDevolucion + obb.get(i).getTotalDevolucion();
-							}
-							for (int j = 0; j < obb.get(i).getDetalleServicio().size(); j++) {
-								totalServicio = totalServicio + obb.get(i).getDetalleServicio().get(j).getSubTotal();
-								DetalleServicios detAux = obb.get(i).getDetalleServicio().get(j);
-								DetalleProducto detalleProducto = new DetalleProducto();
-								detalleProducto.setDescripcion("SER - "+detAux.getDescripcion());
-								detalleProducto.getProducto().setCodbar(detAux.getServicio().getId()+"");
-								detalleProducto.setCantidad(detAux.getCantidad());
-								detalleProducto.setPrecio(detAux.getPrecio());
-								detalleProducto.getProducto().getUnidadMedida().setDescripcion("UN");;
-								detalleProducto.setIva(detAux.getIva()+"");
-								detalleProducto.setSubTotal(detAux.getSubTotal());
-								detalleProducto.setMontoIva(detAux.getMontoIva());
-								obb.get(i).getDetalleProducto().add(detalleProducto);
-							}
-						}
-
-						map.put("totalCostoProducto", totalCostoProd);
-						map.put("totalProducto", totalProducto);
-						map.put("totalUtilidadProducto", totalProducto-totalCostoProd);
-						map.put("totalServicio", totalServicio);
-						map.put("totalVenta", totalVenta);	
-						map.put("totalDevolucion", totalDevolucion);	
-
-						listadoDetallado = obb;
-						report.reportPDFDescarga(listadoDetallado, map, "ReporteVentaRangoPorZonaDetallado", response);
-						return  new  ResponseEntity<String>(HttpStatus.OK);
-					}else {
-						return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
-					}
-
-				}
-
 			} catch (Exception e) {
 				// TODO: handle exception
 				e.printStackTrace();
 			}
 			return  new  ResponseEntity<String>(HttpStatus.OK);
-
 		}
-	 
 }

@@ -11,6 +11,15 @@ public class InformeVentaTotalPorProducto {
 	private Double costoDevuelta;
 	private Double subTotalDevuelto;
 	private Double subTotalNeta;
+	
+	
+	@Override
+	public String toString() {
+		return "InformeVentaTotalPorProducto [funcionario=" + funcionario + ", descripcion=" + descripcion + ", precio="
+				+ precio + ", cantidadVenta=" + cantidadVenta + ", costo=" + costo + ", subTotalVenta=" + subTotalVenta
+				+ ", cantidadDevuelta=" + cantidadDevuelta + ", costoDevuelta=" + costoDevuelta + ", subTotalDevuelto="
+				+ subTotalDevuelto + ", subTotalNeta=" + subTotalNeta + "]";
+	}
 	public String getFuncionario() {
 		return funcionario;
 	}

@@ -379,12 +379,19 @@ public List<Venta> getVentaPorRangoFechaZonaHql(@Param("fecha_inicio") Date fech
 		+ " dp.descripcion AS producto, "
 	    + " (SUM(dp.sub_total) / NULLIF(SUM(dp.cantidad), 0)) AS precio_promedio, "
 		+ " SUM(dp.cantidad) AS cantidadVendida, "
-	    + " SUM(dp.costo) AS costo_real, "
+		+ "(  "
+		+ "		   SUM(dp.costo)  "
+		+ "		   - "
+		+ "		   SUM( "
+		+ "		      (dp.costo / NULLIF(dp.cantidad,0))"
+		+ "		      * dp.cantidad_devolucion "
+		+ "		   ) "
+		+ "		) AS costo_real, "
 	    + " SUM(dp.sub_total) AS subtotal_venta, "
 	    + " SUM(dp.cantidad_devolucion) AS cantidad_devuelta, "
 	    + " SUM((dp.costo / NULLIF(dp.cantidad,0)) * dp.cantidad_devolucion) AS costo_devolucion, "
 	    + " SUM(dp.precio * dp.cantidad_devolucion) AS subtotal_devolucion, "
-	    + " ( "
+	    + " ( " 
 		+ "   (SUM(dp.sub_total) - SUM(dp.precio * dp.cantidad_devolucion)) "
 		+ "   - "
 		+ "   (SUM(dp.costo) - SUM((dp.costo / NULLIF(dp.cantidad,0)) * dp.cantidad_devolucion)) "
@@ -394,7 +401,7 @@ public List<Venta> getVentaPorRangoFechaZonaHql(@Param("fecha_inicio") Date fech
 	    + " INNER JOIN venta v ON v.id = dp.venta_id "
 	    + " INNER JOIN zona z ON z.id = v.zona_id "
 	    + " WHERE v.zona_id = :zonaId "
-	    + " AND v.fecha_factura BETWEEN :fechaInicio AND :fechaFin "
+	    + " AND (v.fecha_factura >= :fechaInicio AND v.fecha_factura < :fechaFin) "
 	    + " AND (v.estado = 'FACTURADO' OR v.estado = 'PREVENTA')"
 	    + " GROUP BY dp.descripcion, z.descripcion "
 	    + " ORDER BY dp.descripcion", nativeQuery = true)
@@ -402,7 +409,6 @@ public List<Venta> getVentaPorRangoFechaZonaHql(@Param("fecha_inicio") Date fech
 	     @Param("zonaId") Integer zonaId,
 	     @Param("fechaInicio") Date fechaInicio,
 	     @Param("fechaFin") Date fechaFin);
-
 
 
 

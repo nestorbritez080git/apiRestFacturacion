@@ -321,6 +321,7 @@ public class ProductoController {
 			productos.setDescripcion(ob.getDescripcion());
 			productos.getMarca().setDescripcion(ob.getMarca().getDescripcion());
 			productos.getMarca().setId(ob.getMarca().getId());
+			productos.getDeposito().setDescripcion(ob.getDeposito().getDescripcion());
 			productos.setExistencia(ob.getExistencia());
 			productos.setStock_minimo(ob.getStock_minimo());
 			productos.getGrupo().setDescripcion(ob.getGrupo().getDescripcion());
@@ -341,6 +342,7 @@ public class ProductoController {
 			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
 			productos.setStockPresupuesto(ob.getStockPresupuesto());
 			productos.setNombreImagen(ob.getNombreImagen());
+			productos.setAplicacion(ob.getAplicacion());
 			producto.add(productos);
 		}
 
@@ -369,6 +371,8 @@ public class ProductoController {
 		producto.setStockPresupuesto(pro.getStockPresupuesto());
 		producto.setCodoriginal(pro.getCodoriginal());
 		producto.setAplicacion(pro.getAplicacion());
+		producto.getDeposito().setDescripcion(pro.getDeposito().getDescripcion());
+		
 		return producto;
 	}
 	@RequestMapping(method=RequestMethod.GET,value="/{id}")

@@ -201,7 +201,9 @@ public class PedidoController {
 			det.getPedido().setId(Integer.parseInt(d[12].toString()));
 			det.getProducto().getUnidadMedida().setDescripcion(d[13].toString());
 			det.getProducto().getMarca().setDescripcion(d[14].toString());
-
+			det.getProducto().getDeposito().setDescripcion(d[15].toString());
+			det.getProducto().setExistencia(Double.parseDouble(d[16].toString()));
+			det.getProducto().setStockPresupuesto(Double.parseDouble(d[17].toString()));
 			listaRetorno.add(det);
 		}
 		return listaRetorno;
