@@ -1,11 +1,14 @@
 package com.bisontecfacturacion.security.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -21,20 +24,25 @@ public class CuentaCobrarDetalle {
 	@NotNull
 	private int numeroCuota;
 	@NotNull
-	private double monto;
-	private double importe;
-	private double subTotal;
+	private Double monto;
+	private Double importe;
+	private Double subTotal;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fechaVencimiento;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
 	private Date fechaPago;
-	private double interesMora;
+	private Double interesMora;
 	@NotNull
 	private boolean estado;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", locale = "es-PY", timezone = "America/Asuncion")
+	private Date fechaUltimaGeneracion;
 	
 
 	@ManyToOne
 	private CuentaCobrarCabecera cuentaCobrarCabecera;
+	
+	@OneToMany(mappedBy="cuentaCobrarDetalle")
+	private List<CuentaCobrarMora> cuentaCobrarMora; 
 
 	public CuentaCobrarDetalle() {
 		super();
@@ -47,6 +55,8 @@ public class CuentaCobrarDetalle {
 		estado=false;
 		cuentaCobrarCabecera= new CuentaCobrarCabecera();
 		subTotal=0.0;
+		cuentaCobrarMora= new ArrayList<>();
+
 	}
 
 	public int getId() {
@@ -65,20 +75,28 @@ public class CuentaCobrarDetalle {
 		this.numeroCuota = numeroCuota;
 	}
 
-	public double getMonto() {
+	public Double getMonto() {
 		return monto;
 	}
 
-	public void setMonto(double monto) {
+	public void setMonto(Double monto) {
 		this.monto = monto;
 	}
 
-	public double getImporte() {
+	public Double getImporte() {
 		return importe;
 	}
 
-	public void setImporte(double importe) {
+	public void setImporte(Double importe) {
 		this.importe = importe;
+	}
+
+	public Double getSubTotal() {
+		return subTotal;
+	}
+
+	public void setSubTotal(Double subTotal) {
+		this.subTotal = subTotal;
 	}
 
 	public Date getFechaVencimiento() {
@@ -89,11 +107,19 @@ public class CuentaCobrarDetalle {
 		this.fechaVencimiento = fechaVencimiento;
 	}
 
-	public double getInteresMora() {
+	public Date getFechaPago() {
+		return fechaPago;
+	}
+
+	public void setFechaPago(Date fechaPago) {
+		this.fechaPago = fechaPago;
+	}
+
+	public Double getInteresMora() {
 		return interesMora;
 	}
 
-	public void setInteresMora(double interesMora) {
+	public void setInteresMora(Double interesMora) {
 		this.interesMora = interesMora;
 	}
 
@@ -105,6 +131,14 @@ public class CuentaCobrarDetalle {
 		this.estado = estado;
 	}
 
+	public Date getFechaUltimaGeneracion() {
+		return fechaUltimaGeneracion;
+	}
+
+	public void setFechaUltimaGeneracion(Date fechaUltimaGeneracion) {
+		this.fechaUltimaGeneracion = fechaUltimaGeneracion;
+	}
+
 	public CuentaCobrarCabecera getCuentaCobrarCabecera() {
 		return cuentaCobrarCabecera;
 	}
@@ -113,20 +147,12 @@ public class CuentaCobrarDetalle {
 		this.cuentaCobrarCabecera = cuentaCobrarCabecera;
 	}
 
-	public double getSubTotal() {
-		return subTotal;
+	public List<CuentaCobrarMora> getCuentaCobrarMora() {
+		return cuentaCobrarMora;
 	}
 
-	public void setSubTotal(double subTotal) {
-		this.subTotal = subTotal; 
-	}
-
-	public Date getFechaPago() {
-		return fechaPago;
-	}
-
-	public void setFechaPago(Date fechaPago) {
-		this.fechaPago = fechaPago;
+	public void setCuentaCobrarMora(List<CuentaCobrarMora> cuentaCobrarMora) {
+		this.cuentaCobrarMora = cuentaCobrarMora;
 	}
 
 	

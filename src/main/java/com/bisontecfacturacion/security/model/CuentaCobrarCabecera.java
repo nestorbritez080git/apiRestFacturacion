@@ -44,8 +44,12 @@ public class CuentaCobrarCabecera {
 	private Venta venta;
 	@ManyToOne
 	private InteresCuota interesCuota;
+	private Integer porcentajeInteresCuota;
 	@ManyToOne
 	private InteresMora interesMora;
+	private Integer porcentajeInteresMora;
+	private Double totalInteresMora;
+
 	@ManyToOne
 	private Funcionario funcionario;
 	@ManyToOne
@@ -74,6 +78,9 @@ public class CuentaCobrarCabecera {
 		venta=new Venta();
 		cliente = new Cliente();
 		cuentaCobrarDetalle= new ArrayList<>();
+		porcentajeInteresCuota=0;
+		porcentajeInteresMora=0;
+		totalInteresMora =0.0;
 	}
 
 	public int getId() {
@@ -226,6 +233,30 @@ public class CuentaCobrarCabecera {
 
 	public void setCuentaCobrarDetalle(List<CuentaCobrarDetalle> cuentaCobrarDetalle) {
 		this.cuentaCobrarDetalle = cuentaCobrarDetalle;
+	}
+
+	public Integer getPorcentajeInteresCuota() {
+		return porcentajeInteresCuota;
+	}
+
+	public void setPorcentajeInteresCuota(Integer porcentajeInteresCuota) {
+		this.porcentajeInteresCuota = porcentajeInteresCuota;
+	}
+
+	public Integer getPorcentajeInteresMora() {
+		return porcentajeInteresMora;
+	}
+
+	public void setPorcentajeInteresMora(Integer porcentajeInteresMora) {
+		this.porcentajeInteresMora = porcentajeInteresMora;
+	}
+
+	public Double getTotalInteresMora() {
+		return totalInteresMora;
+	}
+
+	public void setTotalInteresMora(Double totalInteresMora) {
+		this.totalInteresMora = totalInteresMora;
 	}
 
 

@@ -18,6 +18,8 @@ public class ReporteConfig {
 	private String nombreSubReporte2;
 	private int pageHeigth;
 	private int pageWidth;
+	
+	private String tipoFormato;
 	public ReporteConfig() {
 		this.id=0;
 		this.nombreReferencia="";
@@ -26,6 +28,7 @@ public class ReporteConfig {
 		this.nombreSubReporte2="";
 		this.pageHeigth=0;
 		this.pageWidth=0;
+		this.tipoFormato ="";
 	}
 	public int getId() {
 		return id;
@@ -68,6 +71,12 @@ public class ReporteConfig {
 	}
 	public void setPageWidth(int pageWidth) {
 		this.pageWidth = pageWidth;
+	}
+	public String getTipoFormato() {
+		return tipoFormato;
+	}
+	public void setTipoFormato(String tipoFormato) {
+		this.tipoFormato = tipoFormato;
 	}
 	
 	

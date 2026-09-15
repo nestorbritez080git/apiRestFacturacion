@@ -40,9 +40,12 @@ public interface CuentaAcobrarDetalleRepository extends JpaRepository<CuentaCobr
 	@Query(value = "DELETE FROM CuentaCobrarDetalle where cuenta_cobrar_cabecera_id =:idVenta")
 	public void  eliminarDetalleCuentaPorCabeceraId(@Param("idVenta") int idVenta );
 	
-	
 	@Query("select a from CuentaCobrarDetalle a where cuenta_cobrar_cabecera_id=:idCabecera order by id asc")
-	public List<CuentaCobrarDetalle> getCuentaCobrarDetalle(@Param("idCabecera")int idCabecera);
+	public List<CuentaCobrarDetalle> getCuentaCobrarDetalles(@Param("idCabecera")int idCabecera);
+
+	@Query("SELECT c FROM CuentaCobrarDetalle c	JOIN FETCH c.cuentaCobrarCabecera cab JOIN FETCH cab.interesMora mora WHERE COALESCE(c.importe,0) < COALESCE(c.subTotal,0)	AND c.fechaVencimiento < CURRENT_DATE")
+			List<CuentaCobrarDetalle> obtenerCuotasPendientesVencida();
+	
 
 	
 

@@ -36,6 +36,7 @@ import com.bisontecfacturacion.security.config.Reporte;
 import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.config.Utilidades;
 import com.bisontecfacturacion.security.model.CierreCaja;
+import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.DetallePresupuestoProducto;
 import com.bisontecfacturacion.security.model.DetallePresupuestoServicio;
 import com.bisontecfacturacion.security.model.Org;
@@ -563,7 +564,6 @@ public class PresupuestoController {
 			    }
 			    entity.setZona(primeraZonaOpt.get());
 			}
-			
 			if(entity.getFuncionario().getId() == 0) {
 				return new ResponseEntity<>(new CustomerErrorType("EL FUNCIONARIO NO DEBE QUEDAR VACIO!"), HttpStatus.CONFLICT); 
 			} else if(entity.getCliente().getId() == 0) {
@@ -578,6 +578,87 @@ public class PresupuestoController {
 			} else if(entity.getFecha() == null){
 				entity.setFecha(LocalDateTime.now());
 			}
+			Map<String, DetallePresupuestoProducto> productosAgrupados = new LinkedHashMap<>();
+			List<DetallePresupuestoProducto> listaFinal = new ArrayList<>();
+			List<Integer> idsParaEliminar = new ArrayList<>();
+			for (DetallePresupuestoProducto detalle : entity.getDetallePresupuestoProducto()) {
+			    Integer idProducto = detalle.getProducto().getId();
+			    Double descuento = detalle.getDescuento() == null ? 0.0  : detalle.getDescuento();
+			    // RECALCULAR SUBTOTAL
+			    detalle.setSubTotal((detalle.getCantidad() * detalle.getPrecio())
+			        - (descuento * detalle.getCantidad())
+			    );
+			    // ARTICULO VARIOS -> NO AGRUPAR
+			    if (Integer.valueOf(1).equals(idProducto)
+			            || "15".equals(detalle.getProducto().getCodbar())) {
+			        listaFinal.add(detalle);
+			        continue;
+			    }
+			    // AGRUPAR SOLO POR PRODUCTO
+			    String key = String.valueOf(idProducto);
+			    if (productosAgrupados.containsKey(key)) {
+
+			        DetallePresupuestoProducto existente =
+			                productosAgrupados.get(key);
+
+			        DetallePresupuestoProducto conservar;
+			        DetallePresupuestoProducto eliminar;
+			        // ==========================================
+			        // SI EL NUEVO TIENE ID
+			        // CONSERVAR EL NUEVO
+			        // ==========================================
+			        if (detalle.getId() != null) {
+			            conservar = detalle;
+			            eliminar = existente;
+			            productosAgrupados.put(key, conservar);
+			        } else {
+			            // ==========================================
+			            // SI EL NUEVO NO TIENE ID
+			            // CONSERVAR EL EXISTENTE
+			            // ==========================================
+			            conservar = existente;
+			            eliminar = detalle;
+			        }
+			        // ==========================================
+			        // SUMAR CANTIDAD
+			        // ==========================================
+			        conservar.setCantidad(
+			            conservar.getCantidad() + eliminar.getCantidad()
+			        );
+			        // ==========================================
+			        // RECALCULAR SUBTOTAL
+			        // ==========================================
+			        Double descuentoConservar =conservar.getDescuento() == null ? 0.0 : conservar.getDescuento();
+			        conservar.setSubTotal(
+			            (conservar.getCantidad() * conservar.getPrecio())
+			            - (descuentoConservar * conservar.getCantidad())
+			        );
+			        // ==========================================
+			        // SI EL QUE SE ELIMINA YA EXISTE EN BD
+			        // MARCAR PARA ELIMINAR
+			        // ==========================================
+			        if (eliminar.getId() != null) {
+			            idsParaEliminar.add(eliminar.getId());
+			        }
+			    } else {
+			        productosAgrupados.put(key, detalle);
+			    }
+			}
+			// ==========================================
+			// ELIMINAR DE BD LOS DETALLES REPETIDOS
+			// ==========================================
+			for (Integer id : idsParaEliminar) {
+			    detalleProductoRepository.deleteById(id);
+			    //console.log();
+			    System.out.println("id eliminado: "+id);
+			}
+			// ==========================================
+			// ARMAR LISTA FINAL
+			// ==========================================
+			listaFinal.addAll(productosAgrupados.values());
+			entity.setDetallePresupuestoProducto(listaFinal);
+			
+			/*
 			// AGRUPAR PRODUCTOS REPETIDOS
 			Map<String, DetallePresupuestoProducto> productosAgrupados =  new LinkedHashMap<>();
 			List<DetallePresupuestoProducto> listaFinal = new ArrayList<>();
@@ -619,6 +700,8 @@ public class PresupuestoController {
 			listaFinal.addAll(productosAgrupados.values());
 			// REEMPLAZAR LISTA ORIGINAL 
 			entity.setDetallePresupuestoProducto(listaFinal);
+			
+			*/
 				for(int ind=0; ind < entity.getDetallePresupuestoProducto().size(); ind++) {
 					DetallePresupuestoProducto pro = entity.getDetallePresupuestoProducto().get(ind);
 					if(pro.getCantidad() == null || pro.getCantidad() <=0) {
@@ -873,7 +956,7 @@ public class PresupuestoController {
 	}
 	@RequestMapping(method=RequestMethod.POST, value = "/pre/{numeroTerminal}")
 	public void pdfPrintPresupuesto(@RequestBody Presupuesto pres, @PathVariable int numeroTerminal) {
-		
+		System.out.println("presu id: "+pres.getId()+ " terminal : "+numeroTerminal);
 		Reporte report = new Reporte();
 		TerminalConfigImpresora t = new TerminalConfigImpresora();
 		t= terminalRepository.consultarTerminalPorNumeros(numeroTerminal);
@@ -1054,16 +1137,18 @@ public class PresupuestoController {
 		List<DetallePresupuestoProducto> detProducto = new ArrayList<>();
 		List<DetallePresupuestoServicio> detServicio = new ArrayList<>();
 
-
 		presu = presupuestosss(idPresupuesto);
+		System.out.println(presu.getCliente().getId()+ " id cliente del presu");
+
 		detProducto = getDetalleProducto(detalleProductoRepository.lista(idPresupuesto));
 		detServicio = getDetalleServ(idPresupuesto);
 
 
 		for (int i = 0; i < 1; i++) {
+			Cliente cli = clienteRepository.getIdCliente(presu.getCliente().getId());
 			Presupuesto v = new Presupuesto();
-			v.getCliente().getPersona().setNombre(presu.getCliente().getPersona().getNombre()+" "+presu.getCliente().getPersona().getApellido());
-			v.getCliente().getPersona().setCedula(presu.getCliente().getPersona().getCedula());
+			v.getCliente().getPersona().setNombre(cli.getPersona().getNombre()+" "+cli.getPersona().getApellido());
+			v.getCliente().getPersona().setCedula(cli.getPersona().getCedula());
 			v.getCliente().getPersona().setDireccion(presu.getCliente().getPersona().getDireccion());
 			v.getCliente().getPersona().setTelefono(presu.getCliente().getPersona().getTelefono());
 			v.setFecha(presu.getFecha());

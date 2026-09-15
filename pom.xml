@@ -56,7 +56,26 @@
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
 			<version>3.16</version>
-		</dependency><!-- XML Digital Signature -->
+		</dependency>
+		
+		<!-- lIBRERIA PARA GENERAR CODIGO DE BARRAS -->
+		<dependency>
+	    <groupId>com.google.zxing</groupId>
+	    <artifactId>core</artifactId>
+	    <version>3.5.3</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>com.google.zxing</groupId>
+		    <artifactId>javase</artifactId>
+		    <version>3.5.3</version>
+		</dependency>
+		
+		<!-- XML Digital Signature -->
+		
+		
+		
+		
     <dependency>
         <groupId>org.apache.santuario</groupId>
         <artifactId>xmlsec</artifactId>

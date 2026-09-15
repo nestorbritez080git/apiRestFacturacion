@@ -139,6 +139,7 @@ public class EmpaqueController {
 			pre.setEstado(p.getEstado());
 			pre.setTotalFinalizado(p.getTotalFinalizado());
 			pre.setItemsVenta(p.getItemsVenta());
+			pre.setTotalAnulado(p.getTotalAnulado());
 			listaRetorno.add(pre);
 		}
 		return listaRetorno;
@@ -1173,7 +1174,7 @@ public class EmpaqueController {
 
 			List<Object[]> rows = entityRepository.getReporteResumenEmpaqueRaw(id);
 			if (rows == null || rows.isEmpty()) {
-				return  new ResponseEntity<>(new CustomerErrorType("No se encontró información para el empaque " + id), HttpStatus.CONFLICT);
+				return  new ResponseEntity<>(new CustomerErrorType("Todavia no se llegó a finalizar los arreglos en caja del empaque: " + id), HttpStatus.CONFLICT);
 
 			}
 
@@ -1200,6 +1201,8 @@ public class EmpaqueController {
 
 			dto.setTotalPedido(((Number) r[14]).doubleValue());
 			dto.setTotalVenta(((Number) r[15]).doubleValue());
+			dto.setTotalAnulado(((Number) r[16]).doubleValue());
+
 
 			Map<String, Object> map = new HashMap<>();
 			map.put("tituloReporte", f.getTitulo());

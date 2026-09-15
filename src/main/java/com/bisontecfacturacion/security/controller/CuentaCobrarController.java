@@ -32,6 +32,7 @@ import com.bisontecfacturacion.security.config.TerminalConfigImpresora;
 import com.bisontecfacturacion.security.model.Cliente;
 import com.bisontecfacturacion.security.model.CuentaCobrarCabecera;
 import com.bisontecfacturacion.security.model.CuentaCobrarDetalle;
+import com.bisontecfacturacion.security.model.CuentaCobrarMora;
 import com.bisontecfacturacion.security.model.DetalleProducto;
 import com.bisontecfacturacion.security.model.DetalleServicios;
 import com.bisontecfacturacion.security.model.Funcionario;
@@ -48,6 +49,7 @@ import com.bisontecfacturacion.security.repository.CobrosClienteRepository;
 import com.bisontecfacturacion.security.repository.ConceptoRepository;
 import com.bisontecfacturacion.security.repository.CuentaAcobrarDetalleRepository;
 import com.bisontecfacturacion.security.repository.CuentaAcobrarRepository;
+import com.bisontecfacturacion.security.repository.CuentaCobrarMoraRepository;
 import com.bisontecfacturacion.security.repository.DetalleProductoRepository;
 import com.bisontecfacturacion.security.repository.FuncionarioRepository;
 import com.bisontecfacturacion.security.repository.OperacionCajaRepository;
@@ -123,6 +125,15 @@ public class CuentaCobrarController {
 	@Autowired
 	private CuentaAcobrarRepository cuentaCobrarRepository;
 
+	@Autowired
+	private CuentaCobrarMoraRepository cuentaCobrarMoraRepository;
+
+	
+	
+	@RequestMapping(method=RequestMethod.GET, value="/cuentaCobrarMora/{idDetalle}")
+	public List<CuentaCobrarMora> getCuentaCobrarMoraPorIdDetalle(@PathVariable Integer idDetalle){
+		return cuentaCobrarMoraRepository.getCuentaCobrarMoraPorDetalle(idDetalle);
+	}
 	@RequestMapping(method=RequestMethod.POST, value="/detalle")
 	public void saveDetalle(@RequestBody List<CuentaCobrarDetalle> detalle){
 //		System.out.println("asdfasdfasdf ********* adasfsadfa s 0+"+detalle.get(0).getCuentaCobrarCabecera().getId());
@@ -140,7 +151,7 @@ public class CuentaCobrarController {
 				detalleRepository.save(ob);
 			}else {
 				ob.setFechaPago(new Date());
-				ob.setSubTotal(Math.round(ob.getMonto()));
+				ob.setSubTotal((double) Math.round(ob.getMonto()));
 				ob.getCuentaCobrarCabecera().setId(cuc.getId());
 				idCabecera=cuc.getId();
 				totalImportePorCuenta = totalImportePorCuenta + ob.getImporte();
@@ -333,7 +344,7 @@ public List<CuentaCobrarCabecera> extraerListaCuentaPendientePorClienteId(@PathV
 @RequestMapping(method=RequestMethod.POST, value = "/{pagareEst}")
 public Map<Object, Object> guardar(@RequestBody CuentaCobrarCabecera entity, @PathVariable boolean pagareEst){
 	List<CuentaCobrarCabecera> listRetorno= new ArrayList<>();
-	OrdenPagare opRest = new OrdenPagare();
+	OrdenPagare opRest = new OrdenPagare();  
 
 	try {
 		Venta v =null;
@@ -510,6 +521,7 @@ public List<CuentaCobrarCabecera> cuentaListado(List<Object[]> object) {
 		cuenta.getCliente().getPersona().setDireccion(cue[8].toString());
 		cuenta.getCliente().setLimiteCredito(Double.parseDouble(cue[9].toString()));
 		if(cue[10].toString()==null){cuenta.setTotalDevolucion(0.0);}else{cuenta.setTotalDevolucion(Double.parseDouble(cue[10].toString()));}
+		cuenta.setTotalInteresMora(Double.parseDouble(cue[11].toString()));
 		listadoRetorno.add(cuenta);
 	}
 	System.out.println("list size: cuenta "+listadoRetorno.size());
@@ -703,8 +715,9 @@ public List<CuentaCobrarCabecera> listadoCargarCuenta(List<CuentaCobrarCabecera>
 		cuenta.getVenta().setTotal(x.getVenta().getTotal());
 		cuenta.getVenta().setTotalDevolucion(x.getVenta().getTotalDevolucion());
 		cuenta.getVenta().setFecha(sumarDia(x.getFecha(), (24 * x.getTipoPlazo().getValor())));
-		cuenta.getTipoPlazo().setValor(validarDiaAtraso(x.getVenta().getFecha()));
+		cuenta.getTipoPlazo().setValor(validarDiaAtraso(x.getFechaVencimiento()));
 		cuenta.setEntrega(x.getEntrega());
+		cuenta.setTotalInteresMora(x.getTotalInteresMora());
 		listadoRetorno.add(cuenta);
 	}
 	return listadoRetorno;
@@ -731,7 +744,6 @@ public List<CuentaCobrarCabecera> listadoCargar(List<CuentaCobrarCabecera> lis){
 		cuenta.getFuncionario().getPersona().setNombre(x.getFuncionario().getPersona().getNombre());
 		cuenta.getFuncionario().getPersona().setApellido(x.getFuncionario().getPersona().getApellido());
 		cuenta.setFecha(x.getFecha());
-		cuenta.setEntrega(x.getEntrega());
 		cuenta.getVenta().setTotal(x.getVenta().getTotal());
 		System.out.println(x.getVenta().getTotal()+" total venta");
 		cuenta.getVenta().setId(x.getVenta().getId());
@@ -772,6 +784,7 @@ public List<CuentaCobrarCabecera> listadoCargar(List<CuentaCobrarCabecera> lis){
 		}
 		cuenta.getVenta().setFecha(sumarDia(x.getFecha(), (24 * x.getTipoPlazo().getValor())));
 		cuenta.getTipoPlazo().setValor(validarDiaAtraso(x.getVenta().getFecha()));
+		cuenta.setTotalInteresMora(x.getTotalInteresMora());
 		listadoRetorno.add(cuenta);
 	}
 	return listadoRetorno;
@@ -818,7 +831,8 @@ public CuentaCobrarCabecera  getCuentaCobrarID(@PathVariable int id){
 	cuenta.getTipoPlazo().setDescripcion(c.getTipoPlazo().getDescripcion());
 	cuenta.setPagado(c.getPagado());
 	cuenta.getInteresMora().setDescripcion(c.getInteresMora().getDescripcion());
-	cuenta.setSaldo(c.getSaldo());
+	cuenta.getInteresMora().setTasa(c.getInteresMora().getTasa());
+	
 	cuenta.getVenta().setTotalDevolucion(c.getVenta().getTotalDevolucion());
 	cuenta.setFecha(c.getFecha());
 	cuenta.setFechaVencimiento(c.getFechaVencimiento());
@@ -842,6 +856,12 @@ public CuentaCobrarCabecera  getCuentaCobrarID(@PathVariable int id){
 		System.out.println("entro verificacion de cuenta credito");
 	}
 	cuenta.setTotalDevolucion(c.getTotalDevolucion());
+	cuenta.setTotalInteresMora(c.getTotalInteresMora());
+	cuenta.getInteresCuota().setDescripcion(c.getInteresCuota().getDescripcion());
+	cuenta.getInteresCuota().setTasa(c.getInteresCuota().getTasa());
+	cuenta.setPorcentajeInteresCuota(c.getPorcentajeInteresCuota());
+	cuenta.setPorcentajeInteresMora(c.getPorcentajeInteresMora());
+	cuenta.setSaldo(c.getSaldo());
 	return cuenta;
 
 }
@@ -857,6 +877,7 @@ public CuentaCobrarCabecera  getCuentaCobrarPorIdVenta(@PathVariable int id){
 	cuenta.getTipoPlazo().setDescripcion(c.getTipoPlazo().getDescripcion());
 	cuenta.setPagado(c.getPagado());
 	cuenta.getInteresMora().setDescripcion(c.getInteresMora().getDescripcion());
+	cuenta.getInteresCuota().setDescripcion(c.getInteresCuota().getDescripcion());
 	cuenta.setSaldo(c.getSaldo());
 	cuenta.setFecha(c.getFecha());
 	cuenta.setFechaVencimiento(c.getFechaVencimiento());
@@ -882,6 +903,9 @@ public CuentaCobrarCabecera  getCuentaCobrarPorIdVenta(@PathVariable int id){
 		System.out.println("entro verificacion de cuenta credito");
 	}
 	cuenta.setTotalDevolucion(c.getTotalDevolucion());
+	cuenta.setPorcentajeInteresMora(c.getPorcentajeInteresMora());
+	cuenta.setPorcentajeInteresCuota(c.getPorcentajeInteresCuota());
+	cuenta.setTotalInteresMora(c.getTotalInteresMora());
 	return cuenta;
 
 }
@@ -1255,5 +1279,20 @@ public  ResponseEntity<?> getReporteCuentaClienteGeneral(HttpServletResponse res
 		return  new ResponseEntity<>(new CustomerErrorType("No hay lista para mostrar"), HttpStatus.CONFLICT);
 	}
 }
+
+
+	@RequestMapping(method = RequestMethod.GET, value="/aplicarInteresCuenta/{idCliente}/{tasa}/{interesAplicable}")
+	public  List<CuentaCobrarCabecera> aplicarInteresCuentaActiva(@PathVariable Integer idCliente, @PathVariable Integer tasa, @PathVariable Integer interesAplicable) throws IOException, ParseException{
+		List<CuentaCobrarCabecera> listRetorno= new ArrayList<>();
+		List<CuentaCobrarCabecera> lis =new ArrayList<>();
+		lis = entityRepository.findByCuentaPorIdClienteACobrarListasss(idCliente);
+		listRetorno = listadoCargarCuenta(lis);
+		// Actualizar el porcentaje de interés de cada cuenta activa
+	    for (CuentaCobrarCabecera cuenta : listRetorno) {
+	       entityRepository.actualizarIntereMoratoriaCuenta(cuenta.getId(), tasa, interesAplicable);
+	    }
+			
+		return listRetorno;
+	}
 
 }

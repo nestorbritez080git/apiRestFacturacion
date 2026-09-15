@@ -103,13 +103,16 @@ public class LoteDocumentoController {
 		        dto.setRangoFin(a.getRangoFin());
 		        dto.setCantidadExpedicion(a.getCantidadExpedicion());
 		        dto.setNumeroActual(a.getNumeroActual());
+		        dto.setTerminalAsignado(a.getTerminalAsignado());
 		        //dto.getAutoImpresorDetalleVentas().set(index, element)
 		        return dto;
 		    }).collect(Collectors.toList());
 	}
 	@RequestMapping(method=RequestMethod.GET, value="/autoImpresor/buscarId/{id}")
 	public AutoImpresor getAutoImpresorPorId(@PathVariable int id){
-		return autoImpresorRepository.getAutoImpresorPorId(id);
+		AutoImpresor au= autoImpresorRepository.getAutoImpresorPorId(id);
+		au.setAutoImpresorDetalleVentas(null);
+		return au;
 	}
 	@RequestMapping(method=RequestMethod.DELETE, value="/autoImpresor/eliminarId/{id}")
 	public void eliminarAutoImpresorPorId(@PathVariable int id){
@@ -380,7 +383,7 @@ public class LoteDocumentoController {
 	    Date hastaDate = java.sql.Timestamp.valueOf(hasta);
 	    List<AutoImpresor> auto= autoImpresorRepository.consultarRemisionesFacturaRangoFecha(idAutorizacion, desdeDate, hastaDate);	    // Aquí llamarías a tu servicio para filtrar por rango de fechas
 	    // ejemplo: List<Remision> remisiones = remisionService.getByRangoFecha(idAutorizacion, desde, hasta);
-	    
+	    System.out.println(auto.size()+" sixeeeeeexxx");
 	    AutoImpresor autoretorno = auto.isEmpty() ? null : auto.get(0);
 	    if(autoretorno.getAutoImpresorDetalleVentas().size()>0) {
 	    	return ResponseEntity.ok(autoretorno);

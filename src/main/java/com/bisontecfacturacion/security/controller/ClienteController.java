@@ -2,6 +2,7 @@ package com.bisontecfacturacion.security.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -168,9 +169,11 @@ public class ClienteController {
 	        String cedulaRuc = p.getCedula();
 
 	        Persona existente = personaRepository.findAll().stream()
-	            .filter(x -> normalizar(x.getCedula()).equals(cedulaNormalizada))
-	            .findFirst()
-	            .orElse(null);
+	        	    .filter(x -> x != null)
+	        	    .filter(x -> x.getCedula() != null)
+	        	    .filter(x -> Objects.equals(normalizar(x.getCedula()), cedulaNormalizada))
+	        	    .findFirst()
+	        	    .orElse(null);
 
 	        if (existente != null) {
 	            entity.setPersona(existente);
@@ -252,13 +255,23 @@ public class ClienteController {
 		        );
 		}
 	}
-	public boolean siExistePersonaEditar(Cliente entity){
+	public boolean siExistePersonaEditar(Cliente entity) {
+
 	    String cedulaNormalizada = normalizar(entity.getPersona().getCedula());
+
 	    return entityRepository.findAll().stream()
-	        .anyMatch(x ->
-	            !x.getPersona().getId().equals(entity.getPersona().getId()) && // 👈 EXCLUIR EL MISMO
-	            normalizar(x.getPersona().getCedula()).equals(cedulaNormalizada)
-	        );
+	        .anyMatch(x -> {
+
+	            if (x.getPersona() == null) {
+	                return false;
+	            }
+	            if (x.getPersona().getId().equals(entity.getPersona().getId())) {
+	                return false;
+	            }
+	            String cedula = normalizar(x.getPersona().getCedula());
+
+	            return Objects.equals(cedula, cedulaNormalizada);
+	        });
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
@@ -304,6 +317,9 @@ public class ClienteController {
 			c.setDiaLimite(ob.getDiaLimite());
 			c.setEstadoBloqueo(ob.isEstadoBloqueo());
 			c.setPersona(ob.getPersona());
+			c.setLimiteCredito(ob.getLimiteCredito());
+			c.setEstadoBloqueo(ob.isEstadoBloqueo());
+			
 			cliReturn.add(c);
 		}
 		for (int i = 0; i < cliReturn.size(); i++) {
@@ -384,17 +400,18 @@ public class ClienteController {
 	}
 	
 	
-	 public static String normalizar(String valor) {
-	        if (valor == null) return null;
-
-	        // quitar todo lo que no sea número
-	        String limpio = valor.replaceAll("[^0-9]", "");
-
-	        // si tiene más de 7 dígitos, asumimos que el último es DV
-	        if (limpio.length() > 7) {
-	            return limpio.substring(0, limpio.length() - 1);
-	        }
-
-	        return limpio;
+	public static String normalizar(String valor) {
+	    if (valor == null || valor.trim().isEmpty()) {
+	        return null;
 	    }
-	 }
+	    valor = valor.trim();
+
+	    // Si tiene guion, el último dígito se considera DV
+	    if (valor.contains("-")) {
+	        valor = valor.substring(0, valor.lastIndexOf('-'));
+	    }
+
+	    // Eliminar puntos, espacios y otros caracteres, pero ya sin el DV
+	    return valor.replaceAll("[^0-9]", "");
+	}
+}

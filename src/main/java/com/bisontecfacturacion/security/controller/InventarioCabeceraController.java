@@ -59,6 +59,8 @@ public class InventarioCabeceraController {
 	@Autowired
 	private ConceptoRepository conceptoRepository;
 
+	
+	
 	@Autowired
 	private ProductoCardexRepository compuestoRepository;
 
@@ -75,7 +77,6 @@ public class InventarioCabeceraController {
 		InventarioCabecera l = entityRepository.findTop1ByOrderByIdDesc();
 		InventarioCabecera li=new InventarioCabecera();
 		li.setId(l.getId());
-		li.setPeriodo(l.getPeriodo());
 		li.getFuncionarioA().getPersona().setNombre(l.getFuncionarioA().getPersona().getNombre());
 		li.getFuncionarioA().getPersona().setApellido(l.getFuncionarioA().getPersona().getApellido());
 		li.getFuncionarioR().getPersona().setNombre(l.getFuncionarioR().getPersona().getNombre());
@@ -90,8 +91,10 @@ public class InventarioCabeceraController {
 	public  ResponseEntity<?> guardar(@RequestBody InventarioCabecera entity){
 		if (entity.getFechaInicio() == null) {
 			return new ResponseEntity<>(new CustomerErrorType("La fecha no debe quedar vacio!"), HttpStatus.CONFLICT);
-		} else if (entity.getPeriodo().equals("")) {
-			return new ResponseEntity<>(new CustomerErrorType("El periodo no debe quedar vacio!"), HttpStatus.CONFLICT);
+		} else if (entity.getFuncionarioA().getId()<=0) {
+			return new ResponseEntity<>(new CustomerErrorType("Se debe seleccionar el funcionaro Auotrizado"), HttpStatus.CONFLICT);
+		} else if (entity.getFuncionarioR().getId()<=0) {
+			return new ResponseEntity<>(new CustomerErrorType("El funcionaro registro no debe quedar vacio"), HttpStatus.CONFLICT);
 		} else {
 			entityRepository.save(entity);
 		}
@@ -152,7 +155,6 @@ public class InventarioCabeceraController {
 		InventarioCabecera l = entityRepository.findById(id).get();
 		InventarioCabecera li=new InventarioCabecera();
 		li.setId(l.getId());
-		li.setPeriodo(l.getPeriodo());
 		li.getFuncionarioA().getPersona().setNombre(l.getFuncionarioA().getPersona().getNombre());
 		li.getFuncionarioA().getPersona().setApellido(l.getFuncionarioA().getPersona().getApellido());
 		li.setFechaInicio(l.getFechaInicio());
@@ -166,7 +168,6 @@ public class InventarioCabeceraController {
 		InventarioCabecera l = entityRepository.findById(id).get();
 		InventarioCabecera li=new InventarioCabecera();
 		li.setId(l.getId());
-		li.setPeriodo(l.getPeriodo());
 		li.getFuncionarioA().getPersona().setNombre(l.getFuncionarioA().getPersona().getNombre());
 		li.getFuncionarioA().getPersona().setApellido(l.getFuncionarioA().getPersona().getApellido());
 		li.getFuncionarioR().getPersona().setNombre(l.getFuncionarioR().getPersona().getNombre());
@@ -210,6 +211,7 @@ public class InventarioCabeceraController {
 			in.setExistencia(d.getExistencia());
 			in.setFecha(d.getFecha());
 			in.getProducto().setCodbar(d.getProducto().getCodbar());
+			in.getProducto().setCodoriginal(d.getProducto().getCodoriginal());
 			in.setHora(d.getHora());
 
 			listado.add(in);
@@ -236,11 +238,22 @@ public class InventarioCabeceraController {
 		for(InventarioDetalle ob: lis) {
 			totalCantidad += ob.getCantidad() * ob.getPrecioCosto();
 			totalExistencia += ob.getExistencia() * ob.getPrecioCosto();
+			
+			double diferencia = ob.getCantidad() - ob.getExistencia();
 
-			actualizarProductoBase(ob.getProducto().getId(), ob.getCantidad(), idCab, usuario.getFuncionario().getId());	
-
-			// productoRepository.findByActualizaE(ob.getCantidad(), ob.getProducto().getId());
-
+			if (diferencia > 0) {
+			actualizarProductoBaseAumentar(
+					ob.getProducto().getId(), 
+					diferencia, 
+					usuario.getFuncionario().getId(), 
+					idCab);
+			} else if (diferencia < 0) {
+			actualizarProductoBaseDescontar(
+					ob.getProducto().getId(), 
+					Math.abs(diferencia), 
+					usuario.getFuncionario().getId(), 
+					idCab);
+			}
 		}
 		totalDifere= totalCantidad - totalExistencia;
 		entity.setTotalCantidadCosto(totalCantidad);
@@ -252,253 +265,419 @@ public class InventarioCabeceraController {
 		entityRepository.save(entity);
 
 	}
-
-	public void actualizarProductoBase(int id , double cantidad, int idCab, int idFunc) {
+	
+	public void actualizarProductoBaseAumentar(int id , double cantidad,  int idfuncio, int idCab) {
 		ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
 		if(ca!=null) {
 			double existenciaBase=0.0;
 			existenciaBase= cantidad * ca.getCantidadAplicacion();
-			productoRepository.findByActualizaCantidadInventario(existenciaBase, ca.getProductoBase().getId());
-			Producto pro = productoRepository.getOne(ca.getProductoBase().getId());
-			MovimientoEntradaSalida movEnt = new MovimientoEntradaSalida();
-
-			movEnt.setDescripcion(pro.getDescripcion());
-			movEnt.setCantidad(existenciaBase);
-			movEnt.setFecha(new  Date());
-			movEnt.setHora(hora());
-
-			movEnt.setIngreso(0.0);
-			movEnt.setEgreso(0.0);
-			movEnt.setVentaSalida(0.0);
-
-			movEnt.setCostoEntrada(0.0);
-			movEnt.setCostoEntradaAnterior(0.0);
-			movEnt.setCostoSalida(pro.getPrecioCosto());
-
-			movEnt.setVenta_1(pro.getPrecioVenta_1());
-			movEnt.setVenta_2(pro.getPrecioVenta_2());
-			movEnt.setVenta_3(pro.getPrecioVenta_3());
-			movEnt.setVenta_4(pro.getPrecioVenta_4());
-
-			movEnt.setVenta_1_anterior(0.0);
-			movEnt.setVenta_2_anterior(0.0);
-			movEnt.setVenta_3_anterior(0.0);
-			movEnt.setVenta_4_anterior(0.0);
-
-			if(cantidad >= pro.getExistencia()) {
+			System.out.println("CANT. ACT. : "+existenciaBase);
+			productoRepository.findByActualizaA(existenciaBase, ca.getProductoBase().getId());
 				
-				movEnt.getTipoMovimiento().setId(1);
-			}else {
-				movEnt.getTipoMovimiento().setId(2);
-			}
-			movEnt.getProducto().setId(pro.getId());
-			movEnt.getFuncionario().setId(idFunc);
-			movEnt.setMarca(pro.getMarca().getDescripcion());
-			Concepto conce= new Concepto();
+			Producto p = productoRepository.getOne(ca.getProductoBase().getId());
+			MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
 
-			conce = conceptoRepository.findById(8).get();	
-			movEnt.getConcepto().setId(conce.getId());
-			movEnt.setReferencia(conce.getDescripcion()+" REF.: "+ idCab);
-			movEntradaSalidaRepository.save(movEnt);
+			mov.setDescripcion(p.getDescripcion());
+			mov.setCantidad(existenciaBase);
+			mov.setFecha(new  Date());
+			mov.setHora(hora());
+
+			mov.setIngreso(0.0);
+			mov.setEgreso(0.0);
+			mov.setVentaSalida(0.0);
+
+			mov.setCostoEntrada(p.getPrecioCosto());
+			mov.setCostoEntradaAnterior(0.0);
+			mov.setCostoSalida(p.getPrecioCosto());
+
+			mov.setVenta_1(p.getPrecioVenta_1());
+			mov.setVenta_2(p.getPrecioVenta_2());
+			mov.setVenta_3(p.getPrecioVenta_3());
+			mov.setVenta_4(p.getPrecioVenta_4());
+
+			mov.setVenta_1_anterior(0.0);
+			mov.setVenta_2_anterior(0.0);
+			mov.setVenta_3_anterior(0.0);
+			mov.setVenta_4_anterior(0.0);
+
+			mov.getTipoMovimiento().setId(1);
+			mov.getProducto().setId(p.getId());
+			mov.getFuncionario().setId(idfuncio);
+			mov.setMarca(p.getMarca().getDescripcion());
+			Concepto c= new Concepto();
+			c= conceptoRepository.findById(8).get();
+			mov.getConcepto().setId(c.getId());
+			mov.setReferencia(c.getDescripcion()+" REF.: "+ idCab);
+			movEntradaSalidaRepository.save(mov);
+			
 			List<ProductoCardex> list = compuestoRepository.getBase(ca.getProductoBase().getId());
 			for(ProductoCardex ob: list) {
-				Double existenciaActual=0.0;
-				existenciaActual=  (cantidad * ca.getCantidadAplicacion() )/ob.getCantidadAplicacion();
-				productoRepository.findByActualizaCantidadInventario(existenciaActual, ob.getProductoCompuesto().getId());// actualiza pro compuesto
+				System.out.println("compra - entro tiene compusto actuliza todas los compuesto por base relacionado :");
+				Double exi=0.0;
+				exi=  (cantidad * ca.getCantidadAplicacion() )/ob.getCantidadAplicacion();
 
+				productoRepository.findByActualizaA(exi, ob.getProductoCompuesto().getId());
+				
+				System.out.println("CANT. ACT. : "+exi);
+				
 				Producto pp = productoRepository.getOne(ob.getProductoCompuesto().getId());
-				MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
+				System.out.println("CANT DESPUES: "+pp.getExistencia());
+				MovimientoEntradaSalida movEntr = new MovimientoEntradaSalida();
+				//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+//				, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
+				System.out.println("compra - entro tiene compusto actuliza todas los compuesto por base relacionado : :"+exi+ " "+pp.getDescripcion());
+				movEntr.setDescripcion(pp.getDescripcion());
+				movEntr.setCantidad(exi);
+				movEntr.setFecha(new  Date());
+				movEntr.setHora(hora());
 
-				mov.setDescripcion(pp.getDescripcion());
-				mov.setCantidad(existenciaActual);
-				mov.setFecha(new  Date());
-				mov.setHora(hora());
+				movEntr.setIngreso(0.0);
+				movEntr.setEgreso(0.0);
+				movEntr.setVentaSalida(0.0);
 
-				mov.setIngreso(0.0);
-				mov.setEgreso(0.0);
-				mov.setVentaSalida(0.0);
+				movEntr.setCostoEntrada(pp.getPrecioCosto());
+				movEntr.setCostoEntradaAnterior(0.0);
+				movEntr.setCostoSalida(pp.getPrecioCosto());
 
-				mov.setCostoEntrada(0.0);
-				mov.setCostoEntradaAnterior(0.0);
-				mov.setCostoSalida(pp.getPrecioCosto());
+				movEntr.setVenta_1(pp.getPrecioVenta_1());
+				movEntr.setVenta_2(pp.getPrecioVenta_2());
+				movEntr.setVenta_3(pp.getPrecioVenta_3());
+				movEntr.setVenta_4(pp.getPrecioVenta_4());
 
-				mov.setVenta_1(pp.getPrecioVenta_1());
-				mov.setVenta_2(pp.getPrecioVenta_2());
-				mov.setVenta_3(pp.getPrecioVenta_3());
-				mov.setVenta_4(pp.getPrecioVenta_4());
+				movEntr.setVenta_1_anterior(0.0);
+				movEntr.setVenta_2_anterior(0.0);
+				movEntr.setVenta_3_anterior(0.0);
+				movEntr.setVenta_4_anterior(0.0);
 
-				mov.setVenta_1_anterior(0.0);
-				mov.setVenta_2_anterior(0.0);
-				mov.setVenta_3_anterior(0.0);
-				mov.setVenta_4_anterior(0.0);
+				movEntr.getTipoMovimiento().setId(1);
+				movEntr.getProducto().setId(pp.getId());
+				movEntr.getFuncionario().setId(idfuncio);
+				movEntr.setMarca(pp.getMarca().getDescripcion());
+				Concepto ccc= new Concepto();
+				ccc= conceptoRepository.findById(8).get();
+				movEntr.getConcepto().setId(ccc.getId());
 
-				if(cantidad >= pp.getExistencia()) {
-
-					mov.getTipoMovimiento().setId(1);
-				}else {
-					mov.getTipoMovimiento().setId(2);
-				}
-				mov.getProducto().setId(pp.getId());
-				mov.getFuncionario().setId(idFunc);
-				mov.setMarca(pp.getMarca().getDescripcion());
-				Concepto co= new Concepto();
-
-				co = conceptoRepository.findById(8).get();	
-				mov.getConcepto().setId(co.getId());
-
-				mov.setReferencia(co.getDescripcion()+" REF.: "+ idCab);
-				movEntradaSalidaRepository.save(mov);
-			} 
-		}else {
+				movEntr.setReferencia(ccc.getDescripcion()+" REF.: "+ idCab);
+				movEntradaSalidaRepository.save(movEntr);
+			}
+		} else {
 			System.out.println("entrooo else no tiene compusto el id: "+id);
 			ProductoCardex pBase = compuestoRepository.getProductoPorIdBase(id);
 			if(pBase != null) {
-
-				productoRepository.findByActualizaCantidadInventario(cantidad, id);
+				System.out.println("Producto relacio0nado con un base");
+				productoRepository.findByActualizaA(cantidad, id);
 				Producto pp = productoRepository.getOne(id);
-				MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
-
-				mov.setDescripcion(pp.getDescripcion());
-				mov.setCantidad(cantidad);
-				mov.setFecha(new  Date());
-				mov.setHora(hora());
-
-				mov.setIngreso(0.0);
-				mov.setEgreso(0.0);
-				mov.setVentaSalida(0.0);
-
-				mov.setCostoEntrada(0.0);
-				mov.setCostoEntradaAnterior(0.0);
-				mov.setCostoSalida(pp.getPrecioCosto());
-
-				mov.setVenta_1(pp.getPrecioVenta_1());
-				mov.setVenta_2(pp.getPrecioVenta_2());
-				mov.setVenta_3(pp.getPrecioVenta_3());
-				mov.setVenta_4(pp.getPrecioVenta_4());
-
-				mov.setVenta_1_anterior(0.0);
-				mov.setVenta_2_anterior(0.0);
-				mov.setVenta_3_anterior(0.0);
-				mov.setVenta_4_anterior(0.0);
-
-				if(cantidad >= pp.getExistencia()) {
-					mov.getTipoMovimiento().setId(1);
-				}else {
-					mov.getTipoMovimiento().setId(2);
-				}
-				mov.getProducto().setId(pp.getId());
-				mov.getFuncionario().setId(idFunc);
-				mov.setMarca(pp.getMarca().getDescripcion());
-				Concepto co= new Concepto();
-
-				co = conceptoRepository.findById(8).get();
-				mov.getConcepto().setId(co.getId());
-
-				mov.setReferencia(co.getDescripcion()+" REF.: "+ idCab);
-				movEntradaSalidaRepository.save(mov);
-
+				MovimientoEntradaSalida movEntr = new MovimientoEntradaSalida();
+				//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+//				, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
+				movEntr.setDescripcion(pp.getDescripcion());
+				movEntr.setCantidad(cantidad);
+				movEntr.setFecha(new  Date());
+				movEntr.setHora(hora());
+				movEntr.setVentaSalida(0.0);
+				movEntr.setEgreso(0.0);
+				movEntr.setVentaSalida(0.0);
+				movEntr.setCostoEntrada(pp.getPrecioCosto());
+				movEntr.setCostoEntradaAnterior(0.0);
+				movEntr.setCostoSalida(pp.getPrecioCosto());
+				movEntr.setVenta_1(pp.getPrecioVenta_1());
+				movEntr.setVenta_2(pp.getPrecioVenta_2());
+				movEntr.setVenta_3(pp.getPrecioVenta_3());
+				movEntr.setVenta_4(pp.getPrecioVenta_4());
+				movEntr.setVenta_1_anterior(0.0);
+				movEntr.setVenta_2_anterior(0.0);
+				movEntr.setVenta_3_anterior(0.0);
+				movEntr.setVenta_4_anterior(0.0);
+				movEntr.getTipoMovimiento().setId(1);
+				movEntr.getProducto().setId(pp.getId());
+				movEntr.getFuncionario().setId(idfuncio);
+				movEntr.setMarca(pp.getMarca().getDescripcion());
+				Concepto ccc= new Concepto();
+				ccc= conceptoRepository.findById(8).get();
+				movEntr.getConcepto().setId(ccc.getId());
+				movEntr.setReferencia(ccc.getDescripcion()+" REF.: "+ idCab);
+				movEntradaSalidaRepository.save(movEntr);
 				List<ProductoCardex> list = compuestoRepository.getBase(id);
 				for(ProductoCardex ob: list) {
 					Double existenciaActual=0.0;
 					existenciaActual= cantidad / ob.getCantidadAplicacion();
-					productoRepository.findByActualizaCantidadInventario(existenciaActual, ob.getProductoCompuesto().getId());// actualiza pro compuesto
-					Producto pro = productoRepository.getOne(ob.getProductoCompuesto().getId());
-					MovimientoEntradaSalida movEnt = new MovimientoEntradaSalida();
+					productoRepository.findByActualizaA(existenciaActual, ob.getProductoCompuesto().getId());
+					
+					Producto prod = productoRepository.getOne(ob.getProductoCompuesto().getId());
+					MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
+					//System.out.println(p.getDescripcion()+" costo: "+p.getPrecioCosto()+ " venta 1"+ p.getPrecioVenta_1()+" venta 1: "+p.getPrecioVenta_2()+ " marca: "+p.getMarca().getDescripcion());
+//					, double subtotal, double precio, int idFuncionario, String tipo, int idVenta
+					
+					mov.setDescripcion(prod.getDescripcion());
+					mov.setCantidad(existenciaActual);
+					mov.setFecha(new  Date());
+					mov.setHora(hora());
+					mov.setVentaSalida(0.0);
+					mov.setEgreso(0.0);
+					mov.setVentaSalida(0.0);
+					mov.setCostoEntrada(prod.getPrecioCosto());
+					mov.setCostoEntradaAnterior(0.0);
+					mov.setCostoSalida(prod.getPrecioCosto());
+					mov.setVenta_1(prod.getPrecioVenta_1());
+					mov.setVenta_2(prod.getPrecioVenta_2());
+					mov.setVenta_3(prod.getPrecioVenta_3());
+					mov.setVenta_4(prod.getPrecioVenta_4());
 
-					movEnt.setDescripcion(pro.getDescripcion());
-					movEnt.setCantidad(existenciaActual);
-					movEnt.setFecha(new  Date());
-					movEnt.setHora(hora());
+					mov.setVenta_1_anterior(0.0);
+					mov.setVenta_2_anterior(0.0);
+					mov.setVenta_3_anterior(0.0);
+					mov.setVenta_4_anterior(0.0);
 
-					movEnt.setIngreso(0.0);
-					movEnt.setEgreso(0.0);
-					movEnt.setVentaSalida(0.0);
+					mov.getTipoMovimiento().setId(1);
+					mov.getProducto().setId(prod.getId());
+					mov.getFuncionario().setId(idfuncio);
+					mov.setMarca(prod.getMarca().getDescripcion());
+					Concepto conn= new Concepto();
+					conn= conceptoRepository.findById(8).get();
+					mov.getConcepto().setId(conn.getId());
+					mov.setReferencia(conn.getDescripcion()+" REF.: "+ idCab);
+					movEntradaSalidaRepository.save(mov);				
+				}
+			}else {
+				System.out.println("Producto unitario");
+				productoRepository.findByActualizaA(cantidad, id);
+				Producto p = productoRepository.getOne(id);
+				MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
 
-					movEnt.setCostoEntrada(0.0);
-					movEnt.setCostoEntradaAnterior(0.0);
-					movEnt.setCostoSalida(pro.getPrecioCosto());
+				mov.setDescripcion(p.getDescripcion());
+				mov.setCantidad(cantidad);
+				mov.setFecha(new  Date());
+				mov.setHora(hora());
+				mov.setVentaSalida(0.0);
+				mov.setEgreso(0.0);
+				mov.setVentaSalida(0.0);
+				mov.setCostoEntrada(p.getPrecioCosto());
+				mov.setCostoEntradaAnterior(0.0);
+				mov.setCostoSalida(p.getPrecioCosto());
+				mov.setVenta_1(p.getPrecioVenta_1());
+				mov.setVenta_2(p.getPrecioVenta_2());
+				mov.setVenta_3(p.getPrecioVenta_3());
+				mov.setVenta_4(p.getPrecioVenta_4());
+				mov.setVenta_1_anterior(0.0);
+				mov.setVenta_2_anterior(0.0);
+				mov.setVenta_3_anterior(0.0);
+				mov.setVenta_4_anterior(0.0);
+				mov.getTipoMovimiento().setId(1);
+				mov.getProducto().setId(p.getId());
+				mov.getFuncionario().setId(idfuncio);
+				mov.setMarca(p.getMarca().getDescripcion());
+				Concepto conn= new Concepto();
+				conn= conceptoRepository.findById(8).get();
+				mov.getConcepto().setId(conn.getId());
+				mov.setReferencia(conn.getDescripcion()+" REF.: "+ idCab);
+				movEntradaSalidaRepository.save(mov);
+			}
+		}
+	}
+	
+	
+	public void actualizarProductoBaseDescontar(int id , double cantidad,  int idfuncio, int idCab) {
+		ProductoCardex ca = compuestoRepository.getProductoPorIdCompuesto(id);
+		if(ca!=null) {
+			System.out.println("tiene compuesto y actualiza base unica : ");
+			double cant=0.0;
+			cant= cantidad * ca.getCantidadAplicacion();
+			productoRepository.findByActualizaD(cant, ca.getProductoBase().getId());
+			Producto p = productoRepository.getOne(ca.getProductoBase().getId());
+			MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
+			mov.setDescripcion(p.getDescripcion());
+			mov.setCantidad(cant);
+			mov.setFecha(new  Date());
+			mov.setHora(hora());
+			mov.setVentaSalida(0.0);
+			mov.setEgreso(0.0);
+			mov.setVentaSalida(0.0);
+			mov.setCostoEntrada(p.getPrecioCosto());
+			mov.setCostoEntradaAnterior(0.0);
+			mov.setCostoSalida(p.getPrecioCosto());
+			mov.setVenta_1(p.getPrecioVenta_1());
+			mov.setVenta_2(p.getPrecioVenta_2());
+			mov.setVenta_3(p.getPrecioVenta_3());
+			mov.setVenta_4(p.getPrecioVenta_4());
+			mov.setVenta_1_anterior(0.0);
+			mov.setVenta_2_anterior(0.0);
+			mov.setVenta_3_anterior(0.0);
+			mov.setVenta_4_anterior(0.0);
 
-					movEnt.setVenta_1(pro.getPrecioVenta_1());
-					movEnt.setVenta_2(pro.getPrecioVenta_2());
-					movEnt.setVenta_3(pro.getPrecioVenta_3());
-					movEnt.setVenta_4(pro.getPrecioVenta_4());
+			mov.getTipoMovimiento().setId(2);
+			mov.getProducto().setId(p.getId());
+			mov.getFuncionario().setId(idfuncio);
+			mov.setMarca(p.getMarca().getDescripcion());
+			Concepto conn= new Concepto();
+			conn= conceptoRepository.findById(8).get();
+			mov.getConcepto().setId(conn.getId());
+			mov.setReferencia(conn.getDescripcion()+" REF.: "+ idCab);
+			movEntradaSalidaRepository.save(mov);
+			
+			//venta tipo, subtotl, precio, funcionario id, tipo, idVenta
+			List<ProductoCardex> list = compuestoRepository.getBase(ca.getProductoBase().getId());
+			for(ProductoCardex ob: list) {
+				System.out.println("tiene compuesto y actualiza compuesto varios : ");
+				Double existenciaActual=0.0;
+				existenciaActual=  (cantidad * ca.getCantidadAplicacion() )/ob.getCantidadAplicacion();
+				productoRepository.findByActualizaD(existenciaActual, ob.getProductoCompuesto().getId());// actualiza pro compuesto
+				Producto pro = productoRepository.getOne(ob.getProductoCompuesto().getId());
+				MovimientoEntradaSalida movv = new MovimientoEntradaSalida();
 
-					movEnt.setVenta_1_anterior(0.0);
-					movEnt.setVenta_2_anterior(0.0);
-					movEnt.setVenta_3_anterior(0.0);
-					movEnt.setVenta_4_anterior(0.0);
+				movv.setDescripcion(pro.getDescripcion());
+				movv.setCantidad(existenciaActual);
+				movv.setFecha(new  Date());
+				movv.setHora(hora());
+				movv.setVentaSalida(0.0);
+				movv.setEgreso(0.0);
+				movv.setVentaSalida(0.0);
 
-					if(cantidad >= pro.getExistencia()) {
+				movv.setCostoEntrada(pro.getPrecioCosto());
+				movv.setCostoEntradaAnterior(0.0);
+				movv.setCostoSalida(pro.getPrecioCosto());
 
-						movEnt.getTipoMovimiento().setId(1);
-					}else {
-						movEnt.getTipoMovimiento().setId(2);
-					}
-					movEnt.getProducto().setId(pro.getId());
-					movEnt.getFuncionario().setId(idFunc);
-					movEnt.setMarca(pro.getMarca().getDescripcion());
-					Concepto conce= new Concepto();
+				movv.setVenta_1(pro.getPrecioVenta_1());
+				movv.setVenta_2(pro.getPrecioVenta_2());
+				movv.setVenta_3(pro.getPrecioVenta_3());
+				movv.setVenta_4(pro.getPrecioVenta_4());
 
-					conce = conceptoRepository.findById(8).get();	
-					movEnt.getConcepto().setId(conce.getId());
-					movEnt.setReferencia(conce.getDescripcion()+" REF.: "+ idCab);
-					movEntradaSalidaRepository.save(movEnt);
+				movv.setVenta_1_anterior(0.0);
+				movv.setVenta_2_anterior(0.0);
+				movv.setVenta_3_anterior(0.0);
+				movv.setVenta_4_anterior(0.0);
 
+				movv.getTipoMovimiento().setId(2);
+				movv.getProducto().setId(pro.getId());
+				movv.getFuncionario().setId(idfuncio);
+				movv.setMarca(pro.getMarca().getDescripcion());
+				Concepto cn= new Concepto();
+				cn= conceptoRepository.findById(8).get();
+				movv.getConcepto().setId(cn.getId());
+
+				movv.setReferencia(cn.getDescripcion()+" REF.: "+ idCab);
+				
+				movEntradaSalidaRepository.save(movv);
+			}
+		}else {
+			System.out.println("venta - entrooo else no tiene compusto el id: "+id);
+			ProductoCardex pBase = compuestoRepository.getProductoPorIdBase(id);
+			if(pBase != null) {
+				System.out.println("venta - Producto relacio0nado con un base");
+				productoRepository.findByActualizaD(cantidad, id);
+				Producto pro = productoRepository.getOne(id);
+				MovimientoEntradaSalida movv = new MovimientoEntradaSalida();
+
+				movv.setDescripcion(pro.getDescripcion());
+				movv.setCantidad(cantidad);
+				movv.setFecha(new  Date());
+				movv.setHora(hora());
+				movv.setVentaSalida(0.0);
+				movv.setEgreso(0.0);
+				movv.setVentaSalida(0.0);
+				movv.setCostoEntrada(pro.getPrecioCosto());
+				movv.setCostoEntradaAnterior(0.0);
+				movv.setCostoSalida(pro.getPrecioCosto());
+				movv.setVenta_1(pro.getPrecioVenta_1());
+				movv.setVenta_2(pro.getPrecioVenta_2());
+				movv.setVenta_3(pro.getPrecioVenta_3());
+				movv.setVenta_4(pro.getPrecioVenta_4());
+				movv.setVenta_1_anterior(0.0);
+				movv.setVenta_2_anterior(0.0);
+				movv.setVenta_3_anterior(0.0);
+				movv.setVenta_4_anterior(0.0);
+				movv.getTipoMovimiento().setId(2);
+				movv.getProducto().setId(pro.getId());
+				movv.getFuncionario().setId(idfuncio);
+				movv.setMarca(pro.getMarca().getDescripcion());
+				Concepto cn= new Concepto();
+				cn= conceptoRepository.findById(8).get();
+				movv.getConcepto().setId(cn.getId());
+				movv.setReferencia(cn.getDescripcion()+" REF.: "+ idCab);
+			
+				movEntradaSalidaRepository.save(movv);
+	
+				List<ProductoCardex> list = compuestoRepository.getBase(id);
+				for(ProductoCardex ob: list) {
+					System.out.println("venta - producto base relacion");
+					Double existenciaActual=0.0;
+					existenciaActual= cantidad / ob.getCantidadAplicacion();
+					productoRepository.findByActualizaD(existenciaActual, ob.getProductoCompuesto().getId());// actualiza pro compuesto
+					Producto p = productoRepository.getOne(ob.getProductoCompuesto().getId());
+					MovimientoEntradaSalida mov = new MovimientoEntradaSalida();
+					mov.setDescripcion(p.getDescripcion());
+					mov.setCantidad(existenciaActual);
+					mov.setFecha(new  Date());
+					mov.setHora(hora());
+					mov.setVentaSalida(0.0);
+					mov.setEgreso(0.0);
+					mov.setVentaSalida(0.0);
+					mov.setCostoEntrada(p.getPrecioCosto());
+					mov.setCostoEntradaAnterior(0.0);
+					mov.setCostoSalida(p.getPrecioCosto());
+					mov.setVenta_1(p.getPrecioVenta_1());
+					mov.setVenta_2(p.getPrecioVenta_2());
+					mov.setVenta_3(p.getPrecioVenta_3());
+					mov.setVenta_4(p.getPrecioVenta_4());
+
+					mov.setVenta_1_anterior(0.0);
+					mov.setVenta_2_anterior(0.0);
+					mov.setVenta_3_anterior(0.0);
+					mov.setVenta_4_anterior(0.0);
+
+					mov.getTipoMovimiento().setId(2);
+					mov.getProducto().setId(p.getId());
+					mov.getFuncionario().setId(idfuncio);
+					mov.setMarca(p.getMarca().getDescripcion());
+					Concepto conn= new Concepto();
+					conn= conceptoRepository.findById(8).get();
+					mov.getConcepto().setId(conn.getId());
+					mov.setReferencia(conn.getDescripcion()+" REF.: "+ idCab);
+					movEntradaSalidaRepository.save(mov);
+					
 				}
 			}else {
 				System.out.println("venta - Producto unitario");
-				productoRepository.findByActualizaCantidadInventario(cantidad,id);// actualiza pro compuesto
+				productoRepository.findByActualizaD(cantidad, id);
 				Producto pro = productoRepository.getOne(id);
-				MovimientoEntradaSalida movEnt = new MovimientoEntradaSalida();
+				MovimientoEntradaSalida movv = new MovimientoEntradaSalida();
+				movv.setDescripcion(pro.getDescripcion());
+				movv.setCantidad(cantidad);
+				movv.setFecha(new  Date());
+				movv.setHora(hora());
+				movv.setVentaSalida(0.0);
+				movv.setEgreso(0.0);
+				movv.setVentaSalida(0.0);
+				movv.setCostoEntrada(pro.getPrecioCosto());
+				movv.setCostoEntradaAnterior(0.0);
+				movv.setCostoSalida(pro.getPrecioCosto());
+				movv.setVenta_1(pro.getPrecioVenta_1());
+				movv.setVenta_2(pro.getPrecioVenta_2());
+				movv.setVenta_3(pro.getPrecioVenta_3());
+				movv.setVenta_4(pro.getPrecioVenta_4());
+				movv.setVenta_1_anterior(0.0);
+				movv.setVenta_2_anterior(0.0);
+				movv.setVenta_3_anterior(0.0);
+				movv.setVenta_4_anterior(0.0);
+				movv.getTipoMovimiento().setId(2);
+				movv.getProducto().setId(pro.getId());
+				movv.getFuncionario().setId(idfuncio);
+				movv.setMarca(pro.getMarca().getDescripcion());
+				Concepto cn= new Concepto();
+				cn= conceptoRepository.findById(8).get();
+				movv.getConcepto().setId(cn.getId());
 
-				movEnt.setDescripcion(pro.getDescripcion());
-				movEnt.setCantidad(cantidad);
-				movEnt.setFecha(new  Date());
-				movEnt.setHora(hora());
-
-				movEnt.setIngreso(0.0);
-				movEnt.setEgreso(0.0);
-				movEnt.setVentaSalida(0.0);
-
-				movEnt.setCostoEntrada(0.0);
-				movEnt.setCostoEntradaAnterior(0.0);
-				movEnt.setCostoSalida(pro.getPrecioCosto());
-
-				movEnt.setVenta_1(pro.getPrecioVenta_1());
-				movEnt.setVenta_2(pro.getPrecioVenta_2());
-				movEnt.setVenta_3(pro.getPrecioVenta_3());
-				movEnt.setVenta_4(pro.getPrecioVenta_4());
-
-				movEnt.setVenta_1_anterior(0.0);
-				movEnt.setVenta_2_anterior(0.0);
-				movEnt.setVenta_3_anterior(0.0);
-				movEnt.setVenta_4_anterior(0.0);
-
-				movEnt.getTipoMovimiento().setId(2);
-				movEnt.getProducto().setId(pro.getId());
-				movEnt.getFuncionario().setId(idFunc);
-				if(cantidad >= pro.getExistencia()) {
-
-					movEnt.getTipoMovimiento().setId(1);
-				}else {
-					movEnt.getTipoMovimiento().setId(2);
-				}
-
-				movEnt.setMarca(pro.getMarca().getDescripcion());
-				Concepto conce= new Concepto();
-
-				conce = conceptoRepository.findById(8).get();	
-				movEnt.getConcepto().setId(conce.getId());
-
-				movEnt.setReferencia(conce.getDescripcion()+" REF.: "+ idCab);
-				movEntradaSalidaRepository.save(movEnt);
-
+				movv.setReferencia(cn.getDescripcion()+" REF.: "+ idCab);
+				
+				movEntradaSalidaRepository.save(movv);
 			}
-
+			
 		}
-
-
 	}
+
+	
+
+
+	
 
 
 }

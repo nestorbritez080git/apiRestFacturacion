@@ -53,6 +53,7 @@ public interface EmpaqueCabeceraRepository extends JpaRepository<EmpaqueCabecera
 			"        WHERE c.id = :id AND (ven.estado = 'PREVENTA' OR ven.estado = 'FACTURADO') " + 
 			"        ORDER BY ven.id ASC")
 	public EmpaqueCabecera getEmpaqueVenta(@Param("id") int id);
+	
 	@Query("SELECT DISTINCT c FROM EmpaqueCabecera c " +
 		       "LEFT JOIN FETCH c.empaqueDetalle det " +
 		       "LEFT JOIN FETCH det.presupuesto pre " +
@@ -73,7 +74,7 @@ public interface EmpaqueCabeceraRepository extends JpaRepository<EmpaqueCabecera
 		       "WHERE ven.id = :idVenta " +
 		       "AND (ven.estado = 'PREVENTA' OR ven.estado = 'FACTURADO') " +
 		       "ORDER BY ven.id ASC")
-		EmpaqueCabecera getEmpaquePorVentaCabecerass(@Param("idVenta") int idVenta);
+	EmpaqueCabecera getEmpaquePorVentaCabecerass(@Param("idVenta") int idVenta);
 	
 	
 	@Query("SELECT dvp.producto.id AS productoId, " +
@@ -118,7 +119,9 @@ public interface EmpaqueCabeceraRepository extends JpaRepository<EmpaqueCabecera
 		        + " SUM(COALESCE(oc.transferencia,0)) AS transferencia, "
 
 		        + " ec.total AS totalPedido, "
-		        + " ec.total_finalizado AS totalVenta "
+		        + " ec.total_finalizado AS totalVenta, "
+		        + " ec.total_anulado AS totalAnulado "
+
 
 		        + " FROM empaque_cabecera ec "
 

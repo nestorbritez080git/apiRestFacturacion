@@ -7,9 +7,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +35,14 @@ import javax.print.attribute.standard.OrientationRequested;
 import javax.print.attribute.standard.PrinterName;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import com.bisontecfacturacion.security.auxiliar.PrintResponse;
 
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
@@ -263,37 +273,217 @@ public class Reporte {
 
 
 
-	public void reportPDFImprimirA4(List<?> lista, Map<String, Object> map, String nombreReporte, String tipo, int paginaWhdth, int paginaHeigth) throws JRException {
-		try {
+	public void reportPDFImprimirA4(
+			List<?> lista, 
+			Map<String, 
+			Object> map, 
+			String nombreReporte, 
+			String tipo, 
+			int paginaWhdth, 
+			int paginaHeigth) throws JRException {	try {
 			InputStream jasperStream = this.getClass().getResourceAsStream("/reporte/"+nombreReporte + ".jrxml");
 			JasperDesign design = JRXmlLoader.load(jasperStream);
-			//			design.setPageWidth(paginaWhdth);  // 80mm ≈ 226 puntos
-			//			design.setPageHeight(paginaHeigth);  // 80mm ≈ 226 puntos
-
-			int pageWidth = design.getPageWidth();   // en puntos
+					int pageWidth = design.getPageWidth();   // en puntos
 			int pageHeight = design.getPageHeight(); // en puntos
-
 			double widthMM = pageWidth * 25.4 / 72;
 			double heightMM = pageHeight * 25.4 / 72;
-
 			System.out.printf("Ancho en mm: %.2f mm\n", widthMM);
 			System.out.printf("Alto en mm: %.2f mm\n", heightMM);
-
 			JasperReport report = JasperCompileManager.compileReport(design);
 			JRDataSource jRDataSource = new JRBeanCollectionDataSource(lista);
 			JasperPrint jasperPrint = JasperFillManager.fillReport(report, map, jRDataSource);
-
 			//retrocederHojaEpsonLX350(tipo, 100); // retrocede 10 mm aprox.
 			retrocederHojaEpsonLX350(tipo, 0); // Solo reset Top of Form
 			PrintReportToPrinterA4(jasperPrint, tipo);
-
 		} catch (JRException e) {
 			System.out.println("tidak bisa membaca file jrml : "+e.getMessage());
 			e.printStackTrace();
 		}
 	}
+	
+	public void reportPDFImprimirA4ServicioLocalPC(
+	        List<?> lista,
+	        Map<String, Object> map,
+	        String nombreReporte,
+	        String ipTerminal,
+	        String nombreImpresora,
+	        int paginaWidth,
+	        int paginaHeight) throws JRException {
+
+	    try {
+
+	        System.out.println("==============================================");
+	        System.out.println("GENERANDO REPORTE PARA SERVICIO LOCAL");
+	        System.out.println("Reporte: " + nombreReporte);
+	        System.out.println("IP Terminal: " + ipTerminal);
+	        System.out.println("Impresora: " + nombreImpresora);
+	        System.out.println("==============================================");
+	        // =====================================================
+	        // 1. CARGAR JRXML
+	        // =====================================================
+	        InputStream jasperStream =  this.getClass().getResourceAsStream( "/reporte/"+ nombreReporte + ".jrxml" );
+	        if (jasperStream == null) {
+	            throw new JRException("No se encontró el reporte: "  + nombreReporte + ".jrxml"
+	            );
+	        }
+	        // =====================================================
+	        // 2. CARGAR DISEÑO
+	        // =====================================================
+	        JasperDesign design = JRXmlLoader.load(jasperStream);
+	        // =====================================================
+	        // 3. MEDIDAS DEL REPORTE
+	        // =====================================================
+	        int pageWidth =
+	                design.getPageWidth();
+
+	        int pageHeight =
+	                design.getPageHeight();
 
 
+	        double widthMM =
+	                pageWidth * 25.4 / 72;
+
+	        double heightMM =
+	                pageHeight * 25.4 / 72;
+	              // =====================================================
+	        // 4. COMPILAR REPORTE
+	        // =====================================================
+	        JasperReport report =JasperCompileManager.compileReport(design);
+	        // =====================================================
+	        // 5. DATASOURCE
+	        // =====================================================
+	        JRDataSource dataSource =  new JRBeanCollectionDataSource(lista);
+	        // =====================================================
+	        // 6. GENERAR JASPERPRINT
+	        // =====================================================
+	        JasperPrint jasperPrint =JasperFillManager.fillReport(report, map, dataSource);
+
+	        enviarJasperAlServicioLocal(jasperPrint, ipTerminal, nombreImpresora);
+
+
+	        System.out.println(
+	                "===== REPORTE ENVIADO AL SERVICIO LOCAL ====="
+	        );
+
+
+	    } catch (JRException e) {
+
+	        System.err.println(
+	                "Error generando reporte Jasper:"
+	        );
+
+	        e.printStackTrace();
+
+	        throw e;
+
+
+	    } catch (Exception e) {
+
+	        System.err.println(
+	                "Error enviando reporte al ServicioLocal:"
+	        );
+
+	        e.printStackTrace();
+
+	        throw new JRException(e);
+	    }
+	}
+	
+	private void enviarJasperAlServicioLocal(
+	        JasperPrint jasperPrint,
+	        String ipTerminal,
+	        String nombreImpresora) throws Exception {
+
+	    System.out.println(
+	            "=============================================="
+	    );
+
+	    System.out.println(
+	            "ENVIANDO JASPERPRINT AL SERVICIO LOCAL"
+	    );
+
+	    System.out.println(
+	            "IP Terminal: "
+	                    + ipTerminal
+	    );
+
+	    System.out.println(
+	            "Impresora: "
+	                    + nombreImpresora
+	    );
+
+
+	    // =====================================================
+	    // 1. SERIALIZAR JASPERPRINT
+	    // =====================================================
+
+	    ByteArrayOutputStream byteArrayOutputStream =
+	            new ByteArrayOutputStream();
+
+	    ObjectOutputStream objectOutputStream =
+	            new ObjectOutputStream(
+	                    byteArrayOutputStream
+	            );
+
+
+	    objectOutputStream.writeObject(
+	            jasperPrint
+	    );
+
+	    objectOutputStream.flush();
+
+	    objectOutputStream.close();
+
+
+	    // =====================================================
+	    // 2. CONVERTIR A BASE64
+	    // =====================================================
+
+	    byte[] bytes =
+	            byteArrayOutputStream.toByteArray();
+
+
+	    String jasperPrintBase64 =
+	            Base64.getEncoder()
+	                    .encodeToString(bytes);
+
+
+	    System.out.println(
+	            "JasperPrint serializado: "
+	                    + bytes.length
+	                    + " bytes"
+	    );
+	    // =====================================================
+	    // 3. CREAR JSON
+	    // =====================================================
+	    Map<String, Object> request = new HashMap<>();
+	    request.put("printer", nombreImpresora );
+	    request.put( "pdfBase64",  jasperPrintBase64);
+	    // =====================================================
+	    // 4. URL SERVICIO LOCAL
+	    // =====================================================
+	    String url = "http://" + ipTerminal + ":8090/servicioImpresion/impresora/impresion/jasper";
+	    System.out.println("URL ServicioLocal: " + url);
+	    // =====================================================
+	    // 5. HTTP CLIENT
+	    // =====================================================
+	    RestTemplate restTemplate =  new RestTemplate();
+	    HttpHeaders headers =  new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON );
+	    HttpEntity<Map<String, Object>> entity =  new HttpEntity<>(request, headers);
+	    ResponseEntity<Map> response =restTemplate.postForEntity(url, request,Map.class);
+	    // =====================================================
+	    // 7. VALIDAR RESPUESTA
+	    // =====================================================
+	    System.out.println("HTTP STATUS: "+response.getStatusCode());
+	    if (response.getBody() != null) {
+	        System.out.println("RESPUESTA SERVICIO LOCAL: "+ response.getBody());
+	    }
+	    if (!response.getStatusCode().is2xxSuccessful()) {
+	        throw new Exception("El ServicioLocal respondió: " + response.getStatusCode());
+	    }
+	    System.out.println("===== JASPERPRINT ENVIADO =====");
+	}
 	public void PrintReportToPrinterA4(JasperPrint jasperPrint, String tipo) throws JRException {
 		//Consigue los nombres de las impresoras.
 		PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
@@ -305,7 +495,6 @@ public class Reporte {
 			//			System.out.println(" impres" + services[i]);
 			//			
 		}
-
 		//String selectedPrinter = "\\\\S-BPPRINT\\HP Color LaserJet 4700"; //examlpe to network shared printer
 		System.out.println("Number of print services: " + services.length);
 		PrintService selectedService = null;

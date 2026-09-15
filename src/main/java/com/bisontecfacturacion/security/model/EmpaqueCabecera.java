@@ -41,6 +41,7 @@ public class EmpaqueCabecera {
 	private Double total;
 	private Double totalFinalizado;
 	private Integer itemsVenta;
+	private Double totalAnulado;
 
 	@NotNull
 	private String totalLetras;
@@ -66,6 +67,19 @@ public class EmpaqueCabecera {
 		this.totalDevolucion=0.0;
 		this.itemsPedido=0;
 		this.itemsVenta=0;
+		this.totalAnulado=0.0;
+	}
+
+
+
+	public Double getTotalAnulado() {
+		return totalAnulado;
+	}
+
+
+
+	public void setTotalAnulado(Double totalAnulado) {
+		this.totalAnulado = totalAnulado;
 	}
 
 

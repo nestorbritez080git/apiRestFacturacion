@@ -29,8 +29,6 @@ public class InventarioCabecera {
 	private Double totalCantidadCosto;
 	private Double totalExistenciaCosto;
 	private Double totalDiferenciaCosto;
-	@Column(length = 100, nullable = true)
-	private String periodo;
 	private int itemCantidad;
 	private Boolean estado;
 	@ManyToOne
@@ -55,7 +53,6 @@ public class InventarioCabecera {
 		this.funcionarioR = new Funcionario();
 		this.funcionarioA = new Funcionario();
 		this.tipoInventario = new TipoInventario();
-		this.periodo = "";
 		this.estado=false;
 	}
 
@@ -115,13 +112,7 @@ public class InventarioCabecera {
 		this.totalDiferenciaCosto = totalDiferenciaCosto;
 	}
 
-	public String getPeriodo() {
-		return periodo;
-	}
-
-	public void setPeriodo(String periodo) {
-		this.periodo = periodo;
-	}
+	
 
 	public int getItemCantidad() {
 		return itemCantidad;

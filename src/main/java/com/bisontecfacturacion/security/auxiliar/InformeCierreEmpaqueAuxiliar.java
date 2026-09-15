@@ -17,6 +17,7 @@ public class InformeCierreEmpaqueAuxiliar {
 	private Integer itemVenta;
 	private Double totalVenta;
 	private Double totalDevolucion;
+	private Double totalAnulado;
 	
 	private Double ventaContado;
 	private Double ventaCredito;
@@ -114,5 +115,12 @@ public class InformeCierreEmpaqueAuxiliar {
 	public void setFechaEntrega(Date fechaEntrega) {
 		this.fechaEntrega = fechaEntrega;
 	}
+	public Double getTotalAnulado() {
+		return totalAnulado;
+	}
+	public void setTotalAnulado(Double totalAnulado) {
+		this.totalAnulado = totalAnulado;
+	}
+	
 	
 }

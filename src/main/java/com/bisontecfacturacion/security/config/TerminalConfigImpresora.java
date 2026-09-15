@@ -1,10 +1,14 @@
 package com.bisontecfacturacion.security.config;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -30,9 +34,20 @@ public class TerminalConfigImpresora {
 	private Boolean estadoAdicionArtVarios;
 	private Boolean estadoEdicionZona;
 	private Boolean estadoListadoGrigImagen;
-		
+	private String nombreImpresoraBarcode;
+	private String isCentralizadoImpresion;
 	@ManyToOne
 	private AutoImpresor autoImpresor;
+	
+	private String ip;
+
+	private String nombreEquipo;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date ultimaConexion;
+	
+	
+	
 	public TerminalConfigImpresora() {
 		// TODO Auto-generated constructor stub
 		this.id=0;
@@ -44,8 +59,75 @@ public class TerminalConfigImpresora {
 		this.estadoEdicionZona= false;
 		this.autoImpresor = new AutoImpresor();
 		this.estadoListadoGrigImagen=false;
+		this.nombreImpresoraBarcode="";
+		this.ip = "";
+		this.nombreEquipo="";
+		this.ultimaConexion= new Date();
+		this.isCentralizadoImpresion="";
 	}
 	
+	
+	
+	public String getIsCentralizadoImpresion() {
+		return isCentralizadoImpresion;
+	}
+
+
+
+	public void setIsCentralizadoImpresion(String isCentralizadoImpresion) {
+		this.isCentralizadoImpresion = isCentralizadoImpresion;
+	}
+
+
+
+	public String getIp() {
+		return ip;
+	}
+
+
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+
+
+	public String getNombreEquipo() {
+		return nombreEquipo;
+	}
+
+
+
+	public void setNombreEquipo(String nombreEquipo) {
+		this.nombreEquipo = nombreEquipo;
+	}
+
+
+
+	public Date getUltimaConexion() {
+		return ultimaConexion;
+	}
+
+
+
+	public void setUltimaConexion(Date ultimaConexion) {
+		this.ultimaConexion = ultimaConexion;
+	}
+
+
+
+	public String getNombreImpresoraBarcode() {
+		return nombreImpresoraBarcode;
+	}
+
+
+
+	public void setNombreImpresoraBarcode(String nombreImpresoraBarcode) {
+		this.nombreImpresoraBarcode = nombreImpresoraBarcode;
+	}
+
+
+
 	public AutoImpresor getAutoImpresor() {
 		return autoImpresor;
 	}

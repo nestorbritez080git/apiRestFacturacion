@@ -450,7 +450,7 @@ public class DevoluconVentaController {
 	            Double resto = cuentaReferencia.getTotalDevolucion();
 	            cuentaCobrarRepository.findByActualizarTotalDevolucionCuenta(cuentaReferencia.getId(), cuentaReferencia.getTotalDevolucion());
 
-	            List<CuentaCobrarDetalle> dets = cuentaCobrarDetalleRepository.getCuentaCobrarDetalle(cuentaReferencia.getId());
+	            List<CuentaCobrarDetalle> dets = cuentaCobrarDetalleRepository.getCuentaCobrarDetalles(cuentaReferencia.getId());
 	            for (CuentaCobrarDetalle detalle : dets) {
 	                if (resto <= 0) break;
 

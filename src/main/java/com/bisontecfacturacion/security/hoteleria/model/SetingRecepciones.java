@@ -18,6 +18,7 @@ public class SetingRecepciones {
 	private Boolean estadoSumaManualEstadia;
 	private LocalTime horaFinalizacionDiaria;
 	private LocalDate fechaUltimaActualizacion;
+	private LocalDate fechaUltimaActualizacionMora;
 	
 	// Getters y setters
     public int getId() {
@@ -51,4 +52,13 @@ public class SetingRecepciones {
     public void setHoraFinalizacionDiaria(LocalTime horaFinalizacionDiaria) {
         this.horaFinalizacionDiaria = horaFinalizacionDiaria;
     }
+
+	public LocalDate getFechaUltimaActualizacionMora() {
+		return fechaUltimaActualizacionMora;
+	}
+
+	public void setFechaUltimaActualizacionMora(LocalDate fechaUltimaActualizacionMora) {
+		this.fechaUltimaActualizacionMora = fechaUltimaActualizacionMora;
+	}
+    
 }

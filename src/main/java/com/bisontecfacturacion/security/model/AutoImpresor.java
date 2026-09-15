@@ -48,6 +48,9 @@ public class AutoImpresor {
 	@NotNull
 	private int numeroActual;
 	
+	
+	private Integer terminalAsignado;
+	
 	@NotNull
 	private boolean estado;
 	private String ruc;
@@ -71,8 +74,26 @@ public class AutoImpresor {
 		this.selloDigital="";
 		this.autoImpresorTipoRemision= new AutoImpresorTipoRemision();
 		this.autoImpresorDetalleVentas = new ArrayList<AutoImpresorDetalleVenta>();
+		this.terminalAsignado = 0;
 	}
 	
+	
+	
+
+	public Integer getTerminalAsignado() {
+		return terminalAsignado;
+	}
+
+
+
+
+	public void setTerminalAsignado(Integer terminalAsignado) {
+		this.terminalAsignado = terminalAsignado;
+	}
+
+
+
+
 	public List<AutoImpresorDetalleVenta> getAutoImpresorDetalleVentas() {
 		return autoImpresorDetalleVentas;
 	}

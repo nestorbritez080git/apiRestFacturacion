@@ -79,6 +79,11 @@ public interface OperacionCajaRepository extends JpaRepository<OperacionCaja, Se
     	    "ORDER BY ac.fecha, ac.hora", nativeQuery = true)
     	List<Object[]> getResumenHistoricoAperturaCaja(@Param("fecha_inicio") LocalDateTime fecha_inicio, @Param("fecha_fin") LocalDateTime fecha_fin);
 
+    	
+    	@Query("SELECT o FROM OperacionCaja o " +
+    		       "WHERE o.operacionCajaCabecera.id = :idCabecera " +
+    		       "ORDER BY o.id ASC")
+      List<OperacionCaja> getOperacionesPorCabecera( @Param("idCabecera") Integer idCabecera);
 //	select op.id as id, op.fecha as fecha, op.monto as monto, op.motivo as motivo, op.tipo as tipo, top.descripcion as tipooperacion, top.id as tipoId, con.id as idConceptos, pc.nombre as nom, pc.apellido as apeC from cobros_cliente c inner join operacion_caja op on c.operacion_caja=op.id inner join funcionario fc on fc.id=c.funcionario_id inner join persona pc on pc.id=fc.persona_id inner join tipo_operacion top on op.tipo_operacion_id=top.id inner join concepto con on con.id = op.concepto_id inner join apertura_caja ap on op.apertura_caja_id= ap.id where ap.id=?
 }
 

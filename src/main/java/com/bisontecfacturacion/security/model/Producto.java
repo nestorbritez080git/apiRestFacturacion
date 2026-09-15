@@ -42,6 +42,10 @@ public class Producto {
 	private Boolean isBalanza;
 	private double volumen;
 	private String nombreImagen;
+	private String nombreImagen2;
+	private String nombreImagen3;
+	private String nombreImagen4;
+
 	
 	private Boolean estadoCompuesto;
 	
@@ -65,11 +69,9 @@ public class Producto {
 	@JsonBackReference
 	private List<AjusteInventario> ajusteInventario;
 	
-	
-	
-	
 	public Producto() {
 		this.codbar ="";
+		this.aplicacion="";
 		this.id=0;
 		this.existencia=0.0;
 		this.stock_minimo=0.0;
@@ -92,7 +94,33 @@ public class Producto {
 		this.fabricante="";
 		this.estadoCompuesto=true;
 		this.nombreImagen = "";
-	
+		this.nombreImagen2 = "";
+		this.nombreImagen3 = "";
+		this.nombreImagen4 = "";
+	}
+
+	public String getNombreImagen2() {
+		return nombreImagen2;
+	}
+
+	public void setNombreImagen2(String nombreImagen2) {
+		this.nombreImagen2 = nombreImagen2;
+	}
+
+	public String getNombreImagen3() {
+		return nombreImagen3;
+	}
+
+	public void setNombreImagen3(String nombreImagen3) {
+		this.nombreImagen3 = nombreImagen3;
+	}
+
+	public String getNombreImagen4() {
+		return nombreImagen4;
+	}
+
+	public void setNombreImagen4(String nombreImagen4) {
+		this.nombreImagen4 = nombreImagen4;
 	}
 
 	public Double getStockPresupuesto() {

@@ -4,12 +4,28 @@ public class CobrosTicketDTO {
 	 private Integer  idCuenta;
 	 private Integer idVenta;
 	    private Double total;
+	    private Double totalInteres;
 	    private Double pagado;
+	    private Double importe;
 	    private Double saldo;
 	    private String nroDocumento;
 	    private String tipoDocumento;
 	    private String tipoPago;
 	    private Double montoCobrado;
+	    
+	    
+		public Double getImporte() {
+			return importe;
+		}
+		public void setImporte(Double importe) {
+			this.importe = importe;
+		}
+		public Double getTotalInteres() {
+			return totalInteres;
+		}
+		public void setTotalInteres(Double totalInteres) {
+			this.totalInteres = totalInteres;
+		}
 		public Integer getIdCuenta() {
 			return idCuenta;
 		}

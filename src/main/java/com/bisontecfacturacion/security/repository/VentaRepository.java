@@ -257,7 +257,7 @@ public List<Object []> getResumenEntregaInicialVentaCredito(@Param("fecha_inicio
 
 
 
-@Query(value="select * from venta v inner join funcionario f on v.funcionariov_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where  cp.nombre ilike :filtro OR   cp.apellido ilike :filtro OR   cp.cedula like :filtro order by v.id desc limit 100",nativeQuery=true)
+@Query(value="select * from venta v inner join funcionario f on v.funcionariov_id=f.id inner join persona pf on f.persona_id=pf.id inner join cliente cl on v.cliente_id=cl.id inner join persona cp on cl.persona_id=cp.id where  cp.nombre ilike :filtro OR   cp.apellido ilike :filtro OR   cp.cedula like :filtro OR   v.nro_documento like :filtro order by v.id desc limit 100",nativeQuery=true)
 	List<Venta> getVentaAllFiltroCliente(@Param("filtro") String filtro);
 
 @Query(value = "SELECT pf.nombre AS nomb, pf.apellido AS ape, SUM(v.total) AS total FROM venta v INNER JOIN funcionario f ON v.funcionariov_id = f.id INNER JOIN persona pf ON  pf.id=f.persona_id WHERE v.estado = 'FACTURADO'   AND CAST(v.fecha_factura AS DATE) = CAST(:fecha AS DATE) GROUP BY pf.nombre, pf.apellido ORDER BY pf.nombre  ", nativeQuery = true)

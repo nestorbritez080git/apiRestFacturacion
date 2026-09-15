@@ -342,7 +342,14 @@ public class ProductoController {
 			productos.getSubGrupo().setId(ob.getSubGrupo().getId());
 			productos.setStockPresupuesto(ob.getStockPresupuesto());
 			productos.setNombreImagen(ob.getNombreImagen());
+			productos.setNombreImagen2(ob.getNombreImagen2());
+			productos.setNombreImagen3(ob.getNombreImagen3());
+			productos.setNombreImagen4(ob.getNombreImagen4());
+
 			productos.setAplicacion(ob.getAplicacion());
+			productos.getDeposito().setId(ob.getDeposito().getId());
+			productos.getProveedor().setId(ob.getProveedor().getId());
+			
 			producto.add(productos);
 		}
 
@@ -367,6 +374,10 @@ public class ProductoController {
 		producto.setPrecioCosto(pro.getPrecioCosto());
 		producto.getMarca().setDescripcion(pro.getMarca().getDescripcion());
 		producto.setNombreImagen(pro.getNombreImagen());
+		producto.setNombreImagen2(pro.getNombreImagen2());
+		producto.setNombreImagen3(pro.getNombreImagen3());
+		producto.setNombreImagen4(pro.getNombreImagen4());
+
 		producto.setFechaVencimiento(pro.getFechaVencimiento());
 		producto.setStockPresupuesto(pro.getStockPresupuesto());
 		producto.setCodoriginal(pro.getCodoriginal());
@@ -412,7 +423,7 @@ public class ProductoController {
 			fileName.append(".jpeg");
 		} else
 		if("image/gif".equals(type)) {
-			fileName.append(".git");
+			fileName.append(".gif");
 		} else {
 			nombreEntity.setId(504);
 			nombreEntity.setDescripcion("Elige un tipo de imagen valido...");
@@ -444,7 +455,6 @@ public class ProductoController {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
 		return nombreEntity;
 	}
 
@@ -1290,10 +1300,7 @@ public class ProductoController {
 		ob[2]= pro.getPrecioVenta_3();
 		ob[3]= pro.getPrecioVenta_4();
 		return ob;
-
 	}
-
-
 	@RequestMapping(method=RequestMethod.GET, value="/utilidadPrecio")
 	public UtilidadPrecio getUtilidadPrecio() {
 		UtilidadPrecio utilidad=utilidadPrecioRepository.findById(1).get();
@@ -1324,7 +1331,6 @@ public class ProductoController {
 			entityRepository.findByActualizarBalanza(true, en.getId());			
 		}
 	}
-
 	@RequestMapping(method=RequestMethod.GET, value="/proveedorId/{descripcion}/{idProveedor}")
 	public List<Producto> getProductoIdProveedor(@PathVariable String descripcion, @PathVariable int idProveedor){
 		if (descripcion.equals("9999999999")) {

@@ -1147,7 +1147,10 @@ public class CompraController {
 			det.getProducto().getDeposito().setDescripcion(d[15].toString());
 			det.getProducto().setExistencia(Double.parseDouble(d[16].toString()));
 			det.getProducto().setStockPresupuesto(Double.parseDouble(d[17].toString()));
-
+			det.getProducto().setNombreImagen(d[18].toString());
+			det.getProducto().setNombreImagen2(d[19].toString());
+			det.getProducto().setNombreImagen3(d[20].toString());
+			det.getProducto().setNombreImagen4(d[21].toString());
 			listaRetorno.add(det);
 		}
 		return listaRetorno;

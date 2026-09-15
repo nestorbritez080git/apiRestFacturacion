@@ -69,6 +69,9 @@
 	<field name="fechaEntrega" class="java.util.Date">
 		<fieldDescription><![CDATA[fechaEntrega]]></fieldDescription>
 	</field>
+	<field name="totalAnulado" class="java.lang.Double">
+		<fieldDescription><![CDATA[totalAnulado]]></fieldDescription>
+	</field>
 	<title>
 		<band height="90">
 			<textField>
@@ -510,7 +513,7 @@
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="6" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Devolución:]]></text>
+				<text><![CDATA[Total devolución:]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="420" y="24" width="66" height="9" uuid="9c0381f8-09c7-445e-8d36-2c2ddc8a3d54">
@@ -520,7 +523,7 @@
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="6" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Saldo:]]></text>
+				<text><![CDATA[Total anulado:]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="488" y="24" width="87" height="9" uuid="4860a909-b9fe-4d0c-aee3-bd7766b04a56">
@@ -529,7 +532,26 @@
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font size="6"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($F{totalVenta}-$F{totalDevolucion} )]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($F{totalAnulado} )]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="420" y="33" width="66" height="9" uuid="269618eb-b187-4c2f-9d28-5ac1b046216c">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Saldo:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="488" y="33" width="87" height="9" uuid="b1e3c9ac-806b-4f4e-af93-2a26ffb1f408">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($F{totalVenta}-$F{totalDevolucion})]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>

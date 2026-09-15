@@ -28,12 +28,14 @@ public interface AutoImpresorRepository extends JpaRepository<AutoImpresor, Seri
 		       "WHERE a.id = :idAuto " +
 		       "AND v.fecha BETWEEN :fechaInicio AND :fechaFin " +
 		       "ORDER BY a.id DESC")
-		List<AutoImpresor> consultarRemisionesFacturaRangoFecha(
+	List<AutoImpresor> consultarRemisionesFacturaRangoFecha(
 		        @Param("idAuto") int idAuto,
 		        @Param("fechaInicio") Date fechaInicio,
 		        @Param("fechaFin") Date fechaFin);	 
 	 
-	 @Query("SELECT c FROM AutoImpresor c INNER JOIN c.autoImpresorTipoRemision tipo WHERE c.id= :id")
+	 
+	 
+	 @Query("SELECT c FROM AutoImpresor c JOIN FETCH c.autoImpresorTipoRemision tipo WHERE c.id= :id")
 	 public AutoImpresor getAutoImpresorPorId(@Param("id") int id);
 	
 	 @Modifying

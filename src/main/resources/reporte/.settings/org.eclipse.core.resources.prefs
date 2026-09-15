@@ -1,4 +1,8 @@
 eclipse.preferences.version=1
 encoding/InformeTotalVentaResumidoProductoPorZona.jrxml=UTF-8
+encoding/ReporteCierreEmpaque.jrxml=UTF-8
 encoding/ReporteCuentaProveedorGeneral.jrxml=UTF-8
+encoding/ReporteEmpaqueDetalleResumenPdf.jrxml=UTF-8
+encoding/ReporteVentaFlorengMultimarca.jrxml=UTF-8
+encoding/ReporteVentaPdf.jrxml=UTF-8
 encoding/ReporteVentaRangoPorZona.jrxml=UTF-8

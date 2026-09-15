@@ -23,6 +23,13 @@ public interface OperacionCajaCabeceraRepository extends JpaRepository<Operacion
 		       "LEFT JOIN FETCH o.concepto " +
 		       "WHERE c.id = :id")
 	OperacionCajaCabecera consultarOperacionCajaCabeceraPorId(@Param("id") Integer id);
+	
+	
+	@Query("SELECT c FROM OperacionCajaCabecera c " +
+		       "WHERE c.referenciaOperacion = :idCobro " +
+		       "AND c.concepto.id = 5")
+		OperacionCajaCabecera getOperacionCabeceraPorReferenciaCobrosCliente(
+		        @Param("idCobro") Integer idCobro);
 //	select op.id as id, op.fecha as fecha, op.monto as monto, op.motivo as motivo, op.tipo as tipo, top.descripcion as tipooperacion, top.id as tipoId, con.id as idConceptos, pc.nombre as nom, pc.apellido as apeC from cobros_cliente c inner join operacion_caja op on c.operacion_caja=op.id inner join funcionario fc on fc.id=c.funcionario_id inner join persona pc on pc.id=fc.persona_id inner join tipo_operacion top on op.tipo_operacion_id=top.id inner join concepto con on con.id = op.concepto_id inner join apertura_caja ap on op.apertura_caja_id= ap.id where ap.id=?
 }
 
